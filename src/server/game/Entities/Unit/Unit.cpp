@@ -3823,7 +3823,11 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
+<<<<<<< HEAD
 Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, int32 castItemLevel /*= -1*/)
+=======
+Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool resetPeriodicTimer /*= true*/)
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 {
     ASSERT(casterGUID || caster);
     if (!casterGUID)
@@ -3874,6 +3878,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
             }
 
             // try to increase stack amount
+<<<<<<< HEAD
             if (foundAura->GetId() != 980)
                 foundAura->ModStackAmount(1);
 
@@ -3884,6 +3889,9 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
                 foundAura->RefreshTimers();
             }
 
+=======
+            foundAura->ModStackAmount(1, AURA_REMOVE_BY_DEFAULT, resetPeriodicTimer);
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
             return foundAura;
         }
     }
@@ -4427,8 +4435,12 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit*
                 if (aura->IsSingleTarget())
                     aura->UnregisterSingleTarget();
 
+<<<<<<< HEAD
                 Aura* newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellInfo(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
                 if (newAura != nullptr)
+=======
+                if (Aura* newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellInfo(), effMask, stealer, nullptr, &baseDamage[0], nullptr, aura->GetCasterGUID()))
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
                 {
                     // created aura must not be single target aura,, so stealer won't loose it on recast
                     if (newAura->IsSingleTarget())

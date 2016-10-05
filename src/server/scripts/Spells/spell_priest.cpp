@@ -4227,6 +4227,7 @@ class spell_pri_glyph_of_the_inquisitor : public SpellScriptLoader
 
             enum eSpells
             {
+<<<<<<< HEAD
                 GlyphOfTheInquisitor = 159624,
                 GlyphOfTheInquisitorDamage = 159625
             };
@@ -4242,6 +4243,18 @@ class spell_pri_glyph_of_the_inquisitor : public SpellScriptLoader
                 {
                     int32 l_Damage = CalculatePct(GetHitDamage(), l_GlyphOfTheInquisitor->GetAmount());
                     l_Caster->CastCustomSpell(l_Caster, eSpells::GlyphOfTheInquisitorDamage, &l_Damage, NULL, NULL, true);
+=======
+                Unit* caster = GetCaster();
+                // Refresh Shadow Word: Pain on target
+                if (Unit* target = GetHitUnit())
+                {
+                    if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, caster->GetGUID()))
+                    {
+                        aur->SetBonusAmount(caster->SpellDamageBonusDone(target, aur->GetSpellInfo(), 0, DOT));
+                        aur->CalculatePeriodic(caster, false, false);
+                        aur->GetBase()->RefreshDuration();
+                    }
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
                 }
             }
 

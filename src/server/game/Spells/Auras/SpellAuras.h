@@ -77,6 +77,7 @@ class AuraApplication
 
 class Aura
 {
+<<<<<<< HEAD
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID, int32 castItemLevel);
     public:
         typedef std::map<uint64, AuraApplication *> ApplicationMap;
@@ -87,6 +88,18 @@ class Aura
         static Aura* Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID, int32 castItemLevel);
         explicit Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, uint64 casterGUID, int32 castItemLevel);
         void _InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
+=======
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer);
+    public:
+        typedef std::map<ObjectGuid, AuraApplication*> ApplicationMap;
+
+        static uint8 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 availableEffectMask, WorldObject* owner);
+        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, uint8 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = nullptr, bool resetPeriodicTimer = true);
+        static Aura* TryCreate(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty);
+        static Aura* Create(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID);
+        explicit Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID);
+        void _InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount);
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
         virtual ~Aura();
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
@@ -130,8 +143,13 @@ class Aura
         void SetDuration(int32 duration, bool withMods = false);
         void SetAuraTimer(int32 newTime, uint64 guid = 0);
         void RefreshDuration(bool withMods = false);
+<<<<<<< HEAD
         void RefreshTimers();
         bool IsExpired() const { return !GetDuration();}
+=======
+        void RefreshTimers(bool resetPeriodicTimer);
+        bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
         bool IsPermanent() const { return GetMaxDuration() == -1; }
 
         uint8 GetCharges() const { return m_procCharges; }
@@ -144,8 +162,12 @@ class Aura
 
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
+<<<<<<< HEAD
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         bool DropStack(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) { return ModStackAmount(-1, removeMode); }
+=======
+        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 
         void RefreshSpellMods();
 

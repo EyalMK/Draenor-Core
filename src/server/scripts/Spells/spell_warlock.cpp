@@ -499,12 +499,25 @@ class spell_warl_soulburn_seed_of_corruption: public SpellScriptLoader
 
             void HandleOnHit()
             {
+<<<<<<< HEAD
                 if (Unit* caster = GetCaster())
                 {
                     caster->CastSpell(caster, WARLOCK_SEED_OF_CORRUPTION_DUMMY, true);
 
                     if (caster->HasAura(WARLOCK_SOULBURN_AURA))
                         caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
+=======
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    // Refresh corruption on target
+                    if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, caster->GetGUID()))
+                    {
+                        aur->SetBonusAmount(caster->SpellDamageBonusDone(target, aur->GetSpellInfo(), 0, DOT));
+                        aur->CalculatePeriodic(caster, false, false);
+                        aur->GetBase()->RefreshDuration(true);
+                    }
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
                 }
             }
 

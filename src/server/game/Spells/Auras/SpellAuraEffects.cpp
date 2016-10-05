@@ -675,7 +675,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     float DoneActualBenefit = 0.0f;
 
+<<<<<<< HEAD
     bool l_IsCrowControlAura = false;
+=======
+void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
+{
+    m_amplitude = m_spellInfo->Effects[m_effIndex].Amplitude;
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 
     switch (GetAuraType())
     {
@@ -706,7 +712,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     if (GetSpellInfo()->AuraInterruptFlags & SpellAuraInterruptFlags::AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT)
         l_IsCrowControlAura = true;
 
+<<<<<<< HEAD
     if (l_IsCrowControlAura)
+=======
+    Player* modOwner = caster ? caster->GetSpellModOwner() : nullptr;
+    // Apply casting time mods
+    if (m_amplitude)
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
     {
         m_canBeRecalculated = false;
         bool l_CustomAmount = false;
@@ -718,6 +730,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             l_CustomAmount = true;
         }
 
+<<<<<<< HEAD
         // Custom entries
         switch (GetSpellInfo()->Id)
         {
@@ -747,6 +760,22 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         }
 
         if (!l_CustomAmount && m_spellInfo->ProcFlags)
+=======
+    if (load) // aura loaded from db
+    {
+        m_tickNumber = m_amplitude ? GetBase()->GetDuration() / m_amplitude : 0;
+        m_periodicTimer = m_amplitude ? GetBase()->GetDuration() % m_amplitude : 0;
+        if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+            ++m_tickNumber;
+    }
+    else // aura just created or reapplied
+    {
+        m_tickNumber = 0;
+
+        // reset periodic timer on aura create or reapply
+        // we don't reset periodic timers when aura is triggered by proc
+        if (resetPeriodicTimer)
+>>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
         {
             m_CrowdControlDamage = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
         }
