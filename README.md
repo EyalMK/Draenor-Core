@@ -5,5 +5,5 @@ Project Hellscream™ is a 6.2.4a project based off TrinityCore 6.04TDB/6.2.4a i
 
 
 
-All Rights to https://hellscream.org Only.
-*Copyright (C) 2018-2020 Hellscream-Core 6.2.4a
+All Rights https://hellscream.org -
+*Copyright (C) 2018-2020 Project Hellscream 6.2.4a
