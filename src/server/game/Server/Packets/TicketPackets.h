@@ -19,6 +19,7 @@
 #define TicketPackets_h__
 
 #include "Packet.h"
+#include "LFGPacketsCommon.h"
 #include "LFGPackets.h"
 #include <G3D/Vector3.h>
 

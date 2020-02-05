@@ -93,8 +93,14 @@ enum GroupType
     GROUPTYPE_LFG_RESTRICTED        = 0x04, // Script_HasLFGRestrictions()
     GROUPTYPE_LFG                   = 0x08,
     GROUPTYPE_EVERYONE_ASSISTANT    = 0x40, // Script_IsEveryoneAssistant() (4.x)
-    // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
     // GROUPTYPE_ONE_PERSON_PARTY   = 0x20, 4.x Script_IsOnePersonParty()
+};
+
+enum GroupFlags
+{
+    GROUP_FLAG_DESTROYED            = 0x010,
+    GROUP_FLAG_ONE_PERSON_PARTY     = 0x020,
+    GROUP_FLAG_GUILD_GROUP          = 0x100
 };
 
 enum GroupUpdateFlags
@@ -327,6 +333,7 @@ class TC_GAME_API Group
         void SendTargetIconList(WorldSession* session, int8 partyIndex = 0);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
+        void SendUpdateDestroyGroupToPlayer(Player* player) const;
         void UpdatePlayerOutOfRange(Player* player);
 
         template<class Worker>
@@ -399,6 +406,7 @@ class TC_GAME_API Group
         ObjectGuid          m_leaderGuid;
         std::string         m_leaderName;
         GroupType           m_groupType;
+        GroupFlags          m_groupFlags;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         Difficulty          m_legacyRaidDifficulty;

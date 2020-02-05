@@ -26,6 +26,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "AddonMgr.h"
+#include "LFGMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
 #include "Packet.h"
@@ -374,6 +375,18 @@ namespace WorldPackets
         class UpgradeItem;
         class SocketGems;
         struct ItemInstance;
+    }
+
+    namespace LFG
+    {
+        class DFJoin;
+        class DFLeave;
+        class DFProposalResponse;
+        class DFSetRoles;
+        class DFBootPlayerVote;
+        class DFTeleport;
+        class DFGetSystemInfo;
+        class DFGetJoinStatus;
     }
 
     namespace Loot
@@ -1570,18 +1583,18 @@ class TC_GAME_API WorldSession
 
         // Looking for Dungeon/Raid
         void HandleLfgSetCommentOpcode(WorldPacket& recvData);
-        void HandleDFGetSystemInfo(WorldPacket& recvData);
+        void HandleDFGetSystemInfo(WorldPackets::LFG::DFGetSystemInfo& packet);
         void SendLfgPlayerLockInfo();
         void SendLfgPartyLockInfo();
-        void HandleLfgJoinOpcode(WorldPacket& recvData);
-        void HandleLfgLeaveOpcode(WorldPacket& recvData);
-        void HandleLfgSetRolesOpcode(WorldPacket& recvData);
-        void HandleLfgProposalResultOpcode(WorldPacket& recvData);
-        void HandleLfgSetBootVoteOpcode(WorldPacket& recvData);
-        void HandleLfgTeleportOpcode(WorldPacket& recvData);
+        void HandleLfgJoinOpcode(WorldPackets::LFG::DFJoin& dfJoin);
+        void HandleLfgLeaveOpcode(WorldPackets::LFG::DFLeave& dfLeave);
+        void HandleLfgSetRolesOpcode(WorldPackets::LFG::DFSetRoles& recvData);
+        void HandleLfgProposalResultOpcode(WorldPackets::LFG::DFProposalResponse& dfProposalResponse);
+        void HandleLfgSetBootVoteOpcode(WorldPackets::LFG::DFBootPlayerVote& dfBootPlayerVote);
+        void HandleLfgTeleportOpcode(WorldPackets::LFG::DFTeleport& recvData);
         void HandleLfrJoinOpcode(WorldPacket& recvData);
         void HandleLfrLeaveOpcode(WorldPacket& recvData);
-        void HandleDFGetJoinStatus(WorldPacket& recvData);
+        void HandleDFGetJoinStatus(WorldPackets::LFG::DFGetJoinStatus& recvData);
 
         void SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, bool party);
         void SendLfgRoleChosen(ObjectGuid guid, uint8 roles);
@@ -1594,7 +1607,7 @@ class TC_GAME_API WorldSession
         void SendLfgUpdateProposal(lfg::LfgProposal const& proposal);
         void SendLfgDisabled();
         void SendLfgOfferContinue(uint32 dungeonEntry);
-        void SendLfgTeleportError(uint8 err);
+        void SendLfgTeleportError(lfg::LfgTeleportError error);
 
         void HandleSelfResOpcode(WorldPackets::Spells::SelfRes& packet);
         void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& packet);

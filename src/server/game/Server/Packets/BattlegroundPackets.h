@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "LFGPackets.h"
+#include "LFGPacketsCommon.h"
 #include "PacketUtilities.h"
 #include "Packet.h"
 
