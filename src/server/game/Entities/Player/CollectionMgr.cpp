@@ -181,7 +181,7 @@ void CollectionMgr::UpgradeHeirloom(uint32 itemId, uint32 castItem)
 
     // Get heirloom offset to update only one part of dynamic field
     std::vector<uint32> const& fields = player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
-    uint8 offset = std::find(fields.begin(), fields.end(), itemId) - fields.begin();
+    uint16 offset = uint16(std::find(fields.begin(), fields.end(), itemId) - fields.begin());
 
     player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, offset, flags);
     itr->second.flags = flags;
@@ -221,7 +221,7 @@ void CollectionMgr::CheckHeirloomUpgrades(Item* item)
         if (newItemId)
         {
             std::vector<uint32> const& fields = player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
-            uint8 offset = std::find(fields.begin(), fields.end(), itr->first) - fields.begin();
+            uint16 offset = uint16(std::find(fields.begin(), fields.end(), itr->first) - fields.begin());
 
             player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, offset, newItemId);
             player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, offset, 0);
