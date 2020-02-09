@@ -6906,17 +6906,11 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
             }
             else
             {
-                // delaying had just started, record the moment
-                m_Spell->SetDelayStart(e_time);
-                // handle effects on caster if the spell has travel time but also affects the caster in some way
-                if (!m_Spell->m_targets.HasDst())
-                {
-                    uint64 n_offset = m_Spell->handle_delayed(0);
-                    ASSERT(n_offset == m_Spell->GetDelayMoment());
-                }
-                // re-plan the event for the delay moment
-                m_Spell->GetCaster()->m_Events.AddEvent(this, e_time + m_Spell->GetDelayMoment(), false);
-                return false;                               // event not complete
+				// delaying had just started, record the moment
+				m_Spell->SetDelayStart(e_time);
+				// re-plan the event for the delay moment
+				m_Spell->GetCaster()->m_Events.AddEvent(this, e_time + m_Spell->GetDelayMoment(), false);
+				return false;                               // event not complete
             }
             break;
         }
