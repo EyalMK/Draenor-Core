@@ -11203,6 +11203,32 @@ int32 Unit::GetCreatePowers(Powers power) const
     return 0;
 }
 
+int32 Unit::GetPowerCoeff(Powers power) const
+{
+	switch (power)
+	{
+	case POWER_MANA:
+	case POWER_HOLY_POWER:
+	case POWER_CHI:
+	case POWER_ENERGY:
+	case POWER_FOCUS:
+	case POWER_SHADOW_ORBS:
+	case POWER_DEMONIC_FURY:
+		return 1;
+	case POWER_RAGE:
+	case POWER_RUNIC_POWER:
+	case POWER_BURNING_EMBERS:
+		return 10;
+	case POWER_SOUL_SHARDS:
+	case POWER_ECLIPSE: ///< Max is 100, but can be up to 10.000 in SMSG_UPDATE_OBJECT
+		return 100;
+	default:
+		break;
+	}
+
+	return 1;
+}
+
 void Unit::AddToWorld()
 {
     if (!IsInWorld())

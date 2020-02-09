@@ -1453,6 +1453,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
         int32 GetMaxPower(Powers power) const;
+		int32 GetPowerCoeff(Powers power) const;
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
         void SetPower(Powers power, int32 val);
