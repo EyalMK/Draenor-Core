@@ -637,7 +637,7 @@ void Loot::NotifyItemRemoved(uint8 lootIndex)
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootItemRemoved(player->GetLootGUID(), GetGUID(), lootIndex);
+            player->SendNotifyLootItemRemoved(GetGUID(), lootIndex);
         else
             PlayersLooting.erase(i);
     }
@@ -684,7 +684,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
                         break;
 
                 if (j < pql.size())
-                    player->SendNotifyLootItemRemoved(player->GetLootGUID(), GetGUID(), items.size()+j);
+                    player->SendNotifyLootItemRemoved(GetGUID(), items.size()+j);
             }
         }
         else
@@ -1894,4 +1894,31 @@ void LoadLootTables()
     LoadLootTemplates_Spell();
 
     LoadLootTemplates_Reference();
+}
+
+
+void AELootResult::Add(Item* item, uint8 count, LootType lootType)
+{
+    auto itr = _byItem.find(item);
+    if (itr != _byItem.end())
+        _byOrder[itr->second].count += count;
+    else
+    {
+        _byItem[item] = _byOrder.size();
+        ResultValue value;
+        value.item = item;
+        value.count = count;
+        value.lootType = lootType;
+        _byOrder.push_back(value);
+    }
+}
+
+AELootResult::OrderedStorage::const_iterator AELootResult::begin() const
+{
+    return _byOrder.begin();
+}
+
+AELootResult::OrderedStorage::const_iterator AELootResult::end() const
+{
+    return _byOrder.end();
 }
