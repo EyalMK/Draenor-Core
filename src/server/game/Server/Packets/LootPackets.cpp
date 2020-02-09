@@ -24,8 +24,8 @@ void WorldPackets::Loot::LootUnit::Read()
 
 WorldPacket const* WorldPackets::Loot::LootResponse::Write()
 {
-    _worldPacket << LootObj;
     _worldPacket << Owner;
+    _worldPacket << LootObj;
     _worldPacket << FailureReason;
     _worldPacket << AcquireReason;
     _worldPacket << LootMethod;
@@ -112,6 +112,13 @@ void WorldPackets::Loot::LootRoll::Read()
     _worldPacket >> LootObj;
     _worldPacket >> LootListID;
     _worldPacket >> RollType;
+}
+
+WorldPacket const* WorldPackets::Loot::AELootTargets::Write()
+{
+    _worldPacket << uint32(Count);
+
+    return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Loot::LootReleaseResponse::Write()

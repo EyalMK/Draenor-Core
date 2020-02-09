@@ -60,6 +60,7 @@ enum LfgUpdateType
     LFG_UPDATETYPE_DUNGEON_FINISHED              = 25,
     LFG_UPDATETYPE_PARTY_ROLE_NOT_AVAILABLE      = 43,
     LFG_UPDATETYPE_JOIN_LFG_OBJECT_FAILED        = 45,
+    LFG_UPDATETYPE_ERROR                         = 46
 };
 
 enum LfgState
@@ -97,6 +98,13 @@ enum LfgAnswer
     LFG_ANSWER_PENDING                           = -1,
     LFG_ANSWER_DENY                              = 0,
     LFG_ANSWER_AGREE                             = 1
+};
+
+enum LfgQueueType
+{
+    LFG_QUEUE_DUNGEON   = 1,
+    LFG_QUEUE_LFR       = 2,
+    LFG_QUEUE_SCENARIO  = 3
 };
 
 struct TC_GAME_API LfgLockInfoData
