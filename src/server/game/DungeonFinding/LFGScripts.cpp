@@ -51,7 +51,10 @@ void LFGPlayerScript::OnLogout(Player* player)
 void LFGPlayerScript::OnLogin(Player* player, bool /*loginFirst*/)
 {
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
+    {
+        player->GetSession()->SendLfgDisabled();
         return;
+    }
 
     // Temporal: Trying to determine when group data and LFG data gets desynched
     ObjectGuid guid = player->GetGUID();
@@ -121,9 +124,17 @@ void LFGGroupScript::OnAddMember(Group* group, ObjectGuid guid)
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
+    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS);
+    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        if (Player* plrg = itr->GetSource())
+        {
+            plrg->GetSession()->SendLfgUpdateStatus(updateData, true);
+        }
+    }
+
     ObjectGuid gguid = group->GetGUID();
     ObjectGuid leader = group->GetLeaderGUID();
-
     if (leader == guid)
     {
         TC_LOG_DEBUG("lfg", "LFGScripts::OnAddMember [%s]: added [%s] leader [%s]", gguid.ToString().c_str(), guid.ToString().c_str(), leader.ToString().c_str());
@@ -222,6 +233,11 @@ void LFGGroupScript::OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, Obje
         gguid.ToString().c_str(), newLeaderGuid.ToString().c_str(), oldLeaderGuid.ToString().c_str());
 
     sLFGMgr->SetLeader(gguid, newLeaderGuid);
+
+    // RemoveMember fires before new leader is set, so make sure this is sent to the right player.
+    if (group->isLFGGroup() && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON) // Need more players to finish the dungeon
+        if (Player* leader = ObjectAccessor::FindConnectedPlayer(sLFGMgr->GetLeader(gguid)))
+            leader->GetSession()->SendLfgOfferContinue(sLFGMgr->GetDungeon(gguid, false));
 }
 
 void LFGGroupScript::OnInviteMember(Group* group, ObjectGuid guid)

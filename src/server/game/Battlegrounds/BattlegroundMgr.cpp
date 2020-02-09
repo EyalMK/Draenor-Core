@@ -154,7 +154,7 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
 {
     header->Ticket.RequesterGuid = player->GetGUID();
     header->Ticket.Id = ticketId;
-    header->Ticket.Type = bg->isArena() ? arenaType : 1;
+    header->Ticket.Type = bg->isArena() ? static_cast<WorldPackets::LFG::RideType>(arenaType) : WorldPackets::LFG::RideType::Battlegrounds;
     header->Ticket.Time = joinTime;
     header->QueueID = bg->GetQueueId();
     header->RangeMin = bg->GetMinLevel();
@@ -169,7 +169,7 @@ void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::Ba
 {
     battlefieldStatus->Ticket.RequesterGuid = player->GetGUID();
     battlefieldStatus->Ticket.Id = ticketId;
-    battlefieldStatus->Ticket.Type = arenaType;
+    battlefieldStatus->Ticket.Type = static_cast<WorldPackets::LFG::RideType>(arenaType);
     battlefieldStatus->Ticket.Time = joinTime;
 }
 
@@ -205,7 +205,7 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
 {
     battlefieldStatus->Ticket.RequesterGuid = pPlayer->GetGUID();
     battlefieldStatus->Ticket.Id = ticketId;
-    battlefieldStatus->Ticket.Type = arenaType;
+    battlefieldStatus->Ticket.Type = static_cast<WorldPackets::LFG::RideType>(arenaType);
     battlefieldStatus->Ticket.Time = pPlayer->GetBattlegroundQueueJoinTime(BGQueueTypeId(bg->GetTypeID(), arenaType));
     battlefieldStatus->QueueID = bg->GetQueueId();
     battlefieldStatus->Reason = result;

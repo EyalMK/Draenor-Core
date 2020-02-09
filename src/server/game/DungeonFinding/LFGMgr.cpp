@@ -570,10 +570,11 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
             SetSelectedDungeons(guid, dungeons);
         }
         // Send update to player
-        player->GetSession()->SendLfgJoinResult(joinData);
-        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment), false);
-        SetState(gguid, LFG_STATE_QUEUED);
         SetRoles(guid, roles);
+        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE_INITIAL, dungeons, comment), false);
+        player->GetSession()->SendLfgJoinResult(joinData);
+        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, comment), false);
+        SetState(gguid, LFG_STATE_QUEUED);
         debugNames.append(player->GetName());
     }
 
@@ -600,7 +601,6 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
             if (!gguid.IsEmpty())
             {
                 LFGQueue& queue = GetQueue(gguid);
-                queue.RemoveFromQueue(gguid);
                 SetState(gguid, LFG_STATE_NONE);
                 GuidSet const& players = GetPlayers(gguid);
                 for (GuidSet::const_iterator it = players.begin(); it != players.end(); ++it)
@@ -608,13 +608,14 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
                     SetState(*it, LFG_STATE_NONE);
                     SendLfgUpdateStatus(*it, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE), true);
                 }
+                queue.RemoveFromQueue(gguid);
             }
             else
             {
                 LFGQueue& queue = GetQueue(guid);
-                queue.RemoveFromQueue(guid);
-                SendLfgUpdateStatus(guid, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE), false);
                 SetState(guid, LFG_STATE_NONE);
+                SendLfgUpdateStatus(guid, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE), false);
+                queue.RemoveFromQueue(guid);
             }
             break;
         case LFG_STATE_ROLECHECK:
@@ -1266,7 +1267,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
     {
         TC_LOG_DEBUG("lfg.teleport", "Player %s not in group/lfggroup or dungeon not found!",
             player->GetName().c_str());
-        player->GetSession()->SendLfgTeleportError(uint8(LFG_TELEPORTERROR_INVALID_LOCATION));
+        player->GetSession()->SendLfgTeleportError(LFG_TELEPORTERROR_INVALID_LOCATION);
         return;
     }
 
@@ -1336,7 +1337,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         error = LFG_TELEPORTERROR_INVALID_LOCATION;
 
     if (error != LFG_TELEPORTERROR_OK)
-        player->GetSession()->SendLfgTeleportError(uint8(error));
+        player->GetSession()->SendLfgTeleportError(error);
 
     TC_LOG_DEBUG("lfg.teleport", "Player %s is being teleported in to map %u "
         "(x: %f, y: %f, z: %f) Result: %u", player->GetName().c_str(), dungeon->map,
