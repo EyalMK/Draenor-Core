@@ -67,6 +67,7 @@ enum WarriorSpells
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
+	WARRIOR_SPELL_DOUBLE_TIME_MARKER				= 124184,
 };
 
 enum WarriorSpellIcons
@@ -124,46 +125,112 @@ class spell_warr_bloodthirst : public SpellScriptLoader
         }
 };
 
-/// Updated 4.3.4
+enum ChargeSpells
+{
+	SPELL_WARR_WARBRINGER_STUN = 7922,
+	SPELL_WARR_GLYPH_OF_BULL_RUSH = 94372,
+	SPELL_WARR_FIRE_VISUAL = 96840,
+	SPELL_WARR_GLYPH_OF_THE_BLAZING_TRAIL = 123779,
+	SPELL_WARR_DOUBLE_TIME = 103827,
+	SPELL_WARR_WARBRINGER = 103828,
+	SPELL_WARR_CHARGE_ROOT = 105771,
+	SPELL_WARR_DOUBLE_TIME_MARKER = 124184,
+	SPELL_WOD_PVP_FURY_2P = 165639,
+	SPELL_WOD_PVP_FURY_2P_EFFECT = 165640,
+	SPELL_WOD_PVP_ARMS_2P = 165636,
+	SPELL_WOD_PVP_ARMS_2P_EFFECT = 165638,
+	SPELL_WOD_PVP_PROT_2P = 165641,
+	SPELL_WOD_PVP_PROT_2P_EFFECT = 165642
+};
+
+/// Charge - 100
 class spell_warr_charge : public SpellScriptLoader
 {
-    public:
-        spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
+public:
+	spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
 
-        class spell_warr_charge_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_charge_SpellScript);
+	class spell_warr_charge_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_warr_charge_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_CHARGE))
-                    return false;
-                return true;
-            }
+		bool m_HasAuraDoubleTimeMarker = false;
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                int32 chargeBasePoints0 = GetEffectValue();
-                Unit* caster = GetCaster();
-                caster->CastCustomSpell(caster, SPELL_WARRIOR_CHARGE, &chargeBasePoints0, NULL, NULL, true);
+		void HandleOnCast()
+		{
+			if (Unit* l_Caster = GetCaster())
+			{
+				if (l_Caster->HasAura(WARRIOR_SPELL_DOUBLE_TIME_MARKER))
+					m_HasAuraDoubleTimeMarker = true;
 
-                // Juggernaut crit bonus
-                if (caster->HasAura(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT))
-                    caster->CastSpell(caster, SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF, true);
-            }
+				/// Warrior WoD PvP 2P bonuses
+				if (l_Caster->getLevel() == 100)
+				{
+					switch (l_Caster->ToPlayer()->GetSpecId(l_Caster->ToPlayer()->GetActiveTalentGroup()))
+					{
+					case TALENT_SPEC_WARRIOR_FURY:
+					{
+						if (l_Caster->HasAura(SPELL_WOD_PVP_FURY_2P))
+							l_Caster->CastSpell(l_Caster, SPELL_WOD_PVP_FURY_2P_EFFECT, true);
+						break;
+					}
+					case TALENT_SPEC_WARRIOR_ARMS:
+					{
+						if (l_Caster->HasAura(SPELL_WOD_PVP_ARMS_2P))
+							l_Caster->CastSpell(l_Caster, SPELL_WOD_PVP_ARMS_2P_EFFECT, true);
+						break;
+					}
+					case TALENT_SPEC_WARRIOR_PROTECTION:
+					{
+						if (l_Caster->HasAura(SPELL_WOD_PVP_PROT_2P))
+							l_Caster->CastSpell(l_Caster, SPELL_WOD_PVP_PROT_2P_EFFECT, true);
+						break;
+					}
+					default:
+						break;
+					}
+				}
+			}
+		}
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
-        };
+		void HandleCharge(SpellEffIndex /*effIndex*/)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetHitUnit();
 
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_charge_SpellScript();
-        }
+			if (l_Target == nullptr || l_Caster == nullptr)
+				return;
+
+			l_Caster->CastSpell(l_Target, l_Caster->HasAura(SPELL_WARR_WARBRINGER) ? SPELL_WARR_WARBRINGER_STUN : SPELL_WARR_CHARGE_ROOT, true);
+
+			// Glyph of Blazing Trail
+			if (l_Caster->HasAura(SPELL_WARR_GLYPH_OF_THE_BLAZING_TRAIL))
+				l_Caster->CastSpell(l_Caster, SPELL_WARR_FIRE_VISUAL, true);
+		}
+
+		void HandleRageGain(SpellEffIndex /*effIndex*/)
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster != nullptr && !m_HasAuraDoubleTimeMarker)
+			{
+				int32 l_RageGain = GetEffectValue() / l_Caster->GetPowerCoeff(POWER_RAGE);
+
+				l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, l_RageGain * l_Caster->GetPowerCoeff(POWER_RAGE), POWER_RAGE);
+			}
+		}
+
+		void Register()
+		{
+			OnCast += SpellCastFn(spell_warr_charge_SpellScript::HandleOnCast);
+			OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+			OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleRageGain, EFFECT_1, SPELL_EFFECT_DUMMY);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_warr_charge_SpellScript;
+	}
 };
 
 /// Updated 4.3.4
