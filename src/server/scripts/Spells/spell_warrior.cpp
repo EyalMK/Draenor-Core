@@ -401,6 +401,44 @@ class spell_warr_lambs_to_the_slaughter : public SpellScriptLoader
         }
 };
 
+/// Shield Barrier 174926 - Shield Barrier 112048
+class spell_warr_shield_barrier : public SpellScriptLoader
+{
+public:
+	spell_warr_shield_barrier() : SpellScriptLoader("spell_warr_shield_barrier") { }
+
+	class spell_warr_shield_barrier_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_warr_shield_barrier_AuraScript);
+
+		void CalculateAmount(AuraEffect const* /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+		{
+			if (Unit* l_Caster = GetCaster())
+			{
+				int8 l_RagetoUse = l_Caster->GetPower(POWER_RAGE) / l_Caster->GetPowerCoeff(POWER_RAGE);
+
+				if (l_RagetoUse > 40)
+					l_RagetoUse = 40;
+
+				p_Amount = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BASE_ATTACK) * 1.4;
+				p_Amount += (p_Amount / 20) * l_RagetoUse;
+
+				l_Caster->ModifyPower(POWER_RAGE, -l_RagetoUse * l_Caster->GetPowerCoeff(POWER_RAGE));
+			}
+		}
+
+		void Register()
+		{
+			DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_shield_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_warr_shield_barrier_AuraScript();
+	}
+};
+
 /// Updated 4.3.4
 // 12975 - Last Stand
 class spell_warr_last_stand : public SpellScriptLoader
@@ -1150,6 +1188,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_slam();
     new spell_warr_sudden_death();
     new spell_warr_sweeping_strikes();
+	new spell_warr_shield_barrier();
     new spell_warr_sword_and_board();
     new spell_warr_victorious();
     new spell_warr_vigilance();
