@@ -142,7 +142,7 @@ class npc_thug: public CreatureScript
                             }
                             case 6:
                             {
-                                Thug1->MonsterSay("Only one thing to do with a louisy, good-for-nothin eavesdropper.", 0, 0);
+                                Thug1->MonsterSay("Only one thing to do with a lousy, good-for-nothin eavesdropper.", 0, 0);
                                 SummonTimer = 4500;
                                 Phase++;
                                 break;
@@ -352,7 +352,8 @@ class npc_horatio : public CreatureScript
                             }
                             case 4:
                             {
-                                me->MonsterSay("Looks like they really put the cart.",0, 0);
+                                me->MonsterSay("Looks like they really put the cart...",0, 0);
+                                // TODO: Add animation of him putting sunglasses on. He does this on Live.
                                 TextTimer = 5000;
                                 Phase++;
                                 break;
@@ -448,7 +449,10 @@ class npc_westplains_drifter : public CreatureScript
                 }
                 case 1:
                 {
-                    creature->MonsterSay("I didn't see who killed 'm, bub/sis, but I got a whiff. Smelled rich, kinda like you. Damn shame too. Furlbrows were a fixture around here. Nice people, always willin' to share a meal or a patch of dirt.",0, 0);
+                    std::string pronoun = "bub";
+                    if (player->getGender() == GENDER_FEMALE)
+                        pronoun = "sis;"
+                    creature->MonsterSay("I didn't see who killed 'm, " + pronoun + ", but I got a whiff. Smelled rich, kinda like you. Damn shame too. Furlbrows were a fixture around here. Nice people, always willin' to share a meal or a patch of dirt.",0, 0);
                     player->KilledMonsterCredit(CREDIT_SAY2, 0);
                     creature->SetStandState(UNIT_STAND_STATE_STAND);
                     creature->ForcedDespawn(5000);
@@ -494,7 +498,10 @@ class npc_westplains_drifter : public CreatureScript
                     }
                     case 1:
                     {
-                        creature->MonsterSay("I didn't see who killed 'm, bub/sis, but I got a whiff. Smelled rich, kinda like you. Damn shame too. Furlbrows were a fixture around here. Nice people, always willin' to share a meal or a patch of dirt.", 0, 0);
+                        std::string pronoun = "bub";
+                    if (player->getGender() == GENDER_FEMALE)
+                        pronoun = "sis;"
+                        creature->MonsterSay("I didn't see who killed 'm, " + pronoun + ", but I got a whiff. Smelled rich, kinda like you. Damn shame too. Furlbrows were a fixture around here. Nice people, always willin' to share a meal or a patch of dirt.", 0, 0);
                         player->KilledMonsterCredit(CREDIT_SAY2, 0);
                         creature->ForcedDespawn(5000);
                         break;
@@ -1635,7 +1642,7 @@ class npc_rise_br : public CreatureScript
                             }
                             case 4:
                             {
-                                Hope->MonsterSay("Hope? Is that what I was supposed fell when I saw my father decapitated by your henchmen?", 0, 0);
+                                Hope->MonsterSay("Hope? Is that what I was supposed to feel when I saw my father decapitated by your henchmen?", 0, 0);
                                 EventTimer = 12000;
                                 Phase++;
                                 break;
@@ -1758,7 +1765,7 @@ class npc_rise_br : public CreatureScript
                             }
                             case 20:
                             {
-                                Hope->MonsterYell("Leave nothing but ashes in your wake, brothers! Burn Sentinel Hill in the ground!", 0, 0);
+                                Hope->MonsterYell("Leave nothing but ashes in your wake, brothers! Burn Sentinel Hill to the ground!", 0, 0);
                                 EventTimer = 4000;
                                 Phase++;
                                 break;
@@ -2046,7 +2053,7 @@ class npc_horatio_investigate : public CreatureScript
                         {
                             case 0:
                             {
-                                Investigator04->MonsterSay("You were standing right here! What the hell did you see?Speak up!", 0, 0);
+                                Investigator04->MonsterSay("You were standing right here! What the hell did you see? Speak up!", 0, 0);
                                 TextTimer = 4000;
                                 Phase++;
                                 break;
@@ -2074,28 +2081,28 @@ class npc_horatio_investigate : public CreatureScript
                             }
                             case 4:
                             {
-                                me->MonsterSay("This was an execution. Whoever did this was sending a message,,,", 0, 0);
+                                me->MonsterSay("This was an execution. Whoever did this was sending a message...", 0, 0);
                                 TextTimer = 5000;
                                 Phase++;
                                 break;
                             }
                             case 5:
                             {
-                                me->MonsterSay("A message for anyone that would dare snitch on these cryminals.", 0, 0);
+                                me->MonsterSay("A message for anyone that would dare snitch on these criminals.", 0, 0);
                                 TextTimer = 4000;
                                 Phase++;
                                 break;
                             }
                             case 6:
                             {
-                                me->MonsterSay("It would appear that poor Lou really put this foot...", 0, 0);
+                                me->MonsterSay("It would appear that poor Lou really put his foot...", 0, 0);
                                 TextTimer = 4000;
                                 Phase++;
                                 break;
                             }
                             case 7:
                             {
-                                me->MonsterSay("In his mouth...", 0, 0);
+                                me->MonsterSay("In his mouth.", 0, 0);
                                 TextTimer = 30000;
                                 Phase++;
                                 break;
