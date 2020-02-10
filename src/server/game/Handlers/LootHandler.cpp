@@ -35,9 +35,9 @@
 
 class AELootCreatureCheck
 {
+private:
+    static float constexpr m_LootDistance = 30.0f;
 public:
-    static float constexpr LootDistance = 30.0f;
-
     AELootCreatureCheck(Player* looter, ObjectGuid mainLootTarget) : _looter(looter), _mainLootTarget(mainLootTarget) { }
 
     bool operator()(Creature* creature) const
@@ -48,11 +48,13 @@ public:
         if (creature->GetGUID() == _mainLootTarget)
             return false;
 
-        if (!_looter->IsWithinDist(creature, LootDistance))
+        if (!_looter->IsWithinDist(creature, m_LootDistance))
             return false;
 
         return _looter->isAllowedToLoot(creature);
     }
+
+    static float GetLootDistance() { return m_LootDistance; }
 
     Player* _looter;
     ObjectGuid _mainLootTarget;
@@ -111,7 +113,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
             Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
             bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
-            if (!lootAllowed || !creature->IsWithinDistInMap(_player, AELootCreatureCheck::LootDistance))
+            if (!lootAllowed || !creature->IsWithinDistInMap(_player, AELootCreatureCheck::GetLootDistance()))
             {
                 player->SendLootError(req.Object, lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
                 continue;
@@ -187,7 +189,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
             {
                 Creature* creature = player->GetMap()->GetCreature(guid);
                 bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
-                if (lootAllowed && creature->IsWithinDistInMap(player, AELootCreatureCheck::LootDistance))
+                if (lootAllowed && creature->IsWithinDistInMap(player, AELootCreatureCheck::GetLootDistance()))
                 {
                     loot = &creature->loot;
                     if (creature->IsAlive())
@@ -275,7 +277,7 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     std::list<Creature*> corpses;
     AELootCreatureCheck check(_player, packet.Unit);
     Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
-    _player->VisitNearbyGridObject(AELootCreatureCheck::LootDistance, searcher);
+    _player->VisitNearbyGridObject(AELootCreatureCheck::GetLootDistance(), searcher);
 
     if (!corpses.empty())
         SendPacket(WorldPackets::Loot::AELootTargets(uint32(corpses.size() + 1)).Write());
@@ -410,7 +412,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
         bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
-        if (!lootAllowed || !creature->IsWithinDistInMap(_player, AELootCreatureCheck::LootDistance))
+        if (!lootAllowed || !creature->IsWithinDistInMap(_player, AELootCreatureCheck::GetLootDistance()))
             return;
 
         loot = &creature->loot;
