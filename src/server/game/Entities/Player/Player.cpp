@@ -8367,7 +8367,7 @@ void Player::SendLootError(ObjectGuid const& lootObj, ObjectGuid const& owner, L
 {
    WorldPackets::Loot::LootResponse lootResponse;
     lootResponse.LootObj = lootObj;
-    lootResponse.Owner = GetLootWorldObjectGUID(lootObj);
+    lootResponse.Owner = owner;
     lootResponse.Acquired = false;
     lootResponse.FailureReason = error;
     SendDirectMessage(lootResponse.Write());
@@ -8386,7 +8386,7 @@ void Player::SendNotifyLootItemRemoved(ObjectGuid lootObj, uint8 lootSlot) const
     packet.Owner = GetLootWorldObjectGUID(lootObj);
     packet.LootObj = lootObj;
     // Since 6.x client expects loot to be starting from 1 hence the +1
-    packet.LootListID = lootSlot+1;
+    packet.LootListID = lootSlot + 1;
     GetSession()->SendPacket(packet.Write());
 }
 

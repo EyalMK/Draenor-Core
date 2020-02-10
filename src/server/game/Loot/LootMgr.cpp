@@ -445,6 +445,18 @@ void Loot::AddItem(LootStoreItem const& item)
         if (!item.needs_quest && item.conditions.empty() && !(proto->GetFlags() & ITEM_FLAG_PARTY_LOOT))
             ++unlootedCount;
     }
+}      
+
+LootItem const* Loot::GetItemInSlot(uint32 lootSlot) const
+{
+    if (lootSlot < items.size())
+        return &items[lootSlot];
+
+    lootSlot -= uint32(items.size());
+    if (lootSlot < quest_items.size())
+        return &quest_items[lootSlot];
+
+    return nullptr;
 }
 
 // Calls processor of corresponding LootTemplate (which handles everything including references)
@@ -913,7 +925,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         continue;
 
                     WorldPackets::Loot::LootItemData lootItem;
-                    lootItem.LootListID = packet.Items.size()+1;
+                    lootItem.LootListID = i + 1;
                     lootItem.UIType = slot_type;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(items[i]);
@@ -933,7 +945,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         continue;
 
                     WorldPackets::Loot::LootItemData lootItem;
-                    lootItem.LootListID = packet.Items.size()+1;
+                    lootItem.LootListID = i + 1;
                     lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(items[i]);
@@ -975,7 +987,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!qi->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = packet.Items.size()+1;
+                lootItem.LootListID = items.size() + qi->index + 1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
 
@@ -1020,7 +1032,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!fi->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = packet.Items.size()+1;
+                lootItem.LootListID = items.size() + fi->index + 1;
                 lootItem.UIType = slotType;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
@@ -1040,7 +1052,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!ci->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = packet.Items.size()+1;
+                lootItem.LootListID = items.size() + ci->index + 1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
 

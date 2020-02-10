@@ -17,6 +17,19 @@
 
 #include "LootPackets.h"
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Loot::LootItemData const& lootItem)
+{
+    data.WriteBits(lootItem.Type, 2);
+    data.WriteBits(lootItem.UIType, 3);
+    data.WriteBit(lootItem.CanTradeToTapList);
+    data.FlushBits();
+    data << lootItem.Loot; // WorldPackets::Item::ItemInstance
+    data << uint32(lootItem.Quantity);
+    data << uint8(lootItem.LootItemType);
+    data << uint8(lootItem.LootListID);
+    return data;
+}
+
 void WorldPackets::Loot::LootUnit::Read()
 {
     _worldPacket >> Unit;
@@ -35,17 +48,7 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
     _worldPacket << uint32(Currencies.size());
 
     for (LootItemData const& item : Items)
-    {
-        _worldPacket.WriteBits(item.Type, 2);
-        _worldPacket.WriteBits(item.UIType, 3);
-        _worldPacket.WriteBit(item.CanTradeToTapList);
-        _worldPacket.FlushBits();
-
-        _worldPacket << item.Quantity;
-        _worldPacket << item.LootItemType;
-        _worldPacket << item.LootListID;
-        _worldPacket << item.Loot; // WorldPackets::Item::ItemInstance
-    }
+        _worldPacket << item;
 
     for (LootCurrency const& currency : Currencies)
     {
@@ -150,4 +153,59 @@ WorldPacket const* WorldPackets::Loot::LootList::Write()
 void WorldPackets::Loot::SetLootSpecialization::Read()
 {
     _worldPacket >> SpecID;
+}
+
+
+WorldPacket const* WorldPackets::Loot::StartLootRoll::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << int32(MapID);
+    _worldPacket << uint32(RollTime);
+    _worldPacket << uint8(ValidRolls);
+    _worldPacket << uint8(Method);
+    _worldPacket << Item;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::LootRollBroadcast::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << Player;
+    _worldPacket << int32(Roll);
+    _worldPacket << uint8(RollType);
+    _worldPacket << Item;
+    _worldPacket.WriteBit(Autopassed);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::LootRollWon::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << Winner;
+    _worldPacket << int32(Roll);
+    _worldPacket << uint8(RollType);
+    _worldPacket << Item;
+    _worldPacket.WriteBit(MainSpec);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::LootAllPassed::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << Item;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::LootRollsComplete::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << uint8(LootListID);
+
+    return &_worldPacket;
 }
