@@ -197,6 +197,7 @@ void AddSC_tol_barad();
 void AddSC_undercity();
 void AddSC_western_plaguelands();
 void AddSC_wetlands();
+void AddSC_westfall();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -380,8 +381,9 @@ void AddEasternKingdomsScripts()
     AddSC_stranglethorn_vale();
     AddSC_swamp_of_sorrows();
     AddSC_tirisfal_glades();
-	AddSC_tol_barad();
+	  AddSC_tol_barad();
     AddSC_undercity();
     AddSC_western_plaguelands();
     AddSC_wetlands();
+    AddSC_westfall();
 }
