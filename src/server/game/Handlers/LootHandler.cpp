@@ -33,6 +33,33 @@
 #include "LootPackets.h"
 #include "WorldSession.h"
 
+class AELootCreatureCheck
+{
+private:
+    static float constexpr m_LootDistance = 30.0f;
+public:
+    AELootCreatureCheck(Player* looter, ObjectGuid mainLootTarget) : _looter(looter), _mainLootTarget(mainLootTarget) { }
+
+    bool operator()(Creature* creature) const
+    {
+        if (creature->IsAlive())
+            return false;
+
+        if (creature->GetGUID() == _mainLootTarget)
+            return false;
+
+        if (!_looter->IsWithinDist(creature, m_LootDistance))
+            return false;
+
+        return _looter->isAllowedToLoot(creature);
+    }
+
+    static float GetLootDistance() { return m_LootDistance; }
+
+    Player* _looter;
+    ObjectGuid _mainLootTarget;
+};
+
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet)
 {
     Player* player = GetPlayer();
@@ -86,9 +113,9 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
             Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
             bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
-            if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+            if (!lootAllowed || !creature->IsWithinDistInMap(_player, AELootCreatureCheck::GetLootDistance()))
             {
-                player->SendLootError(lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
+                player->SendLootError(req.Object, lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
                 continue;
             }
 
@@ -96,7 +123,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
         }
 
         // Since 6.x client sends loot starting from 1 hence the -1
-        player->StoreLootItem(req.LootListID - 1, loot, aeResultPtr);
+        player->StoreLootItem(req.LootListID - 1, loot);
 
         // If player is removing the last LootItem, delete the empty container.
         if (loot->isLooted() && lguid.IsItem())
@@ -162,14 +189,14 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
             {
                 Creature* creature = player->GetMap()->GetCreature(guid);
                 bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
-                if (lootAllowed && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
+                if (lootAllowed && creature->IsWithinDistInMap(player, AELootCreatureCheck::GetLootDistance()))
                 {
                     loot = &creature->loot;
                     if (creature->IsAlive())
                         shareMoney = false;
                 }
                 else
-                    player->SendLootError(guid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
+                    player->SendLootError(lootView.first, lootView.second, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
                 break;
             }
             default:
@@ -241,31 +268,6 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
     }
 }
 
-class AELootCreatureCheck
-{
-public:
-    static float constexpr LootDistance = 30.0f;
-
-    AELootCreatureCheck(Player* looter, ObjectGuid mainLootTarget) : _looter(looter), _mainLootTarget(mainLootTarget) { }
-
-    bool operator()(Creature* creature) const
-    {
-        if (creature->IsAlive())
-            return false;
-
-        if (creature->GetGUID() == _mainLootTarget)
-            return false;
-
-        if (!_looter->IsWithinDist(creature, LootDistance))
-            return false;
-
-        return _looter->isAllowedToLoot(creature);
-    }
-
-    Player* _looter;
-    ObjectGuid _mainLootTarget;
-};
-
 void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 {
     // Check possible cheat
@@ -275,7 +277,7 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     std::list<Creature*> corpses;
     AELootCreatureCheck check(_player, packet.Unit);
     Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
-    _player->VisitNearbyGridObject(AELootCreatureCheck::LootDistance, searcher);
+    _player->VisitNearbyGridObject(AELootCreatureCheck::GetLootDistance(), searcher);
 
     if (!corpses.empty())
         SendPacket(WorldPackets::Loot::AELootTargets(uint32(corpses.size() + 1)).Write());
@@ -410,7 +412,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
         bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->loot.loot_type == LOOT_PICKPOCKETING);
-        if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+        if (!lootAllowed || !creature->IsWithinDistInMap(_player, AELootCreatureCheck::GetLootDistance()))
             return;
 
         loot = &creature->loot;
@@ -463,14 +465,14 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     if (!_player->GetGroup() || _player->GetGroup()->GetMasterLooterGuid() != _player->GetGUID() || _player->GetGroup()->GetLootMethod() != MASTER_LOOT)
     {
-        _player->SendLootError(lootguid, LOOT_ERROR_DIDNT_KILL);
+        _player->SendLootError(lootguid, ObjectGuid::Empty, LOOT_ERROR_DIDNT_KILL);
         return;
     }
 
     Player* target = ObjectAccessor::FindPlayer(target_playerguid);
     if (!target)
     {
-        _player->SendLootError(lootguid, LOOT_ERROR_PLAYER_NOT_FOUND);
+        _player->SendLootError(lootguid, ObjectGuid::Empty, LOOT_ERROR_PLAYER_NOT_FOUND);
         return;
     }
 
@@ -478,13 +480,13 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     if (_player->GetLootGUID() != lootguid)
     {
-        _player->SendLootError(lootguid, LOOT_ERROR_DIDNT_KILL);
+        _player->SendLootError(lootguid, ObjectGuid::Empty, LOOT_ERROR_DIDNT_KILL);
         return;
     }
 
     if (!_player->IsInRaidWith(target) || !_player->IsInMap(target))
     {
-        _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);
+        _player->SendLootError(lootguid, ObjectGuid::Empty, LOOT_ERROR_MASTER_OTHER);
         TC_LOG_INFO("loot", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
         return;
     }
@@ -527,11 +529,11 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     if (msg != EQUIP_ERR_OK)
     {
         if (msg == EQUIP_ERR_ITEM_MAX_COUNT)
-            _player->SendLootError(lootguid, LOOT_ERROR_MASTER_UNIQUE_ITEM);
+            _player->SendLootError(lootguid, ObjectGuid::Empty, LOOT_ERROR_MASTER_UNIQUE_ITEM);
         else if (msg == EQUIP_ERR_INV_FULL)
-            _player->SendLootError(lootguid, LOOT_ERROR_MASTER_INV_FULL);
+            _player->SendLootError(lootguid, ObjectGuid::Empty, LOOT_ERROR_MASTER_INV_FULL);
         else
-            _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);
+            _player->SendLootError(lootguid, ObjectGuid::Empty, LOOT_ERROR_MASTER_OTHER);
 
         target->SendEquipError(msg, NULL, NULL, item.itemid);
         return;

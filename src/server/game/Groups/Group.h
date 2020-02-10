@@ -39,6 +39,14 @@ class WorldSession;
 
 struct MapEntry;
 
+namespace WorldPackets
+{
+    namespace Loot
+    {
+        struct LootItemData;
+    }
+}
+
 #define MAX_GROUP_SIZE      5
 #define MAX_RAID_SIZE       40
 #define MAX_RAID_SUBGROUPS  MAX_RAID_SIZE / MAX_GROUP_SIZE
@@ -150,13 +158,13 @@ enum GroupUpdatePetFlags
 class Roll : public LootValidatorRef
 {
     public:
-        Roll(ObjectGuid _guid, LootItem const& li);
+        explicit Roll(LootItem const& li);
         ~Roll();
         void setLoot(Loot* pLoot);
         Loot* getLoot();
         void targetObjectBuildLink() override;
-
-        ObjectGuid itemGUID;
+        void FillPacket(WorldPackets::Loot::LootItemData& lootItem) const;
+        
         uint32 itemid;
         int32  itemRandomPropId;
         uint32 itemRandomSuffix;
@@ -358,18 +366,18 @@ class TC_GAME_API Group
         /*********************************************************/
 
         bool isRollLootActive() const { return !RollId.empty(); }
-        void SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r);
-        void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
-        void SendLootRoll(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
-        void SendLootRollWon(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
-        void SendLootAllPassed(Roll const& roll);
+        void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r) const;
+        void SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
+        void SendLootRollWon(ObjectGuid winnerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
+        void SendLootAllPassed(Roll const& roll) const;
+        void SendLootRollsComplete(Roll const& roll) const;
         void SendLooter(Creature* creature, Player* pLooter);
         void GroupLoot(Loot* loot, WorldObject* pLootedObject);
         void NeedBeforeGreed(Loot* loot, WorldObject* pLootedObject);
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
-        Rolls::iterator GetRoll(ObjectGuid Guid);
+        Rolls::iterator GetRoll(ObjectGuid lootObjectGuid, uint8 lootListId);
         void CountTheRoll(Rolls::iterator roll);
-        void CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choise);
+        void CountRollVote(ObjectGuid playerGuid, ObjectGuid lootObjectGuid, uint8 lootListId, uint8 choice);
         void EndRoll(Loot* loot);
 
         // related to disenchant rolls
