@@ -8249,6 +8249,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                             group->GroupLoot(loot, creature);
                             break;
                         case NEED_BEFORE_GREED:
+                            // TODO: Confirm we need this. Latest TrinityCore has removed this method. - Kirmmin / 10-Feb-2020
                             group->NeedBeforeGreed(loot, creature);
                             break;
                         case MASTER_LOOT:
