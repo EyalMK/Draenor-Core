@@ -820,7 +820,7 @@ void Group::Disband(bool hideDestroy /* = false */)
             WorldPackets::Party::PartyUpdate partyUpdate;
             partyUpdate.PartyFlags = GROUP_FLAG_DESTROYED;
             partyUpdate.PartyIndex = 1; // 0 = original group, 1 = instance/bg group
-            partyUpdate.PartyType = GROUP_TYPE_NONE;
+            partyUpdate.PartyType = GROUPTYPE_NORMAL;
             partyUpdate.PartyGUID = m_guid;
             partyUpdate.MyIndex = -1;
             partyUpdate.SequenceNum = m_counter;
@@ -866,8 +866,12 @@ void Group::Disband(bool hideDestroy /* = false */)
 /*********************************************************/
 /***                   LOOT SYSTEM                     ***/
 /*********************************************************/
+
 void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r) const
 {
+    TC_LOG_DEBUG("loot", "SMSG_START_LOOT_ROLL %s roll: %s, item: %u, itemCount: %u, countdown: %u, canNeed: %u",
+        p->GetSession()->GetPlayerInfo().c_str(), r->GetGUID().ToString().c_str(), r.itemid, r.itemCount, countDown, canNeed);
+
     WorldPackets::Loot::StartLootRoll startLootRoll;
     startLootRoll.LootObj = r->GetGUID();
     startLootRoll.MapID = mapId;
@@ -896,6 +900,9 @@ void Group::SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType
         Player* p = ObjectAccessor::FindConnectedPlayer(itr->first);
         if (!p || !p->GetSession())
             continue;
+
+        TC_LOG_DEBUG("loot", "SMSG_LOOT_ROLL %s roll: %s, item: %u, rollNumber: %u, rollType: %u",
+            p->GetSession()->GetPlayerInfo().c_str(), roll->GetGUID().ToString().c_str(), roll.itemid, rollNumber, rollType);
 
         if (itr->second != NOT_VALID)
             p->GetSession()->SendPacket(lootRoll.GetRawPacket());
@@ -989,12 +996,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         if (i->freeforall)
             continue;
 
-        item = sObjectMgr->GetItemTemplate(i->itemid);
-        if (!item)
-        {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
-            continue;
-        }
+        item = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(i->itemid));
 
         //roll for over-threshold item if it's one-player loot
         if (item->GetQuality() >= uint32(m_lootThreshold))
@@ -1044,11 +1046,11 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
                             continue;
 
                         if (itr->second == PASS)
-                            SendLootRoll(p->GetGUID(), -1, ROLL_PASS, *r);
+                            SendLootRoll(p->GetGUID(), -1, ROLL_PASS, *r);  
+                        else
+                            SendLootStartRollToPlayer(60000, pLootedObject->GetMapId(), p, p->CanRollForItemInLFG(item, pLootedObject) == EQUIP_ERR_OK, *r);
                     }
                 }
-
-                SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
 
                 RollId.push_back(r);
 
@@ -1075,15 +1077,8 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         if (!i->follow_loot_rules)
             continue;
 
-        item = sObjectMgr->GetItemTemplate(i->itemid);
-        if (!item)
-        {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
-            continue;
-        }
-
-        ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
-        Roll* r = new Roll(newitemGUID, *i);
+        item = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(i->itemid));
+        Roll* r = new Roll(*i);
 
         //a vector is filled with only near party members
         for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
@@ -1109,7 +1104,18 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
 
             loot->quest_items[itemSlot - loot->items.size()].is_blocked = true;
 
-            SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
+            //Broadcast Pass and Send Rollstart
+            for (Roll::PlayerVote::const_iterator itr = r->playerVote.begin(); itr != r->playerVote.end(); ++itr)
+            {
+                Player* p = ObjectAccessor::FindConnectedPlayer(itr->first);
+                if (!p || !p->GetSession())
+                    continue;
+
+                if (itr->second == PASS)
+                    SendLootRoll(p->GetGUID(), -1, ROLL_PASS, *r);
+                else
+                    SendLootStartRollToPlayer(60000, pLootedObject->GetMapId(), p, p->CanRollForItemInLFG(item, pLootedObject) == EQUIP_ERR_OK, *r);
+            }
 
             RollId.push_back(r);
 
@@ -1129,6 +1135,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
     }
 }
 
+// TODO: Confirm we still need this method. Removed in TrinityCore master - Kirmmin / 10-Feb-2020
 void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 {
     ItemTemplate const* item;
@@ -1138,13 +1145,12 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
         if (i->freeforall)
             continue;
 
-        item = sObjectMgr->GetItemTemplate(i->itemid);
+        item = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(i->itemid));
 
         //roll for over-threshold item if it's one-player loot
         if (item->GetQuality() >= uint32(m_lootThreshold))
         {
-            ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
-            Roll* r = new Roll(newitemGUID, *i);
+            Roll* r = new Roll(*i);
 
             for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
             {
@@ -1187,7 +1193,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
                         continue;
 
                     if (itr->second == PASS)
-                        SendLootRoll(newitemGUID, p->GetGUID(), 128, ROLL_PASS, *r);
+                        SendLootRoll(p->GetGUID(), 128, ROLL_PASS, *r);
                     else
                         SendLootStartRollToPlayer(60000, lootedObject->GetMapId(), p, p->CanRollForItemInLFG(item, lootedObject) == EQUIP_ERR_OK, *r);
                 }
@@ -1217,7 +1223,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
         if (!i->follow_loot_rules)
             continue;
 
-        item = sObjectMgr->GetItemTemplate(i->itemid);
+        item = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(i->itemid));
         Roll* r = new Roll(*i);
 
         for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())

@@ -367,6 +367,8 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
 
 void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
 {
+    TC_LOG_DEBUG("loot", "CMSG_LOOT_ROLL %s lootObj %s, rollType %u", GetPlayerInfo().c_str(), packet.LootObj.ToString().c_str(), packet.RollType);
+
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;

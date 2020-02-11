@@ -23,10 +23,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Loot::LootItemData const&
     data.WriteBits(lootItem.UIType, 3);
     data.WriteBit(lootItem.CanTradeToTapList);
     data.FlushBits();
+    data << lootItem.Quantity;
+    data << lootItem.LootItemType;
+    data << lootItem.LootListID;
     data << lootItem.Loot; // WorldPackets::Item::ItemInstance
-    data << uint32(lootItem.Quantity);
-    data << uint8(lootItem.LootItemType);
-    data << uint8(lootItem.LootListID);
     return data;
 }
 
@@ -160,10 +160,10 @@ WorldPacket const* WorldPackets::Loot::StartLootRoll::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << int32(MapID);
-    _worldPacket << uint32(RollTime);
-    _worldPacket << uint8(ValidRolls);
-    _worldPacket << uint8(Method);
     _worldPacket << Item;
+    _worldPacket << uint32(RollTime);
+    _worldPacket << uint8(Method);
+    _worldPacket << uint8(ValidRolls);
 
     return &_worldPacket;
 }
@@ -172,9 +172,9 @@ WorldPacket const* WorldPackets::Loot::LootRollBroadcast::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << Player;
+    _worldPacket << Item;
     _worldPacket << int32(Roll);
     _worldPacket << uint8(RollType);
-    _worldPacket << Item;
     _worldPacket.WriteBit(Autopassed);
     _worldPacket.FlushBits();
 
@@ -184,12 +184,12 @@ WorldPacket const* WorldPackets::Loot::LootRollBroadcast::Write()
 WorldPacket const* WorldPackets::Loot::LootRollWon::Write()
 {
     _worldPacket << LootObj;
+    _worldPacket << Item;
     _worldPacket << Winner;
     _worldPacket << int32(Roll);
     _worldPacket << uint8(RollType);
-    _worldPacket << Item;
-    _worldPacket.WriteBit(MainSpec);
-    _worldPacket.FlushBits();
+    // _worldPacket.WriteBit(MainSpec);
+    // _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
