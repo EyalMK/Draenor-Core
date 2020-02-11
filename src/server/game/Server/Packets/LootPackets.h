@@ -226,7 +226,7 @@ namespace WorldPackets
             ObjectGuid LootObj;
             int32 MapID = 0;
             uint32 RollTime = 0;
-            uint8 Method = 0;
+            uint8 TotalPlayers = 0;
             uint8 ValidRolls = 0;
             LootItemData Item;
         };

@@ -879,7 +879,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
     startLootRoll.ValidRolls = r.rollVoteMask;
     if (!canNeed)
         startLootRoll.ValidRolls &= ~ROLL_FLAG_TYPE_NEED;
-    startLootRoll.Method = GetLootMethod();
+    startLootRoll.TotalPlayers = r.totalPlayersRolling;
     r.FillPacket(startLootRoll.Item);
 
     p->GetSession()->SendPacket(startLootRoll.Write());
