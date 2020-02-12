@@ -30,6 +30,7 @@ void AddSC_boss_corla();
 void AddSC_boss_karsh_steelbender();
 void AddSC_dun_morogh();
 void AddSC_boss_beauty();
+void AddSC_dun_morogh_area_coldridge_valley();
 void AddSC_boss_ascendant_lord_obsidius();
 void AddSC_blackrock_caverns();
 void AddSC_instance_blackrock_caverns();
@@ -275,6 +276,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_selin_fireheart();
     AddSC_boss_vexallus();
     AddSC_boss_priestess_delrissa();
+    AddSC_dun_morogh_area_coldridge_valley();
     AddSC_instance_magisters_terrace();
     AddSC_magisters_terrace();
     AddSC_boss_lucifron();                  //Molten core
