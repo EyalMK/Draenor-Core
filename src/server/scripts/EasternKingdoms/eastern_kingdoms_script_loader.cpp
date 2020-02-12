@@ -28,6 +28,7 @@ void AddSC_instance_baradin_hold();
 void AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
 void AddSC_boss_corla();
 void AddSC_boss_karsh_steelbender();
+void AddSC_dun_morogh();
 void AddSC_boss_beauty();
 void AddSC_boss_ascendant_lord_obsidius();
 void AddSC_blackrock_caverns();
@@ -296,6 +297,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_bloodmage_thalnos();
     AddSC_boss_headless_horseman();
     AddSC_boss_herod();
+    AddSC_dun_morogh();
     AddSC_boss_high_inquisitor_fairbanks();
     AddSC_boss_houndmaster_loksey();
     AddSC_boss_interrogator_vishas();
