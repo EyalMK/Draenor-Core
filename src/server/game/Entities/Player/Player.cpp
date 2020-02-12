@@ -7536,6 +7536,9 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= fal
             && !GetSession()->GetCollectionMgr()->CanApplyHeirloomXpBonus(item->GetEntry(), getLevel())
             && sDB2Manager.GetHeirloomByItemId(item->GetEntry()))
             continue;
+            
+        if (effectData->ChrSpecializationID && effectData->ChrSpecializationID != GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
+            continue;
 
         ApplyEquipSpell(spellproto, item, apply, formChange);
     }
