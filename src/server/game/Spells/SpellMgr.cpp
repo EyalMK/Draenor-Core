@@ -2941,6 +2941,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 5308: // Execute
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
+			// Class Spells
+			case 51490:  ///< Thunderstorm
+			case 108416: ///< Sacrificial Pact
+			case 137562: ///< Nimble Brew
+			case 134758: ///< Burning Cinders
+				spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+				break;
             case 31347: // Doom
             case 36327: // Shoot Arcane Explosion Arrow
             case 39365: // Thundering Storm

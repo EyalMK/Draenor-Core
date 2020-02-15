@@ -53,6 +53,7 @@ enum WarlockSpells
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 63106,
     SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
+	SPELL_WARLOCK_FEAR								= 5782,
     SPELL_WARLOCK_HAUNT                             = 48181,
     SPELL_WARLOCK_HAUNT_HEAL                        = 48210,
     SPELL_WARLOCK_IMMOLATE                          = 348,
@@ -611,6 +612,49 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
             return new spell_warl_everlasting_affliction_SpellScript();
         }
 };
+
+// 5782 - Fear
+class spell_warl_fear : public SpellScriptLoader
+{
+	public:
+		spell_warl_fear() : SpellScriptLoader("spell_warl_fear") { }
+
+		class spell_warl_fear_SpellScript : public SpellScript
+		{
+			PrepareSpellScript(spell_warl_fear_SpellScript);
+
+			enum eSpells
+			{
+				GlyphOfFear			= 56244,
+				FearEffect			= 118699,
+				GlyphOfFearEffect	= 130616,
+			};
+
+			void HandleOnHit()
+			{
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetHitUnit();
+
+				if (!l_Caster || !l_Target)
+					return;
+				if (l_Caster->HasAura(eSpells::GlyphOfFear))
+					l_Caster->CastSpell(l_Target, eSpells::GlyphOfFearEffect, true);
+				else
+					l_Caster->CastSpell(l_Target, eSpells::FearEffect, true);
+			}
+
+			void Register()
+			{
+				OnHit += SpellHitFn(spell_warl_fear_SpellScript::HandleOnHit);
+			}
+		};
+
+		SpellScript* GetSpellScript() const
+		{
+			return new spell_warl_fear_SpellScript();
+		}
+};
+
 
 // -47230 - Fel Synergy
 class spell_warl_fel_synergy : public SpellScriptLoader
@@ -1464,6 +1508,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_devour_magic();
     new spell_warl_everlasting_affliction();
     //new spell_warl_fel_flame();
+	new spell_warl_fear();
     new spell_warl_fel_synergy();
     new spell_warl_glyph_of_shadowflame();
     new spell_warl_haunt();

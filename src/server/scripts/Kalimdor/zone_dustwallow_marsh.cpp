@@ -367,8 +367,102 @@ class spell_energize_aoe : public SpellScriptLoader
         }
 };
 
+/// QUEST 27188: What's Haunting Witch Hill?
+
+enum HauntingWitchHill
+{
+	/// Quest ID
+	QUEST_WHATS_HAUNTING_WITCH_HILL = 27188,
+
+	/// Spells
+	SPELL_SUMMON_RESTLESS_APPARITION = 42511,
+	SPELL_WITCH_HILL_INFORMATION_CREDIT = 42512,
+
+	/// Risen Husk mechanics and ID
+	SPELL_CONSUME_FLESH = 37933,
+	NPC_RISEN_HUSK = 23555,
+
+	/// Risen Spirit mechanics and ID
+	SPELL_INTANGIBLE_PRESENCE = 43127,
+	NPC_RISEN_SPIRIT = 23554,
+
+	/// Events
+	EVENT_CONSUME_FLESH = 0,
+	EVENT_INTANGIBLE_PRESENCE = 1,
+};
+
+class mobs_risen_husk_spirit : public CreatureScript
+{
+public:
+	mobs_risen_husk_spirit() : CreatureScript("mobs_risen_husk_spirit") { }
+
+	struct mobs_risen_husk_spiritAI : public ScriptedAI
+	{
+		mobs_risen_husk_spiritAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset()
+		{
+			events.Reset();
+			if (me->GetEntry() == NPC_RISEN_HUSK)
+				events.ScheduleEvent(EVENT_CONSUME_FLESH, 5000);
+			else if (me->GetEntry() == NPC_RISEN_SPIRIT)
+				events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 5000);
+		}
+
+		void JustDied(Unit* killer)
+		{
+			if (killer->GetTypeId() == TYPEID_PLAYER)
+			{
+				if (killer->ToPlayer()->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
+				{
+					DoCast(me, SPELL_SUMMON_RESTLESS_APPARITION, true);
+					DoCast(killer, SPELL_WITCH_HILL_INFORMATION_CREDIT, true);
+				}
+			}
+		}
+
+		void UpdateAI(uint32 const diff)
+		{
+			if (!UpdateVictim())
+				return;
+			events.Update(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_CONSUME_FLESH:
+					DoCastVictim(SPELL_CONSUME_FLESH);
+					events.ScheduleEvent(EVENT_CONSUME_FLESH, 15000);
+					break;
+
+				case EVENT_INTANGIBLE_PRESENCE:
+					DoCastVictim(SPELL_INTANGIBLE_PRESENCE);
+					events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 15000);
+					break;
+
+				default:
+					break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	private:
+		EventMap events;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new mobs_risen_husk_spiritAI(creature);
+	}
+};
+
+
 void AddSC_dustwallow_marsh()
 {
+	new mobs_risen_husk_spirit();
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();
