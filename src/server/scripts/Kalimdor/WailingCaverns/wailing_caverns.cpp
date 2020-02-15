@@ -86,11 +86,11 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         InstanceScript* instance = creature->GetInstanceScript();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             if (instance)
                 instance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
 
@@ -116,13 +116,8 @@ public:
             if ((instance->GetData(TYPE_LORD_COBRAHN) == DONE) && (instance->GetData(TYPE_LORD_PYTHAS) == DONE) &&
                 (instance->GetData(TYPE_LADY_ANACONDRA) == DONE) && (instance->GetData(TYPE_LORD_SERPENTIS) == DONE))
             {
-<<<<<<< HEAD
                 AddGossipItemFor(player, GOSSIP_OPTION_LET_EVENT_BEGIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, NPC_TEXT_FANGLORDS_ARE_DEAD, creature->GetGUID());
-=======
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_OPTION_LET_EVENT_BEGIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(NPC_TEXT_FANGLORDS_ARE_DEAD, creature->GetGUID());
->>>>>>> 960854e9f3e2bf1289b73611f59ecda229708bfa
 
                 if (!instance->GetData(TYPE_NARALEX_YELLED))
                 {
@@ -132,7 +127,7 @@ public:
             }
             else
             {
-                player->SEND_GOSSIP_MENU(NPC_TEXT_NARALEX_SLEEPS_AGAIN, creature->GetGUID());
+                SendGossipMenuFor(player, NPC_TEXT_NARALEX_SLEEPS_AGAIN, creature->GetGUID());
             }
         }
         return true;
