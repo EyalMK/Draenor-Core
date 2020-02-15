@@ -21,6 +21,7 @@ void AddSC_boss_balinda();
 void AddSC_boss_drekthar();
 void AddSC_boss_galvangar();
 void AddSC_boss_vanndar();
+void AddSC_boss_glubtok();
 void AddSC_boss_alizabal();                  //Baradin Hold
 void AddSC_boss_occuthar();
 void AddSC_boss_pit_lord_argaloth();
@@ -270,6 +271,7 @@ void AddEasternKingdomsScripts()
     AddSC_bosses_opera();
     AddSC_boss_netherspite();
     AddSC_instance_karazhan();
+    AddSC_boss_glubtok();
     AddSC_karazhan();
     AddSC_boss_nightbane();
     AddSC_boss_felblood_kaelthas();         // Magister's Terrace
