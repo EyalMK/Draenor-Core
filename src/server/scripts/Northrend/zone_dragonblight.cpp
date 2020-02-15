@@ -497,21 +497,21 @@ class npc_wyrmrest_defender : public CreatureScript
         {
             if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                SendGossipMenuFor(player, GOSSIP_TEXTID_DEF1, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEF1, creature->GetGUID());
             }
             else
-                SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
             return true;
         }
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
-            ClearGossipMenuFor(player);
+            player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF+1)
             {
-                SendGossipMenuFor(player, GOSSIP_TEXTID_DEF2, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEF2, creature->GetGUID());
                 // Makes player cast trigger spell for 49207 on self
                 player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
                 // The gossip should not auto close

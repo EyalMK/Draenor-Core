@@ -16,14 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
-#include "AchievementMgr.h"
 #include "InstancePackets.h"
 #include "LFGMgr.h"
 #include "Log.h"
@@ -119,34 +117,6 @@ void InstanceScript::SetHeaders(std::string const& dataHeaders)
     for (char header : dataHeaders)
         if (isalpha(header))
             headers.push_back(header);
-}
-
-/ Complete Achievement for all players in instance
-void InstanceScript::DoCompleteAchievement(uint32 achievement)
-{
-    AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievement);
-    if (!achievementEntry)
-    {
-        TC_LOG_ERROR("scripts", "DoCompleteAchievement called for not existing achievement %u", achievement);
-        return;
-    }
-
-    Map::PlayerList const& playerList = instance->GetPlayers();
-    if (!playerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
-            if (Player* player = i->GetSource())
-                player->CompletedAchievement(achievementEntry);
-}
-
-// Update Achievement Criteria for all players in instance
-void InstanceScript::DoUpdateAchievementCriteria(CriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
-{
-    Map::PlayerList const& playerList = instance->GetPlayers();
-
-    if (!playerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
-            if (Player* player = i->GetSource())
-                player->GetAchievementMgr()->UpdateCriteria(type, miscValue1, miscValue2, 0, unit);
 }
 
 void InstanceScript::LoadBossBoundaries(const BossBoundaryData& data)

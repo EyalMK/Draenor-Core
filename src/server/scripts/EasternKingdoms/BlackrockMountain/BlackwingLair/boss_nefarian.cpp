@@ -370,7 +370,7 @@ public:
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
-                CloseGossipMenuFor(player);
+                player->CLOSE_GOSSIP_MENU();
                 Talk(SAY_GAMESBEGIN_1);
                 BeginEvent(player);
             }

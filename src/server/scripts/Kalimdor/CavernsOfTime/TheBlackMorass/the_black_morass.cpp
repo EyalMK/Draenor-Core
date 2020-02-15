@@ -380,10 +380,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        ClearGossipMenuFor(player);
+        player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            CloseGossipMenuFor(player);
+            player->CLOSE_GOSSIP_MENU();
             creature->CastSpell(player, SPELL_CHRONO_BEACON, false);
         }
         return true;
@@ -396,18 +396,18 @@ public:
 
         if (player->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(ITEM_CHRONO_BEACON))
         {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_OBTAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            SendGossipMenuFor(player, 10000, creature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_OBTAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->SEND_GOSSIP_MENU(10000, creature->GetGUID());
             return true;
         }
         else if (player->GetQuestRewardStatus(QUEST_OPENING_PORTAL) && !player->HasItemCount(ITEM_CHRONO_BEACON))
         {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_OBTAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            SendGossipMenuFor(player, 10001, creature->GetGUID());
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_OBTAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->SEND_GOSSIP_MENU(10001, creature->GetGUID());
             return true;
         }
 
-        SendGossipMenuFor(player, 10002, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(10002, creature->GetGUID());
         return true;
     }
 

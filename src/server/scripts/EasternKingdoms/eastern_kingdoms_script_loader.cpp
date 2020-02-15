@@ -18,10 +18,13 @@
 // This is where scripts' loading functions should be declared:
 void AddSC_alterac_valley();                 //Alterac Valley
 void AddSC_boss_balinda();
-void AddSC_boss_glubtok();
 void AddSC_boss_drekthar();
 void AddSC_boss_galvangar();
 void AddSC_boss_vanndar();
+<<<<<<< HEAD
+=======
+void AddSC_boss_glubtok();
+>>>>>>> 960854e9f3e2bf1289b73611f59ecda229708bfa
 void AddSC_boss_alizabal();                  //Baradin Hold
 void AddSC_boss_occuthar();
 void AddSC_boss_pit_lord_argaloth();
@@ -29,7 +32,13 @@ void AddSC_instance_baradin_hold();
 void AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
 void AddSC_boss_corla();
 void AddSC_boss_karsh_steelbender();
+<<<<<<< HEAD
 void AddSC_boss_beauty();
+=======
+void AddSC_dun_morogh();
+void AddSC_boss_beauty();
+void AddSC_dun_morogh_area_coldridge_valley();
+>>>>>>> 960854e9f3e2bf1289b73611f59ecda229708bfa
 void AddSC_boss_ascendant_lord_obsidius();
 void AddSC_blackrock_caverns();
 void AddSC_instance_blackrock_caverns();
@@ -225,7 +234,6 @@ void AddEasternKingdomsScripts()
     AddSC_boss_draganthaurissan();
     AddSC_boss_general_angerforge();
     AddSC_boss_high_interrogator_gerstahn();
-    AddSC_boss_glubtok();
     AddSC_boss_magmus();
     AddSC_boss_moira_bronzebeard();
     AddSC_boss_tomb_of_seven();
@@ -270,12 +278,20 @@ void AddEasternKingdomsScripts()
     AddSC_bosses_opera();
     AddSC_boss_netherspite();
     AddSC_instance_karazhan();
+<<<<<<< HEAD
+=======
+    AddSC_boss_glubtok();
+>>>>>>> 960854e9f3e2bf1289b73611f59ecda229708bfa
     AddSC_karazhan();
     AddSC_boss_nightbane();
     AddSC_boss_felblood_kaelthas();         // Magister's Terrace
     AddSC_boss_selin_fireheart();
     AddSC_boss_vexallus();
     AddSC_boss_priestess_delrissa();
+<<<<<<< HEAD
+=======
+    AddSC_dun_morogh_area_coldridge_valley();
+>>>>>>> 960854e9f3e2bf1289b73611f59ecda229708bfa
     AddSC_instance_magisters_terrace();
     AddSC_magisters_terrace();
     AddSC_boss_lucifron();                  //Molten core
@@ -298,6 +314,10 @@ void AddEasternKingdomsScripts()
     AddSC_boss_bloodmage_thalnos();
     AddSC_boss_headless_horseman();
     AddSC_boss_herod();
+<<<<<<< HEAD
+=======
+    AddSC_dun_morogh();
+>>>>>>> 960854e9f3e2bf1289b73611f59ecda229708bfa
     AddSC_boss_high_inquisitor_fairbanks();
     AddSC_boss_houndmaster_loksey();
     AddSC_boss_interrogator_vishas();

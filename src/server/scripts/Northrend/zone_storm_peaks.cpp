@@ -88,7 +88,7 @@ public:
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
-                CloseGossipMenuFor(player);
+                player->CLOSE_GOSSIP_MENU();
                 me->setFaction(113);
                 Start(true, true, player->GetGUID());
             }
@@ -132,20 +132,20 @@ public:
 
         //Trainer Menu
         if ( creature->IsTrainer() )
-            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
         //Vendor Menu
         if ( creature->IsVendor() )
             if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        ClearGossipMenuFor(player);
+        player->PlayerTalkClass->ClearMenus();
         switch (action)
         {
         case GOSSIP_ACTION_TRAIN:
@@ -477,7 +477,7 @@ public:
 
         void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            CloseGossipMenuFor(player);
+            player->CLOSE_GOSSIP_MENU();
             playerGUID = player->GetGUID();
             events.ScheduleEvent(EVENT_SCRIPT_1, 100);
         }

@@ -479,10 +479,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        ClearGossipMenuFor(player);
+        player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF)
         {
-            CloseGossipMenuFor(player);
+            player->CLOSE_GOSSIP_MENU();
 
             if (player->IsInCombat() || creature->IsInCombat())
                 return true;
@@ -512,8 +512,13 @@ public:
             if (player->IsInCombat() || creature->IsInCombat())
                 return true;
 
+<<<<<<< HEAD
             AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+=======
+            player->ADD_GOSSIP_ITEM_DB(Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+>>>>>>> 960854e9f3e2bf1289b73611f59ecda229708bfa
         }
         return true;
     }

@@ -52,8 +52,8 @@ class icecrown_citadel_teleport : public GameObjectScript
                 if (gossipListId >= TeleportSpells.size())
                     return false;
 
-                ClearGossipMenuFor(player);
-                CloseGossipMenuFor(player);
+                player->PlayerTalkClass->ClearMenus();
+                player->CLOSE_GOSSIP_MENU();
                 SpellInfo const* spell = sSpellMgr->GetSpellInfo(TeleportSpells[gossipListId]);
                 if (!spell)
                     return false;

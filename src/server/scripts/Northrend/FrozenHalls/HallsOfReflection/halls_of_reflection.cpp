@@ -349,7 +349,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
             if (InstanceScript* instance = creature->GetInstanceScript())
                 if (instance->GetData(DATA_QUEL_DELAR_EVENT) == IN_PROGRESS || instance->GetData(DATA_QUEL_DELAR_EVENT) == SPECIAL)
                 {
-                    ClearGossipMenuFor(player);
+                    player->PlayerTalkClass->ClearMenus();
                     return true;
                 }
 
@@ -366,7 +366,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
 
             void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
-                ClearGossipMenuFor(player);
+                player->PlayerTalkClass->ClearMenus();
 
                 switch (gossipListId)
                 {
@@ -860,7 +860,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 
             void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
-                ClearGossipMenuFor(player);
+                player->PlayerTalkClass->ClearMenus();
 
                 switch (gossipListId)
                 {

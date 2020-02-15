@@ -270,7 +270,7 @@ public:
         void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             _events.ScheduleEvent(EVENT_RECRUIT_1, 100);
-            CloseGossipMenuFor(player);
+            player->CLOSE_GOSSIP_MENU();
             me->CastSpell(player, SPELL_QUEST_CREDIT, true);
             me->SetFacingToObject(player);
         }
@@ -554,7 +554,7 @@ public:
 
             void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
-                CloseGossipMenuFor(player);
+                player->CLOSE_GOSSIP_MENU();
                 DoCast(player, SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
                 _playerGUID = player->GetGUID();
                 _getingredienttry = 1;

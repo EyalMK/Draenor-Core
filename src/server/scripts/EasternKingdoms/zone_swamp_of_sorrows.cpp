@@ -16,25 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+class npc_fallen_marshtide : public CreatureScript
+{
+public:
+	npc_fallen_marshtide() : CreatureScript("npc_fallen_marshtide") { }
 
-// This needs work with ClearDelayedOperations();, UNIT_FIELD_ANIM_TIER to work 2/16/2020.
-//class npc_fallen_marshtide : public CreatureScript
-//{
-//public:
-//	npc_fallen_marshtide() : CreatureScript("npc_fallen_marshtide") { }
-//
-//	struct npc_fallen_marshtideAI : public ScriptedAI
-//	{
-//		npc_fallen_marshtideAI(Creature* creature) : ScriptedAI(creature) { }
-//
-//		void Reset()
-//		{
-//			ClearDelayedOperations();
-//			m_Events.Reset();
-//
-//			me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
-//			me->SetHealth(0);
-//		}
+	struct npc_fallen_marshtideAI : public ScriptedAI
+	{
+		npc_fallen_marshtideAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset()
+		{
+			ClearDelayedOperations();
+			m_Events.Reset();
+
+			me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
+			me->SetHealth(0);
+		}
 
 //	private:
 //		EventMap m_CosmeticEvents;

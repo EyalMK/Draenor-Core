@@ -1783,7 +1783,7 @@ public:
 
         void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            CloseGossipMenuFor(player);
+            player->CLOSE_GOSSIP_MENU();
             EnterPhase(PHASE_CHANNEL);
         }
 

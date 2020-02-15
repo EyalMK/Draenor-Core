@@ -523,7 +523,7 @@ public:
         {
             if (gossipListId == 0)
             {
-                CloseGossipMenuFor(player);
+                player->CLOSE_GOSSIP_MENU();
                 StartChannel = true;
                 events.ScheduleEvent(EVENT_SHADE_START, 500);
             }

@@ -339,31 +339,31 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        ClearGossipMenuFor(player);
+        player->PlayerTalkClass->ClearMenus();
         npc_barnesAI* pBarnesAI = ENSURE_AI(npc_barnes::npc_barnesAI, creature->AI());
 
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                SendGossipMenuFor(player, 8971, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(8971, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                CloseGossipMenuFor(player);
+                player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->StartEvent();
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                CloseGossipMenuFor(player);
+                player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_OZ;
                 TC_LOG_DEBUG("scripts", "player (%s) manually set Opera event to EVENT_OZ", player->GetGUID().ToString().c_str());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
-                CloseGossipMenuFor(player);
+                player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_HOOD;
                 TC_LOG_DEBUG("scripts", "player (%s) manually set Opera event to EVENT_HOOD", player->GetGUID().ToString().c_str());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
-                CloseGossipMenuFor(player);
+                player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_RAJ;
                 TC_LOG_DEBUG("scripts", "player (%s) manually set Opera event to EVENT_RAJ", player->GetGUID().ToString().c_str());
                 break;
@@ -379,28 +379,28 @@ public:
             // Check for death of Moroes and if opera event is not done already
             if (instance->GetBossState(DATA_MOROES) == DONE && instance->GetBossState(DATA_OPERA_PERFORMANCE) != DONE)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
                 if (player->IsGameMaster())
                 {
-                    AddGossipItemFor(player, GOSSIP_ICON_DOT, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    AddGossipItemFor(player, GOSSIP_ICON_DOT, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    AddGossipItemFor(player, GOSSIP_ICON_DOT, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 }
 
                 if (npc_barnesAI* pBarnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI()))
                 {
                     if (!pBarnesAI->RaidWiped)
-                        SendGossipMenuFor(player, 8970, creature->GetGUID());
+                        player->SEND_GOSSIP_MENU(8970, creature->GetGUID());
                     else
-                        SendGossipMenuFor(player, 8975, creature->GetGUID());
+                        player->SEND_GOSSIP_MENU(8975, creature->GetGUID());
 
                     return true;
                 }
             }
         }
 
-        SendGossipMenuFor(player, 8978, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(8978, creature->GetGUID());
         return true;
     }
 

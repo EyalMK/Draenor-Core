@@ -142,7 +142,7 @@ class npc_announcer_toc10 : public CreatureScript
                 if ((!_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) != DONE)
                     || (_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) == DONE))
                 {
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
                     break;
                 }
             }
@@ -150,14 +150,14 @@ class npc_announcer_toc10 : public CreatureScript
             if (i >= NUM_MESSAGES)
                 return false;
 
-            SendGossipMenuFor(player, _GossipMessage[i].msgnum, creature->GetGUID());
+            player->SEND_GOSSIP_MENU(_GossipMessage[i].msgnum, creature->GetGUID());
             return true;
         }
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
         {
-            ClearGossipMenuFor(player);
-            CloseGossipMenuFor(player);
+            player->PlayerTalkClass->ClearMenus();
+            player->CLOSE_GOSSIP_MENU();
             InstanceScript* instance = creature->GetInstanceScript();
             if (!instance)
                 return true;

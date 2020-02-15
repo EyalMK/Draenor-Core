@@ -61,14 +61,14 @@ public:
                 case LOCALE_esES: localizedEntry = LOCALE_TRICK_OR_TREAT_6; break;
                 case LOCALE_enUS: default: localizedEntry = LOCALE_TRICK_OR_TREAT_0;
             }
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         }
 
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (creature->IsVendor())
-            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
         if (creature->IsInnkeeper())
         {
@@ -78,17 +78,17 @@ public:
                 case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
                 case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
             }
-            AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
         }
 
         player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        ClearGossipMenuFor(player);
+        player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1 && IsHolidayActive(HOLIDAY_HALLOWS_END) && !player->HasAura(SPELL_TRICK_OR_TREATED))
         {
             player->CastSpell(player, SPELL_TRICK_OR_TREATED, true);
@@ -117,11 +117,11 @@ public:
                 }
                 player->CastSpell(player, trickspell, true);
             }
-            CloseGossipMenuFor(player);
+            player->CLOSE_GOSSIP_MENU();
             return true;
         }
 
-        CloseGossipMenuFor(player);
+        player->CLOSE_GOSSIP_MENU();
 
         switch (action)
         {

@@ -49,7 +49,6 @@
 #include "MiscPackets.h"
 
 #include "Transport.h"
-#include "ScriptedGossip.h"
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -964,12 +963,12 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
 
     if (!player->GetBGAccessByLevel(bgTypeId))
     {
-        ClearGossipMenuFor(player);
+        player->PlayerTalkClass->ClearMenus();
         switch (bgTypeId)
         {
-            case BATTLEGROUND_AV:  SendGossipMenuFor(player, 7616, this); break;
-            case BATTLEGROUND_WS:  SendGossipMenuFor(player, 7599, this); break;
-            case BATTLEGROUND_AB:  SendGossipMenuFor(player, 7642, this); break;
+            case BATTLEGROUND_AV:  player->PlayerTalkClass->SendGossipMenu(7616, GetGUID()); break;
+            case BATTLEGROUND_WS:  player->PlayerTalkClass->SendGossipMenu(7599, GetGUID()); break;
+            case BATTLEGROUND_AB:  player->PlayerTalkClass->SendGossipMenu(7642, GetGUID()); break;
             case BATTLEGROUND_EY:
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
@@ -977,7 +976,7 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
             case BATTLEGROUND_RL:
             case BATTLEGROUND_SA:
             case BATTLEGROUND_DS:
-            case BATTLEGROUND_RV:  SendGossipMenuFor(player, 10024, this); break;
+            case BATTLEGROUND_RV: player->PlayerTalkClass->SendGossipMenu(10024, GetGUID()); break;
             default: break;
         }
         return false;
@@ -1795,18 +1794,6 @@ void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/)
         summon->UnSummon(msTimeToDespawn);
     else
         ForcedDespawn(msTimeToDespawn);
-}
-
-void Creature::DespawnCreaturesInArea(uint32 entry, float range)
-{
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, entry, range);
-
-    if (creatures.empty())
-        return;
-
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
 }
 
 bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo) const

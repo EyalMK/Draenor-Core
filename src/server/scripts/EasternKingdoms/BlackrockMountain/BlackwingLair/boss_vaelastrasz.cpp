@@ -225,7 +225,7 @@ public:
         {
             if (menuId == GOSSIP_ID && gossipListId == 0)
             {
-                CloseGossipMenuFor(player);
+                player->CLOSE_GOSSIP_MENU();
                 BeginSpeech(player);
             }
         }
