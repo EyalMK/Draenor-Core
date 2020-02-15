@@ -659,18 +659,6 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
     }
 }
 
-void Group::SendUpdateDestroyGroupToPlayer(Player* player) const
-{
-    WorldPackets::Party::PartyUpdate partyUpdate;
-    partyUpdate.PartyFlags = GROUP_FLAG_DESTROYED;
-    partyUpdate.PartyIndex = 0;
-    partyUpdate.PartyType = GROUPTYPE_NORMAL;
-    partyUpdate.PartyGUID = m_guid;
-    partyUpdate.MyIndex = -1;
-    partyUpdate.SequenceNum = m_counter + 1;
-    player->GetSession()->SendPacket(partyUpdate.Write());
-}
-
 void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
 {
     member_witerator slot = _getMemberWSlot(newLeaderGuid);
