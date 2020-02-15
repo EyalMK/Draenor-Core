@@ -22,7 +22,6 @@ void AddSC_boss_glubtok();
 void AddSC_boss_drekthar();
 void AddSC_boss_galvangar();
 void AddSC_boss_vanndar();
-//void AddSC_boss_glubtok();
 void AddSC_boss_alizabal();                  //Baradin Hold
 void AddSC_boss_occuthar();
 void AddSC_boss_pit_lord_argaloth();
@@ -30,9 +29,7 @@ void AddSC_instance_baradin_hold();
 void AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
 void AddSC_boss_corla();
 void AddSC_boss_karsh_steelbender();
-//void AddSC_dun_morogh();
 void AddSC_boss_beauty();
-//void AddSC_dun_morogh_area_coldridge_valley();
 void AddSC_boss_ascendant_lord_obsidius();
 void AddSC_blackrock_caverns();
 void AddSC_instance_blackrock_caverns();
@@ -273,14 +270,12 @@ void AddEasternKingdomsScripts()
     AddSC_bosses_opera();
     AddSC_boss_netherspite();
     AddSC_instance_karazhan();
-    //AddSC_boss_glubtok();
     AddSC_karazhan();
     AddSC_boss_nightbane();
     AddSC_boss_felblood_kaelthas();         // Magister's Terrace
     AddSC_boss_selin_fireheart();
     AddSC_boss_vexallus();
     AddSC_boss_priestess_delrissa();
-    //AddSC_dun_morogh_area_coldridge_valley();
     AddSC_instance_magisters_terrace();
     AddSC_magisters_terrace();
     AddSC_boss_lucifron();                  //Molten core
@@ -303,7 +298,6 @@ void AddEasternKingdomsScripts()
     AddSC_boss_bloodmage_thalnos();
     AddSC_boss_headless_horseman();
     AddSC_boss_herod();
-    //AddSC_dun_morogh();
     AddSC_boss_high_inquisitor_fairbanks();
     AddSC_boss_houndmaster_loksey();
     AddSC_boss_interrogator_vishas();

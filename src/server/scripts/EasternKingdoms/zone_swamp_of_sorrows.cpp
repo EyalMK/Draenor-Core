@@ -36,22 +36,22 @@
 //			me->SetHealth(0);
 //		}
 
-	private:
-		EventMap m_CosmeticEvents;
-		EventMap m_Events;
-	};
+//	private:
+//		EventMap m_CosmeticEvents;
+//		EventMap m_Events;
+//	};
 
 
 
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new npc_fallen_marshtideAI(creature);
-	}
-};
+//	CreatureAI* GetAI(Creature* creature) const
+//	{
+//		return new npc_fallen_marshtideAI(creature);
+//	}
+//};
 
 
 
-void AddSC_swamp_of_sorrows()
-{
-	new npc_fallen_marshtide();
-}
+//void AddSC_swamp_of_sorrows()
+//{
+//	new npc_fallen_marshtide();
+//}

@@ -75,7 +75,7 @@ public:
     {
         if (player->GetQuestStatus(CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
         {
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             SendGossipMenuFor(player, NPC_TEXT_WUT_YOU_WANT, creature->GetGUID());
         }
         else
@@ -165,7 +165,7 @@ public:
     {
         if (player->GetQuestStatus(PATIENCE_AND_UNDERSTANDING) == QUEST_STATUS_INCOMPLETE)
         {
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_ALTRUIS_SENT_ME, OPTION_ID_ALTRUIS_SENT_ME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, MENU_ID_ALTRUIS_SENT_ME, OPTION_ID_ALTRUIS_SENT_ME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             SendGossipMenuFor(player, NPC_TEXT_SAL_GROWLS_AT_YOU, creature->GetGUID());
         }
         else
@@ -329,7 +329,7 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetReputationRank(KEEPERS_OF_TIME_REPUTATION) >= REP_REVERED)
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_TAKE_ME_TO_C_O_T, OPTION_ID_TAKE_ME_TO_C_O_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, MENU_ID_TAKE_ME_TO_C_O_T, OPTION_ID_TAKE_ME_TO_C_O_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
 
