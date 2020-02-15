@@ -153,7 +153,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
         {
             return new spell_hun_chimera_shot_SpellScript();
         }
-};
+}; 
 
 // 77767 - Cobra Shot
 class spell_hun_cobra_shot : public SpellScriptLoader
@@ -1032,6 +1032,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_steady_shot();
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
-    new spell_hun_thrill_of_the_hunt();
+    new spell_hun_thrill_of_the_hunt();   
     new spell_hun_tnt();
 }
