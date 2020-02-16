@@ -442,6 +442,8 @@ class TC_GAME_API Spell
         void EffectUpgradeHeirloom(SpellEffIndex effIndex);
         void EffectApplyEnchantIllusion(SpellEffIndex effIndex);
         void EffectUpdatePlayerPhase(SpellEffIndex effIndex);
+        void EffectGiveExperience(SpellEffIndex effIndex);
+        void EffectIncreaseSkill(SpellEffIndex effIndex);
         void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
