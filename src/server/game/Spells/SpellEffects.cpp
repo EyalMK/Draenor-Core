@@ -5935,7 +5935,7 @@ void Spell::EffectGiveExperience(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
-    if (!unitTarget->IsPlayer())
+    if (!unitTarget->ToPlayer())
         return;
 
     QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(unitTarget->getLevel());
@@ -5960,7 +5960,7 @@ void Spell::EffectIncreaseSkill(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
-    if (!unitTarget->IsPlayer())
+    if (!unitTarget->ToPlayer())
         return;
 
     SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(effectInfo->MiscValue);
