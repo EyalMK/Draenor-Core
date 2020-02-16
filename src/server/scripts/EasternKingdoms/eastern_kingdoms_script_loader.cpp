@@ -190,6 +190,7 @@ void AddSC_loch_modan();
 void AddSC_redridge_mountains();
 void AddSC_silverpine_forest();
 void AddSC_stormwind_city();
+void AddSC_twilight_highlands();
 void AddSC_stranglethorn_vale();
 void AddSC_tirisfal_glades();
 void AddSC_tol_barad();
@@ -384,4 +385,5 @@ void AddEasternKingdomsScripts()
     AddSC_western_plaguelands();
     AddSC_wetlands();
     AddSC_westfall();
+    AddSC_twilight_highlands();
 }
