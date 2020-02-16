@@ -342,7 +342,7 @@ class TC_GAME_API Group
         void SendTargetIconList(WorldSession* session, int8 partyIndex = 0);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
-        void SendUpdateDestroyGroupToPlayer(Player* player) const;
+        //void SendUpdateDestroyGroupToPlayer(Player* player) const;
         void UpdatePlayerOutOfRange(Player* player);
 
         template<class Worker>

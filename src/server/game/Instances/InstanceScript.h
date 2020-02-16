@@ -248,14 +248,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Sets the entrance location (WorldSafeLoc) id
         void SetEntranceLocation(uint32 worldSafeLocationId);
-        
-        // Complete Achievement for all players in instance
-        void DoCompleteAchievement(uint32 achievement);
-
-        // Update Achievement Criteria for all players in instance
-        void DoUpdateAchievementCriteria(CriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
-
-
 
         // Sets a temporary entrance that does not get saved to db
         void SetTemporaryEntranceLocation(uint32 worldSafeLocationId) { _temporaryEntranceId = worldSafeLocationId; }

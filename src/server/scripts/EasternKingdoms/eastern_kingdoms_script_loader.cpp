@@ -18,7 +18,6 @@
 // This is where scripts' loading functions should be declared:
 void AddSC_alterac_valley();                 //Alterac Valley
 void AddSC_boss_balinda();
-void AddSC_boss_glubtok();
 void AddSC_boss_drekthar();
 void AddSC_boss_galvangar();
 void AddSC_boss_vanndar();
@@ -192,7 +191,6 @@ void AddSC_redridge_mountains();
 void AddSC_silverpine_forest();
 void AddSC_stormwind_city();
 void AddSC_stranglethorn_vale();
-void AddSC_swamp_of_sorrows();
 void AddSC_tirisfal_glades();
 void AddSC_tol_barad();
 void AddSC_undercity();
@@ -225,7 +223,6 @@ void AddEasternKingdomsScripts()
     AddSC_boss_draganthaurissan();
     AddSC_boss_general_angerforge();
     AddSC_boss_high_interrogator_gerstahn();
-    AddSC_boss_glubtok();
     AddSC_boss_magmus();
     AddSC_boss_moira_bronzebeard();
     AddSC_boss_tomb_of_seven();
@@ -381,7 +378,6 @@ void AddEasternKingdomsScripts()
     AddSC_silverpine_forest();
     AddSC_stormwind_city();
     AddSC_stranglethorn_vale();
-    AddSC_swamp_of_sorrows();
     AddSC_tirisfal_glades();
 	AddSC_tol_barad();
     AddSC_undercity();

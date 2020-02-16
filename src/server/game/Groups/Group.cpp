@@ -646,7 +646,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
         else if (player)
         {
             // Send update to removed player too so part frames are destroyed clientside
-            SendUpdateDestroyGroupToPlayer(player);
+            //SendUpdateDestroyGroupToPlayer(player);
         }
 
         return true;
