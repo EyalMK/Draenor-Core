@@ -5943,16 +5943,14 @@ void Spell::EffectGiveExperience(SpellEffIndex /*effIndex*/)
         return;
 
     Player* playerTarget = unitTarget->ToPlayer();
-    float questXpRate = playerTarget->GetPersonnalXpRate() ? playerTarget->GetPersonnalXpRate() : sWorld->getRate(RATE_XP_QUEST);
-    uint32 XP = questXp->Exp[effectInfo->MiscValueB] * questXpRate;
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = playerTarget->GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
-    for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
-        AddPct(XP, (*i)->GetAmount());
+	for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
 
-    if (playerTarget->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        playerTarget->GiveXP(XP, nullptr);
+
+		if (playerTarget->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+  
 }
 
 void Spell::EffectIncreaseSkill(SpellEffIndex /*effIndex*/)

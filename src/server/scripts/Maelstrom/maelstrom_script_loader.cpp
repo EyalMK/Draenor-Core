@@ -17,7 +17,6 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_kezan();
-void AddSC_lost_isle();
 
 void AddSC_instance_stonecore(); // Stonecore
 void AddSC_stonecore();
@@ -34,7 +33,6 @@ void AddSC_deepholm();
 void AddMaelstromScripts()
 {
     AddSC_kezan();
-    AddSC_lost_isle();
 
     AddSC_instance_stonecore(); // Stonecore
     AddSC_stonecore();
