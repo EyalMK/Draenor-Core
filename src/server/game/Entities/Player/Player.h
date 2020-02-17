@@ -2479,8 +2479,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
 
-        float GetPersonnalXpRate() { return _PersonnalXpRate; }
-        void SetPersonnalXpRate(float PersonnalXpRate);
 
         void OnCombatExit();
 
@@ -2827,8 +2825,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InstanceTimeMap _instanceResetTimes;
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
-        
-        float _PersonnalXpRate;
 
         uint32 _activeCheats;
         uint32 _maxPersonalArenaRate;
