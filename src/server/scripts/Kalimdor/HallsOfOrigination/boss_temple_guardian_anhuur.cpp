@@ -1,415 +1,371 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
-#include "Player.h"
+#include "ScriptPCH.h"
+#include "Spell.h"
 #include "halls_of_origination.h"
 
-enum Texts
+enum ScriptTexts
 {
-    SAY_AGGRO                    = 0,
-    SAY_SHIELD                   = 1,
-    EMOTE_SHIELD                 = 2,
-    EMOTE_UNSHIELD               = 3,
-    SAY_KILL                     = 4,
-    SAY_DEATH                    = 5
-};
-
-enum Events
-{
-    EVENT_DIVINE_RECKONING       = 1,
-    EVENT_BURNING_LIGHT          = 2,
-    EVENT_SEAR                   = 3,
+    SAY_DEATH       = 0,
+    SAY_AGGRO       = 1,
+    SAY_EVENT       = 2,
+    SAY_KILL        = 3
 };
 
 enum Spells
 {
-    SPELL_DIVINE_RECKONING       = 75592,
-    SPELL_BURNING_LIGHT          = 75115,
-    SPELL_REVERBERATING_HYMN     = 75322,
-    SPELL_SHIELD_OF_LIGHT        = 74938,
-
-    SPELL_ACTIVATE_BEACONS       = 76599,
-    SPELL_TELEPORT               = 74969,
-
-    SPELL_SHIELD_VISUAL_RIGHT    = 83698,
-    SPELL_BEAM_OF_LIGHT_RIGHT    = 76573,
-
-    SPELL_SHIELD_VISUAL_LEFT     = 83697,
-    SPELL_BEAM_OF_LIGHT_LEFT     = 74930,
-
-    SPELL_SEARING_LIGHT          = 75194,
+    SPELL_DIVINE_RECKONING      = 75592,
+    SPELL_REVERBERATING_HYMN    = 75322,
+    SPELL_SEARING_FLAME         = 75115,
+    SPELL_SEARING_FLAME_SUM     = 75114,
+    SPELL_SEARING_FLAME_DMG     = 75116,
+    SPELL_SHIELD_OF_LIGHT       = 74938,
+    SPELL_BEAM_LEFT             = 83697,
+    SPELL_BEAM_RIGHT            = 83698,
+    SPELL_POISON_TIPPED_FANGS   = 74538
 };
 
-enum Phases
+enum Events
 {
-    PHASE_SHIELDED               = 0,
-    PHASE_FIRST_SHIELD           = 1, // Ready to be shielded for the first time
-    PHASE_SECOND_SHIELD          = 2, // First shield already happened, ready to be shielded a second time
-    PHASE_FINAL                  = 3  // Already shielded twice, ready to finish the encounter normally.
+    EVENT_SEARING_FLAME         = 1,
+    EVENT_DIVINE_RECKONING      = 2,
+    EVENT_POISON_TIPPED_FANGS   = 3,
+    EVENT_ACHIEVEMENT           = 4,
+    EVENT_SHIELD_OF_LIGHT       = 5,
+    EVENT_REVERBERATING_HYMN    = 6
 };
 
 enum Actions
 {
-    ACTION_DISABLE_BEACON,
+    ACTION_ACTIVATE = 1
 };
+
+enum Points
+{
+    POINT_CENTER = 1
+};
+
+enum Adds
+{
+    NPC_CAVE_IN         = 40183,
+    NPC_PIT_SNAKE       = 39444,
+    NPC_SEARING_FLAME   = 40283,
+
+    GO_BEACON_LEFT      = 203133,
+    GO_BEACON_RIGHT     = 203136
+};
+
+const Position SpawnPosition[] =
+{
+    {-654.277f, 361.118f, 52.9508f, 5.86241f},
+    {-670.102f, 350.896f, 54.1803f, 2.53073f},
+    {-668.896f, 326.048f, 53.2267f, 3.36574f},
+    {-618.875f, 344.237f, 52.95f, 0.194356f},
+    {-661.667f, 338.78f, 53.0333f, 2.53073f},
+    {-607.836f, 348.586f, 53.4939f, 1.0558f},
+    {-656.452f, 376.388f, 53.9709f, 1.4525f},
+    {-652.762f, 370.634f, 52.9503f, 2.5221f},
+    {-682.656f, 343.953f, 53.7329f, 2.53073f},
+    {-658.877f, 309.077f, 53.6711f, 0.595064f},
+    {-619.399f, 309.049f, 53.4247f, 4.63496f},
+    {-612.648f, 318.365f, 53.777f, 3.53434f},
+    {-616.398f, 345.109f, 53.0165f, 2.53073f},
+    {-681.394f, 342.813f, 53.8955f, 6.24987f},
+    {-668.843f, 351.407f, 54.1813f, 5.5293f},
+    {-672.797f, 317.175f, 52.9636f, 5.51166f},
+    {-631.834f, 375.502f, 55.7079f, 0.738231f},
+    {-617.027f, 360.071f, 52.9816f, 2.00725f},
+    {-623.891f, 361.178f, 52.9334f, 5.61183f},
+    {-614.988f, 331.613f, 52.9533f, 2.91186f},
+    {-662.902f, 341.463f, 52.9502f, 2.84307f}
+};
+
+const Position bosspos = {-640.527f, 334.855f, 78.345f, 1.54f};
 
 class boss_temple_guardian_anhuur : public CreatureScript
 {
-public:
-    boss_temple_guardian_anhuur() : CreatureScript("boss_temple_guardian_anhuur") { }
+    public:
+        boss_temple_guardian_anhuur() : CreatureScript("boss_temple_guardian_anhuur") { }
 
-    struct boss_temple_guardian_anhuurAI : public BossAI
-    {
-        boss_temple_guardian_anhuurAI(Creature* creature) : BossAI(creature, DATA_TEMPLE_GUARDIAN_ANHUUR)
+        CreatureAI* GetAI(Creature* pCreature) const
         {
-            Initialize();
+            return new boss_temple_guardian_anhuurAI(pCreature);
         }
 
-        void Initialize()
+        struct boss_temple_guardian_anhuurAI : public BossAI
         {
-            _phase = PHASE_FIRST_SHIELD;
-            _oldPhase = PHASE_FIRST_SHIELD;
-            _beacons = 0;
-        }
-
-        void CleanStalkers()
-        {
-            std::list<Creature*> stalkers;
-            GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
-            for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
+            boss_temple_guardian_anhuurAI(Creature* pCreature) : BossAI(pCreature, DATA_TEMPLE_GUARDIAN_ANHUUR)
             {
-                (*itr)->RemoveAurasDueToSpell(SPELL_BEAM_OF_LIGHT_RIGHT);
-                (*itr)->RemoveAurasDueToSpell(SPELL_BEAM_OF_LIGHT_LEFT);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
-        }
 
-        void Reset() override
-        {
-            Initialize();
-            _Reset();
-            CleanStalkers();
-            me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
-            events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(10000, 12000));
-            events.ScheduleEvent(EVENT_BURNING_LIGHT, 12000);
-        }
+            uint8 phase;
+            uint8 beacons;
+            bool achieve;
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if ((me->HealthBelowPctDamaged(66, damage) && _phase == PHASE_FIRST_SHIELD) ||
-                (me->HealthBelowPctDamaged(33, damage) && _phase == PHASE_SECOND_SHIELD))
+            void InitializeAI()
             {
-                _beacons = 2;
-                _phase++; // Increase the phase
-                _oldPhase = _phase;
-
-                _phase = PHASE_SHIELDED;
-
-                me->InterruptNonMeleeSpells(true);
-                me->AttackStop();
-                DoCast(me, SPELL_TELEPORT);
-
-                DoCast(me, SPELL_SHIELD_OF_LIGHT);
-                me->SetFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_UNK_31));
-
-                DoCastAOE(SPELL_ACTIVATE_BEACONS);
-
-                GameObject* door = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ANHUUR_DOOR));
-                if (door)
-                {
-                    std::list<Creature*> stalkers;
-                    GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
-
-                    stalkers.remove_if(Trinity::HeightDifferenceCheck(door, 0.0f, false)); // Target only the bottom ones
-                    for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
-                    {
-                        if ((*itr)->GetPositionX() > door->GetPositionX())
-                        {
-                            (*itr)->CastSpell((*itr), SPELL_SHIELD_VISUAL_LEFT, true);
-                            (*itr)->CastSpell((*itr), SPELL_BEAM_OF_LIGHT_LEFT, true);
-                        }
-                        else
-                        {
-                            (*itr)->CastSpell((*itr), SPELL_SHIELD_VISUAL_RIGHT, true);
-                            (*itr)->CastSpell((*itr), SPELL_BEAM_OF_LIGHT_RIGHT, true);
-                        }
-                    }
-                }
-
-                DoCast(me, SPELL_REVERBERATING_HYMN);
-
-                Talk(EMOTE_SHIELD);
-                Talk(SAY_SHIELD);
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(HOScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
-        }
 
-        void DoAction(int32 action) override
-        {
-            if (action == ACTION_DISABLE_BEACON)
+            void Reset()
             {
-                --_beacons;
-                if (!_beacons)
-                {
-                    me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
-                    Talk(EMOTE_UNSHIELD);
-                    _phase = _oldPhase;
-                }
+                _Reset();
+
+                me->SetReactState(REACT_AGGRESSIVE);
+                phase = 0;
+                beacons = 0;
+                achieve = false;
             }
-        }
 
-        void EnterCombat(Unit* /*who*/) override
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-            Talk(SAY_AGGRO);
-            _EnterCombat();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            Talk(SAY_DEATH);
-            _JustDied();
-        }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            void KilledUnit(Unit* /*Killed*/)
+            {
                 Talk(SAY_KILL);
-        }
+            }
 
-        void JustReachedHome() override
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            _JustReachedHome();
-            instance->SetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR, FAIL);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim() || !CheckInRoom() || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) || _phase == PHASE_SHIELDED)
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
+            void JustDied(Unit* /*Kill*/)
             {
-                switch (eventId)
+                _JustDied();
+                Talk(SAY_DEATH);
+            }
+
+            void EnterCombat(Unit* /*Ent*/)
+            {
+                events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(3000, 10000));
+                events.ScheduleEvent(EVENT_SEARING_FLAME, urand(2000, 7000));
+                Talk(SAY_AGGRO);
+                DoZoneInCombat();
+                instance->SetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR, IN_PROGRESS);
+            }
+
+            void JustReachedHome()
+            {
+                _JustReachedHome();
+            }
+
+            bool HasAchieved()
+            {
+                return achieve;
+            }
+
+            void DoAction(const int32 action)
+            {
+                if (action == ACTION_ACTIVATE)
                 {
-                    case EVENT_DIVINE_RECKONING:
-                        DoCastVictim(SPELL_DIVINE_RECKONING);
-                        events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(10000, 12000));
-                        break;
-                    case EVENT_BURNING_LIGHT:
+                    beacons++;
+                    if (beacons == 2)
                     {
-                        Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me));
-                        if (!unit)
-                            unit = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                        DoCast(unit, SPELL_BURNING_LIGHT);
-                        events.ScheduleEvent(EVENT_SEAR, 2000);
-                        events.ScheduleEvent(EVENT_BURNING_LIGHT, 12000);
-                        break;
-                    }
-                    case EVENT_SEAR:
-                    {
-                        Unit* target = me->FindNearestCreature(NPC_SEARING_LIGHT, 100.0f);
-                        if (!target)
-                            break;
-
-                        std::list<Creature*> stalkers;
-                        GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
-                        stalkers.remove_if(Trinity::HeightDifferenceCheck(ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ANHUUR_DOOR)), 5.0f, true));
-
-                        if (stalkers.empty())
-                            break;
-
-                        stalkers.sort(Trinity::ObjectDistanceOrderPred(target));
-
-                        // Get the closest statue face (any of its eyes)
-                        Creature* eye1 = stalkers.front();
-                        stalkers.remove(eye1); // Remove the eye.
-                        stalkers.sort(Trinity::ObjectDistanceOrderPred(eye1)); // Find the second eye.
-                        Creature* eye2 = stalkers.front();
-
-                        eye1->CastSpell(eye1, SPELL_SEARING_LIGHT, true);
-                        eye2->CastSpell(eye2, SPELL_SEARING_LIGHT, true);
-                        break;
+                        me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
+                        beacons = 0;
                     }
                 }
             }
 
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        uint8 _phase;
-        uint8 _oldPhase;
-        uint8 _beacons;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetHallsOfOriginationAI<boss_temple_guardian_anhuurAI>(creature);
-    }
-};
-
-class spell_anhuur_shield_of_light : public SpellScriptLoader
-{
-    public:
-        spell_anhuur_shield_of_light() : SpellScriptLoader("spell_anhuur_shield_of_light") { }
-
-        class spell_anhuur_shield_of_light_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_anhuur_shield_of_light_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
-                if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
-                {
-                    if (InstanceScript* const script = instance->GetInstanceScript())
-                    {
-                        if (GameObject* go = ObjectAccessor::GetGameObject(*GetCaster(), script->GetGuidData(DATA_ANHUUR_DOOR)))
+                if (me->HasAura(SPELL_SHIELD_OF_LIGHT))
+                    return;
+
+                if (spell->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
+                    if (me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                        if (me->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_spellInfo->Id == SPELL_REVERBERATING_HYMN)
                         {
-                            targets.remove_if(Trinity::HeightDifferenceCheck(go, 5.0f, false));
-                            targets.remove(GetCaster());
-                            targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-                            targets.resize(2);
+                            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                            phase++;
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->GetMotionMaster()->MoveChase(me->getVictim());
+                            events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(3000, 10000));
+                            events.ScheduleEvent(EVENT_SEARING_FLAME, urand(2000, 7000));
                         }
+            }
+
+            void JustSummoned(Creature* summon)
+            {
+                summons.Summon(summon);
+                if (summon->GetEntry() != NPC_PIT_SNAKE)
+                    if (me->isInCombat())
+                        DoZoneInCombat(summon);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if ((me->HealthBelowPct(67) && phase == 0) ||
+                    (me->HealthBelowPct(34) && phase == 2))
+                {
+                    events.Reset();
+                    me->RemoveAllAuras();
+                    beacons = 0;
+                    phase++;
+                    for (uint32 i = 0; i < 21; ++i)
+                        me->SummonCreature(NPC_PIT_SNAKE,SpawnPosition[i],TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    
+                    if (GameObject* pGo = me->FindNearestGameObject(GO_BEACON_LEFT, 100.0f))
+                        pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+                    if (GameObject* pGo = me->FindNearestGameObject(GO_BEACON_RIGHT, 100.0f))
+                        pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+
+                    Talk(SAY_EVENT);
+                    
+                    me->SetReactState(REACT_PASSIVE);
+                    me->AttackStop();
+                    if (!achieve)
+                    {
+                        achieve = true;
+                        events.ScheduleEvent(EVENT_ACHIEVEMENT, 15000);
+                    }
+                    //DoTeleportTo(bosspos.GetPositionX(), bosspos.GetPositionY(), bosspos.GetPositionZ());
+                    events.ScheduleEvent(EVENT_SHIELD_OF_LIGHT, 2000);
+                    return;
+                }
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SHIELD_OF_LIGHT:
+                            me->SetOrientation(bosspos.GetOrientation());
+                            DoCast(me, SPELL_SHIELD_OF_LIGHT, true);
+                            events.ScheduleEvent(EVENT_REVERBERATING_HYMN, 1000);
+                            break;
+                        case EVENT_REVERBERATING_HYMN:
+                            DoCast(me, SPELL_REVERBERATING_HYMN);
+                            break;
+                        case EVENT_ACHIEVEMENT:
+                            achieve = false;
+                            break;
+                        case EVENT_DIVINE_RECKONING:
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                                DoCast(pTarget, SPELL_DIVINE_RECKONING);
+                            events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(15000, 17000));
+                            break;
+                        case EVENT_SEARING_FLAME:
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                                DoCast(pTarget, SPELL_SEARING_FLAME_SUM);
+                            events.ScheduleEvent(EVENT_SEARING_FLAME, urand(8000, 10000));
+                            break;
                     }
                 }
-            }
 
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anhuur_shield_of_light_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+                DoMeleeAttackIfReady();
             }
         };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_anhuur_shield_of_light_SpellScript();
-        }
 };
 
-class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
+class npc_pit_snake : public CreatureScript
 {
     public:
-        spell_anhuur_disable_beacon_beams() : SpellScriptLoader("spell_anhuur_disable_beacon_beams") { }
+        npc_pit_snake() : CreatureScript("npc_pit_snake") { }
 
-        class spell_anhuur_disable_beacon_beams_SpellScript : public SpellScript
+        CreatureAI* GetAI(Creature* pCreature) const
         {
-            PrepareSpellScript(spell_anhuur_disable_beacon_beams_SpellScript);
+            return new npc_pit_snakeAI(pCreature);
+        }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
+        struct npc_pit_snakeAI : public ScriptedAI
+        {
+            npc_pit_snakeAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                GetHitUnit()->RemoveAurasDueToSpell(GetEffectValue());
             }
 
-            void Notify(SpellEffIndex /*index*/)
+            EventMap events;
+
+            void Reset()
             {
-                if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
-                    if (InstanceScript* const script = instance->GetInstanceScript())
-                        if (Creature* anhuur = instance->GetCreature(script->GetGuidData(DATA_ANHUUR_GUID)))
-                            anhuur->AI()->DoAction(ACTION_DISABLE_BEACON);
+                events.Reset();
             }
 
-            void Register() override
+            void EnterCombat(Unit* /*p_Who*/)
             {
-                OnEffectHitTarget += SpellEffectFn(spell_anhuur_disable_beacon_beams_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffectHit += SpellEffectFn(spell_anhuur_disable_beacon_beams_SpellScript::Notify, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                events.ScheduleEvent(EVENT_POISON_TIPPED_FANGS, urand(2000, 8000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_POISON_TIPPED_FANGS:
+                            DoCast(me->getVictim(), SPELL_POISON_TIPPED_FANGS);
+                            events.ScheduleEvent(EVENT_POISON_TIPPED_FANGS, urand(5000, 10000));
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
             }
         };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_anhuur_disable_beacon_beams_SpellScript();
-        }
 };
 
-class spell_anhuur_activate_beacons : public SpellScriptLoader
-{
-    public:
-        spell_anhuur_activate_beacons() : SpellScriptLoader("spell_anhuur_activate_beacons") { }
-
-        class spell_anhuur_activate_beacons_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_anhuur_activate_beacons_SpellScript);
-
-            void Activate(SpellEffIndex index)
-            {
-                PreventHitDefaultEffect(index);
-                GetHitGObj()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_anhuur_activate_beacons_SpellScript::Activate, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_anhuur_activate_beacons_SpellScript();
-        }
-};
-
-class spell_anhuur_divine_reckoning : public SpellScriptLoader
+class go_beacon_of_light : public GameObjectScript
 {
 public:
-    spell_anhuur_divine_reckoning() : SpellScriptLoader("spell_anhuur_divine_reckoning") { }
+    go_beacon_of_light() : GameObjectScript("go_beacon_of_light") { }
 
-    class spell_anhuur_divine_reckoning_AuraScript : public AuraScript
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
     {
-        PrepareAuraScript(spell_anhuur_divine_reckoning_AuraScript);
-
-        void OnPeriodic(AuraEffect const* aurEff)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                CustomSpellValues values;
-                values.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
-                caster->CastCustomSpell(GetSpellInfo()->GetEffect(caster, EFFECT_0)->TriggerSpell, values, GetTarget());
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_anhuur_divine_reckoning_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_anhuur_divine_reckoning_AuraScript();
+        if (Creature* pAnhuur = pGO->FindNearestCreature(NPC_TEMPLE_GUARDIAN_ANHUUR, 100.0f))
+            pAnhuur->GetAI()->DoAction(ACTION_ACTIVATE);
+        pGO->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+        return false;
     }
 };
 
+typedef boss_temple_guardian_anhuur::boss_temple_guardian_anhuurAI AnhuurAI;
+
+class achievement_i_hate_that_song : public AchievementCriteriaScript
+{
+    public:
+        achievement_i_hate_that_song() : AchievementCriteriaScript("achievement_i_hate_that_song") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (AnhuurAI* anhuurAI = CAST_AI(AnhuurAI, target->GetAI()))
+                return anhuurAI->HasAchieved();
+
+            return false;
+        }
+};
+
+#ifndef __clang_analyzer__
 void AddSC_boss_temple_guardian_anhuur()
 {
     new boss_temple_guardian_anhuur();
-    new spell_anhuur_shield_of_light();
-    new spell_anhuur_disable_beacon_beams();
-    new spell_anhuur_activate_beacons();
-    new spell_anhuur_divine_reckoning();
+    new npc_pit_snake();
+    new go_beacon_of_light();
+    new achievement_i_hate_that_song();
 }
+#endif

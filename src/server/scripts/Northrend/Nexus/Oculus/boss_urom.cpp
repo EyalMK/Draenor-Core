@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Urom
@@ -95,7 +86,6 @@ class boss_urom : public CreatureScript
         {
             boss_uromAI(Creature* creature) : BossAI(creature, DATA_UROM)
             {
-                Initialize();
                 platform = 0;
 
                 for (uint8 i = 0; i < 3; ++i)
@@ -104,12 +94,18 @@ class boss_urom : public CreatureScript
                 std::random_shuffle(group, group + 3);
             }
 
-            void Initialize()
+            void Reset()
             {
+                me->CastSpell(me, SPELL_EVOCATE);
+
+                _Reset();
+
                 x = 0.0f;
                 y = 0.0f;
                 canCast = false;
                 canGoBack = false;
+
+                me->GetMotionMaster()->MoveIdle();
 
                 teleportTimer = urand(30000, 35000);
                 arcaneExplosionTimer = 9000;
@@ -118,23 +114,14 @@ class boss_urom : public CreatureScript
                 timeBombTimer = urand(20000, 25000);
             }
 
-            void Reset() override
-            {
-                me->CastSpell(me, SPELL_EVOCATE);
-
-                _Reset();
-
-                me->GetMotionMaster()->MoveIdle();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
 
                 StartAttack();
             }
 
-            void AttackStart(Unit* who) override
+            void AttackStart(Unit* who)
             {
                 if (!who)
                     return;
@@ -191,13 +178,13 @@ class boss_urom : public CreatureScript
                 ++platform;
             }
 
-            void KilledUnit(Unit* who) override
+            void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_PLAYER_KILL);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -234,13 +221,11 @@ class boss_urom : public CreatureScript
                 {
                     if (arcaneExplosionTimer <= diff)
                     {
-                        if (me->GetVictim())
-                        {
-                            Position pos = me->EnsureVictim()->GetPosition();
+                        Position pos;
+                        me->getVictim()->GetPosition(&pos);
 
-                            me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
-                        }
+                        me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+                        me->GetMotionMaster()->MoveChase(me->getVictim());
                         me->SetWalk(true);
 
                         Talk(EMOTE_ARCANE_EXPLOSION);
@@ -254,7 +239,7 @@ class boss_urom : public CreatureScript
                         arcaneExplosionTimer -= diff;
                 }
 
-                if (!me->IsNonMeleeSpellCast(false, true, true))
+                if (!me->IsNonMeleeSpellCasted(false, true, true))
                 {
                     if (frostBombTimer <= diff)
                     {
@@ -278,7 +263,7 @@ class boss_urom : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -292,7 +277,7 @@ class boss_urom : public CreatureScript
                 me->DeleteThreatList();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo)
             {
                 switch (spellInfo->Id)
                 {
@@ -339,13 +324,15 @@ class boss_urom : public CreatureScript
             uint32 timeBombTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return GetOculusAI<boss_uromAI>(creature);
+            return new boss_uromAI (creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_urom()
 {
     new boss_urom();
 }
+#endif

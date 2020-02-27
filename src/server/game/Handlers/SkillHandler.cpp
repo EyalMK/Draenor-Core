@@ -1,112 +1,239 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
+#include "DatabaseEnv.h"
+#include "Opcodes.h"
 #include "Log.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
-#include "Pet.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "TalentPackets.h"
-#include "SpellPackets.h"
+#include "ObjectAccessor.h"
+#include "UpdateMask.h"
 
-void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet)
+void WorldSession::HandleSetSpecialization(WorldPacket& p_Packet)
 {
-    bool anythingLearned = false;
-    for (uint32 talentId : packet.Talents)
-        if (_player->LearnTalent(talentId))
-            anythingLearned = true;
+    uint32  l_TabIndex  = p_Packet.read<uint32>();
+    uint8   l_ClassID   = m_Player->getClass();
 
-    if (anythingLearned)
-        _player->SendTalentsInfoData();
+    // Avoid cheat - hack
+    if (m_Player->GetSpecializationId(m_Player->GetActiveSpec()))
+        return;
+
+    uint32 l_SpecializationID       = 0;
+    uint32 l_SpecializationSpell    = 0;
+
+    for (uint32 l_I = 0; l_I < sChrSpecializationsStore.GetNumRows(); l_I++)
+    {
+        ChrSpecializationsEntry const * l_Specialization = sChrSpecializationsStore.LookupEntry(l_I);
+
+        if (!l_Specialization)
+            continue;
+
+        if (l_Specialization->ClassID == l_ClassID && l_Specialization->OrderIndex == l_TabIndex)
+        {
+            l_SpecializationID      = l_Specialization->ID;
+            l_SpecializationSpell   = l_Specialization->MasterySpellID;
+
+            break;
+        }
+    }
+
+    if (l_SpecializationID)
+    {
+        m_Player->SetSpecializationId(m_Player->GetActiveSpec(), l_SpecializationID);
+        m_Player->SendTalentsInfoData(false);
+
+        for (uint8 l_I = POWER_MANA; l_I < MAX_POWERS; ++l_I)
+        {
+            m_Player->SetMaxPower(Powers(l_I), m_Player->GetCreatePowers(Powers(l_I)));
+            m_Player->SetPower(Powers(l_I), 0);
+        }
+
+        if (l_SpecializationSpell)
+            m_Player->learnSpell(l_SpecializationSpell, false);
+
+        m_Player->InitSpellForLevel();
+        m_Player->UpdateMasteryPercentage();
+    }
 }
 
-void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe)
+void WorldSession::HandleLearnTalents(WorldPacket& p_RecvPacket)
 {
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    uint32 l_TalentCount = 0;
+    
+    p_RecvPacket >> l_TalentCount;
+
+    if (l_TalentCount == 0 || l_TalentCount > MAX_TALENT_SPELLS)
+        return;
+
+    if (l_TalentCount > m_Player->GetFreeTalentPoints())
+        return;
+
+    /// It's impossible to change talents during challenge mode
+    if (m_Player->GetMap()->IsChallengeMode())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleConfirmRespecWipeOpcode - %s not found or you can't interact with him.", confirmRespecWipe.RespecMaster.ToString().c_str());
+        m_Player->SendGameError(GameError::Type(804));
         return;
     }
 
-    if (confirmRespecWipe.RespecType != SPEC_RESET_TALENTS)
+    for (uint32 l_I = 0; l_I < l_TalentCount; l_I++)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleConfirmRespecWipeOpcode - reset type %d is not implemented.", confirmRespecWipe.RespecType);
-        return;
+        uint16 l_TalentID = p_RecvPacket.read<uint16>();
+        m_Player->LearnTalent(l_TalentID);
     }
 
-    if (!unit->isCanTrainingAndResetTalentsOf(_player))
-        return;
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    if (!_player->ResetTalents())
-    {
-        GetPlayer()->SendRespecWipeConfirm(ObjectGuid::Empty, 0);
-        return;
-    }
-
-    _player->SendTalentsInfoData();
-    unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+    m_Player->SaveToDB();
+    m_Player->SendTalentsInfoData(false);
 }
 
-void WorldSession::HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& p_RecvData)
 {
-    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(packet.SkillLine, GetPlayer()->getRace(), GetPlayer()->getClass());
-    if (!rcEntry || !(rcEntry->Flags & SKILL_FLAG_UNLEARNABLE))
+    uint64 l_Guid = 0;
+    p_RecvData.readPackGUID(l_Guid);
+
+    /// 0 - Talents, 1 - Specialization
+    uint8 l_RespecType = p_RecvData.read<uint8>();
+
+    Creature* l_Trainer = m_Player->GetNPCIfCanInteractWith(l_Guid, NPCFlags::UNIT_NPC_FLAG_TRAINER);
+    if (l_Trainer == nullptr)
         return;
 
-    GetPlayer()->SetSkill(packet.SkillLine, 0, 0, 0);
+    if (!l_Trainer->isCanTrainingAndResetTalentsOf(m_Player))
+        return;
+
+    /// Remove fake death
+    if (m_Player->HasUnitState(UnitState::UNIT_STATE_DIED))
+        m_Player->RemoveAurasByType(AuraType::SPELL_AURA_FEIGN_DEATH);
+
+    /// Talents
+    if (!l_RespecType)
+    {
+        if (!m_Player->ResetTalents())
+        {
+            /// You don't have any talents
+            m_Player->SendTalentWipeConfirm(0, false);
+            return;
+        }
+    }
+    /// Specialization
+    else
+    {
+        if (m_Player->GetSpecializationId(m_Player->GetActiveSpec()) != SpecIndex::SPEC_NONE)
+            m_Player->ResetSpec();
+        else
+        {
+            /// You don't have any class specialization
+            m_Player->SendTalentWipeConfirm(0, true);
+            return;
+        }
+    }
+
+    m_Player->SendTalentsInfoData(false);
+
+    /// Spell: "Untalent Visual Effect"
+    l_Trainer->CastSpell(m_Player, 14867, true);
 }
 
-void WorldSession::HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet)
+void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
 {
-    Player* player = GetPlayer();
+    uint32 skillId;
+    recvData >> skillId;
 
-    if (packet.SpecGroupIndex >= MAX_SPECIALIZATIONS)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleSetSpecializationOpcode - specialization index %u out of range", packet.SpecGroupIndex);
+    if (!IsProfessionSkill(skillId))
         return;
+
+    GetPlayer()->SetSkill(skillId, 0, 0, 0);
+}
+
+const std::array<uint32, 5> g_SpecialisationsIndex = {20219, 20222, 28677, 28675, 28672};
+void WorldSession::HandleUnlearnSpecialization(WorldPacket& p_RecvData)
+{
+    uint8 l_SpecializationIndex = p_RecvData.read<uint8>();
+
+    if (l_SpecializationIndex < 5)
+        GetPlayer()->removeSpell(g_SpecialisationsIndex[l_SpecializationIndex]);
+}
+
+void WorldSession::HandleArcheologyRequestHistory(WorldPacket& /*p_RecvData*/)
+{
+    WorldPacket l_Data(SMSG_SETUP_RESEARCH_HISTORY, 2048);
+
+    MS::Skill::Archaeology::CompletedProjectMap& l_Projects = GetPlayer()->GetArchaeologyMgr().GetCompletedProjects();
+    uint32 l_Count = l_Projects.size();
+
+    l_Data << uint32(l_Count);
+
+    if (l_Count > 0)
+    {
+        for (MS::Skill::Archaeology::CompletedProjectMap::iterator l_Iter = l_Projects.begin(); l_Iter != l_Projects.end(); ++l_Iter)
+        {
+            if (ResearchProjectEntry const* l_Project = sResearchProjectStore.LookupEntry((*l_Iter).first)) ///< l_Project is unused
+            {
+                l_Data << uint32((*l_Iter).first);
+                l_Data << uint32((*l_Iter).second.FirstCompletedDate);
+                l_Data << uint32((*l_Iter).second.CompletionCount);
+            }
+            else
+                l_Data << uint32(0) << uint32(0) << uint32(0);
+        }
     }
 
-    ChrSpecializationEntry const* chrSpec = sChrSpecializationByIndexStore[player->getClass()][packet.SpecGroupIndex];
+    SendPacket(&l_Data);
+}
 
-    if (!chrSpec)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleSetSpecializationOpcode - specialization index %u not found", packet.SpecGroupIndex);
+void WorldSession::HandleShowTradeSkillOpcode(WorldPacket& p_RecvPacket)
+{
+    uint32 l_SpellID = 0;
+    uint32 l_SkillID = 0;
+    uint64 l_PlayerGuid = 0;
+
+    p_RecvPacket.readPackGUID(l_PlayerGuid);
+    p_RecvPacket >> l_SpellID;
+    p_RecvPacket >> l_SkillID;
+
+    Player* l_Player = ObjectAccessor::FindPlayer(l_PlayerGuid);
+
+    if (!l_Player)
         return;
+
+    if (!l_Player->HasSkill(l_SkillID))
+        return;
+
+    SkillLineEntry const* l_SkillEntry = sSkillLineStore.LookupEntry(l_SkillID);
+    if (!l_SkillEntry || l_SkillEntry->categoryId != SKILL_CATEGORY_PROFESSION)
+        return;
+
+    std::vector<uint32> l_Recipes;
+
+    for (uint32 l_J = 0; l_J < sSkillLineAbilityStore.GetNumRows(); ++l_J)
+    {
+        if (SkillLineAbilityEntry const* l_Ability = sSkillLineAbilityStore.LookupEntry(l_J))
+        {
+            if (l_Ability->skillId == l_SkillID && l_Player->HasSpell(l_Ability->spellId))
+                l_Recipes.push_back(l_Ability->spellId);
+        }
     }
 
-    if (chrSpec->ClassID != player->getClass())
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleSetSpecializationOpcode - specialization %u does not belong to class %u", chrSpec->ID, player->getClass());
-        return;
-    }
+    WorldPacket l_Data(SMSG_SHOW_TRADE_SKILL_RESPONSE, 20 * 1024);
+    l_Data.appendPackGUID(l_PlayerGuid);        ///< PlayerGUID
+    l_Data << uint32(l_SpellID);                ///< SpellID
+    l_Data << uint32(1);                        ///< SkillLineIDs count
+    l_Data << uint32(1);                        ///< SkillRanks count
+    l_Data << uint32(1);                        ///< SkillMaxRanks count
+    l_Data << uint32(l_Recipes.size());         ///< KnownAbilitySpellIDs count
 
-    if (player->getLevel() < MIN_SPECIALIZATION_LEVEL)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleSetSpecializationOpcode - player level too low for specializations");
-        return;
-    }
+    l_Data << uint32(l_SkillID);                                ///< SkillLineIDs
+    l_Data << uint32(l_Player->GetSkillValue(l_SkillID));       ///< SkillRanks
+    l_Data << uint32(l_Player->GetMaxSkillValue(l_SkillID));    ///< SkillMaxRanks
 
-    player->LearnTalentSpecialization(chrSpec->ID);
+    for (size_t l_I = 0; l_I < l_Recipes.size(); ++l_I)         ///< KnownAbilitySpellIDs
+        l_Data << uint32(l_Recipes[l_I]);
+
+    SendPacket(&l_Data);
 }

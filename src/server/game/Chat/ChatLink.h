@@ -1,27 +1,15 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-#ifndef TRINITYCORE_CHATLINK_H
-#define TRINITYCORE_CHATLINK_H
+#ifndef CHATLINK_H
+#define CHATLINK_H
 
 #include "SharedDefines.h"
-#include <sstream>
-#include <list>
-#include <cstring>
 #include "Common.h"
 
 struct ItemLocale;
@@ -35,7 +23,7 @@ class Quest;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // ChatLink - abstract base class for various links
-class TC_GAME_API ChatLink
+class ChatLink
 {
 public:
     ChatLink() : _color(0), _startPos(0), _endPos(0) { }
@@ -55,33 +43,29 @@ protected:
 };
 
 // ItemChatLink - link to item
-class TC_GAME_API ItemChatLink : public ChatLink
+class ItemChatLink : public ChatLink
 {
 public:
-    ItemChatLink() : ChatLink(), _item(NULL), _suffix(NULL), _property(NULL)
-    {
-        memset(_data, 0, sizeof(_data));
-    }
-    virtual bool Initialize(std::istringstream& iss) override;
-    virtual bool ValidateName(char* buffer, const char* context) override;
+    ItemChatLink() : ChatLink(), _item(NULL), _suffix(NULL), _property(NULL) { }
+    virtual bool Initialize(std::istringstream& iss);
+    virtual bool ValidateName(char* buffer, const char* context);
 
 protected:
-    std::string FormatName(uint8 index, LocalizedString* suffixStrings) const;
+    std::string FormatName(uint8 index, char* suffixStrings) const;
 
     ItemTemplate const* _item;
-    int32 _data[11];
-    std::vector<int32> _bonusListIDs;
+    int32 _data[9];
     ItemRandomSuffixEntry const* _suffix;
     ItemRandomPropertiesEntry const* _property;
 };
 
 // QuestChatLink - link to quest
-class TC_GAME_API QuestChatLink : public ChatLink
+class QuestChatLink : public ChatLink
 {
 public:
-    QuestChatLink() : ChatLink(), _quest(nullptr), _questLevel(0) { }
-    virtual bool Initialize(std::istringstream& iss) override;
-    virtual bool ValidateName(char* buffer, const char* context) override;
+    QuestChatLink() : ChatLink(), _quest(NULL), _questLevel(0) { }
+    virtual bool Initialize(std::istringstream& iss);
+    virtual bool ValidateName(char* buffer, const char* context);
 
 protected:
     Quest const* _quest;
@@ -89,27 +73,24 @@ protected:
 };
 
 // SpellChatLink - link to quest
-class TC_GAME_API SpellChatLink : public ChatLink
+class SpellChatLink : public ChatLink
 {
 public:
-    SpellChatLink() : ChatLink(), _spell(nullptr) { }
-    virtual bool Initialize(std::istringstream& iss) override;
-    virtual bool ValidateName(char* buffer, const char* context) override;
+    SpellChatLink() : ChatLink(), _spell(NULL) { }
+    virtual bool Initialize(std::istringstream& iss);
+    virtual bool ValidateName(char* buffer, const char* context);
 
 protected:
     SpellInfo const* _spell;
 };
 
 // AchievementChatLink - link to quest
-class TC_GAME_API AchievementChatLink : public ChatLink
+class AchievementChatLink : public ChatLink
 {
 public:
-    AchievementChatLink() : ChatLink(), _guid(0), _achievement(NULL)
-    {
-        memset(_data, 0, sizeof(_data));
-    }
-    virtual bool Initialize(std::istringstream& iss) override;
-    virtual bool ValidateName(char* buffer, const char* context) override;
+    AchievementChatLink() : ChatLink(), _guid(0), _achievement(NULL) { }
+    virtual bool Initialize(std::istringstream& iss);
+    virtual bool ValidateName(char* buffer, const char* context);
 
 protected:
     uint32 _guid;
@@ -118,11 +99,11 @@ protected:
 };
 
 // TradeChatLink - link to trade info
-class TC_GAME_API TradeChatLink : public SpellChatLink
+class TradeChatLink : public SpellChatLink
 {
 public:
     TradeChatLink() : SpellChatLink(), _minSkillLevel(0), _maxSkillLevel(0), _guid(0) { }
-    virtual bool Initialize(std::istringstream& iss) override;
+    virtual bool Initialize(std::istringstream& iss);
 private:
     int32 _minSkillLevel;
     int32 _maxSkillLevel;
@@ -131,37 +112,37 @@ private:
 };
 
 // TalentChatLink - link to talent
-class TC_GAME_API TalentChatLink : public SpellChatLink
+class TalentChatLink : public SpellChatLink
 {
 public:
     TalentChatLink() : SpellChatLink(), _talentId(0), _rankId(0) { }
-    virtual bool Initialize(std::istringstream& iss) override;
+    virtual bool Initialize(std::istringstream& iss);
 
 private:
-    uint32 _talentId;
-    int32 _rankId;
+    uint32 _talentId; ///< is unused
+    int32 _rankId; ///< is unused
 };
 
 // EnchantmentChatLink - link to enchantment
-class TC_GAME_API EnchantmentChatLink : public SpellChatLink
+class EnchantmentChatLink : public SpellChatLink
 {
 public:
     EnchantmentChatLink() : SpellChatLink() { }
-    virtual bool Initialize(std::istringstream& iss) override;
+    virtual bool Initialize(std::istringstream& iss);
 };
 
 // GlyphChatLink - link to glyph
-class TC_GAME_API GlyphChatLink : public SpellChatLink
+class GlyphChatLink : public SpellChatLink
 {
 public:
     GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(NULL) { }
-    virtual bool Initialize(std::istringstream& iss) override;
+    virtual bool Initialize(std::istringstream& iss);
 private:
     uint32 _slotId;
     GlyphPropertiesEntry const* _glyph;
 };
 
-class TC_GAME_API LinkExtractor
+class LinkExtractor
 {
 public:
     explicit LinkExtractor(const char* msg);
@@ -176,4 +157,4 @@ private:
 };
 
 
-#endif // TRINITYCORE_CHATLINK_H
+#endif // CHATLINK_H

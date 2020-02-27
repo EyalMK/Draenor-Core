@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: The_Eye
@@ -24,53 +14,45 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 /* ContentData
-npc_crystalcore_devastator
+mob_crystalcore_devastator
 EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "the_eye.h"
 
-enum Spells
+enum eSpells
 {
     SPELL_COUNTERCHARGE    = 35035,
-    SPELL_KNOCKAWAY        = 22893,
+    SPELL_KNOCKAWAY        = 22893
 };
 
-class npc_crystalcore_devastator : public CreatureScript
+class mob_crystalcore_devastator : public CreatureScript
 {
     public:
 
-        npc_crystalcore_devastator()
-            : CreatureScript("npc_crystalcore_devastator")
+        mob_crystalcore_devastator()
+            : CreatureScript("mob_crystalcore_devastator")
         {
         }
-        struct npc_crystalcore_devastatorAI : public ScriptedAI
+        struct mob_crystalcore_devastatorAI : public ScriptedAI
         {
-            npc_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
+            mob_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Initialize()
+            uint32 Knockaway_Timer;
+            uint32 Countercharge_Timer;
+
+            void Reset()
             {
                 Countercharge_Timer = 9000;
                 Knockaway_Timer = 25000;
             }
 
-            uint32 Knockaway_Timer;
-            uint32 Countercharge_Timer;
-
-            void Reset() override
-            {
-                Initialize();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -79,12 +61,12 @@ class npc_crystalcore_devastator : public CreatureScript
                 //Knockaway_Timer
                 if (Knockaway_Timer <= diff)
                 {
-                    DoCastVictim(SPELL_KNOCKAWAY, true);
+                    DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
 
                     // current aggro target is knocked away pick new target
                     Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
 
-                    if (!target || target == me->GetVictim())
+                    if (!target || target == me->getVictim())
                         target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                     if (target)
@@ -108,13 +90,15 @@ class npc_crystalcore_devastator : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_crystalcore_devastatorAI(creature);
+            return new mob_crystalcore_devastatorAI(creature);
         }
 };
+
+#ifndef __clang_analyzer__
 void AddSC_the_eye()
 {
-    new npc_crystalcore_devastator();
+    new mob_crystalcore_devastator();
 }
-
+#endif

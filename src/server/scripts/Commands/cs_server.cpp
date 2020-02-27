@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 Name: server_commandscript
@@ -22,71 +13,76 @@ Comment: All server related commands
 Category: commandscripts
 EndScriptData */
 
-#include "Chat.h"
-#include "Config.h"
-#include "Language.h"
-#include "ObjectAccessor.h"
-#include "Player.h"
 #include "ScriptMgr.h"
+#include "Chat.h"
 #include "GitRevision.h"
-#include "Util.h"
+#include "Config.h"
+#include "ObjectAccessor.h"
+#include "MapManager.h"
+#include <regex>
 
 class server_commandscript : public CommandScript
 {
 public:
     server_commandscript() : CommandScript("server_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommand* GetCommands() const
     {
-        static std::vector<ChatCommand> serverIdleRestartCommandTable =
+        static ChatCommand serverIdleRestartCommandTable[] =
         {
-            { "cancel", rbac::RBAC_PERM_COMMAND_SERVER_IDLERESTART_CANCEL, true, &HandleServerShutDownCancelCommand, "" },
-            { ""   ,    rbac::RBAC_PERM_COMMAND_SERVER_IDLERESTART,        true, &HandleServerIdleRestartCommand,    "" },
+            { "cancel",         SEC_ADMINISTRATOR,  true,  &HandleServerShutDownCancelCommand,      "", NULL },
+            { ""   ,            SEC_ADMINISTRATOR,  true,  &HandleServerIdleRestartCommand,         "", NULL },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
         };
 
-        static std::vector<ChatCommand> serverIdleShutdownCommandTable =
+        static ChatCommand serverIdleShutdownCommandTable[] =
         {
-            { "cancel", rbac::RBAC_PERM_COMMAND_SERVER_IDLESHUTDOWN_CANCEL, true, &HandleServerShutDownCancelCommand, "" },
-            { ""   ,    rbac::RBAC_PERM_COMMAND_SERVER_IDLESHUTDOWN,        true, &HandleServerIdleShutDownCommand,   "" },
+            { "cancel",         SEC_ADMINISTRATOR,  true,  &HandleServerShutDownCancelCommand,      "", NULL },
+            { ""   ,            SEC_ADMINISTRATOR,  true,  &HandleServerIdleShutDownCommand,        "", NULL },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
         };
 
-        static std::vector<ChatCommand> serverRestartCommandTable =
+        static ChatCommand serverRestartCommandTable[] =
         {
-            { "cancel", rbac::RBAC_PERM_COMMAND_SERVER_RESTART_CANCEL, true, &HandleServerShutDownCancelCommand, "" },
-            { ""   ,    rbac::RBAC_PERM_COMMAND_SERVER_RESTART,        true, &HandleServerRestartCommand,        "" },
+            { "cancel",         SEC_ADMINISTRATOR,  true,  &HandleServerShutDownCancelCommand,      "", NULL },
+            { ""   ,            SEC_ADMINISTRATOR,  true,  &HandleServerRestartCommand,             "", NULL },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
         };
 
-        static std::vector<ChatCommand> serverShutdownCommandTable =
+        static ChatCommand serverShutdownCommandTable[] =
         {
-            { "cancel", rbac::RBAC_PERM_COMMAND_SERVER_SHUTDOWN_CANCEL, true, &HandleServerShutDownCancelCommand, "" },
-            { ""   ,    rbac::RBAC_PERM_COMMAND_SERVER_SHUTDOWN,        true, &HandleServerShutDownCommand,       "" },
+            { "cancel",         SEC_ADMINISTRATOR,  true,  &HandleServerShutDownCancelCommand,      "", NULL },
+            { ""   ,            SEC_ADMINISTRATOR,  true,  &HandleServerShutDownCommand,            "", NULL },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
         };
 
-        static std::vector<ChatCommand> serverSetCommandTable =
+        static ChatCommand serverSetCommandTable[] =
         {
-            { "difftime", rbac::RBAC_PERM_COMMAND_SERVER_SET_DIFFTIME, true, &HandleServerSetDiffTimeCommand, "" },
-            { "loglevel", rbac::RBAC_PERM_COMMAND_SERVER_SET_LOGLEVEL, true, &HandleServerSetLogLevelCommand, "" },
-            { "motd",     rbac::RBAC_PERM_COMMAND_SERVER_SET_MOTD,     true, &HandleServerSetMotdCommand,     "" },
-            { "closed",   rbac::RBAC_PERM_COMMAND_SERVER_SET_CLOSED,   true, &HandleServerSetClosedCommand,   "" },
+            { "difftime",       SEC_CONSOLE,        true,  &HandleServerSetDiffTimeCommand,         "", NULL },
+            { "loglevel",       SEC_CONSOLE,        true,  &HandleServerSetLogLevelCommand,         "", NULL },
+            { "closed",         SEC_ADMINISTRATOR,  true,  &HandleServerSetClosedCommand,           "", NULL },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
         };
 
-        static std::vector<ChatCommand> serverCommandTable =
+        static ChatCommand serverCommandTable[] =
         {
-            { "corpses",      rbac::RBAC_PERM_COMMAND_SERVER_CORPSES,      true, &HandleServerCorpsesCommand, "" },
-            { "exit",         rbac::RBAC_PERM_COMMAND_SERVER_EXIT,         true, &HandleServerExitCommand,    "" },
-            { "idlerestart",  rbac::RBAC_PERM_COMMAND_SERVER_IDLERESTART,  true, NULL,                        "", serverIdleRestartCommandTable },
-            { "idleshutdown", rbac::RBAC_PERM_COMMAND_SERVER_IDLESHUTDOWN, true, NULL,                        "", serverIdleShutdownCommandTable },
-            { "info",         rbac::RBAC_PERM_COMMAND_SERVER_INFO,         true, &HandleServerInfoCommand,    "" },
-            { "motd",         rbac::RBAC_PERM_COMMAND_SERVER_MOTD,         true, &HandleServerMotdCommand,    "" },
-            { "plimit",       rbac::RBAC_PERM_COMMAND_SERVER_PLIMIT,       true, &HandleServerPLimitCommand,  "" },
-            { "restart",      rbac::RBAC_PERM_COMMAND_SERVER_RESTART,      true, NULL,                        "", serverRestartCommandTable },
-            { "shutdown",     rbac::RBAC_PERM_COMMAND_SERVER_SHUTDOWN,     true, NULL,                        "", serverShutdownCommandTable },
-            { "set",          rbac::RBAC_PERM_COMMAND_SERVER_SET,          true, NULL,                        "", serverSetCommandTable },
+            { "corpses",        SEC_GAMEMASTER,     true,  &HandleServerCorpsesCommand,             "", NULL },
+            { "exit",           SEC_CONSOLE,        true,  &HandleServerExitCommand,                "", NULL },
+            { "idlerestart",    SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverIdleRestartCommandTable },
+            { "idleshutdown",   SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverIdleShutdownCommandTable },
+            { "info",           SEC_PLAYER,         true,  &HandleServerInfoCommand,                "", NULL },
+            { "motd",           SEC_PLAYER,         true,  &HandleServerMotdCommand,                "", NULL },
+            { "plimit",         SEC_ADMINISTRATOR,  true,  &HandleServerPLimitCommand,              "", NULL },
+            { "restart",        SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverRestartCommandTable },
+            { "shutdown",       SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverShutdownCommandTable },
+            { "set",            SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverSetCommandTable },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
         };
 
-        static std::vector<ChatCommand> commandTable =
+         static ChatCommand commandTable[] =
         {
-            { "server", rbac::RBAC_PERM_COMMAND_SERVER, true, NULL, "", serverCommandTable },
+            { "server",         SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverCommandTable },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
         };
         return commandTable;
     }
@@ -94,39 +90,58 @@ public:
     // Triggering corpses expire check in world
     static bool HandleServerCorpsesCommand(ChatHandler* /*handler*/, char const* /*args*/)
     {
-        sWorld->RemoveOldCorpses();
+        sObjectAccessor->RemoveOldCorpses();
         return true;
     }
 
-    static bool HandleServerInfoCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleServerInfoCommand(ChatHandler* p_Handler, char const* /*args*/)
     {
-        uint32 playersNum           = sWorld->GetPlayerCount();
-        uint32 maxPlayersNum        = sWorld->GetMaxPlayerCount();
-        uint32 activeClientsNum     = sWorld->GetActiveSessionCount();
-        uint32 queuedClientsNum     = sWorld->GetQueuedSessionCount();
-        uint32 maxActiveClientsNum  = sWorld->GetMaxActiveSessionCount();
-        uint32 maxQueuedClientsNum  = sWorld->GetMaxQueuedSessionCount();
-        std::string uptime          = secsToTimeString(sWorld->GetUptime());
-        uint32 updateTime           = sWorld->GetUpdateTime();
+#ifndef CROSS
+        uint32 l_ActiveClientsNum     = sWorld->GetActiveSessionCount();
+        uint32 l_QueuedClientsNum     = sWorld->GetQueuedSessionCount();
+        uint32 l_MaxActiveClientsNum  = sWorld->GetMaxActiveSessionCount();
+        uint32 l_MaxQueuedClientsNum  = sWorld->GetMaxQueuedSessionCount();
+#endif /* not CROSS */
+        std::string l_Uptime          = secsToTimeString(sWorld->GetUptime());
+        uint32 l_UpdateTime           = sWorld->GetUpdateTime();
 
-        handler->SendSysMessage(GitRevision::GetFullVersion());
-        handler->PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
-        handler->PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
-        handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
-        handler->PSendSysMessage(LANG_UPDATE_DIFF, updateTime);
+#ifdef CROSS
+        p_Handler->PSendSysMessage("Firestorm WoD 6.2.3 (Cross)");
+#endif /* CROSS */
+        p_Handler->PSendSysMessage(GitRevision::GetFullVersion());
+        p_Handler->PSendSysMessage(GitRevision::GetDate());
+#ifndef CROSS
+        p_Handler->PSendSysMessage(LANG_CONNECTED_USERS, l_ActiveClientsNum, l_MaxActiveClientsNum, l_QueuedClientsNum, l_MaxQueuedClientsNum);
+#endif /* not CROSS */
+        p_Handler->PSendSysMessage(LANG_UPTIME, l_Uptime.c_str());
+        p_Handler->PSendSysMessage("Server delay: %u ms", l_UpdateTime);
+
+        if (l_UpdateTime > 100)
+        {
+            p_Handler->PSendSysMessage("Global map manager diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_MAP));
+
+            auto& l_MapsDelay = sMapMgr->GetMapsDelay();
+            for (auto l_MapDelayRow : l_MapsDelay)
+                p_Handler->PSendSysMessage("Map %u diff : %u ms", l_MapDelayRow.first, l_MapDelayRow.second);
+
+            p_Handler->PSendSysMessage("Battleground diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEGROUND));
+            p_Handler->PSendSysMessage("Session diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_SESSION));
+            p_Handler->PSendSysMessage("Battlefield diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEFIELD));
+            p_Handler->PSendSysMessage("Outdoor PVP diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_OUTDOORPVP));
+            p_Handler->PSendSysMessage("LFG Mgr diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_LFG));
+            p_Handler->PSendSysMessage("Callback diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_CALLBACK));
+        }
+
         // Can't use sWorld->ShutdownMsg here in case of console command
         if (sWorld->IsShuttingDown())
-            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());
+            p_Handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());
 
         return true;
     }
     // Display the 'Message of the day' for the realm
     static bool HandleServerMotdCommand(ChatHandler* handler, char const* /*args*/)
     {
-        std::string motd;
-        for (std::string const& line : sWorld->GetMotd())
-            motd += line;
-        handler->PSendSysMessage(LANG_MOTD_CURRENT, motd.c_str());
+        handler->PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd().Text.c_str());
         return true;
     }
 
@@ -150,7 +165,7 @@ public:
                 sWorld->SetPlayerSecurityLimit(SEC_ADMINISTRATOR);
             else if (strncmp(paramStr, "reset", limit) == 0)
             {
-                sWorld->SetPlayerAmountLimit(sConfigMgr->GetIntDefault("PlayerLimit", 100));
+                sWorld->SetPlayerAmountLimit(ConfigMgr::GetIntDefault("PlayerLimit", 100));
                 sWorld->LoadDBAllowedSecurityLevel();
             }
             else
@@ -224,14 +239,6 @@ public:
         return true;
     }
 
-    // Define the 'Message of the day' for the realm
-    static bool HandleServerSetMotdCommand(ChatHandler* handler, char const* args)
-    {
-        sWorld->SetMotd(args);
-        handler->PSendSysMessage(LANG_MOTD_NEW, args);
-        return true;
-    }
-
     // Set whether we accept new clients
     static bool HandleServerSetClosedCommand(ChatHandler* handler, char const* args)
     {
@@ -285,15 +292,15 @@ public:
             return false;
 
         sWorld->SetRecordDiffInterval(newTime);
-        printf("Record diff every %i ms\n", newTime);
+        printf("Record diff every %d ms\n", newTime);
 
         return true;
     }
 
 private:
-    static bool ParseExitCode(char const* exitCodeStr, int32& exitCode)
+    static bool ParseExitCode(std::string const& exitCodeStr, int32& exitCode)
     {
-        exitCode = atoi(exitCodeStr);
+        exitCode = atoi(exitCodeStr.c_str());
 
         // Handle atoi() errors
         if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
@@ -313,62 +320,37 @@ private:
         if (!*args)
             return false;
 
-        if (strlen(args) > 255)
-            return false;
-
         // #delay [#exit_code] [reason]
-        int32 delay = 0;
-        char* delayStr = strtok((char*)args, " ");
-        if (!delayStr)
+        std::regex regex("([0-9]+) ?([0-9]*) ?(.*)");
+        std::cmatch cm;
+
+        if (!std::regex_match(args, cm, regex))
             return false;
 
-        if (isNumeric(delayStr))
-        {
-            delay = atoi(delayStr);
-            // Prevent interpret wrong arg value as 0 secs shutdown time
-            if ((delay == 0 && (delayStr[0] != '0' || delayStr[1] != '\0')) || delay < 0)
-                return false;
-        }
-        else
-        {
-            delay = TimeStringToSecs(std::string(delayStr));
+        std::string delayStr = cm[1];
+        std::string exitCodeStr = cm[2];
+        std::string reason = cm[3];
 
-            if (delay == 0)
-                return false;
-        }
+        int32 delay = atoi(delayStr.c_str());
 
-        char* exitCodeStr = nullptr;
-
-        char reason[256] = { 0 };
-
-        while (char* nextToken = strtok(nullptr, " "))
-        {
-            if (isNumeric(nextToken))
-                exitCodeStr = nextToken;
-            else
-            {
-                strcat(reason, nextToken);
-                if (char* remainingTokens = strtok(nullptr, "\0"))
-                {
-                    strcat(reason, " ");
-                    strcat(reason, remainingTokens);
-                }
-                break;
-            }
-        }
+        // Prevent interpret wrong arg value as 0 secs shutdown time
+        if ((delay == 0 && (delayStr[0] != '0' || delayStr[1] != '\0')) || delay < 0)
+            return false;
 
         int32 exitCode = defaultExitCode;
-        if (exitCodeStr)
+        if (exitCodeStr.length() > 0)
             if (!ParseExitCode(exitCodeStr, exitCode))
                 return false;
 
-        sWorld->ShutdownServ(delay, shutdownMask, static_cast<uint8>(exitCode), std::string(reason));
+        sWorld->ShutdownServ(delay, shutdownMask, static_cast<uint8>(exitCode), reason);
 
         return true;
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_server_commandscript()
 {
     new server_commandscript();
 }
+#endif

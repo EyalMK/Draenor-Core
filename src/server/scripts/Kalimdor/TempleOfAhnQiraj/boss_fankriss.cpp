@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Fankriss
@@ -32,46 +22,41 @@ EndScriptData */
 #define SOUND_TRESPASS     8591
 #define SOUND_WILL_BE      8592
 
-enum Spells
-{
-    SPELL_MORTAL_WOUND      = 28467,
-    SPELL_ROOT              = 28858,
+#define SPELL_MORTAL_WOUND 28467
+#define SPELL_ROOT         28858
 
-    // Enrage for his spawns
-    SPELL_ENRAGE            = 28798
-};
+// Enrage for his spawns
+#define SPELL_ENRAGE       28798
 
 class boss_fankriss : public CreatureScript
 {
 public:
     boss_fankriss() : CreatureScript("boss_fankriss") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_fankrissAI(creature);
+        return new boss_fankrissAI (creature);
     }
 
     struct boss_fankrissAI : public ScriptedAI
     {
-        boss_fankrissAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            MortalWound_Timer = urand(10000, 15000);
-            SpawnHatchlings_Timer = urand(6000, 12000);
-            SpawnSpawns_Timer = urand(15000, 45000);
-        }
+        boss_fankrissAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 MortalWound_Timer;
         uint32 SpawnHatchlings_Timer;
         uint32 SpawnSpawns_Timer;
+        int Rand;
+        float RandX;
+        float RandY;
 
-        void Reset() override
+        Creature* Hatchling;
+        Creature* Spawn;
+
+        void Reset()
         {
-            Initialize();
+            MortalWound_Timer = urand(10000, 15000);
+            SpawnHatchlings_Timer = urand(6000, 12000);
+            SpawnSpawns_Timer = urand(15000, 45000);
         }
 
         void SummonSpawn(Unit* victim)
@@ -79,33 +64,30 @@ public:
             if (!victim)
                 return;
 
-            int Rand = 10 + (rand32() % 10);
-            float RandX = 0.f;
-            float RandY = 0.f;
-
-            switch (rand32() % 2)
+            Rand = 10 + (rand()%10);
+            switch (rand()%2)
             {
                 case 0: RandX = 0.0f - Rand; break;
                 case 1: RandX = 0.0f + Rand; break;
             }
 
-            Rand = 10 + (rand32() % 10);
-            switch (rand32() % 2)
+            Rand = 10 + (rand()%10);
+            switch (rand()%2)
             {
                 case 0: RandY = 0.0f - Rand; break;
                 case 1: RandY = 0.0f + Rand; break;
             }
             Rand = 0;
-            Creature* Spawn = DoSpawnCreature(15630, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            Spawn = DoSpawnCreature(15630, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             if (Spawn)
                 Spawn->AI()->AttackStart(victim);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/)
         {
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -114,7 +96,7 @@ public:
             //MortalWound_Timer
             if (MortalWound_Timer <= diff)
             {
-                DoCastVictim(SPELL_MORTAL_WOUND);
+                DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
                 MortalWound_Timer = urand(10000, 20000);
             } else MortalWound_Timer -= diff;
 
@@ -145,14 +127,15 @@ public:
             {
                 if (SpawnHatchlings_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    Unit* target = NULL;
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target && target->IsPlayer())
                     {
                         DoCast(target, SPELL_ROOT);
 
                         if (DoGetThreat(target))
                             DoModifyThreatPercent(target, -100);
 
-                        Creature* Hatchling = nullptr;
                         switch (urand(0, 2))
                         {
                             case 0:
@@ -172,7 +155,7 @@ public:
                                 break;
                             case 1:
                                 DoTeleportPlayer(target, -7990.135354f, 1155.1907f, -78.849319f, 2.608f);
-                                Hatchling = me->SummonCreature(15962, target->GetPositionX() - 3, target->GetPositionY() - 3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling = me->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()-3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                                 if (Hatchling)
                                     Hatchling->AI()->AttackStart(target);
                                 Hatchling = me->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()+3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -187,7 +170,7 @@ public:
                                 break;
                             case 2:
                                 DoTeleportPlayer(target, -8159.7753f, 1127.9064f, -76.868660f, 0.675f);
-                                Hatchling = me->SummonCreature(15962, target->GetPositionX() - 3, target->GetPositionY() - 3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling = me->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()-3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                                 if (Hatchling)
                                     Hatchling->AI()->AttackStart(target);
                                 Hatchling = me->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()+3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -212,7 +195,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_fankriss()
 {
     new boss_fankriss();
 }
+#endif

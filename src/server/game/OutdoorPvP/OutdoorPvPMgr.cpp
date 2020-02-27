@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "OutdoorPvPMgr.h"
 #include "ObjectMgr.h"
@@ -24,29 +15,17 @@
 OutdoorPvPMgr::OutdoorPvPMgr()
 {
     m_UpdateTimer = 0;
-    //TC_LOG_DEBUG("outdoorpvp", "Instantiating OutdoorPvPMgr");
+    //sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Instantiating OutdoorPvPMgr");
 }
 
 void OutdoorPvPMgr::Die()
 {
-    //TC_LOG_DEBUG("outdoorpvp", "Deleting OutdoorPvPMgr");
+    //sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Deleting OutdoorPvPMgr");
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
         delete *itr;
 
-    m_OutdoorPvPSet.clear();
-
     for (OutdoorPvPDataMap::iterator itr = m_OutdoorPvPDatas.begin(); itr != m_OutdoorPvPDatas.end(); ++itr)
         delete itr->second;
-
-    m_OutdoorPvPDatas.clear();
-
-    m_OutdoorPvPMap.clear();
-}
-
-OutdoorPvPMgr* OutdoorPvPMgr::instance()
-{
-    static OutdoorPvPMgr instance;
-    return &instance;
 }
 
 void OutdoorPvPMgr::InitOutdoorPvP()
@@ -58,7 +37,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
         return;
     }
 
@@ -76,14 +55,14 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
         if (typeId >= MAX_OUTDOORPVP_TYPES)
         {
-            TC_LOG_ERROR("sql.sql", "Invalid OutdoorPvPTypes value %u in outdoorpvp_template; skipped.", typeId);
+            sLog->outError(LOG_FILTER_SQL, "Invalid OutdoorPvPTypes value %u in outdoorpvp_template; skipped.", typeId);
             continue;
         }
 
         OutdoorPvPData* data = new OutdoorPvPData();
         OutdoorPvPTypes realTypeId = OutdoorPvPTypes(typeId);
         data->TypeId = realTypeId;
-        data->ScriptId = sObjectMgr->GetScriptId(fields[1].GetString());
+        data->ScriptId = sObjectMgr->GetScriptId(fields[1].GetCString());
         m_OutdoorPvPDatas[realTypeId] = data;
 
         ++count;
@@ -96,20 +75,20 @@ void OutdoorPvPMgr::InitOutdoorPvP()
         OutdoorPvPDataMap::iterator iter = m_OutdoorPvPDatas.find(OutdoorPvPTypes(i));
         if (iter == m_OutdoorPvPDatas.end())
         {
-            TC_LOG_ERROR("sql.sql", "Could not initialize OutdoorPvP object for type ID %u; no entry in database.", uint32(i));
+            sLog->outError(LOG_FILTER_SQL, "Could not initialize OutdoorPvP object for type ID %u; no entry in database.", uint32(i));
             continue;
         }
 
         pvp = sScriptMgr->CreateOutdoorPvP(iter->second);
         if (!pvp)
         {
-            TC_LOG_ERROR("outdoorpvp", "Could not initialize OutdoorPvP object for type ID %u; got NULL pointer from script.", uint32(i));
+            sLog->outError(LOG_FILTER_OUTDOORPVP, "Could not initialize OutdoorPvP object for type ID %u; got NULL pointer from script.", uint32(i));
             continue;
         }
 
         if (!pvp->SetupOutdoorPvP())
         {
-            TC_LOG_ERROR("outdoorpvp", "Could not initialize OutdoorPvP object for type ID %u; SetupOutdoorPvP failed.", uint32(i));
+            sLog->outError(LOG_FILTER_OUTDOORPVP, "Could not initialize OutdoorPvP object for type ID %u; SetupOutdoorPvP failed.", uint32(i));
             delete pvp;
             continue;
         }
@@ -117,7 +96,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
         m_OutdoorPvPSet.push_back(pvp);
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u outdoor PvP definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u outdoor PvP definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP* handle)
@@ -135,7 +114,6 @@ void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
         return;
 
     itr->second->HandlePlayerEnterZone(player, zoneid);
-    TC_LOG_DEBUG("outdoorpvp", "%s entered outdoorpvp id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
 }
 
 void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
@@ -149,7 +127,42 @@ void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
         return;
 
     itr->second->HandlePlayerLeaveZone(player, zoneid);
-    TC_LOG_DEBUG("outdoorpvp", "%s left outdoorpvp id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
+}
+
+void OutdoorPvPMgr::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(p_Player->GetZoneId());
+    if (itr == m_OutdoorPvPMap.end())
+        return;
+
+    itr->second->HandlePlayerEnterMap(p_Player, p_MapID);
+}
+
+void OutdoorPvPMgr::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(p_Player->GetZoneId());
+    if (itr == m_OutdoorPvPMap.end())
+        return;
+
+    itr->second->HandlePlayerLeaveMap(p_Player, p_MapID);
+}
+
+void OutdoorPvPMgr::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(p_Player->GetZoneId());
+    if (itr == m_OutdoorPvPMap.end())
+        return;
+
+    itr->second->HandlePlayerEnterArea(p_Player, p_AreaID);
+}
+
+void OutdoorPvPMgr::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(p_Player->GetZoneId());
+    if (itr == m_OutdoorPvPMap.end())
+        return;
+
+    itr->second->HandlePlayerLeaveArea(p_Player, p_AreaID);
 }
 
 OutdoorPvP* OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
@@ -193,21 +206,21 @@ ZoneScript* OutdoorPvPMgr::GetZoneScript(uint32 zoneId)
         return NULL;
 }
 
-bool OutdoorPvPMgr::HandleOpenGo(Player* player, GameObject* go)
+bool OutdoorPvPMgr::HandleOpenGo(Player* player, uint64 guid)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if ((*itr)->HandleOpenGo(player, go))
+        if ((*itr)->HandleOpenGo(player, guid))
             return true;
     }
     return false;
 }
 
-void OutdoorPvPMgr::HandleGossipOption(Player* player, Creature* creature, uint32 gossipid)
+void OutdoorPvPMgr::HandleGossipOption(Player* player, uint64 guid, uint32 gossipid)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if ((*itr)->HandleGossipOption(player, creature, gossipid))
+        if ((*itr)->HandleGossipOption(player, guid, gossipid))
             return;
     }
 }
@@ -239,13 +252,4 @@ void OutdoorPvPMgr::HandlePlayerResurrects(Player* player, uint32 zoneid)
 
     if (itr->second->HasPlayer(player))
         itr->second->HandlePlayerResurrects(player, zoneid);
-}
-
-std::string OutdoorPvPMgr::GetDefenseMessage(uint32 zoneId, uint32 id, LocaleConstant locale) const
-{
-    if (BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(id))
-        return DB2Manager::GetBroadcastTextValue(bct, locale);
-
-    TC_LOG_ERROR("outdoorpvp", "Can not find DefenseMessage (Zone: %u, Id: %u). BroadcastText (Id: %u) does not exist.", zoneId, id, id);
-    return "";
 }

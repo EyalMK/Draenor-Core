@@ -1,263 +1,204 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-#ifndef HALLS_OF_REFLECTION_H_
-#define HALLS_OF_REFLECTION_H_
+#ifndef DEF_HALLS_OF_REFLECTION_H
+#define DEF_HALLS_OF_REFLECTION_H
 
 #define HoRScriptName "instance_halls_of_reflection"
-#define DataHeader    "HOR"
-
-uint32 const EncounterCount = 3;
+#define MAX_ENCOUNTER 3
 
 /* Halls of Reflection encounters:
- 0 - Falric
- 1 - Marwyn
- 2 - The Lich King
+0- Falric
+1- Marwyn
+2- The Lich King
 */
 
-enum DataTypes
+const Position OutroSpawns[2] =
 {
-    DATA_FALRIC                                 = 0,
-    DATA_MARWYN                                 = 1,
-    DATA_THE_LICH_KING_ESCAPE                   = 2,
+    {5564.25f, 2274.69f, 733.01f, 3.93f}, // Lich King
+    {5556.27f, 2266.28f, 733.01f, 0.8f},  // Jaina/Sylvana
+};
 
+enum Data
+{
+    DATA_FALRIC_EVENT                           = 0,
+    DATA_MARWYN_EVENT                           = 1,
+    DATA_LICHKING_EVENT                         = 2,
     DATA_INTRO_EVENT                            = 3,
-    DATA_FROSTSWORN_GENERAL                     = 4,
+    DATA_FROSWORN_EVENT                         = 4,
 
-    DATA_KORELN_LORALEN                         = 5,
-    DATA_WAVE_COUNT                             = 6,
-    DATA_TEAM_IN_INSTANCE                       = 7,
-    DATA_FROSTMOURNE                            = 8,
-    DATA_IMPENETRABLE_DOOR                      = 9,
-    DATA_ESCAPE_LEADER                          = 10,
-    DATA_ICEWALL                                = 11,
-    DATA_ICEWALL_TARGET                         = 12,
-    DATA_GUNSHIP                                = 13,
+    DATA_WAVE_COUNT                             = 5,
+    DATA_TEAM_IN_INSTANCE                       = 6,
+    DATA_FROSTMOURNE                            = 7,
+    DATA_FROSTWORN_DOOR                         = 8,
 
-    // Quest stuff
-    DATA_QUEL_DELAR_EVENT                       = 14,
-    DATA_FROSTMOURNE_ALTAR_BUNNY                = 15,
-    DATA_UTHER_QUEL_DELAR                       = 16,
-    DATA_QUEL_DELAR_INVOKER                     = 17
+    DATA_ESCAPE_LIDER                           = 9,
+    DATA_ICE_WALL_1                             = 10,
+    DATA_ICE_WALL_2                             = 11,
+    DATA_ICE_WALL_3                             = 12,
+    DATA_ICE_WALL_4                             = 13,
+    DATA_ICE_WALL_STATE_1                       = 14,
+    DATA_ICE_WALL_STATE_2                       = 15,
+    DATA_ICE_WALL_STATE_3                       = 16,
+    DATA_ICE_WALL_STATE_4                       = 17,
+    DATA_LICH_LING_PART2                        = 18,
+    DATA_SUMMONS                                = 19,
+    DATA_PHASE                                  = 20,
+    DATA_SKYBREAKER                             = 21,
+    DATA_ORGRIM_HAMMER                          = 22,
+    DATA_CAVE                                   = 23,
+    DATA_CAPTAIN_CHEST_1                        = 24,
+    DATA_CAPTAIN_CHEST_2                        = 25,
+    DATA_CAPTAIN_CHEST_3                        = 26,
+    DATA_CAPTAIN_CHEST_4                        = 27,
+
+    DATA_LORALEN_OR_KORELN                      = 28
 };
 
-enum CreatureIds
+enum Creatures
 {
-    NPC_JAINA_INTRO                             = 37221,
-    NPC_SYLVANAS_INTRO                          = 37223,
-    NPC_UTHER                                   = 37225,
-    NPC_THE_LICH_KING_INTRO                     = 37226,
-    NPC_KORELN                                  = 37582,
-    NPC_LORALEN                                 = 37779,
-    NPC_FROSTMOUNRE_ALTAR_BUNNY                 = 37704,
+    NPC_JAINA_PART1                               = 37221,
+    NPC_SYLVANAS_PART1                            = 37223,
+    NPC_UTHER                                     = 37225,
+    NPC_LICH_KING_PART1                           = 37226,
+    NPC_LORALEN                                   = 37779,
+    NPC_KORELN                                    = 37582,
+    NPC_QUELDELAR                                 = 37158,
 
-    NPC_FALRIC                                  = 38112,
-    NPC_MARWYN                                  = 38113,
-    NPC_WAVE_MERCENARY                          = 38177,
-    NPC_WAVE_FOOTMAN                            = 38173,
-    NPC_WAVE_RIFLEMAN                           = 38176,
-    NPC_WAVE_PRIEST                             = 38175,
-    NPC_WAVE_MAGE                               = 38172,
+    NPC_FALRIC                                    = 38112,
+    NPC_MARWYN                                    = 38113,
+    NPC_WAVE_MERCENARY                            = 38177,
+    NPC_WAVE_FOOTMAN                              = 38173,
+    NPC_WAVE_RIFLEMAN                             = 38176,
+    NPC_WAVE_PRIEST                               = 38175,
+    NPC_WAVE_MAGE                                 = 38172,
+    NPC_PHANTOM_HALLUCINATION                     = 38567,
 
-    NPC_FROSTSWORN_GENERAL                      = 36723,
-    NPC_REFLECTION                              = 37068, // 37107 for tank only?
+    NPC_FROSTWORN_GENERAL                         = 36723,
+    NPC_REFLECTION                                = 37068, // 37107 for tank only?
 
-    NPC_JAINA_ESCAPE                            = 36955,
-    NPC_SYLVANAS_ESCAPE                         = 37554,
-    NPC_THE_LICH_KING_ESCAPE                    = 36954,
-    NPC_ICE_WALL_TARGET                         = 37014,
-
-    NPC_RAGING_GHOUL                            = 36940,
-    NPC_RISEN_WITCH_DOCTOR                      = 36941,
-    NPC_LUMBERING_ABOMINATION                   = 37069,
-
-    NPC_GUNSHIP_CANNON_HORDE                    = 37593,
-    NPC_JUSTIN_BARTLETT                         = 30344,
-    NPC_KORM_BLACKSCAR                          = 30824,
-
-    NPC_WORLD_TRIGGER                           = 22515
+    NPC_JAINA_PART2                               = 36955,
+    NPC_SYLVANAS_PART2                            = 37554,
+    NPC_LICH_KING_PART2                           = 36954,
+    NPC_BARTLETT                                  = 37182, // High Captain Justin Bartlett
+    NPC_KORM                                      = 37833, // Sky-Reaver Korm Blackscar
+    
+    NPC_ICE_WALL                                  = 37014,
+    NPC_RAGING_GNOUL                              = 36940,
+    NPC_RISEN_WITCH_DOCTOR                        = 36941,
+    NPC_ABON                                      = 37069
 };
 
-enum GameObjectIds
+enum GameObjects
 {
-    GO_FROSTMOURNE                              = 202302,
-    GO_ENTRANCE_DOOR                            = 201976,
-    GO_IMPENETRABLE_DOOR                        = 197341,
-    GO_SHADOW_THRONE_DOOR                       = 197342,
-    GO_ESCAPE_DOOR                              = 197343, // always open ?
+    GO_FROSTMOURNE                                = 202302,
+    GO_ENTRANCE_DOOR                              = 201976,
+    GO_FROSTWORN_DOOR                             = 197341,
+    GO_ARTHAS_DOOR                                = 197342,
+    GO_ESCAPE_DOOR                                = 197343,
 
-    GO_ICE_WALL                                 = 201385,
-    GO_CAVE_IN                                  = 201596,
+    GO_ICE_WALL_1                                 = 201385,
+    GO_ICE_WALL_2                                 = 201885,
+    GO_ICE_WALL_3                                 = 202396,
+    GO_ICE_WALL_4                                 = 500001,
+    GO_CAVE                                       = 201596,
 
-    GO_THE_SKYBREAKER                           = 201598,
-    GO_ORGRIMS_HAMMER                           = 201599,
-    GO_THE_SKYBREAKER_STAIRS                    = 201709,
-    GO_ORGRIMS_HAMMER_STAIRS                    = 202211,
-    GO_PORTAL_TO_DALARAN                        = 195682,
+    GO_STAIRS_SKYBREAKER                          = 201709,
+    GO_SKYBREAKER                                 = 201598,
+    GO_STAIRS_ORGRIM_HAMMER                       = 202211,
+    GO_ORGRIM_HAMMER                              = 201599,
+    GO_PORTAL                                     = 202079,
 
-    GO_THE_CAPTAIN_CHEST_ALLIANCE_NORMAL        = 201710,
-    GO_THE_CAPTAIN_CHEST_HORDE_NORMAL           = 202212,
-    GO_THE_CAPTAIN_CHEST_ALLIANCE_HEROIC        = 202336,
-    GO_THE_CAPTAIN_CHEST_HORDE_HEROIC           = 202337
+    GO_CAPTAIN_CHEST_1                            = 202212, //3145
+    GO_CAPTAIN_CHEST_2                            = 201710, //30357
+    GO_CAPTAIN_CHEST_3                            = 202337, //3246
+    GO_CAPTAIN_CHEST_4                            = 202336, //3333
 };
 
-enum Achievements
+enum HorWorldStates
 {
-    ACHIEV_NOT_RETREATING_EVENT                 = 22615,
-    SPELL_ACHIEV_CHECK                          = 72830
+    WORLD_STATE_HOR_WAVES_ENABLED                 = 4884,
+    WORLD_STATE_HOR_WAVE_COUNT                    = 4882
 };
 
 // Common actions from Instance Script to Boss Script
 enum Actions
 {
-    ACTION_ENTER_COMBAT                         = -668001,
-    ACTION_START_PREFIGHT                       = -668002,
-    ACTION_WALL_BROKEN                          = -668003,
-    ACTION_GUNSHIP_ARRIVAL                      = -668004,
-    ACTION_GUNSHIP_ARRIVAL_2                    = -668005
+    ACTION_ENTER_COMBAT
+};
+
+enum TrashGeneralSpells
+{
+    // General spells
+    SPELL_WELL_OF_SOULS                           = 72630, // cast when spawn(become visible)
+    SPELL_SPIRIT_ACTIVATE                         = 72130, // cast when unit activates
+    SPELL_QUELDELAR_AURA                          = 70013
 };
 
 enum InstanceEvents
 {
-    EVENT_SPAWN_WAVES                           = 1,
-    EVENT_NEXT_WAVE                             = 2,
-    EVENT_DO_WIPE                               = 3,
-    EVENT_ADD_WAVE                              = 4,
-    EVENT_SPAWN_ESCAPE_EVENT                    = 5,
-    EVENT_QUEL_DELAR_SUMMON_UTHER               = 6
+    EVENT_SPAWN_WAVES                             = 1,
+    EVENT_NEXT_WAVE                               = 2,
+    EVENT_DO_WIPE                                 = 3,
+    EVENT_ADD_WAVE                                = 4
 };
 
-enum InstanceEventIds
+enum Achievements
 {
-    EVENT_GUNSHIP_ARRIVAL                       = 22709,
-    EVENT_GUNSHIP_ARRIVAL_2                     = 22714,
-    EVENT_ICE_WALL_SUMMONED                     = 22795
-};
-
-enum InstanceSpells
-{
-    // Trash
-    SPELL_WELL_OF_SOULS                         = 72630, // cast when spawn (become visible)
-    SPELL_SPIRIT_ACTIVATE                       = 72130, // cast when unit activates
-
-    // Start Quests
-    SPELL_START_HALLS_OF_REFLECTION_QUEST_A     = 71351,
-    SPELL_START_HALLS_OF_REFLECTION_QUEST_H     = 71542,
-    SPELL_START_HALLS_OF_REFLECTION_QUEST_AE    = 72900,
-
-    // Quest Credits
-    SPELL_CREDIT_FINDING_SYLVANAS               = 71536,
-    SPELL_CREDIT_FINDING_JAINA                  = 71538,
-    SPELL_CREDIT_ESCAPING_ARTHAS                = 71352,
-
-    // Gunship
-    SPELL_GUNSHIP_CANNON_FIRE                   = 70017,
-    SPELL_GUNSHIP_CANNON_FIRE_MISSILE_ALLIANCE  = 70021,
-    SPELL_GUNSHIP_CANNON_FIRE_MISSILE_HORDE     = 70246,
-
-    // Halls of Reflection quest
-    SPELL_QUEL_DELAR_COMPULSION                 = 70013,
-    SPELL_ESSENCE_OF_CAPTURED                   = 70720
-};
-
-enum InstanceQuests
-{
-    QUEST_HALLS_OF_REFLECTION_ALLIANCE          = 24480,
-    QUEST_HALLS_OF_REFLECTION_HORDE             = 24561
-};
-
-enum InstanceWorldStates
-{
-    WORLD_STATE_HOR_WAVES_ENABLED               = 4884,
-    WORLD_STATE_HOR_WAVE_COUNT                  = 4882
-};
-
-enum InstanceYells
-{
-    SAY_CAPTAIN_FIRE                            = 0,
-    SAY_CAPTAIN_FINAL                           = 1
+    ACHIEV_HALLS_OF_REFLECTION_N   = 4518,
+    ACHIEV_HALLS_OF_REFLECTION_H   = 4521,
+    ACHIEV_NOT_RETREATING_EVENT    = 22615,
+    SPELL_ACHIEV_CHECK             = 72830
 };
 
 // Base class for FALRIC and MARWYN
-struct boss_horAI : BossAI
+// handled the summonList and the notification events to/from the InstanceScript
+struct boss_horAI : ScriptedAI
 {
-    boss_horAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId) { }
-
-    void Reset() override
+    boss_horAI(Creature* creature) : ScriptedAI(creature), summons(creature)
     {
-        _Reset();
+        instance = me->GetInstanceScript();
+    }
+
+    InstanceScript* instance;
+    EventMap events;
+    SummonList summons;
+
+    void Reset()
+    {
+        events.Reset();
         me->SetVisible(false);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
         me->SetReactState(REACT_PASSIVE);
         if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
-            instance->ProcessEvent(NULL, EVENT_DO_WIPE);
+            instance->ProcessEvent(0, EVENT_DO_WIPE);
     }
 
-    void DoAction(int32 actionId) override
+    void DoAction(int32 const actionID)
     {
-        switch (actionId)
+        switch (actionID)
         {
-            case ACTION_ENTER_COMBAT: // called by InstanceScript when boss shall enter in combat.
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            case ACTION_ENTER_COMBAT:  // called by InstanceScript when boss shall enter in combat.
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
                 me->SetReactState(REACT_AGGRESSIVE);
-                DoZoneInCombat(me, 150.0f);
-                break;
-            default:
+
+                if (Unit* unit = me->SelectNearestTarget())
+                    AttackStart(unit);
+
+                DoZoneInCombat();
                 break;
         }
     }
 
-    void JustSummoned(Creature* summon) override
+    void JustSummoned(Creature* summoned)
     {
-        summons.Summon(summon);
+        summons.Summon(summoned);
     }
 };
 
-class GameObjectDeleteDelayEvent : public BasicEvent
-{
-    public:
-        GameObjectDeleteDelayEvent(Unit* owner, ObjectGuid gameObjectGUID) : _owner(owner), _gameObjectGUID(gameObjectGUID) { }
-
-        void DeleteGameObject()
-        {
-            if (GameObject* go = ObjectAccessor::GetGameObject(*_owner, _gameObjectGUID))
-                go->Delete();
-        }
-
-        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
-        {
-            DeleteGameObject();
-            return true;
-        }
-
-        void Abort(uint64 /*execTime*/) override
-        {
-            DeleteGameObject();
-        }
-
-    private:
-        Unit* _owner;
-        ObjectGuid _gameObjectGUID;
-};
-
-template<class AI>
-AI* GetHallsOfReflectionAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, HoRScriptName);
-}
-
-#endif // HALLS_OF_REFLECTION_H_
+#endif

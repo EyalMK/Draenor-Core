@@ -1,38 +1,28 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _GROUPMGR_H
 #define _GROUPMGR_H
 
 #include "Group.h"
 
-class TC_GAME_API GroupMgr
+class GroupMgr
 {
+    friend class ACE_Singleton<GroupMgr, ACE_Null_Mutex>;
 private:
     GroupMgr();
     ~GroupMgr();
 
 public:
-    static GroupMgr* instance();
-
-    typedef std::map<ObjectGuid::LowType, Group*> GroupContainer;
+    typedef std::map<uint32, Group*> GroupContainer;
     typedef std::vector<Group*>      GroupDbContainer;
 
-    Group* GetGroupByGUID(ObjectGuid const& guid) const;
+    Group* GetGroupByGUID(uint32 guid) const;
 
     uint32 GenerateNewGroupDbStoreId();
     void   RegisterGroupDbStoreId(uint32 storageId, Group* group);
@@ -41,21 +31,21 @@ public:
     Group* GetGroupByDbStoreId(uint32 storageId) const;
     void   SetGroupDbStoreSize(uint32 newSize) { GroupDbStore.resize(newSize); }
 
+#ifndef CROSS
     void   LoadGroups();
-    ObjectGuid::LowType GenerateGroupId();
+#endif /* not CROSS */
+    uint32 GenerateGroupId();
     void   AddGroup(Group* group);
     void   RemoveGroup(Group* group);
 
-    void   Update(uint32 diff);
-
 
 protected:
-    ObjectGuid::LowType           NextGroupId;
+    uint32           NextGroupId;
     uint32           NextGroupDbStoreId;
     GroupContainer   GroupStore;
     GroupDbContainer GroupDbStore;
 };
 
-#define sGroupMgr GroupMgr::instance()
+#define sGroupMgr ACE_Singleton<GroupMgr, ACE_Null_Mutex>::instance()
 
 #endif

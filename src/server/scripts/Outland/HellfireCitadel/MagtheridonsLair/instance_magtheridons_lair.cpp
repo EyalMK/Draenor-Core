@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Instance_Magtheridons_Lair
@@ -28,7 +18,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
 
-enum Spells
+enum eSpells
 {
     SPELL_SOUL_TRANSFER        = 30531, // core bug, does not support target 7
     SPELL_BLAZE_TARGET         = 30541, // core bug, does not support target 7
@@ -54,24 +44,32 @@ class instance_magtheridons_lair : public InstanceMapScript
         {
             instance_magtheridons_lair_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                SetHeaders(DataHeader);
+            }
+
+            uint32 m_auiEncounter[MAX_ENCOUNTER];
+
+            uint64 MagtheridonGUID;
+            std::set<uint64> ChannelerGUID;
+            uint64 DoorGUID;
+            std::set<uint64> ColumnGUID;
+
+            uint32 CageTimer;
+            uint32 RespawnTimer;
+
+            void Initialize()
+            {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+                MagtheridonGUID = 0;
+                ChannelerGUID.clear();
+                DoorGUID = 0;
+                ColumnGUID.clear();
 
                 CageTimer = 0;
                 RespawnTimer = 0;
             }
 
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-            ObjectGuid MagtheridonGUID;
-            GuidSet ChannelerGUID;
-            ObjectGuid DoorGUID;
-            GuidSet ColumnGUID;
-
-            uint32 CageTimer;
-            uint32 RespawnTimer;
-
-            bool IsEncounterInProgress() const override
+            bool IsEncounterInProgress() const
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (m_auiEncounter[i] == IN_PROGRESS)
@@ -80,7 +78,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                 return false;
             }
 
-            void OnCreatureCreate(Creature* creature) override
+            void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())
                 {
@@ -93,12 +91,12 @@ class instance_magtheridons_lair : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) override
+            void OnGameObjectCreate(GameObject* go)
             {
                 switch (go->GetEntry())
                 {
                 case 181713:
-                    go->SetUInt32Value(GAMEOBJECT_FLAGS, 0);
+                    go->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 0);
                     break;
                 case 183847:
                     DoorGUID = go->GetGUID();
@@ -115,17 +113,17 @@ class instance_magtheridons_lair : public InstanceMapScript
                 }
             }
 
-            ObjectGuid GetGuidData(uint32 type) const override
+            uint64 GetData64(uint32 type)
             {
                 switch (type)
                 {
                 case DATA_MAGTHERIDON:
                     return MagtheridonGUID;
                 }
-                return ObjectGuid::Empty;
+                return 0;
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 data)
             {
                 switch (type)
                 {
@@ -143,11 +141,11 @@ class instance_magtheridons_lair : public InstanceMapScript
                         if (m_auiEncounter[1] != NOT_STARTED)
                         {
                             m_auiEncounter[1] = NOT_STARTED;
-                            for (GuidSet::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                            for (std::set<uint64>::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                             {
                                 if (Creature* Channeler = instance->GetCreature(*i))
                                 {
-                                    if (Channeler->IsAlive())
+                                    if (Channeler->isAlive())
                                         Channeler->AI()->EnterEvadeMode();
                                     else
                                         Channeler->Respawn();
@@ -162,27 +160,27 @@ class instance_magtheridons_lair : public InstanceMapScript
                         {
                             m_auiEncounter[1] = IN_PROGRESS;
                             // Let all five channelers aggro.
-                            for (GuidSet::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                            for (std::set<uint64>::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                             {
                                 Creature* Channeler = instance->GetCreature(*i);
-                                if (Channeler && Channeler->IsAlive())
+                                if (Channeler && Channeler->isAlive())
                                     Channeler->AI()->AttackStart(Channeler->SelectNearestTarget(999));
                             }
                             // Release Magtheridon after two minutes.
                             Creature* Magtheridon = instance->GetCreature(MagtheridonGUID);
-                            if (Magtheridon && Magtheridon->IsAlive())
+                            if (Magtheridon && Magtheridon->isAlive())
                             {
-                                Magtheridon->TextEmote(EMOTE_BONDS_WEAKEN);
+                                Magtheridon->MonsterTextEmote(EMOTE_BONDS_WEAKEN, 0);
                                 CageTimer = 120000;
                             }
                             HandleGameObject(DoorGUID, false);
                         }
                         break;
                     case DONE: // Add buff and check if all channelers are dead.
-                        for (GuidSet::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                        for (std::set<uint64>::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                         {
                             Creature* Channeler = instance->GetCreature(*i);
-                            if (Channeler && Channeler->IsAlive())
+                            if (Channeler && Channeler->isAlive())
                             {
                                 //Channeler->CastSpell(Channeler, SPELL_SOUL_TRANSFER, true);
                                 data = IN_PROGRESS;
@@ -195,7 +193,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                     break;
                 case DATA_COLLAPSE:
                     // true - collapse / false - reset
-                    for (GuidSet::const_iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
+                    for (std::set<uint64>::const_iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
                         DoUseDoorOrButton(*i);
                     break;
                 default:
@@ -203,21 +201,23 @@ class instance_magtheridons_lair : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const override
+            uint32 GetData(uint32 type)
             {
                 if (type == DATA_MAGTHERIDON_EVENT)
                     return m_auiEncounter[0];
                 return 0;
             }
 
-            void Update(uint32 diff) override
+            void Update(uint32 diff)
             {
+                UpdateOperations(diff);
+
                 if (CageTimer)
                 {
                     if (CageTimer <= diff)
                     {
                         Creature* Magtheridon = instance->GetCreature(MagtheridonGUID);
-                        if (Magtheridon && Magtheridon->IsAlive())
+                        if (Magtheridon && Magtheridon->isAlive())
                         {
                             Magtheridon->ClearUnitState(UNIT_STATE_STUNNED);
                             Magtheridon->AI()->AttackStart(Magtheridon->SelectNearestTarget(999));
@@ -230,11 +230,11 @@ class instance_magtheridons_lair : public InstanceMapScript
                 {
                     if (RespawnTimer <= diff)
                     {
-                        for (GuidSet::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                        for (std::set<uint64>::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                         {
                             if (Creature* Channeler = instance->GetCreature(*i))
                             {
-                                if (Channeler->IsAlive())
+                                if (Channeler->isAlive())
                                     Channeler->AI()->EnterEvadeMode();
                                 else
                                     Channeler->Respawn();
@@ -246,14 +246,15 @@ class instance_magtheridons_lair : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
             return new instance_magtheridons_lair_InstanceMapScript(map);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_magtheridons_lair()
 {
     new instance_magtheridons_lair();
 }
-
+#endif

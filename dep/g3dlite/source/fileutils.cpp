@@ -396,10 +396,6 @@ bool zipfileExists(const std::string& filename, std::string& outZipfile,
         }
         
     }
-#else
-    (void)filename;
-    (void)outZipfile;
-    (void)outInternalFile;
 #endif
     // not a valid directory structure ever, 
     // obviously no .zip was found within the path 
@@ -760,12 +756,6 @@ static void getFileOrDirListZip(const std::string& path,
     zip_close( z );
     
     fileSet.getMembers(files);
-#else
-    (void)path;
-    (void)prefix;
-    (void)files;
-    (void)wantFiles;
-    (void)includePath;
 #endif
 }
 

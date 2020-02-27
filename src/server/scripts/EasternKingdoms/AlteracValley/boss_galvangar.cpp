@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -72,13 +63,13 @@ public:
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
         }
 
-        void DoAction(int32 actionId) override
+        void DoAction(int32 const actionId) override
         {
             if (actionId == ACTION_BUFF_YELL)
                 Talk(SAY_BUFF);
         }
 
-        bool CheckInRoom() override
+        bool CheckInRoom()
         {
             if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
             {
@@ -90,7 +81,7 @@ public:
             return true;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -142,7 +133,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_galvangar()
 {
     new boss_galvangar;
 }
+#endif

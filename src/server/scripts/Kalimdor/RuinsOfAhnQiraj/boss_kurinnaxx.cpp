@@ -1,25 +1,15 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
-#include "CreatureTextMgr.h"
 
 enum Spells
 {
@@ -39,11 +29,6 @@ enum Events
     EVENT_WIDE_SLASH        = 4
 };
 
-enum Texts
-{
-    SAY_KURINAXX_DEATH      = 5, // Yelled by Ossirian the Unscarred
-};
-
 class boss_kurinnaxx : public CreatureScript
 {
     public:
@@ -51,27 +36,21 @@ class boss_kurinnaxx : public CreatureScript
 
         struct boss_kurinnaxxAI : public BossAI
         {
-            boss_kurinnaxxAI(Creature* creature) : BossAI(creature, DATA_KURINNAXX)
+            boss_kurinnaxxAI(Creature* creature) : BossAI(creature, BOSS_KURINNAXX)
             {
-                Initialize();
             }
 
-            void Initialize()
-            {
-                _enraged = false;
-            }
-
-            void Reset() override
+            void Reset()
             {
                 _Reset();
-                Initialize();
+                _enraged = false;
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
                 events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_TRASH, 1000);
                 events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!_enraged && HealthBelowPct(30))
                 {
@@ -80,14 +59,7 @@ class boss_kurinnaxx : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                if (Creature* Ossirian = me->GetMap()->GetCreature(instance->GetGuidData(DATA_OSSIRIAN)))
-                    sCreatureTextMgr->SendChat(Ossirian, SAY_KURINAXX_DEATH, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
-            }
-
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -108,7 +80,7 @@ class boss_kurinnaxx : public CreatureScript
                         case EVENT_SANDTRAP:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 target->CastSpell(target, SPELL_SANDTRAP, true);
-                            else if (Unit* victim = me->GetVictim())
+                            else if (Unit* victim = me->getVictim())
                                 victim->CastSpell(victim, SPELL_SANDTRAP, true);
                             events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
                             break;
@@ -131,13 +103,15 @@ class boss_kurinnaxx : public CreatureScript
                 bool _enraged;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return GetInstanceAI<boss_kurinnaxxAI>(creature);
+            return new boss_kurinnaxxAI (creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kurinnaxx()
 {
     new boss_kurinnaxx();
 }
+#endif

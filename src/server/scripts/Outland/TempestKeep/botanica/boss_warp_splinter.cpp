@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Warp_Splinter
@@ -25,28 +15,30 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "the_botanica.h"
 
-enum Says
+enum eSays
 {
-    SAY_AGGRO          = 0,
-    SAY_SLAY           = 1,
-    SAY_SUMMON         = 2,
-    SAY_DEATH          = 3
+    SAY_AGGRO          = -1553007,
+    SAY_SLAY_1         = -1553008,
+    SAY_SLAY_2         = -1553009,
+    SAY_SUMMON_1       = -1553010,
+    SAY_SUMMON_2       = -1553011,
+    SAY_DEATH          = -1553012
 };
 
-enum Spells
+enum eSpells
 {
     WAR_STOMP          = 34716,
     SUMMON_TREANTS     = 34727, // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
     ARCANE_VOLLEY      = 36705,
+    ARCANE_VOLLEY_H    = 39133,
     SPELL_HEAL_FATHER  = 6262
 };
 
-enum Misc
+enum eOthers
 {
     CREATURE_TREANT    = 19949,
-    TREANT_SPAWN_DIST  = 50 //50 yards from Warp Splinter's spawn point
+    TREANT_SPAWN_DIST  = 50, //50 yards from Warp Splinter's spawn point
 };
 
 float treant_pos[6][3] =
@@ -60,53 +52,47 @@ float treant_pos[6][3] =
 };
 
 /*#####
-# npc_treant (Sapling)
+# mob_treant (Sapling)
 #####*/
-class npc_warp_splinter_treant : public CreatureScript
+class mob_warp_splinter_treant : public CreatureScript
 {
     public:
 
-        npc_warp_splinter_treant()
-            : CreatureScript("npc_warp_splinter_treant")
+        mob_warp_splinter_treant()
+            : CreatureScript("mob_warp_splinter_treant")
         {
         }
-        struct npc_warp_splinter_treantAI  : public ScriptedAI
+        struct mob_warp_splinter_treantAI  : public ScriptedAI
         {
-            npc_warp_splinter_treantAI(Creature* creature) : ScriptedAI(creature)
+            mob_warp_splinter_treantAI (Creature* creature) : ScriptedAI(creature)
             {
-                Initialize();
+                WarpGuid = 0;
             }
 
-            void Initialize()
+            uint64 WarpGuid;
+            uint32 check_Timer;
+
+            void Reset()
             {
                 check_Timer = 0;
             }
 
-            ObjectGuid WarpGuid;
-            uint32 check_Timer;
+            void EnterCombat(Unit* /*who*/) {}
 
-            void Reset() override
+            void MoveInLineOfSight(Unit* /*who*/) {}
+
+            void UpdateAI(const uint32 diff)
             {
-                Initialize();
-            }
-
-            void EnterCombat(Unit* /*who*/) override { }
-
-            void MoveInLineOfSight(Unit* /*who*/) override { }
-
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim() || !me->GetVictim())
+                if (!UpdateVictim())
                 {
-                    if (!WarpGuid.IsEmpty() && check_Timer <= diff)
+                    if (WarpGuid && check_Timer <= diff)
                     {
-                        if (Unit* Warp = ObjectAccessor::GetUnit(*me, WarpGuid))
+                        if (Unit* Warp = Unit::GetUnit(*me, WarpGuid))
                         {
-                            if (me->IsWithinMeleeRange(Warp))
+                            if (me->IsWithinMeleeRange(Warp, 2.5f))
                             {
                                 int32 CurrentHP_Treant = (int32)me->GetHealth();
-                                Warp->CastCustomSpell(Warp, SPELL_HEAL_FATHER, &CurrentHP_Treant, 0, 0, true, 0, 0, me->GetGUID());
+                                Warp->CastCustomSpell(Warp, SPELL_HEAL_FATHER, &CurrentHP_Treant, 0, 0, true, 0, nullptr, me->GetGUID());
                                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                                 return;
                             }
@@ -119,13 +105,13 @@ class npc_warp_splinter_treant : public CreatureScript
                     return;
                 }
 
-                if (me->EnsureVictim()->GetGUID() != WarpGuid)
+                if (me->getVictim()->GetGUID() !=  WarpGuid)
                     DoMeleeAttackIfReady();
             }
         };
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_warp_splinter_treantAI(creature);
+            return new mob_warp_splinter_treantAI(creature);
         }
 };
 
@@ -140,20 +126,12 @@ class boss_warp_splinter : public CreatureScript
             : CreatureScript("boss_warp_splinter")
         {
         }
-        struct boss_warp_splinterAI : public BossAI
+        struct boss_warp_splinterAI : public ScriptedAI
         {
-            boss_warp_splinterAI(Creature* creature) : BossAI(creature, DATA_WARP_SPLINTER)
+            boss_warp_splinterAI(Creature* creature) : ScriptedAI(creature)
             {
-                Initialize();
                 Treant_Spawn_Pos_X = creature->GetPositionX();
                 Treant_Spawn_Pos_Y = creature->GetPositionY();
-            }
-
-            void Initialize()
-            {
-                War_Stomp_Timer = urand(25000, 40000);
-                Summon_Treants_Timer = 45000;
-                Arcane_Volley_Timer = urand(8000, 20000);
             }
 
             uint32 War_Stomp_Timer;
@@ -163,45 +141,47 @@ class boss_warp_splinter : public CreatureScript
             float Treant_Spawn_Pos_X;
             float Treant_Spawn_Pos_Y;
 
-            void Reset() override
+            void Reset()
             {
-                Initialize();
+                War_Stomp_Timer = urand(25000, 40000);
+                Summon_Treants_Timer = 45000;
+                Arcane_Volley_Timer = urand(8000, 20000);
 
-                me->SetSpeedRate(MOVE_RUN, 0.7f);
+                me->SetSpeed(MOVE_RUN, 0.7f, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
-                Talk(SAY_AGGRO);
+                DoScriptText(SAY_AGGRO, me);
             }
 
-            void KilledUnit(Unit* /*victim*/) override
+            void KilledUnit(Unit* /*victim*/)
             {
-                Talk(SAY_SLAY);
+                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
-                Talk(SAY_DEATH);
+                DoScriptText(SAY_DEATH, me);
             }
 
             void SummonTreants()
             {
                 for (uint8 i = 0; i < 6; ++i)
                 {
-                    float angle = (float(M_PI) / 3) * i;
+                    float angle = (M_PI / 3) * i;
 
                     float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * std::cos(angle);
                     float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * std::sin(angle);
                     float O = - me->GetAngle(X, Y);
 
                     if (Creature* pTreant = me->SummonCreature(CREATURE_TREANT, treant_pos[i][0], treant_pos[i][1], treant_pos[i][2], O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
-                        ENSURE_AI(npc_warp_splinter_treant::npc_warp_splinter_treantAI, pTreant->AI())->WarpGuid = me->GetGUID();
+                        CAST_AI(mob_warp_splinter_treant::mob_warp_splinter_treantAI, pTreant->AI())->WarpGuid = me->GetGUID();
                 }
-                Talk(SAY_SUMMON);
+                DoScriptText(RAND(SAY_SUMMON_1, SAY_SUMMON_2), me);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -209,7 +189,7 @@ class boss_warp_splinter : public CreatureScript
                 //Check for War Stomp
                 if (War_Stomp_Timer <= diff)
                 {
-                    DoCastVictim(WAR_STOMP);
+                    DoCast(me->getVictim(), WAR_STOMP);
                     War_Stomp_Timer = urand(25000, 40000);
                 }
                 else
@@ -218,7 +198,7 @@ class boss_warp_splinter : public CreatureScript
                 //Check for Arcane Volley
                 if (Arcane_Volley_Timer <= diff)
                 {
-                    DoCastVictim(ARCANE_VOLLEY);
+                    DoCast(me->getVictim(), DUNGEON_MODE(ARCANE_VOLLEY, ARCANE_VOLLEY_H));
                     Arcane_Volley_Timer = urand(20000, 35000);
                 }
                 else
@@ -237,15 +217,16 @@ class boss_warp_splinter : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_warp_splinterAI(creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_warp_splinter()
 {
     new boss_warp_splinter();
-    new npc_warp_splinter_treant();
+    new mob_warp_splinter_treant();
 }
-
+#endif

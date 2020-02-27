@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Instance_Old_Hillsbrad
@@ -45,29 +35,33 @@ class instance_old_hillsbrad : public InstanceMapScript
 public:
     instance_old_hillsbrad() : InstanceMapScript("instance_old_hillsbrad", 560) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
         return new instance_old_hillsbrad_InstanceMapScript(map);
     }
 
     struct instance_old_hillsbrad_InstanceMapScript : public InstanceScript
     {
-        instance_old_hillsbrad_InstanceMapScript(Map* map) : InstanceScript(map)
-        {
-            SetHeaders(DataHeader);
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            mBarrelCount = 0;
-            mThrallEventCount = 0;
-        }
+        instance_old_hillsbrad_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint32 mBarrelCount;
         uint32 mThrallEventCount;
 
-        ObjectGuid ThrallGUID;
-        ObjectGuid TarethaGUID;
-        ObjectGuid EpochGUID;
+        uint64 ThrallGUID;
+        uint64 TarethaGUID;
+        uint64 EpochGUID;
+
+        void Initialize()
+        {
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+            mBarrelCount        = 0;
+            mThrallEventCount   = 0;
+            ThrallGUID          = 0;
+            TarethaGUID         = 0;
+            EpochGUID        = 0;
+        }
 
         Player* GetPlayerInMap()
         {
@@ -77,12 +71,12 @@ public:
             {
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (Player* player = itr->GetSource())
+                    if (Player* player = itr->getSource())
                         return player;
                 }
             }
 
-            TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
+            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
             return NULL;
         }
 
@@ -94,13 +88,13 @@ public:
             {
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (Player* player = itr->GetSource())
-                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER);
+                    if (Player* player = itr->getSource())
+                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER, 0);
                 }
             }
         }
 
-        void OnCreatureCreate(Creature* creature) override
+        void OnCreatureCreate(Creature* creature)
         {
             switch (creature->GetEntry())
             {
@@ -110,19 +104,19 @@ public:
                 case TARETHA_ENTRY:
                     TarethaGUID = creature->GetGUID();
                     break;
-                case EPOCH_ENTRY:
-                    EpochGUID = creature->GetGUID();
-                    break;
+            case EPOCH_ENTRY:
+            EpochGUID = creature->GetGUID();
+            break;
             }
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 type, uint32 data)
         {
             Player* player = GetPlayerInMap();
 
             if (!player)
             {
-                TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: SetData (Type: %u Data %u) cannot find any player.", type, data);
+                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Old Hillsbrad: SetData (Type: %u Data %u) cannot find any player.", type, data);
                 return;
             }
 
@@ -138,7 +132,7 @@ public:
                         ++mBarrelCount;
                         DoUpdateWorldState(WORLD_STATE_OH, mBarrelCount);
 
-                        TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u", mBarrelCount);
+                        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Old Hillsbrad: go_barrel_old_hillsbrad count %u", mBarrelCount);
 
                         m_auiEncounter[0] = IN_PROGRESS;
 
@@ -159,7 +153,7 @@ public:
                         {
                             ++mThrallEventCount;
                             m_auiEncounter[1] = NOT_STARTED;
-                            TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: Thrall event failed %u times. Resetting all sub-events.", mThrallEventCount);
+                            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Old Hillsbrad: Thrall event failed %u times. Resetting all sub-events.", mThrallEventCount);
                             m_auiEncounter[2] = NOT_STARTED;
                             m_auiEncounter[3] = NOT_STARTED;
                             m_auiEncounter[4] = NOT_STARTED;
@@ -172,34 +166,34 @@ public:
                             m_auiEncounter[3] = data;
                             m_auiEncounter[4] = data;
                             m_auiEncounter[5] = data;
-                            TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: Thrall event failed %u times. Resetting all sub-events.", mThrallEventCount);
+                            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Old Hillsbrad: Thrall event failed %u times. Resetting all sub-events.", mThrallEventCount);
                         }
                     }
                     else
                         m_auiEncounter[1] = data;
-                    TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: Thrall escort event adjusted to data %u.", data);
+                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Old Hillsbrad: Thrall escort event adjusted to data %u.", data);
                     break;
                 }
                 case TYPE_THRALL_PART1:
                     m_auiEncounter[2] = data;
-                    TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: Thrall event part I adjusted to data %u.", data);
+                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Old Hillsbrad: Thrall event part I adjusted to data %u.", data);
                     break;
                 case TYPE_THRALL_PART2:
                     m_auiEncounter[3] = data;
-                    TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: Thrall event part II adjusted to data %u.", data);
+                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Old Hillsbrad: Thrall event part II adjusted to data %u.", data);
                     break;
                 case TYPE_THRALL_PART3:
                     m_auiEncounter[4] = data;
-                    TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: Thrall event part III adjusted to data %u.", data);
+                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Old Hillsbrad: Thrall event part III adjusted to data %u.", data);
                     break;
                 case TYPE_THRALL_PART4:
                     m_auiEncounter[5] = data;
-                     TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: Thrall event part IV adjusted to data %u.", data);
+                     sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Old Hillsbrad: Thrall event part IV adjusted to data %u.", data);
                     break;
             }
         }
 
-        uint32 GetData(uint32 data) const override
+        uint32 GetData(uint32 data)
         {
             switch (data)
             {
@@ -219,7 +213,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 data) const override
+        uint64 GetData64(uint32 data)
         {
             switch (data)
             {
@@ -227,16 +221,18 @@ public:
                     return ThrallGUID;
                 case DATA_TARETHA:
                     return TarethaGUID;
-                case DATA_EPOCH:
-                    return EpochGUID;
+            case DATA_EPOCH:
+            return EpochGUID;
             }
-            return ObjectGuid::Empty;
+            return 0;
         }
     };
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_old_hillsbrad()
 {
     new instance_old_hillsbrad();
 }
+#endif

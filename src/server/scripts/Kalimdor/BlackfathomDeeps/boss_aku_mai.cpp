@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -21,14 +12,8 @@
 
 enum Spells
 {
-    SPELL_POISON_CLOUD     = 3815,
-    SPELL_FRENZIED_RAGE    = 3490
-};
-
-enum Events
-{
-    EVENT_POISON_CLOUD     = 1,
-    EVENT_FRENZIED_RAGE
+    SPELL_POISON_CLOUD                                     = 3815,
+    SPELL_FRENZIED_RAGE                                    = 3490
 };
 
 class boss_aku_mai : public CreatureScript
@@ -36,63 +21,70 @@ class boss_aku_mai : public CreatureScript
 public:
     boss_aku_mai() : CreatureScript("boss_aku_mai") { }
 
-    struct boss_aku_maiAI : public BossAI
+    CreatureAI* GetAI(Creature* creature) const
     {
-        boss_aku_maiAI(Creature* creature) : BossAI(creature, DATA_AKU_MAI)
+        return new boss_aku_maiAI (creature);
+    }
+
+    struct boss_aku_maiAI : public ScriptedAI
+    {
+        boss_aku_maiAI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
+            instance = creature->GetInstanceScript();
         }
 
-        void Initialize()
+        uint32 poisonCloudTimer;
+        bool IsEnraged;
+
+        InstanceScript* instance;
+
+        void Reset()
         {
+            poisonCloudTimer = urand(5000, 9000);
             IsEnraged = false;
+            if (instance)
+                instance->SetData(TYPE_AKU_MAI, NOT_STARTED);
         }
 
-        void Reset() override
+        void EnterCombat(Unit* /*who*/)
         {
-            Initialize();
-            _Reset();
+            if (instance)
+                instance->SetData(TYPE_AKU_MAI, IN_PROGRESS);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustDied(Unit* /*killer*/)
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
+            if (instance)
+                instance->SetData(TYPE_AKU_MAI, DONE);
         }
 
-        void DamageTaken(Unit* /*atacker*/, uint32 &damage) override
+        void UpdateAI(const uint32 diff)
         {
-            if (!IsEnraged && me->HealthBelowPctDamaged(30, damage))
+            if (!UpdateVictim())
+                return;
+
+            if (poisonCloudTimer < diff)
+            {
+                DoCastVictim(SPELL_POISON_CLOUD);
+                poisonCloudTimer = urand(25000, 50000);
+            }
+            else
+                poisonCloudTimer -= diff;
+
+            if (!IsEnraged && HealthBelowPct(30))
             {
                 DoCast(me, SPELL_FRENZIED_RAGE);
                 IsEnraged = true;
             }
-        }
 
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
-            {
-                case EVENT_POISON_CLOUD:
-                    DoCastVictim(SPELL_POISON_CLOUD);
-                    events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
-                    break;
-                default:
-                    break;
-            }
+            DoMeleeAttackIfReady();
         }
-
-        private:
-            bool IsEnraged;
     };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_aku_maiAI>(creature);
-    }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_aku_mai()
 {
     new boss_aku_mai();
 }
+#endif

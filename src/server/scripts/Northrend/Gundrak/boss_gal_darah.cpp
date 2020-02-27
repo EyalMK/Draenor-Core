@@ -1,290 +1,289 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "gundrak.h"
 
-/// @todo: implement stampede
-
+//Spells
 enum Spells
 {
-    SPELL_IMPALING_CHARGE                   = 54956,
-    SPELL_IMPALING_CHARGE_CONTROL_VEHICLE   = 54958,
-    SPELL_STOMP                             = 55292,
-    SPELL_PUNCTURE                          = 55276,
-    SPELL_STAMPEDE                          = 55218,
-    SPELL_WHIRLING_SLASH                    = 55250,
-    SPELL_ENRAGE                            = 55285,
-    SPELL_HEARTH_BEAM_VISUAL                = 54988,
-    SPELL_TRANSFORM_RHINO                   = 55297,
-    SPELL_TRANSFORM_BACK                    = 55299
+    SPELL_ENRAGE                                  = 55285,
+    H_SPELL_ENRAGE                                = 59828,
+    SPELL_IMPALING_CHARGE                         = 54956,
+    H_SPELL_IMPALING_CHARGE                       = 59827,
+    SPELL_STOMP                                   = 55292,
+    H_SPELL_STOMP                                 = 59829,
+    SPELL_PUNCTURE                                = 55276,
+    H_SPELL_PUNCTURE                              = 59826,
+    SPELL_STAMPEDE                                = 55218,
+    SPELL_WHIRLING_SLASH                          = 55250,
+    H_SPELL_WHIRLING_SLASH                        = 59824
 };
 
+//Yells
 enum Yells
 {
-    SAY_AGGRO                               = 0,
-    SAY_SLAY                                = 1,
-    SAY_DEATH                               = 2,
-    SAY_SUMMON_RHINO                        = 3,
-    SAY_TRANSFORM_1                         = 4,
-    SAY_TRANSFORM_2                         = 5,
-    EMOTE_IMPALE                            = 6
+    SAY_AGGRO                                     = -1604000,
+    SAY_SLAY_1                                    = -1604001,
+    SAY_SLAY_2                                    = -1604002,
+    SAY_SLAY_3                                    = -1604003,
+    SAY_DEATH                                     = -1604004,
+    SAY_SUMMON_RHINO_1                            = -1604005,
+    SAY_SUMMON_RHINO_2                            = -1604006,
+    SAY_SUMMON_RHINO_3                            = -1604007,
+    SAY_TRANSFORM_1                               = -1604008,  //Phase change
+    SAY_TRANSFORM_2                               = -1604009
+};
+
+enum Displays
+{
+    DISPLAY_RHINO                                 = 26265,
+    DISPLAY_TROLL                                 = 27061
 };
 
 enum CombatPhase
 {
-    PHASE_TROLL                             = 1,
-    PHASE_RHINO                             = 2
+    TROLL,
+    RHINO
 };
 
-enum Events
-{
-    EVENT_IMPALING_CHARGE                   = 1,
-    EVENT_STOMP,
-    EVENT_PUNCTURE,
-    EVENT_STAMPEDE,
-    EVENT_WHIRLING_SLASH,
-    EVENT_ENRAGE,
-    EVENT_TRANSFORM,
-
-    EVENT_GROUP_TROLL                       = PHASE_TROLL,
-    EVENT_GROUP_RHINO                       = PHASE_RHINO
-};
-
-enum Misc
-{
-    DATA_SHARE_THE_LOVE                     = 1
-};
+#define DATA_SHARE_THE_LOVE                       1
 
 class boss_gal_darah : public CreatureScript
 {
-    public:
-        boss_gal_darah() : CreatureScript("boss_gal_darah") { }
+public:
+    boss_gal_darah() : CreatureScript("boss_gal_darah") { }
 
-        struct boss_gal_darahAI : public BossAI
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_gal_darahAI (creature);
+    }
+
+    struct boss_gal_darahAI : public ScriptedAI
+    {
+        boss_gal_darahAI(Creature* creature) : ScriptedAI(creature)
         {
-            boss_gal_darahAI(Creature* creature) : BossAI(creature, DATA_GAL_DARAH)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _phaseCounter = 0;
-            }
-
-            void InitializeAI() override
-            {
-                BossAI::InitializeAI();
-                DoCastAOE(SPELL_HEARTH_BEAM_VISUAL, true);
-            }
-
-            void Reset() override
-            {
-                Initialize();
-                _Reset();
-                impaledPlayers.clear();
-            }
-
-            void JustReachedHome() override
-            {
-                _JustReachedHome();
-                DoCastAOE(SPELL_HEARTH_BEAM_VISUAL, true);
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                _EnterCombat();
-                Talk(SAY_AGGRO);
-
-                SetPhase(PHASE_TROLL);
-            }
-
-            void SetPhase(CombatPhase phase)
-            {
-                events.SetPhase(phase);
-                switch (phase)
-                {
-                    case PHASE_TROLL:
-                        events.ScheduleEvent(EVENT_STAMPEDE, 10 * IN_MILLISECONDS, 0, PHASE_TROLL);
-                        events.ScheduleEvent(EVENT_WHIRLING_SLASH, 21 * IN_MILLISECONDS, 0, PHASE_TROLL);
-                        break;
-                    case PHASE_RHINO:
-                        events.ScheduleEvent(EVENT_STOMP, 25 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        events.ScheduleEvent(EVENT_IMPALING_CHARGE, 21 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        events.ScheduleEvent(EVENT_ENRAGE, 15 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        events.ScheduleEvent(EVENT_PUNCTURE, 10 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        break;
-                }
-            }
-
-            void SetGUID(ObjectGuid guid, int32 type /*= 0*/) override
-            {
-                if (type == DATA_SHARE_THE_LOVE)
-                {
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
-                        Talk(EMOTE_IMPALE, target);
-                    impaledPlayers.insert(guid);
-                }
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_SHARE_THE_LOVE)
-                    return impaledPlayers.size();
-
-                return 0;
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
-            {
-                if (spellInfo->Id == SPELL_TRANSFORM_BACK)
-                    me->RemoveAurasDueToSpell(SPELL_TRANSFORM_RHINO);
-            }
-
-            void ExecuteEvent(uint32 eventId) override
-            {
-                switch (eventId)
-                {
-                    case EVENT_IMPALING_CHARGE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
-                            DoCast(target, SPELL_IMPALING_CHARGE);
-                        if (++_phaseCounter >= 2)
-                            events.ScheduleEvent(EVENT_TRANSFORM, 5 * IN_MILLISECONDS);
-                        events.ScheduleEvent(eventId, 31 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        break;
-                    case EVENT_STOMP:
-                        DoCastAOE(SPELL_STOMP);
-                        events.ScheduleEvent(eventId, 20 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        break;
-                    case EVENT_PUNCTURE:
-                        DoCastVictim(SPELL_PUNCTURE);
-                        events.ScheduleEvent(eventId, 8 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        break;
-                    case EVENT_STAMPEDE:
-                        Talk(SAY_SUMMON_RHINO);
-                        DoCast(me, SPELL_STAMPEDE);
-                        events.ScheduleEvent(eventId, 15 * IN_MILLISECONDS, 0, PHASE_TROLL);
-                        break;
-                    case EVENT_WHIRLING_SLASH:
-                        DoCastVictim(SPELL_WHIRLING_SLASH);
-                        if (++_phaseCounter >= 2)
-                            events.ScheduleEvent(EVENT_TRANSFORM, 5 * IN_MILLISECONDS);
-                        events.ScheduleEvent(eventId, 21 * IN_MILLISECONDS, 0, PHASE_TROLL);
-                        break;
-                    case EVENT_ENRAGE:
-                        DoCast(me, SPELL_ENRAGE);
-                        events.ScheduleEvent(eventId, 20 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        break;
-                    case EVENT_TRANSFORM:
-                        if (events.IsInPhase(PHASE_TROLL))
-                        {
-                            Talk(SAY_TRANSFORM_1);
-                            DoCast(me, SPELL_TRANSFORM_RHINO);
-                            SetPhase(PHASE_RHINO);
-                        }
-                        else if (events.IsInPhase(PHASE_RHINO))
-                        {
-                            Talk(SAY_TRANSFORM_2);
-                            DoCast(me, SPELL_TRANSFORM_BACK);
-                            SetPhase(PHASE_TROLL);
-                        }
-                        _phaseCounter = 0;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-        private:
-            GuidSet impaledPlayers;
-            uint8 _phaseCounter;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetGundrakAI<boss_gal_darahAI>(creature);
+            instance = creature->GetInstanceScript();
         }
-};
 
-// 54956, 59827 - Impaling Charge
-class spell_gal_darah_impaling_charge : public SpellScriptLoader
-{
-    public:
-        spell_gal_darah_impaling_charge() : SpellScriptLoader("spell_gal_darah_impaling_charge") { }
+        uint32 uiStampedeTimer;
+        uint32 uiWhirlingSlashTimer;
+        uint32 uiPunctureTimer;
+        uint32 uiEnrageTimer;
+        uint32 uiImpalingChargeTimer;
+        uint32 uiStompTimer;
+        uint32 uiTransformationTimer;
+        std::list<uint64> impaledList;
+        uint8 shareTheLove;
 
-        class spell_gal_darah_impaling_charge_SpellScript : public SpellScript
+        CombatPhase Phase;
+
+        uint8 uiPhaseCounter;
+
+        bool bStartOfTransformation;
+
+        InstanceScript* instance;
+
+        void Reset()
         {
-            PrepareSpellScript(spell_gal_darah_impaling_charge_SpellScript);
+            uiStampedeTimer = 10*IN_MILLISECONDS;
+            uiWhirlingSlashTimer = 21*IN_MILLISECONDS;
+            uiPunctureTimer = 10*IN_MILLISECONDS;
+            uiEnrageTimer = 15*IN_MILLISECONDS;
+            uiImpalingChargeTimer = 21*IN_MILLISECONDS;
+            uiStompTimer = 25*IN_MILLISECONDS;
+            uiTransformationTimer = 9*IN_MILLISECONDS;
+            uiPhaseCounter = 0;
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_IMPALING_CHARGE_CONTROL_VEHICLE))
-                    return false;
-                return true;
-            }
+            impaledList.clear();
+            shareTheLove = 0;
 
-            bool Load() override
-            {
-                return GetCaster()->GetVehicleKit() && GetCaster()->GetEntry() == NPC_GAL_DARAH;
-            }
+            bStartOfTransformation = true;
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                {
-                    Unit* caster = GetCaster();
-                    target->CastSpell(caster, SPELL_IMPALING_CHARGE_CONTROL_VEHICLE, true);
-                    caster->ToCreature()->AI()->SetGUID(target->GetGUID(), DATA_SHARE_THE_LOVE);
-                }
-            }
+            Phase = TROLL;
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gal_darah_impaling_charge_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_CHARGE);
-            }
-        };
+            me->SetDisplayId(DISPLAY_TROLL);
 
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gal_darah_impaling_charge_SpellScript();
+            if (instance)
+                instance->SetData(DATA_GAL_DARAH_EVENT, NOT_STARTED);
         }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+
+            if (instance)
+                instance->SetData(DATA_GAL_DARAH_EVENT, IN_PROGRESS);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            switch (Phase)
+            {
+                case TROLL:
+                    if (uiPhaseCounter == 2)
+                    {
+                        if (uiTransformationTimer <= diff)
+                        {
+                            me->SetDisplayId(DISPLAY_RHINO);
+                            Phase = RHINO;
+                            uiPhaseCounter = 0;
+                            DoScriptText(SAY_TRANSFORM_1, me);
+                            uiTransformationTimer = 5*IN_MILLISECONDS;
+                            bStartOfTransformation = true;
+                            me->ClearUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
+                            me->SetReactState(REACT_AGGRESSIVE);
+                        }
+                        else
+                        {
+                            uiTransformationTimer -= diff;
+
+                            if (bStartOfTransformation)
+                            {
+                                bStartOfTransformation = false;
+                                me->AddUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
+                                me->SetReactState(REACT_PASSIVE);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (uiStampedeTimer <= diff)
+                        {
+                            DoCast(me, SPELL_STAMPEDE);
+                            DoScriptText(RAND(SAY_SUMMON_RHINO_1, SAY_SUMMON_RHINO_2, SAY_SUMMON_RHINO_3), me);
+                            uiStampedeTimer = 15*IN_MILLISECONDS;
+                        } else uiStampedeTimer -= diff;
+
+                        if (uiWhirlingSlashTimer <= diff)
+                        {
+                            DoCast(me->getVictim(), SPELL_WHIRLING_SLASH);
+                            uiWhirlingSlashTimer = 21*IN_MILLISECONDS;
+                            ++uiPhaseCounter;
+                        } else uiWhirlingSlashTimer -= diff;
+                    }
+                break;
+                case RHINO:
+                    if (uiPhaseCounter == 2)
+                    {
+                        if (uiTransformationTimer <= diff)
+                        {
+                            me->SetDisplayId(DISPLAY_TROLL);
+                            Phase = TROLL;
+                            uiPhaseCounter = 0;
+                            DoScriptText(SAY_TRANSFORM_2, me);
+                            uiTransformationTimer = 9*IN_MILLISECONDS;
+                            bStartOfTransformation = true;
+                            me->ClearUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
+                            me->SetReactState(REACT_AGGRESSIVE);
+                        }
+                        else
+                        {
+                            uiTransformationTimer -= diff;
+
+                            if (bStartOfTransformation)
+                            {
+                                bStartOfTransformation = false;
+                                me->AddUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
+                                me->SetReactState(REACT_PASSIVE);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (uiPunctureTimer <= diff)
+                        {
+                            DoCast(me->getVictim(), SPELL_PUNCTURE);
+                            uiPunctureTimer = 8*IN_MILLISECONDS;
+                        } else uiPunctureTimer -= diff;
+
+                        if (uiEnrageTimer <= diff)
+                        {
+                            DoCast(me->getVictim(), SPELL_ENRAGE);
+                            uiEnrageTimer = 20*IN_MILLISECONDS;
+                        } else uiEnrageTimer -= diff;
+
+                        if (uiStompTimer <= diff)
+                        {
+                            DoCast(me->getVictim(), SPELL_STOMP);
+                            uiStompTimer = 20*IN_MILLISECONDS;
+                        } else uiStompTimer -= diff;
+
+                        if (uiImpalingChargeTimer <= diff)
+                        {
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            {
+                                DoCast(target, SPELL_IMPALING_CHARGE);
+                                CheckAchievement(target->GetGUID());
+                            }
+                            uiImpalingChargeTimer = 31*IN_MILLISECONDS;
+                            ++uiPhaseCounter;
+                        } else uiImpalingChargeTimer -= diff;
+                    }
+                break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+        // 5 UNIQUE party members
+        void CheckAchievement(uint64 guid)
+        {
+            bool playerExists = false;
+            for (std::list<uint64>::iterator itr = impaledList.begin(); itr != impaledList.end(); ++itr)
+                if (guid != *itr)
+                    playerExists = true;
+
+            if (playerExists)
+                ++shareTheLove;
+
+            impaledList.push_back(guid);
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_SHARE_THE_LOVE)
+                return shareTheLove;
+
+            return 0;
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (instance)
+                instance->SetData(DATA_GAL_DARAH_EVENT, DONE);
+        }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (victim == me)
+                return;
+
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+        }
+    };
+
 };
 
 class achievement_share_the_love : public AchievementCriteriaScript
 {
     public:
-        achievement_share_the_love() : AchievementCriteriaScript("achievement_share_the_love") { }
+        achievement_share_the_love() : AchievementCriteriaScript("achievement_share_the_love")
+        {
+        }
 
-        bool OnCheck(Player* /*player*/, Unit* target) override
+        bool OnCheck(Player* /*player*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -297,9 +296,10 @@ class achievement_share_the_love : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gal_darah()
 {
     new boss_gal_darah();
-    new spell_gal_darah_impaling_charge();
     new achievement_share_the_love();
 }
+#endif

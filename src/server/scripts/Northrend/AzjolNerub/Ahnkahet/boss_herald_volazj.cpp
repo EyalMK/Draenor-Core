@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Comment: Missing AI for Twisted Visages
@@ -22,8 +13,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ahnkahet.h"
-#include "Player.h"
-#include "SpellInfo.h"
 
 enum Spells
 {
@@ -33,13 +22,19 @@ enum Spells
     SPELL_MIND_FLAY                               = 57941,
     SPELL_SHADOW_BOLT_VOLLEY                      = 57942,
     SPELL_SHIVER                                  = 57949,
-    SPELL_CLONE_PLAYER                            = 57507, //cast on player during insanity
+    SPELL_CLONE_PLAYER                            = 57507, //casted on player during insanity
     SPELL_INSANITY_PHASING_1                      = 57508,
     SPELL_INSANITY_PHASING_2                      = 57509,
     SPELL_INSANITY_PHASING_3                      = 57510,
     SPELL_INSANITY_PHASING_4                      = 57511,
     SPELL_INSANITY_PHASING_5                      = 57512
 };
+
+enum Creatures
+{
+    MOB_TWISTED_VISAGE                            = 30625
+};
+
 
 enum Yells
 {
@@ -51,7 +46,7 @@ enum Yells
 
 enum Achievements
 {
-    ACHIEV_QUICK_DEMISE_START_EVENT               = 20382,
+    ACHIEV_QUICK_DEMISE_START_EVENT               = 20382
 };
 
 class boss_volazj : public CreatureScript
@@ -63,17 +58,7 @@ public:
     {
         boss_volazjAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            Initialize();
             instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            uiMindFlayTimer = 8 * IN_MILLISECONDS;
-            uiShadowBoltVolleyTimer = 5 * IN_MILLISECONDS;
-            uiShiverTimer = 15 * IN_MILLISECONDS;
-            // Used for Insanity handling
-            insanityHandled = 0;
         }
 
         InstanceScript* instance;
@@ -92,7 +77,7 @@ public:
             return 100*(me->GetHealth()-damage)/me->GetMaxHealth();
         }
 
-        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) override
+        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                 damage = 0;
@@ -105,7 +90,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_INSANITY)
             {
@@ -121,58 +106,56 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetControlled(true, UNIT_STATE_STUNNED);
                 }
-
-                // phase the player
-                target->CastSpell(target, SPELL_INSANITY_TARGET + insanityHandled, true);
-
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_INSANITY_TARGET + insanityHandled);
-                if (!spellInfo)
-                    return;
-
+                // phase mask
+                target->CastSpell(target, SPELL_INSANITY_TARGET+insanityHandled, true);
                 // summon twisted party members for this target
                 Map::PlayerList const &players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 {
-                    Player* player = i->GetSource();
-                    if (!player || !player->IsAlive())
+                    Player* player = i->getSource();
+                    if (!player || !player->isAlive())
                         continue;
                     // Summon clone
-                    if (Unit* summon = me->SummonCreature(NPC_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Unit* summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         // clone
                         player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
-                        // phase the summon
-                        summon->SetInPhase(spellInfo->GetEffect(EFFECT_0)->MiscValueB, true, true);
+                        // set phase
+                        summon->SetPhaseMask((1<<(4+insanityHandled)), true);
                     }
                 }
                 ++insanityHandled;
             }
         }
 
-        void ResetPlayersPhase()
+        void ResetPlayersPhaseMask()
         {
             Map::PlayerList const &players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
             {
-                Player* player = i->GetSource();
-                for (uint32 index = 0; index <= 4; ++index)
-                    player->RemoveAurasDueToSpell(SPELL_INSANITY_TARGET + index);
+                Player* player = i->getSource();
+                player->RemoveAurasDueToSpell(GetSpellForPhaseMask(player->GetPhaseMask()));
             }
         }
 
-        void Reset() override
+        void Reset()
         {
-            Initialize();
+            uiMindFlayTimer = 8*IN_MILLISECONDS;
+            uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
+            uiShiverTimer = 15*IN_MILLISECONDS;
 
-            instance->SetBossState(DATA_HERALD_VOLAZJ, NOT_STARTED);
-            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+            if (instance)
+            {
+                instance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+            }
 
             // Visible for all players in insanity
-            me->SetInPhase(169, true, true);
-            for (uint32 i = 173; i <= 177; ++i)
-                me->SetInPhase(i, true, true);
+            me->SetPhaseMask((1|16|32|64|128|256), true);
+            // Used for Insanity handling
+            insanityHandled = 0;
 
-            ResetPlayersPhase();
+            ResetPlayersPhaseMask();
 
             // Cleanup
             Summons.DespawnAll();
@@ -180,54 +163,91 @@ public:
             me->SetControlled(false, UNIT_STATE_STUNNED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
 
-            instance->SetBossState(DATA_HERALD_VOLAZJ, IN_PROGRESS);
-            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+            if (instance)
+            {
+                instance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+            }
         }
 
-        void JustSummoned(Creature* summon) override
+        void JustSummoned(Creature* summon)
         {
             Summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* summon) override
+        uint32 GetSpellForPhaseMask(uint32 phase)
         {
+            uint32 spell = 0;
+            switch (phase)
+            {
+                case 16:
+                    spell = SPELL_INSANITY_PHASING_1;
+                    break;
+                case 32:
+                    spell = SPELL_INSANITY_PHASING_2;
+                    break;
+                case 64:
+                    spell = SPELL_INSANITY_PHASING_3;
+                    break;
+                case 128:
+                    spell = SPELL_INSANITY_PHASING_4;
+                    break;
+                case 256:
+                    spell = SPELL_INSANITY_PHASING_5;
+                    break;
+            }
+            return spell;
+        }
+
+        void SummonedCreatureDespawn(Creature* summon)
+        {
+            uint32 phase = summon->GetPhaseMask();
             uint32 nextPhase = 0;
             Summons.Despawn(summon);
 
             // Check if all summons in this phase killed
             for (SummonList::const_iterator iter = Summons.begin(); iter != Summons.end(); ++iter)
             {
-                if (Creature* visage = ObjectAccessor::GetCreature(*me, *iter))
+                if (Creature* visage = Unit::GetCreature(*me, *iter))
                 {
                     // Not all are dead
-                    if (visage->IsInPhase(summon))
+                    if (phase == visage->GetPhaseMask())
                         return;
                     else
-                    {
-                        nextPhase = *visage->GetPhases().begin();
-                        break;
-                    }
+                        nextPhase = visage->GetPhaseMask();
                 }
             }
 
             // Roll Insanity
-            Map::PlayerList const& players = me->GetMap()->GetPlayers();
-            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+            uint32 spell = GetSpellForPhaseMask(phase);
+            uint32 spell2 = GetSpellForPhaseMask(nextPhase);
+            Map* map = me->GetMap();
+            if (!map)
+                return;
+
+            Map::PlayerList const &PlayerList = map->GetPlayers();
+            if (!PlayerList.isEmpty())
             {
-                if (Player* player = i->GetSource())
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    for (uint32 index = 0; index <= 4; ++index)
-                        player->RemoveAurasDueToSpell(SPELL_INSANITY_TARGET + index);
-                    player->CastSpell(player, SPELL_INSANITY_TARGET + nextPhase - 173, true);
+                    if (Player* player = i->getSource())
+                    {
+                        if (player->HasAura(spell))
+                        {
+                            player->RemoveAurasDueToSpell(spell);
+                            if (spell2) // if there is still some different mask cast spell for it
+                                player->CastSpell(player, spell2, true);
+                        }
+                    }
                 }
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -246,13 +266,13 @@ public:
 
             if (uiMindFlayTimer <= diff)
             {
-                DoCastVictim(SPELL_MIND_FLAY);
+                DoCast(me->getVictim(), SPELL_MIND_FLAY);
                 uiMindFlayTimer = 20*IN_MILLISECONDS;
             } else uiMindFlayTimer -= diff;
 
             if (uiShadowBoltVolleyTimer <= diff)
             {
-                DoCastVictim(SPELL_SHADOW_BOLT_VOLLEY);
+                DoCast(me->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
                 uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
             } else uiShadowBoltVolleyTimer -= diff;
 
@@ -266,30 +286,32 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/)
         {
             Talk(SAY_DEATH);
 
-            instance->SetBossState(DATA_HERALD_VOLAZJ, DONE);
+            if (instance)
+                instance->SetData(DATA_HERALD_VOLAZJ, DONE);
 
             Summons.DespawnAll();
-            ResetPlayersPhase();
+            ResetPlayersPhaseMask();
         }
 
-        void KilledUnit(Unit* who) override
+        void KilledUnit(Unit* /*victim*/)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
+            Talk(SAY_SLAY);
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return GetInstanceAI<boss_volazjAI>(creature);
+        return new boss_volazjAI(creature);
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_volazj()
 {
-    new boss_volazj();
+    new boss_volazj;
 }
+#endif

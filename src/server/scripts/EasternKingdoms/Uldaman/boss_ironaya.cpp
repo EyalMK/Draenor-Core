@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Ironaya
@@ -23,15 +13,13 @@ SDComment:
 SDCategory: Uldaman
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 
-enum Ironaya
-{
-    SPELL_ARCINGSMASH           = 8374,
-    SPELL_KNOCKAWAY             = 10101,
-    SPELL_WSTOMP                = 11876
-};
+#define SAY_AGGRO                   -1070000
+
+#define SPELL_ARCINGSMASH           8374
+#define SPELL_KNOCKAWAY             10101
+#define SPELL_WSTOMP                11876
 
 class boss_ironaya : public CreatureScript
 {
@@ -44,51 +32,46 @@ class boss_ironaya : public CreatureScript
 
         struct boss_ironayaAI : public ScriptedAI
         {
-            boss_ironayaAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                uiArcingTimer = 3000;
-                bHasCastKnockaway = false;
-                bHasCastWstomp = false;
-            }
+            boss_ironayaAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 uiArcingTimer;
-            bool bHasCastWstomp;
-            bool bHasCastKnockaway;
+            bool bHasCastedWstomp;
+            bool bHasCastedKnockaway;
 
-            void Reset() override
+            void Reset()
             {
-                Initialize();
+                uiArcingTimer = 3000;
+                bHasCastedKnockaway = false;
+                bHasCastedWstomp = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void EnterCombat(Unit* /*who*/)
+            {
+                DoScriptText(SAY_AGGRO, me);
+            }
 
-            void UpdateAI(uint32 uiDiff) override
+            void UpdateAI(const uint32 uiDiff)
             {
                 //Return since we have no target
                 if (!UpdateVictim())
                     return;
 
                 //If we are <50% hp do knockaway ONCE
-                if (!bHasCastKnockaway && HealthBelowPct(50))
+                if (!bHasCastedKnockaway && HealthBelowPct(50))
                 {
-                    DoCastVictim(SPELL_KNOCKAWAY, true);
+                    DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
 
                     // current aggro target is knocked away pick new target
                     Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
 
-                    if (!target || target == me->GetVictim())
+                    if (!target || target == me->getVictim())
                         target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                     if (target)
                         me->TauntApply(target);
 
                     //Shouldn't cast this agian
-                    bHasCastKnockaway = true;
+                    bHasCastedKnockaway = true;
                 }
 
                 //uiArcingTimer
@@ -98,25 +81,25 @@ class boss_ironaya : public CreatureScript
                     uiArcingTimer = 13000;
                 } else uiArcingTimer -= uiDiff;
 
-                if (!bHasCastWstomp && HealthBelowPct(25))
+                if (!bHasCastedWstomp && HealthBelowPct(25))
                 {
                     DoCast(me, SPELL_WSTOMP);
-                    bHasCastWstomp = true;
+                    bHasCastedWstomp = true;
                 }
 
                 DoMeleeAttackIfReady();
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_ironayaAI(creature);
         }
 };
 
-//This is the actual function called only once durring InitScripts()
-//It must define all handled functions that are to be run in this script
+#ifndef __clang_analyzer__
 void AddSC_boss_ironaya()
 {
     new boss_ironaya();
 }
+#endif

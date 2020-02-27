@@ -1,27 +1,15 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OBJECT_POS_SELECTOR_H
 #define _OBJECT_POS_SELECTOR_H
 
-#include<Common.h>
-
-#include<map>
+#include "Common.h"
 
 enum UsedPosType { USED_POS_PLUS, USED_POS_MINUS };
 
@@ -30,11 +18,11 @@ inline UsedPosType operator ~(UsedPosType uptype)
     return uptype==USED_POS_PLUS ? USED_POS_MINUS : USED_POS_PLUS;
 }
 
-struct TC_GAME_API ObjectPosSelector
+struct ObjectPosSelector
 {
     struct UsedPos
     {
-        UsedPos(float sign_, float size_, float dist_) : sign(sign_), size(size_), dist(dist_) { }
+        UsedPos(float sign_, float size_, float dist_) : sign(sign_), size(size_), dist(dist_) {}
 
         float sign;
 
@@ -60,10 +48,10 @@ struct TC_GAME_API ObjectPosSelector
         float angle_step2  = GetAngle(nextUsedPos.second);
 
         float next_angle = nextUsedPos.first;
-        if (nextUsedPos.second.sign * sign < 0)                       // last node from diff. list (-pi+alpha)
-            next_angle = 2 * float(M_PI) - next_angle;   // move to positive
+        if (nextUsedPos.second.sign * sign < 0)              // last node from diff. list (-pi+alpha)
+            next_angle = 2*M_PI-next_angle;                 // move to positive
 
-        return std::fabs(angle) + angle_step2 <= next_angle;
+        return fabs(angle)+angle_step2 <= next_angle;
     }
 
     bool CheckOriginal() const
@@ -105,7 +93,7 @@ struct TC_GAME_API ObjectPosSelector
         // next possible angle
         angle  = m_smallStepAngle[uptype] + m_anglestep * sign;
 
-        if (std::fabs(angle) > float(M_PI))
+        if (fabs(angle) > M_PI)
         {
             m_smallStepOk[uptype] = false;
             return false;
@@ -113,7 +101,7 @@ struct TC_GAME_API ObjectPosSelector
 
         if (m_smallStepNextUsedPos[uptype])
         {
-            if (std::fabs(angle) >= m_smallStepNextUsedPos[uptype]->first)
+            if (fabs(angle) >= m_smallStepNextUsedPos[uptype]->first)
             {
                 m_smallStepOk[uptype] = false;
                 return false;
@@ -136,7 +124,7 @@ struct TC_GAME_API ObjectPosSelector
     UsedPosList::value_type const* nextUsedPos(UsedPosType uptype);
 
     // angle from used pos to next possible free pos
-    float GetAngle(UsedPos const& usedPos) const { return std::acos(m_dist/(usedPos.dist+usedPos.size+m_size)); }
+    float GetAngle(UsedPos const& usedPos) const { return acos(m_dist/(usedPos.dist+usedPos.size+m_size)); }
 
     float m_center_x;
     float m_center_y;

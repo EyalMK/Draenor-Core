@@ -1,13 +1,15 @@
-/* Copyright (C) 2009 - 2010 by /dev/rsa for ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef DEF_CRUSADER_H
 #define DEF_CRUSADER_H
 
-#define DataHeader "TCR"
-
-enum DataTypes
+enum
 {
     BOSS_BEASTS                 = 0,
     BOSS_JARAXXUS               = 1,
@@ -24,24 +26,23 @@ enum DataTypes
     TYPE_EVENT_NPC              = 102,
     TYPE_NORTHREND_BEASTS       = 103,
 
-    DATA_SNOBOLD_COUNT          = 301,
-    DATA_MISTRESS_OF_PAIN_COUNT = 302,
+    DATA_SNOBOLD_COUNT                   = 301,
+    DATA_MISTRESS_OF_PAIN_COUNT          = 302,
+    DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE = 303,
 
     INCREASE                    = 501,
     DECREASE                    = 502,
-};
 
-enum SpellIds
-{
     SPELL_WILFRED_PORTAL        = 68424,
     SPELL_JARAXXUS_CHAINS       = 67924,
+    SPELL_FEL_LIGHTNING_INSTANT = 67888,
     SPELL_CORPSE_TELEPORT       = 69016,
+    SPELL_ARTHAS_PORTAL         = 51807,
     SPELL_DESTROY_FLOOR_KNOCKUP = 68193,
-};
 
-enum MiscData
-{
-    DESPAWN_TIME                = 1200000
+    DESPAWN_TIME                = 300000,
+
+    DISPLAYID_DESTROYED_FLOOR   = 9060
 };
 
 const Position ToCSpawnLoc[]=
@@ -130,7 +131,7 @@ const Position LichKingLoc[]=
 
 const Position AnubarakLoc[]=
 {
-    {783.9305f, 132.9722f, 142.6711f, 3.141593f}, // 0 - Anub'arak Spawn Location (sniffed)
+    {787.932556f, 133.289780f, 142.612152f, 0},  // 0 - Anub'arak start location
     {695.240051f, 137.834824f, 142.200000f, 0},  // 1 - Anub'arak move point location
     {694.886353f, 102.484665f, 142.119614f, 0},  // 3 - Nerub Spawn
     {694.500671f, 185.363968f, 142.117905f, 0},  // 5 - Nerub Spawn
@@ -141,17 +142,17 @@ const Position AnubarakLoc[]=
 const Position EndSpawnLoc[]=
 {
     {648.9167f, 131.0208f, 141.6161f, 0}, // 0 - Highlord Tirion Fordring
-    {649.1614f, 142.0399f, 141.3057f, 0}, // 1 - Argent Mage
-    {644.6250f, 149.2743f, 140.6015f, 0}  // 2 - Portal to Dalaran
+    {649.1614f, 142.0399f, 141.3057f ,0}, // 1 - Argent Mage
+    {644.6250f, 149.2743f, 140.6015f ,0}  // 2 - Portal to Dalaran
 };
 
-enum WorldStateIds
+enum euiWorldStates
 {
     UPDATE_STATE_UI_SHOW            = 4390,
     UPDATE_STATE_UI_COUNT           = 4389
 };
 
-enum NorthrendBeasts
+enum eNorthrendBeasts
 {
     GORMOK_IN_PROGRESS              = 1000,
     GORMOK_DONE                     = 1001,
@@ -164,7 +165,7 @@ enum NorthrendBeasts
     ICEHOWL_DONE                    = 3001
 };
 
-enum AnnouncerMessages
+enum eAnnouncerMessages
 {
     MSG_BEASTS                 = 724001,
     MSG_JARAXXUS               = 724002,
@@ -174,7 +175,7 @@ enum AnnouncerMessages
     MSG_ANUBARAK               = 724006
 };
 
-enum CreatureIds
+enum eCreature
 {
     NPC_BARRENT                 = 34816,
     NPC_TIRION                  = 34996,
@@ -183,7 +184,8 @@ enum CreatureIds
     NPC_FIZZLEBANG              = 35458,
     NPC_GARROSH                 = 34995,
     NPC_VARIAN                  = 34990,
-    NPC_LICH_KING               = 35877,
+    NPC_LICH_KING_0             = 16980,
+    NPC_LICH_KING_1             = 35877,
 
     NPC_THRALL                  = 34994,
     NPC_PROUDMOORE              = 34992,
@@ -229,16 +231,16 @@ enum CreatureIds
     NPC_HORDE_WARLOCK                   = 34450,
     NPC_HORDE_WARRIOR                   = 34453,
 
-    NPC_LIGHTBANE                       = 34497,
-    NPC_DARKBANE                        = 34496,
+    NPC_LIGHTBANE               = 34497,
+    NPC_DARKBANE                = 34496,
 
-    NPC_DARK_ESSENCE                    = 34567,
-    NPC_LIGHT_ESSENCE                   = 34568,
+    NPC_DARK_ESSENCE            = 34567,
+    NPC_LIGHT_ESSENCE           = 34568,
 
-    NPC_ANUBARAK                        = 34564
+    NPC_ANUBARAK                = 34564
 };
 
-enum GameObjectIds
+enum eGameObject
 {
     GO_CRUSADERS_CACHE_10       = 195631,
     GO_CRUSADERS_CACHE_25       = 195632,
@@ -247,15 +249,15 @@ enum GameObjectIds
 
     // Tribute Chest (heroic)
     // 10-man modes
-    GO_TRIBUTE_CHEST_10H_25     = 195668, // 10man 01-24 attempts
-    GO_TRIBUTE_CHEST_10H_45     = 195667, // 10man 25-44 attempts
-    GO_TRIBUTE_CHEST_10H_50     = 195666, // 10man 45-49 attempts
-    GO_TRIBUTE_CHEST_10H_99     = 195665, // 10man 50 attempts
+    GO_TRIBUTE_CHEST_10H_25     = 195665, // 10man 01-24 attempts
+    GO_TRIBUTE_CHEST_10H_45     = 195666, // 10man 25-44 attempts
+    GO_TRIBUTE_CHEST_10H_50     = 195667, // 10man 45-49 attempts
+    GO_TRIBUTE_CHEST_10H_99     = 195668, // 10man 50 attempts
     // 25-man modes
-    GO_TRIBUTE_CHEST_25H_25     = 195672, // 25man 01-24 attempts
-    GO_TRIBUTE_CHEST_25H_45     = 195671, // 25man 25-44 attempts
-    GO_TRIBUTE_CHEST_25H_50     = 195670, // 25man 45-49 attempts
-    GO_TRIBUTE_CHEST_25H_99     = 195669, // 25man 50 attempts
+    GO_TRIBUTE_CHEST_25H_25     = 195669, // 25man 01-24 attempts
+    GO_TRIBUTE_CHEST_25H_45     = 195670, // 25man 25-44 attempts
+    GO_TRIBUTE_CHEST_25H_50     = 195671, // 25man 45-49 attempts
+    GO_TRIBUTE_CHEST_25H_99     = 195672, // 25man 50 attempts
 
     GO_ARGENT_COLISEUM_FLOOR    = 195527, //20943
     GO_MAIN_GATE_DOOR           = 195647,
@@ -264,7 +266,7 @@ enum GameObjectIds
     GO_PORTAL_TO_DALARAN        = 195682
 };
 
-enum AchievementData
+enum eAchievementData
 {
     // Northrend Beasts
     UPPER_BACK_PAIN_10_PLAYER               = 11779,
@@ -292,7 +294,10 @@ enum AchievementData
     SPELL_WORMS_KILLED_IN_10_SECONDS        = 68523,
     SPELL_CHAMPIONS_KILLED_IN_MINUTE        = 68620,
     SPELL_DEFEAT_FACTION_CHAMPIONS          = 68184,
-    SPELL_TRAITOR_KING                      = 68186,
+    SPELL_TRAITOR_KING_10                   = 68186,
+    SPELL_TRAITOR_KING_25                   = 68515,
+
+    SPELL_LEECHING_SWARM_AURA               = 66118,
 
     // Timed events
     EVENT_START_TWINS_FIGHT                 = 21853

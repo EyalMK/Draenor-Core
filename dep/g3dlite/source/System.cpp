@@ -44,6 +44,7 @@
 #   include <conio.h>
 #   include <sys/timeb.h>
 #   include "G3D/RegistryUtil.h"
+#   include <intrin.h>
 #include <Ole2.h>
 
 #elif defined(G3D_LINUX) 

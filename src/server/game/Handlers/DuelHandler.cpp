@@ -1,101 +1,83 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
-#include "DuelPackets.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Log.h"
+#include "Opcodes.h"
+#include "UpdateData.h"
 #include "Player.h"
+#include "SocialMgr.h"
+#include "ScriptMgr.h"
+#include "GameObject.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 
-#define SPELL_DUEL  7266
-#define SPELL_MOUNTED_DUEL  62875
-
-void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
+void WorldSession::HandleSendDuelRequest(WorldPacket& p_Packet)
 {
-    Player* player = ObjectAccessor::FindPlayer(packet.TargetGUID);
+    uint64 l_TargetGUID;
 
-    if (!player)
+    p_Packet.readPackGUID(l_TargetGUID);
+
+    Player* l_Caster   = GetPlayer();
+    Unit* l_UnitTarget = nullptr;
+
+    l_UnitTarget = sObjectAccessor->GetUnit(*l_Caster, l_TargetGUID);
+    if (!l_UnitTarget || l_Caster->GetTypeId() != TYPEID_PLAYER || l_UnitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPackets::Duel::CanDuelResult response;
-    response.TargetGUID = packet.TargetGUID;
-    response.Result = !player->duel;
-    SendPacket(response.Write());
+    Player* l_Target = l_UnitTarget->ToPlayer();
+    // caster or target already have requested duel
+    if (l_Caster->m_Duel || l_Target->m_Duel || !l_Target->GetSocial() || l_Target->GetSocial()->HasIgnore(l_Caster->GetGUIDLow()))
+        return;
 
-    if (response.Result)
-    {
-        if (_player->IsMounted())
-            _player->CastSpell(player, SPELL_MOUNTED_DUEL);
-        else
-            _player->CastSpell(player, SPELL_DUEL);
-    }
+    l_Caster->CastSpell(l_UnitTarget, 7266, false);
 }
 
-void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse)
+void WorldSession::HandleDuelResponseOpcode(WorldPacket& p_Packet)
 {
-    if (duelResponse.Accepted)
-        HandleDuelAccepted();
+    uint64 l_TargetGUID;
+    bool l_Result;
+
+    p_Packet.readPackGUID(l_TargetGUID);
+    l_Result = p_Packet.ReadBit();
+
+    Player* l_Player = GetPlayer();
+    if (l_Player->m_Duel == nullptr)                        ///< ignore accept from duel-sender
+        return;
+
+    if (l_Result)
+    {
+        Player* l_Target = l_Player->m_Duel->opponent;
+        if (l_Player == l_Player->m_Duel->initiator || !l_Target || l_Player == l_Target || l_Player->m_Duel->startTime != 0 || l_Target->m_Duel->startTime != 0)
+            return;
+
+        time_t l_Now = time(NULL);
+        l_Player->m_Duel->startTimer = l_Now;
+        l_Target->m_Duel->startTimer = l_Now;
+
+        l_Player->SendDuelCountdown(3000);
+        l_Target->SendDuelCountdown(3000);
+    }
     else
-        HandleDuelCancelled();
-}
-
-void WorldSession::HandleDuelAccepted()
-{
-    if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
-        return;
-
-    Player* player = GetPlayer();
-    Player* plTarget = player->duel->opponent;
-
-    if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
-        return;
-
-    TC_LOG_DEBUG("network", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
-    TC_LOG_DEBUG("network", "Player 2 is: %s (%s)", plTarget->GetGUID().ToString().c_str(), plTarget->GetName().c_str());
-
-    time_t now = time(NULL);
-    player->duel->startTimer = now;
-    plTarget->duel->startTimer = now;
-
-    WorldPackets::Duel::DuelCountdown packet(3000); // milliseconds
-    WorldPacket const* worldPacket = packet.Write();
-    player->GetSession()->SendPacket(worldPacket);
-    plTarget->GetSession()->SendPacket(worldPacket);
-}
-
-void WorldSession::HandleDuelCancelled()
-{
-    // no duel requested
-    if (!GetPlayer()->duel)
-        return;
-
-    // player surrendered in a duel using /forfeit
-    if (GetPlayer()->duel->startTime != 0)
     {
-        GetPlayer()->CombatStopWithPets(true);
-        if (GetPlayer()->duel->opponent)
-            GetPlayer()->duel->opponent->CombatStopWithPets(true);
+        // player surrendered in a duel using /forfeit
+        if (l_Player->m_Duel->startTime != 0)
+        {
+            l_Player->CombatStopWithPets(true);
+            if (l_Player->m_Duel->opponent)
+                l_Player->m_Duel->opponent->CombatStopWithPets(true);
 
-        GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
-        GetPlayer()->DuelComplete(DUEL_WON);
-        return;
+            l_Player->CastSpell(l_Player, 7267, true);    ///< beg
+            l_Player->DuelComplete(DUEL_WON);
+            return;
+        }
+        l_Player->DuelComplete(DUEL_INTERRUPTED);
     }
-
-    GetPlayer()->DuelComplete(DUEL_INTERRUPTED);
 }

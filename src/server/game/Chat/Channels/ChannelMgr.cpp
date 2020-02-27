@@ -1,112 +1,97 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ChannelMgr.h"
-#include "ChannelPackets.h"
-#include "Player.h"
+
 #include "World.h"
+
+ChannelMgr* channelMgr(uint32 team)
+{
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+        return ACE_Singleton<AllianceChannelMgr, ACE_Null_Mutex>::instance();        // cross-faction
+
+    if (team == ALLIANCE)
+        return ACE_Singleton<AllianceChannelMgr, ACE_Null_Mutex>::instance();
+    if (team == HORDE)
+        return ACE_Singleton<HordeChannelMgr, ACE_Null_Mutex>::instance();
+
+    return NULL;
+}
 
 ChannelMgr::~ChannelMgr()
 {
-    for (ChannelMap::iterator itr = _channels.begin(); itr != _channels.end(); ++itr)
+    for (ChannelMap::iterator itr = channels.begin(); itr != channels.end(); ++itr)
         delete itr->second;
+
+    channels.clear();
 }
 
-ChannelMgr* ChannelMgr::ForTeam(uint32 team)
-{
-    static ChannelMgr allianceChannelMgr;
-    static ChannelMgr hordeChannelMgr;
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-        return &allianceChannelMgr;        // cross-faction
-
-    if (team == ALLIANCE)
-        return &allianceChannelMgr;
-
-    if (team == HORDE)
-        return &hordeChannelMgr;
-
-    return nullptr;
-}
-
-Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)
+Channel* ChannelMgr::GetJoinChannel(std::string name, uint32 channel_id)
 {
     std::wstring wname;
-    if (!Utf8toWStr(name, wname))
-        return nullptr;
-
+    Utf8toWStr(name, wname);
     wstrToLower(wname);
 
-    ChannelMap::const_iterator i = _channels.find(wname);
-    if (i == _channels.end())
+    if (channels.find(wname) == channels.end())
     {
-        Channel* nchan = new Channel(name, channelId, _team);
-        _channels[wname] = nchan;
+        Channel* nchan = new Channel(name, channel_id, team);
+        channels[wname] = nchan;
         return nchan;
     }
 
-    return i->second;
+    return channels[wname];
 }
 
-Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool notify /*= true*/)
+Channel* ChannelMgr::GetChannel(std::string name, Player* p, bool pkt)
 {
     std::wstring wname;
-    if (!Utf8toWStr(name, wname))
-        return nullptr;
-
+    Utf8toWStr(name, wname);
     wstrToLower(wname);
 
-    ChannelMap::const_iterator i = _channels.find(wname);
-    if (i == _channels.end())
+    ChannelMap::const_iterator i = channels.find(wname);
+
+    if (i == channels.end())
     {
-        if (notify)
-            SendNotOnChannelNotify(player, name);
+        if (pkt)
+        {
+            WorldPacket data;
+            MakeNotOnPacket(&data, name);
+            p->GetSession()->SendPacket(&data);
+        }
 
-        return nullptr;
+        return NULL;
     }
-
-    return i->second;
+    else
+        return i->second;
 }
 
 void ChannelMgr::LeftChannel(std::string const& name)
 {
     std::wstring wname;
-    if (!Utf8toWStr(name, wname))
-        return;
-
+    Utf8toWStr(name, wname);
     wstrToLower(wname);
 
-    ChannelMap::const_iterator i = _channels.find(wname);
-    if (i == _channels.end())
+    ChannelMap::const_iterator i = channels.find(wname);
+
+    if (i == channels.end())
         return;
 
     Channel* channel = i->second;
 
-    if (!channel->GetNumPlayers() && !channel->IsConstant())
+    if (channel->GetNumPlayers() == 0 && !channel->IsConstant())
     {
-        _channels.erase(i);
+        channels.erase(wname);
         delete channel;
     }
 }
 
-void ChannelMgr::SendNotOnChannelNotify(Player const* player, std::string const& name)
+void ChannelMgr::MakeNotOnPacket(WorldPacket* data, std::string name)
 {
-    WorldPackets::Channel::ChannelNotify notify;
-    notify.Type = CHAT_NOT_MEMBER_NOTICE;
-    notify._Channel = name;
-    player->SendDirectMessage(notify.Write());
+    data->Initialize(SMSG_CHANNEL_NOTIFY, (1+10));  // we guess size
+    (*data) << (uint8)0x05 << name;
 }

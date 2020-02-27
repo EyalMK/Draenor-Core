@@ -17,16 +17,19 @@
 //
 
 #include <float.h>
+#ifndef __clang_analyzer__
 #include <string.h>
-#include <stdio.h>
 #include "DetourNavMesh.h"
 #include "DetourNode.h"
 #include "DetourCommon.h"
 #include "DetourMath.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
+#include <math.h>
 #include <new>
 
+#include <stdio.h>
+#include <stdlib.h>
 
 inline bool overlapSlabs(const float* amin, const float* amax,
 						 const float* bmin, const float* bmax,
@@ -974,6 +977,10 @@ const dtMeshTile* dtNavMesh::getTileAt(const int x, const int y, const int layer
 {
 	// Find tile based on hash.
 	int h = computeTileHash(x,y,m_tileLutMask);
+
+    /*if (abs(h) > sizeof(m_posLookup) / sizeof(dtMeshTile*) - 1)
+        return 0;*/
+
 	dtMeshTile* tile = m_posLookup[h];
 	while (tile)
 	{
@@ -1501,4 +1508,4 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	
 	return DT_SUCCESS;
 }
-
+#endif

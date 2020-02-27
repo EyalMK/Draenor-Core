@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -37,18 +28,19 @@ enum Spells
     SPELL_SUMMON_FLAMECALLER    = 74398,
     // Onyx Flamecaller
     SPELL_BLAST_NOVA            = 74392,
-    SPELL_LAVA_GOUT             = 74394,
+    SPELL_LAVA_GOUT             = 74394
 };
 
 enum Events
 {
     // General Zarithrian
     EVENT_CLEAVE                    = 1,
-    EVENT_INTIDMDATING_ROAR         = 2,
+    EVENT_INTIMIDATING_ROAR         = 2,
     EVENT_SUMMON_ADDS               = 3,
+    EVENT_SUMMON_ADDS_25_MAN        = 4,
     // Onyx Flamecaller
-    EVENT_BLAST_NOVA                = 4,
-    EVENT_LAVA_GOUT                 = 5,
+    EVENT_BLAST_NOVA                = 5,
+    EVENT_LAVA_GOUT                 = 6
 };
 
 uint32 const MAX_PATH_FLAMECALLER_WAYPOINTS = 12;
@@ -80,7 +72,7 @@ Position const FlamecallerWaypoints[MAX_PATH_FLAMECALLER_WAYPOINTS*2] =
     {3043.958f, 593.4001f, 87.64581f, 0.0f},
     {3040.458f, 589.9001f, 88.39581f, 0.0f},
     {3034.458f, 583.1501f, 88.89581f, 0.0f},
-    {3014.970f, 561.8073f, 88.83527f, 0.0f},
+    {3014.970f, 561.8073f, 88.83527f, 0.0f}
 };
 
 class boss_general_zarithrian : public CreatureScript
@@ -94,56 +86,63 @@ class boss_general_zarithrian : public CreatureScript
             {
             }
 
-            void Reset() override
+            void Reset()
             {
                 _Reset();
                 if (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
                 events.Reset();
                 events.ScheduleEvent(EVENT_CLEAVE, 15000);
-                events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 42000);
-                events.ScheduleEvent(EVENT_SUMMON_ADDS, 40000);
+                events.ScheduleEvent(EVENT_INTIMIDATING_ROAR, 14000);
+                events.ScheduleEvent(EVENT_SUMMON_ADDS, 16000);
             }
 
-            void JustReachedHome() override
+            void JustReachedHome()
             {
                 _JustReachedHome();
                 instance->SetBossState(DATA_GENERAL_ZARITHRIAN, FAIL);
             }
 
             // Override to not set adds in combat yet.
-            void JustSummoned(Creature* summon) override
+            void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void KilledUnit(Unit* victim) override
+            void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
-            bool CanAIAttack(Unit const* target) const override
+            bool CanAIAttack(Unit const* /*target*/) const
             {
-                return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE && BossAI::CanAIAttack(target));
+                return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
+
+                // Can't use room boundary here, the gameobject is spawned at the same position as the boss. This is just as good anyway.
+                if (me->GetPositionX() > 3060.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
 
                 events.Update(diff);
 
@@ -156,19 +155,29 @@ class boss_general_zarithrian : public CreatureScript
                     {
                         case EVENT_SUMMON_ADDS:
                         {
-                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
+                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
                                 stalker1->CastSpell(stalker1, SPELL_SUMMON_FLAMECALLER, false);
 
-                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
+                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
                                 stalker2->CastSpell(stalker2, SPELL_SUMMON_FLAMECALLER, false);
 
                             Talk(SAY_ADDS);
+                            if (Is25ManRaid())
+                                events.ScheduleEvent(EVENT_SUMMON_ADDS_25_MAN, 2000);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS, 42000);
                             break;
                         }
-                        case EVENT_INTIDMDATING_ROAR:
-                            DoCast(me, SPELL_INTIMIDATING_ROAR, true);
-                            events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 42000);
+                        case EVENT_SUMMON_ADDS_25_MAN:
+                        {
+                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
+                                stalker1->AI()->DoCast(stalker1, SPELL_SUMMON_FLAMECALLER);
+                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
+                                stalker2->AI()->DoCast(stalker2, SPELL_SUMMON_FLAMECALLER);
+                            break;
+                        }
+                        case EVENT_INTIMIDATING_ROAR:
+                            DoCast(me, SPELL_INTIMIDATING_ROAR);
+                            events.ScheduleEvent(EVENT_INTIMIDATING_ROAR, 40000);
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE_ARMOR);
                             events.ScheduleEvent(EVENT_CLEAVE, 15000);
@@ -182,7 +191,7 @@ class boss_general_zarithrian : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetRubySanctumAI<boss_general_zarithrianAI>(creature);
         }
@@ -197,48 +206,44 @@ class npc_onyx_flamecaller : public CreatureScript
         {
             npc_onyx_flamecallerAI(Creature* creature) : npc_escortAI(creature), _instance(creature->GetInstanceScript())
             {
-                Initialize();
                 npc_escortAI::SetDespawnAtEnd(false);
             }
 
-            void Initialize()
+            void Reset()
             {
                 _lavaGoutCount = 0;
-            }
-
-            void Reset() override
-            {
-                Initialize();
                 me->setActive(true);
                 AddWaypoints();
                 Start(true, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_BLAST_NOVA, urand(20000, 30000));
                 _events.ScheduleEvent(EVENT_LAVA_GOUT, 5000);
             }
 
-            void EnterEvadeMode(EvadeReason /*why*/) override
+            void EnterEvadeMode()
             {
                 // Prevent EvadeMode
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(Unit* /*summoner*/)
             {
-                // Let Zarithrian count as summoner.
-                if (Creature* zarithrian = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GENERAL_ZARITHRIAN)))
+                // Let Zarithrian count as summoner. _instance cant be null since we got GetRubySanctumAI
+                if (Creature* zarithrian = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GENERAL_ZARITHRIAN)))
                     zarithrian->AI()->JustSummoned(me);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId)
             {
-                if (waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS - 1 || waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS * 2 - 1)
+                if (waypointId == (MAX_PATH_FLAMECALLER_WAYPOINTS - 1) || waypointId == (MAX_PATH_FLAMECALLER_WAYPOINTS * 2 - 1))
                 {
-                    DoZoneInCombat();
                     SetEscortPaused(true);
+                    me->SetInCombatWithZone();
+                    if (Unit* victim = me->SelectVictim())
+                        AttackStart(victim);
                 }
             }
 
@@ -256,7 +261,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 }
             }
 
-            void UpdateEscortAI(uint32 diff) override
+            void UpdateEscortAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -298,14 +303,16 @@ class npc_onyx_flamecaller : public CreatureScript
             uint8 _lavaGoutCount;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetRubySanctumAI<npc_onyx_flamecallerAI>(creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_general_zarithrian()
 {
     new boss_general_zarithrian();
     new npc_onyx_flamecaller();
 }
+#endif

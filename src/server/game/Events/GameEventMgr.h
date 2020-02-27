@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_GAMEEVENT_MGR_H
 #define TRINITY_GAMEEVENT_MGR_H
@@ -22,18 +12,18 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Define.h"
-#include "ObjectGuid.h"
+#include "Transaction.h"
 
 #define max_ge_check_delay DAY  // 1 day in seconds
 
 enum GameEventState
 {
-    GAMEEVENT_NORMAL           = 0, // standard game events
-    GAMEEVENT_WORLD_INACTIVE   = 1, // not yet started
-    GAMEEVENT_WORLD_CONDITIONS = 2, // condition matching phase
-    GAMEEVENT_WORLD_NEXTPHASE  = 3, // conditions are met, now 'length' timer to start next event
-    GAMEEVENT_WORLD_FINISHED   = 4, // next events are started, unapply this one
-    GAMEEVENT_INTERNAL         = 5  // never handled in update
+    GAMEEVENT_NORMAL            = 0,    // standard game events
+    GAMEEVENT_WORLD_INACTIVE    = 1,    // not yet started
+    GAMEEVENT_WORLD_CONDITIONS  = 2,    // condition matching phase
+    GAMEEVENT_WORLD_NEXTPHASE   = 3,    // conditions are met, now 'length' timer to start next event
+    GAMEEVENT_WORLD_FINISHED    = 4,    // next events are started, unapply this one
+    GAMEEVENT_INTERNAL          = 5     // never handled in update
 };
 
 struct GameEventFinishCondition
@@ -55,8 +45,7 @@ typedef std::map<uint32 /*condition id*/, GameEventFinishCondition> GameEventCon
 
 struct GameEventData
 {
-    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), state(GAMEEVENT_NORMAL),
-                      announce(0) { }
+    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), state(GAMEEVENT_NORMAL) {}
     time_t start;           // occurs after this time
     time_t end;             // occurs before this time
     time_t nextstart;       // after this time the follow-up events count this phase completed
@@ -67,7 +56,6 @@ struct GameEventData
     GameEventConditionMap conditions;  // conditions to finish
     std::set<uint16 /*gameevent id*/> prerequisite_events;  // events that must be completed before starting this event
     std::string description;
-    uint8 announce;         // if 0 dont announce, if 1 announce, if 2 take config value
 
     bool isValid() const { return length > 0 || state > GAMEEVENT_NORMAL; }
 };
@@ -94,15 +82,15 @@ class Player;
 class Creature;
 class Quest;
 
-class TC_GAME_API GameEventMgr
+class GameEventMgr
 {
+    friend class ACE_Singleton<GameEventMgr, ACE_Null_Mutex>;
+
     private:
         GameEventMgr();
-        ~GameEventMgr() { }
+        ~GameEventMgr() {};
 
     public:
-        static GameEventMgr* instance();
-
         typedef std::set<uint16> ActiveEvents;
         typedef std::vector<GameEventData> GameEventDataMap;
         ActiveEvents const& GetActiveEventList() const { return m_ActiveEvents; }
@@ -120,7 +108,7 @@ class TC_GAME_API GameEventMgr
         void StopEvent(uint16 event_id, bool overwrite = false);
         void HandleQuestComplete(uint32 quest_id);  // called on world event type quest completions
         void HandleWorldEventGossip(Player* player, Creature* c);
-        uint64 GetNPCFlag(Creature* cr);
+        uint32 GetNPCFlag(Creature* cr);
         uint32 GetNpcTextId(uint32 guid);
         uint16 GetEventIdForQuest(Quest const* quest) const;
     private:
@@ -140,16 +128,17 @@ class TC_GAME_API GameEventMgr
         void RunSmartAIScripts(uint16 event_id, bool activate);    //! Runs SMART_EVENT_GAME_EVENT_START/_END SAI
         bool CheckOneGameEventConditions(uint16 event_id);
         void SaveWorldEventStateToDB(uint16 event_id);
+        void SaveWorldEventStateToDB(uint16 p_EventID, SQLTransaction& p_Transaction);
         bool hasCreatureQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
         bool hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
-        bool hasCreatureActiveEventExcept(ObjectGuid::LowType creature_guid, uint16 event_id);
-        bool hasGameObjectActiveEventExcept(ObjectGuid::LowType go_guid, uint16 event_id);
+        bool hasCreatureActiveEventExcept(uint32 creature_guid, uint16 event_id);
+        bool hasGameObjectActiveEventExcept(uint32 go_guid, uint16 event_id);
 
-        typedef std::list<ObjectGuid::LowType> GuidList;
+        typedef std::list<uint32> GuidList;
         typedef std::list<uint32> IdList;
         typedef std::vector<GuidList> GameEventGuidMap;
         typedef std::vector<IdList> GameEventIdMap;
-        typedef std::pair<ObjectGuid::LowType, ModelEquip> ModelEquipPair;
+        typedef std::pair<uint32, ModelEquip> ModelEquipPair;
         typedef std::list<ModelEquipPair> ModelEquipList;
         typedef std::vector<ModelEquipList> GameEventModelEquipMap;
         typedef std::pair<uint32, uint32> QuestRelation;
@@ -157,8 +146,8 @@ class TC_GAME_API GameEventMgr
         typedef std::vector<QuestRelList> GameEventQuestMap;
         typedef std::list<NPCVendorEntry> NPCVendorList;
         typedef std::vector<NPCVendorList> GameEventNPCVendorMap;
-        typedef std::map<uint32 /*quest id*/, GameEventQuestToEventConditionNum> QuestIdToEventConditionMap;
-        typedef std::pair<ObjectGuid::LowType /*guid*/, uint64 /*npcflag*/> GuidNPCFlagPair;
+        typedef std::map<uint32, GameEventQuestToEventConditionNum> QuestIdToEventConditionMap; ///< std::map<QuestID, GameEventQuestToEventConditionNum>
+        typedef std::pair<uint32, uint32> GuidNPCFlagPair;                                      ///< std::pair<Guid, NpcFlag>
         typedef std::list<GuidNPCFlagPair> NPCFlagList;
         typedef std::vector<NPCFlagList> GameEventNPCFlagMap;
         typedef std::vector<uint32> GameEventBitmask;
@@ -170,7 +159,6 @@ class TC_GAME_API GameEventMgr
         //GameEventGuidMap  mGameEventGameobjectGuids;
         GameEventIdMap    mGameEventPoolIds;
         GameEventDataMap  mGameEvent;
-        GameEventBitmask  mGameEventBattlegroundHolidays;
         QuestIdToEventConditionMap mQuestToEventConditions;
         GameEventNPCFlagMap mGameEventNPCFlags;
         ActiveEvents m_ActiveEvents;
@@ -181,10 +169,10 @@ class TC_GAME_API GameEventMgr
         GameEventGuidMap  mGameEventGameobjectGuids;
 };
 
-#define sGameEventMgr GameEventMgr::instance()
+#define sGameEventMgr ACE_Singleton<GameEventMgr, ACE_Null_Mutex>::instance()
 
-TC_GAME_API bool IsHolidayActive(HolidayIds id);
-TC_GAME_API bool IsEventActive(uint16 event_id);
+bool IsHolidayActive(HolidayIds id);
+bool IsEventActive(uint16 event_id);
 
 #endif
 

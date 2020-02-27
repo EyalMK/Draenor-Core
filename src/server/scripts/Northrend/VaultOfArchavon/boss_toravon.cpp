@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -39,20 +30,18 @@ enum Spells
     SPELL_FROZEN_ORB_SUMMON = 72093,    // summon orb
 };
 
+// Events boss
 enum Events
 {
     EVENT_FREEZING_GROUND   = 1,
     EVENT_FROZEN_ORB        = 2,
     EVENT_WHITEOUT          = 3,
 
-    EVENT_FROST_BLAST       = 4,
+    EVENT_FROST_BLAST       = 4
 };
 
-enum Creatures
-{
-    NPC_FROZEN_ORB          = 38456 // 1 in 10 mode and 3 in 25 mode
-
-};
+// Mob Frozen Orb
+#define MOB_FROZEN_ORB 38456    // 1 in 10 mode and 3 in 25 mode
 
 class boss_toravon : public CreatureScript
 {
@@ -65,7 +54,7 @@ class boss_toravon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
                 DoCast(me, SPELL_FROZEN_MALLET);
 
@@ -76,7 +65,7 @@ class boss_toravon : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -112,7 +101,7 @@ class boss_toravon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_toravonAI(creature);
         }
@@ -121,21 +110,21 @@ class boss_toravon : public CreatureScript
 /*######
 ##  Mob Frost Warder
 ######*/
-class npc_frost_warder : public CreatureScript
+class mob_frost_warder : public CreatureScript
 {
     public:
-        npc_frost_warder() : CreatureScript("npc_frost_warder") { }
+        mob_frost_warder() : CreatureScript("mob_frost_warder") { }
 
-        struct npc_frost_warderAI : public ScriptedAI
+        struct mob_frost_warderAI : public ScriptedAI
         {
-            npc_frost_warderAI(Creature* creature) : ScriptedAI(creature) { }
+            mob_frost_warderAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset() override
+            void Reset()
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
                 DoZoneInCombat();
 
@@ -144,7 +133,7 @@ class npc_frost_warder : public CreatureScript
                 events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -167,44 +156,38 @@ class npc_frost_warder : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_frost_warderAI(creature);
+            return new mob_frost_warderAI(creature);
         }
 };
 
 /*######
 ##  Mob Frozen Orb
 ######*/
-class npc_frozen_orb : public CreatureScript
+class mob_frozen_orb : public CreatureScript
 {
 public:
-    npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
+    mob_frozen_orb() : CreatureScript("mob_frozen_orb") { }
 
-    struct npc_frozen_orbAI : public ScriptedAI
+    struct mob_frozen_orbAI : public ScriptedAI
     {
-        npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
+        mob_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
         }
 
-        void Initialize()
+        void Reset()
         {
             done = false;
             killTimer = 60000; // if after this time there is no victim -> destroy!
         }
 
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(const uint32 diff)
         {
             if (!done)
             {
@@ -228,41 +211,39 @@ public:
         bool done;
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_frozen_orbAI(creature);
+        return new mob_frozen_orbAI(creature);
     }
 };
 
 /*######
 ##  Mob Frozen Orb Stalker
 ######*/
-class npc_frozen_orb_stalker : public CreatureScript
+class mob_frozen_orb_stalker : public CreatureScript
 {
     public:
-        npc_frozen_orb_stalker() : CreatureScript("npc_frozen_orb_stalker") { }
+        mob_frozen_orb_stalker() : CreatureScript("mob_frozen_orb_stalker") { }
 
-        struct npc_frozen_orb_stalkerAI : public ScriptedAI
+        struct mob_frozen_orb_stalkerAI : public Scripted_NoMovementAI
         {
-            npc_frozen_orb_stalkerAI(Creature* creature) : ScriptedAI(creature)
+            mob_frozen_orb_stalkerAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 creature->SetVisible(false);
-                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
                 creature->SetReactState(REACT_PASSIVE);
 
                 instance = creature->GetInstanceScript();
                 spawned = false;
-
-                SetCombatMovement(false);
             }
 
-            void UpdateAI(uint32 /*diff*/) override
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (spawned)
                     return;
 
                 spawned = true;
-                Unit* toravon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TORAVON));
+                Unit* toravon = me->GetCreature(*me, instance ? instance->GetData64(DATA_TORAVON) : 0);
                 if (!toravon)
                     return;
 
@@ -281,16 +262,18 @@ class npc_frozen_orb_stalker : public CreatureScript
             bool spawned;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return GetInstanceAI<npc_frozen_orb_stalkerAI>(creature);
+            return new mob_frozen_orb_stalkerAI(creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_toravon()
 {
     new boss_toravon();
-    new npc_frost_warder();
-    new npc_frozen_orb();
-    new npc_frozen_orb_stalker();
+    new mob_frost_warder();
+    new mob_frozen_orb();
+    new mob_frozen_orb_stalker();
 }
+#endif

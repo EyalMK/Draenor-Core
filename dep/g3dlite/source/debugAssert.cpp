@@ -121,8 +121,6 @@ static void createErrorMessage(
         const char* moduleName = strrchr(modulePath, '\\');
         outTitle = outTitle + string(" - ") + string(moduleName ? (moduleName + 1) : modulePath);
 
-    #else
-        (void)outTitle;
     #endif
 
     // Build the message.

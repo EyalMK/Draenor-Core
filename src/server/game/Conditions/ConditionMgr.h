@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_CONDITIONMGR_H
 #define TRINITY_CONDITIONMGR_H
@@ -27,29 +17,11 @@ class Unit;
 class WorldObject;
 class LootTemplate;
 struct Condition;
-struct PlayerConditionEntry;
 
-/*! Documentation on implementing a new ConditionType:
-    Step 1: Check for the lowest free ID. Look for CONDITION_UNUSED_XX in the enum.
-            Then define the new condition type.
-
-    Step 2: Determine and map the parameters for the new condition type.
-
-    Step 3: Add a case block to ConditionMgr::isConditionTypeValid with the new condition type
-            and validate the parameters.
-
-    Step 4: Define the maximum available condition targets in ConditionMgr::GetMaxAvailableConditionTargets.
-
-    Step 5: Define the grid searcher mask in Condition::GetSearcherTypeMaskForCondition.
-
-    Step 6: Add a case block to ConditionMgr::Meets with the new condition type.
-
-    Step 7: Define condition name and expected condition values in ConditionMgr::StaticConditionTypeData.
-*/
 enum ConditionTypes
 {                                                           // value1           value2         value3
     CONDITION_NONE                  = 0,                    // 0                0              0                  always true
-    CONDITION_AURA                  = 1,                    // spell_id         effindex       0                  true if target has aura of spell_id with effect effindex
+    CONDITION_AURA                  = 1,                    // spell_id         effindex       use target?        true if player (or target, if value3) has aura of spell_id with effect effindex
     CONDITION_ITEM                  = 2,                    // item_id          count          bank               true if has #count of item_ids (if 'bank' is set it searches in bank slots too)
     CONDITION_ITEM_EQUIPPED         = 3,                    // item_id          0              0                  true if has item_id equipped
     CONDITION_ZONEID                = 4,                    // zone_id          0              0                  true if in zone_id
@@ -61,25 +33,25 @@ enum ConditionTypes
     CONDITION_DRUNKENSTATE          = 10,                   // DrunkenState     0,             0                  true if player is drunk enough
     CONDITION_WORLD_STATE           = 11,                   // index            value          0                  true if world has the value for the index
     CONDITION_ACTIVE_EVENT          = 12,                   // event_id         0              0                  true if event is active
-    CONDITION_INSTANCE_INFO         = 13,                   // entry            data           type               true if the instance info defined by type (enum InstanceInfo) equals data.
+    CONDITION_INSTANCE_DATA         = 13,                   // entry            data           0                  true if data is set in current instance
     CONDITION_QUEST_NONE            = 14,                   // quest_id         0              0                  true if doesn't have quest saved
     CONDITION_CLASS                 = 15,                   // class            0              0                  true if player's class is equal to class
     CONDITION_RACE                  = 16,                   // race             0              0                  true if player's race is equal to race
     CONDITION_ACHIEVEMENT           = 17,                   // achievement_id   0              0                  true if achievement is complete
     CONDITION_TITLE                 = 18,                   // title id         0              0                  true if player has title
-    CONDITION_SPAWNMASK             = 19,                   // spawnMask        0              0                  true if in spawnMask
+    CONDITION_SPAWNMASK             = 19,                   // spawnMask        0              0
     CONDITION_GENDER                = 20,                   // gender           0              0                  true if player's gender is equal to gender
-    CONDITION_UNIT_STATE            = 21,                   // unitState        0              0                  true if unit has unitState
+    CONDITION_UNUSED_21             = 21,                   //
     CONDITION_MAPID                 = 22,                   // map_id           0              0                  true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
-    CONDITION_CREATURE_TYPE         = 24,                   // cinfo.type       0              0                  true if creature_template.type = value1
+    CONDITION_UNUSED_24             = 24,                   //
     CONDITION_SPELL                 = 25,                   // spell_id         0              0                  true if player has learned spell
-    CONDITION_PHASEID               = 26,                   // phaseid          0              0                  true if object is in phaseid
+    CONDITION_PHASEMASK             = 26,                   // phasemask        0              0                  true if object is in phasemask
     CONDITION_LEVEL                 = 27,                   // level            ComparisonType 0                  true if unit's level is equal to param1 (param2 can modify the statement)
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0              0                  true if player has quest_id with all objectives complete, but not yet rewarded
-    CONDITION_NEAR_CREATURE         = 29,                   // creature entry   distance       dead (0/1)         true if there is a creature of entry in range
+    CONDITION_NEAR_CREATURE         = 29,                   // creature entry   distance       0                  true if there is a creature of entry in range
     CONDITION_NEAR_GAMEOBJECT       = 30,                   // gameobject entry distance       0                  true if there is a gameobject of entry in range
-    CONDITION_OBJECT_ENTRY_GUID     = 31,                   // TypeID           entry          guid               true if object is type TypeID and the entry is 0 or matches entry of the object or matches guid of the object
+    CONDITION_OBJECT_ENTRY          = 31,                   // TypeID           entry          0                  true if object is type TypeID and the entry is 0 or matches entry of the object
     CONDITION_TYPE_MASK             = 32,                   // TypeMask         0              0                  true if object is type object's TypeMask matches provided TypeMask
     CONDITION_RELATION_TO           = 33,                   // ConditionTarget  RelationType   0                  true if object is in given relation with object specified by ConditionTarget
     CONDITION_REACTION_TO           = 34,                   // ConditionTarget  rankMask       0                  true if object's reaction matches rankMask object specified by ConditionTarget
@@ -87,18 +59,16 @@ enum ConditionTypes
     CONDITION_ALIVE                 = 36,                   // 0                0              0                  true if unit is alive
     CONDITION_HP_VAL                = 37,                   // hpVal            ComparisonType 0                  true if unit's hp matches given value
     CONDITION_HP_PCT                = 38,                   // hpPct            ComparisonType 0                  true if unit's hp matches given pct
-    CONDITION_REALM_ACHIEVEMENT     = 39,                   // achievement_id   0              0                  true if realm achievement is complete
-    CONDITION_IN_WATER              = 40,                   // 0                0              0                  true if unit in water
-    CONDITION_TERRAIN_SWAP          = 41,                   // terrainSwap      0              0                  true if object is in terrainswap
-    CONDITION_STAND_STATE           = 42,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
-    CONDITION_MAX                   = 43                    // MAX
+    CONDITION_HAS_BUILDING_TYPE     = 39,                   // BuildingType                                       true if player has this building activated in Garrison
+    CONDITION_HAS_GARRISON_LEVEL    = 40,                   // Level
+    CONDITION_MAX                                           // MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:
     Step 1: Check for the lowest free ID. Look for CONDITION_SOURCE_TYPE_UNUSED_XX in the enum.
             Then define the new source type.
 
-    Step 2: Determine and map the parameters for the new condition source type.
+    Step 2: Determine and map the parameters for the new condition type.
 
     Step 3: Add a case block to ConditionMgr::isSourceTypeValid with the new condition type
             and validate the parameters.
@@ -108,20 +78,18 @@ enum ConditionTypes
 
     Step 5: Define the maximum available condition targets in ConditionMgr::GetMaxAvailableConditionTargets.
 
-    Step 6: Define ConditionSourceType Name in ConditionMgr::StaticSourceTypeData.
-
     The following steps only apply if your condition can be grouped:
 
-    Step 7: Determine how you are going to store your conditions. You need to add a new storage container
+    Step 6: Determine how you are going to store your conditions. You need to add a new storage container
             for it in ConditionMgr class, along with a function like:
-            ConditionList GetConditionsForXXXYourNewSourceTypeXXX(parameters...)
+            ConditionContainer GetConditionsForXXXYourNewSourceTypeXXX(parameters...)
 
             The above function should be placed in upper level (practical) code that actually
             checks the conditions.
 
-    Step 8: Implement loading for your source type in ConditionMgr::LoadConditions.
+    Step 7: Implement loading for your source type in ConditionMgr::LoadConditions.
 
-    Step 9: Implement memory cleaning for your source type in ConditionMgr::Clean.
+    Step 8: Implement memory cleaning for your source type in ConditionMgr::Clean.
 */
 enum ConditionSourceType
 {
@@ -149,10 +117,19 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
     CONDITION_SOURCE_TYPE_NPC_VENDOR                     = 23,
-    CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
-    CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25,
-    CONDITION_SOURCE_TYPE_PHASE                          = 26,
-    CONDITION_SOURCE_TYPE_MAX                            = 27  // MAX
+    CONDITION_SOURCE_TYPE_PHASE_DEFINITION               = 24,
+    CONDITION_SOURCE_TYPE_SPELL_PROC                     = 25,
+    CONDITION_SOURCE_TYPE_MAX                            = 26  //MAX
+};
+
+enum ComparisionType
+{
+    COMP_TYPE_EQ = 0,
+    COMP_TYPE_HIGH,
+    COMP_TYPE_LOW,
+    COMP_TYPE_HIGH_EQ,
+    COMP_TYPE_LOW_EQ,
+    COMP_TYPE_MAX
 };
 
 enum RelationType
@@ -166,33 +143,25 @@ enum RelationType
     RELATION_MAX
 };
 
-enum InstanceInfo
-{
-    INSTANCE_INFO_DATA = 0,
-    INSTANCE_INFO_GUID_DATA,
-    INSTANCE_INFO_BOSS_STATE,
-    INSTANCE_INFO_DATA64
-};
-
-enum MaxConditionTargets
+enum
 {
     MAX_CONDITION_TARGETS = 3
 };
 
-struct TC_GAME_API ConditionSourceInfo
+struct ConditionSourceInfo
 {
     WorldObject* mConditionTargets[MAX_CONDITION_TARGETS]; // an array of targets available for conditions
     Condition const* mLastFailedCondition;
-    ConditionSourceInfo(WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr)
+    ConditionSourceInfo(WorldObject* target0, WorldObject* target1 = NULL, WorldObject* target2 = NULL)
     {
         mConditionTargets[0] = target0;
         mConditionTargets[1] = target1;
         mConditionTargets[2] = target2;
-        mLastFailedCondition = nullptr;
+        mLastFailedCondition = NULL;
     }
 };
 
-struct TC_GAME_API Condition
+struct Condition
 {
     ConditionSourceType     SourceType;        //SourceTypeOrReferenceId
     uint32                  SourceGroup;
@@ -203,7 +172,6 @@ struct TC_GAME_API Condition
     uint32                  ConditionValue1;
     uint32                  ConditionValue2;
     uint32                  ConditionValue3;
-    uint32                  ErrorType;
     uint32                  ErrorTextId;
     uint32                  ReferenceId;
     uint32                  ScriptId;
@@ -215,7 +183,6 @@ struct TC_GAME_API Condition
         SourceType         = CONDITION_SOURCE_TYPE_NONE;
         SourceGroup        = 0;
         SourceEntry        = 0;
-        SourceId           = 0;
         ElseGroup          = 0;
         ConditionType      = CONDITION_NONE;
         ConditionTarget    = 0;
@@ -223,7 +190,6 @@ struct TC_GAME_API Condition
         ConditionValue2    = 0;
         ConditionValue3    = 0;
         ReferenceId        = 0;
-        ErrorType          = 0;
         ErrorTextId        = 0;
         ScriptId           = 0;
         NegativeCondition  = false;
@@ -233,8 +199,6 @@ struct TC_GAME_API Condition
     uint32 GetSearcherTypeMaskForCondition() const;
     bool isLoaded() const { return ConditionType > CONDITION_NONE || ReferenceId; }
     uint32 GetMaxAvailableConditionTargets() const;
-
-    std::string ToString(bool ext = false) const; /// For logging purpose
 };
 
 typedef std::vector<Condition*> ConditionContainer;
@@ -242,17 +206,19 @@ typedef std::unordered_map<uint32 /*SourceEntry*/, ConditionContainer> Condition
 typedef std::array<ConditionsByEntryMap, CONDITION_SOURCE_TYPE_MAX> ConditionEntriesByTypeArray;
 typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
 typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
+typedef std::unordered_map<int32 /*zoneId*/, ConditionsByEntryMap> PhaseDefinitionConditionContainer;
+
 typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
 
-class TC_GAME_API ConditionMgr
+class ConditionMgr
 {
+    friend class ACE_Singleton<ConditionMgr, ACE_Null_Mutex>;
+
     private:
         ConditionMgr();
         ~ConditionMgr();
 
     public:
-        static ConditionMgr* instance();
-
         void LoadConditions(bool isReload = false);
         bool isConditionTypeValid(Condition* cond) const;
 
@@ -260,28 +226,18 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetToConditions(WorldObject* object, ConditionContainer const& conditions) const;
         bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionContainer const& conditions) const;
         bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
-        static bool CanHaveSourceGroupSet(ConditionSourceType sourceType);
-        static bool CanHaveSourceIdSet(ConditionSourceType sourceType);
+        bool CanHaveSourceGroupSet(ConditionSourceType sourceType) const;
+        bool CanHaveSourceIdSet(ConditionSourceType sourceType) const;
         bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, ConditionSourceInfo& sourceInfo) const;
         bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr) const;
         bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const;
         bool IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject* clicker, WorldObject* target) const;
         ConditionContainer const* GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId) const;
         bool IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player* player, Unit* vehicle) const;
-        bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
+        bool IsObjectMeetingSmartEventConditions(int32 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
-
-        static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
-
-        struct ConditionTypeInfo
-        {
-            char const* Name;
-            bool HasConditionValue1;
-            bool HasConditionValue2;
-            bool HasConditionValue3;
-        };
-        static char const* const StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX];
-        static ConditionTypeInfo const StaticConditionTypeData[CONDITION_MAX];
+        bool IsObjectMeetPhaseCondition(uint32 zone, uint32 entry, WorldObject* object) const;
+        ConditionContainer const* GetConditionsForPhaseDefinition(uint32 zone, uint32 entry) const;
 
     private:
         bool isSourceTypeValid(Condition* cond) const;
@@ -289,22 +245,41 @@ class TC_GAME_API ConditionMgr
         bool addToGossipMenus(Condition* cond) const;
         bool addToGossipMenuItems(Condition* cond) const;
         bool addToSpellImplicitTargetConditions(Condition* cond) const;
-        bool addToPhases(Condition* cond) const;
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
-
-        static void LogUselessConditionValue(Condition* cond, uint8 index, uint32 value);
 
         void Clean(); // free up resources
         std::vector<Condition*> AllocatedMemoryStore; // some garbage collection :)
 
-        ConditionEntriesByTypeArray     ConditionStore;
-        ConditionReferenceContainer     ConditionReferenceStore;
-        ConditionEntriesByCreatureIdMap VehicleSpellConditionStore;
-        ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;
-        ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
-        SmartEventConditionContainer    SmartEventConditionStore;
+        ConditionEntriesByTypeArray         ConditionStore;
+        ConditionReferenceContainer         ConditionReferenceStore;
+        ConditionEntriesByCreatureIdMap     VehicleSpellConditionStore;
+        ConditionEntriesByCreatureIdMap     SpellClickEventConditionStore;
+        ConditionEntriesByCreatureIdMap     NpcVendorConditionContainerStore;
+        SmartEventConditionContainer        SmartEventConditionStore;
+        PhaseDefinitionConditionContainer   PhaseDefinitionsConditionStore;
 };
 
-#define sConditionMgr ConditionMgr::instance()
+template <class T> bool CompareValues(ComparisionType type,  T val1, T val2)
+{
+    switch (type)
+    {
+        case COMP_TYPE_EQ:
+            return val1 == val2;
+        case COMP_TYPE_HIGH:
+            return val1 > val2;
+        case COMP_TYPE_LOW:
+            return val1 < val2;
+        case COMP_TYPE_HIGH_EQ:
+            return val1 >= val2;
+        case COMP_TYPE_LOW_EQ:
+            return val1 <= val2;
+        default:
+            // incorrect parameter
+            ASSERT(false);
+            return false;
+    }
+}
+
+#define sConditionMgr ACE_Singleton<ConditionMgr, ACE_Null_Mutex>::instance()
 
 #endif

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Noxxion
@@ -37,19 +27,22 @@ class boss_noxxion : public CreatureScript
 public:
     boss_noxxion() : CreatureScript("boss_noxxion") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_noxxionAI(creature);
+        return new boss_noxxionAI (creature);
     }
 
     struct boss_noxxionAI : public ScriptedAI
     {
-        boss_noxxionAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
+        boss_noxxionAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Initialize()
+        uint32 ToxicVolleyTimer;
+        uint32 UppercutTimer;
+        uint32 AddsTimer;
+        uint32 InvisibleTimer;
+        bool Invisible;
+
+        void Reset()
         {
             ToxicVolleyTimer = 7000;
             UppercutTimer = 16000;
@@ -58,18 +51,7 @@ public:
             Invisible = false;
         }
 
-        uint32 ToxicVolleyTimer;
-        uint32 UppercutTimer;
-        uint32 AddsTimer;
-        uint32 InvisibleTimer;
-        bool Invisible;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) {}
 
         void SummonAdds(Unit* victim)
         {
@@ -77,7 +59,7 @@ public:
                 Add->AI()->AttackStart(victim);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(const uint32 diff)
         {
             if (Invisible && InvisibleTimer <= diff)
             {
@@ -126,11 +108,11 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 // Invisible Model
                 me->SetDisplayId(11686);
-                SummonAdds(me->GetVictim());
-                SummonAdds(me->GetVictim());
-                SummonAdds(me->GetVictim());
-                SummonAdds(me->GetVictim());
-                SummonAdds(me->GetVictim());
+                SummonAdds(me->getVictim());
+                SummonAdds(me->getVictim());
+                SummonAdds(me->getVictim());
+                SummonAdds(me->getVictim());
+                SummonAdds(me->getVictim());
                 Invisible = true;
                 InvisibleTimer = 15000;
 
@@ -143,7 +125,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_noxxion()
 {
     new boss_noxxion();
 }
+#endif

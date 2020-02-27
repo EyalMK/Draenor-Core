@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -21,8 +12,8 @@
 
 enum Texts
 {
-    EMOTE_AGGRO             = 0,
-    EMOTE_MANA_FULL         = 1
+    EMOTE_AGGRO             = -1509000,
+    EMOTE_MANA_FULL         = -1509001
 };
 
 enum Spells
@@ -42,13 +33,13 @@ enum Events
     EVENT_DRAIN_MANA        = 2,
     EVENT_STONE_PHASE       = 3,
     EVENT_STONE_PHASE_END   = 4,
-    EVENT_WIDE_SLASH        = 5,
+    EVENT_WIDE_SLASH        = 5
 };
 
 enum Actions
 {
     ACTION_STONE_PHASE_START = 1,
-    ACTION_STONE_PHASE_END   = 2,
+    ACTION_STONE_PHASE_END   = 2
 };
 
 class boss_moam : public CreatureScript
@@ -58,26 +49,20 @@ class boss_moam : public CreatureScript
 
         struct boss_moamAI : public BossAI
         {
-            boss_moamAI(Creature* creature) : BossAI(creature, DATA_MOAM)
+            boss_moamAI(Creature* creature) : BossAI(creature, BOSS_MOAM)
             {
-                Initialize();
             }
 
-            void Initialize()
-            {
-                _isStonePhase = false;
-            }
-
-            void Reset() override
+            void Reset()
             {
                 _Reset();
                 me->SetPower(POWER_MANA, 0);
-                Initialize();
+                _isStonePhase = false;
                 events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
                 //events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!_isStonePhase && HealthBelowPct(45))
                 {
@@ -86,7 +71,7 @@ class boss_moam : public CreatureScript
                 }
             }
 
-            void DoAction(int32 action) override
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {
@@ -111,7 +96,7 @@ class boss_moam : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -150,11 +135,11 @@ class boss_moam : public CreatureScript
                             {
                                 const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
                                 for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                    if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->getPowerType() == POWER_MANA)
+                                    if ((*itr)->getTarget()->IsPlayer() && (*itr)->getTarget()->getPowerType() == POWER_MANA)
                                         targetList.push_back((*itr)->getTarget());
                             }
 
-                            Trinity::Containers::RandomResizeList(targetList, 5);
+                            JadeCore::Containers::RandomResizeList(targetList, 5);
 
                             for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                                 DoCast(*itr, SPELL_DRAIN_MANA);
@@ -181,13 +166,15 @@ class boss_moam : public CreatureScript
             bool _isStonePhase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_moamAI(creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_moam()
 {
     new boss_moam();
 }
+#endif

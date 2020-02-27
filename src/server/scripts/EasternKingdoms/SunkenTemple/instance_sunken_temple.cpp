@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Instance_Sunken_Temple
@@ -27,31 +17,25 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "sunken_temple.h"
 
-enum Gameobject
-{
-    GO_ATALAI_STATUE1           = 148830,
-    GO_ATALAI_STATUE2           = 148831,
-    GO_ATALAI_STATUE3           = 148832,
-    GO_ATALAI_STATUE4           = 148833,
-    GO_ATALAI_STATUE5           = 148834,
-    GO_ATALAI_STATUE6           = 148835,
-    GO_ATALAI_IDOL              = 148836,
-    GO_ATALAI_LIGHT1            = 148883,
-    GO_ATALAI_LIGHT2            = 148937
+#define GO_ATALAI_STATUE1 148830
+#define GO_ATALAI_STATUE2 148831
+#define GO_ATALAI_STATUE3 148832
+#define GO_ATALAI_STATUE4 148833
+#define GO_ATALAI_STATUE5 148834
+#define GO_ATALAI_STATUE6 148835
+#define GO_ATALAI_IDOL 148836
 
-};
+#define GO_ATALAI_LIGHT1 148883
+#define GO_ATALAI_LIGHT2 148937
 
-enum CreatureIds
-{
-    NPC_MALFURION_STORMRAGE     = 15362
-};
+#define NPC_MALFURION_STORMRAGE 15362
 
 class instance_sunken_temple : public InstanceMapScript
 {
 public:
     instance_sunken_temple() : InstanceMapScript("instance_sunken_temple", 109) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
         return new instance_sunken_temple_InstanceMapScript(map);
     }
@@ -60,24 +44,15 @@ public:
     {
         instance_sunken_temple_InstanceMapScript(Map* map) : InstanceScript(map)
         {
-            SetHeaders(DataHeader);
-            State = 0;
-
-            s1 = false;
-            s2 = false;
-            s3 = false;
-            s4 = false;
-            s5 = false;
-            s6 = false;
         }
 
-        ObjectGuid GOAtalaiStatue1;
-        ObjectGuid GOAtalaiStatue2;
-        ObjectGuid GOAtalaiStatue3;
-        ObjectGuid GOAtalaiStatue4;
-        ObjectGuid GOAtalaiStatue5;
-        ObjectGuid GOAtalaiStatue6;
-        ObjectGuid GOAtalaiIdol;
+        uint64 GOAtalaiStatue1;
+        uint64 GOAtalaiStatue2;
+        uint64 GOAtalaiStatue3;
+        uint64 GOAtalaiStatue4;
+        uint64 GOAtalaiStatue5;
+        uint64 GOAtalaiStatue6;
+        uint64 GOAtalaiIdol;
 
         uint32 State;
 
@@ -88,7 +63,27 @@ public:
         bool s5;
         bool s6;
 
-        void OnGameObjectCreate(GameObject* go) override
+        void Initialize()
+        {
+            GOAtalaiStatue1 = 0;
+            GOAtalaiStatue2 = 0;
+            GOAtalaiStatue3 = 0;
+            GOAtalaiStatue4 = 0;
+            GOAtalaiStatue5 = 0;
+            GOAtalaiStatue6 = 0;
+            GOAtalaiIdol = 0;
+
+            State = 0;
+
+            s1 = false;
+            s2 = false;
+            s3 = false;
+            s4 = false;
+            s5 = false;
+            s6 = false;
+        }
+
+        void OnGameObjectCreate(GameObject* go)
         {
             switch (go->GetEntry())
             {
@@ -102,8 +97,10 @@ public:
             }
         }
 
-         virtual void Update(uint32 /*diff*/) override // correct order goes form 1-6
+         virtual void Update(uint32 diff) // correct order goes form 1-6
          {
+             InstanceScript::Update(diff);
+
              switch (State)
              {
              case GO_ATALAI_STATUE1:
@@ -166,29 +163,29 @@ public:
         void UseStatue(GameObject* go)
         {
             go->SummonGameObject(GO_ATALAI_LIGHT1, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 0, 0, 0, 0, 0);
-            go->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
+            go->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 4);
         }
 
          /*
          void UseLastStatue(GameObject* go)
          {
-             AtalaiStatue1->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue1->GetPositionX(), AtalaiStatue1->GetPositionY(), AtalaiStatue1->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue2->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue2->GetPositionX(), AtalaiStatue2->GetPositionY(), AtalaiStatue2->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue3->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue3->GetPositionX(), AtalaiStatue3->GetPositionY(), AtalaiStatue3->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue4->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue4->GetPositionX(), AtalaiStatue4->GetPositionY(), AtalaiStatue4->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue5->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue5->GetPositionX(), AtalaiStatue5->GetPositionY(), AtalaiStatue5->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue6->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue6->GetPositionX(), AtalaiStatue6->GetPositionY(), AtalaiStatue6->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             go->SummonGameObject(148838, -488.997, 96.61, -189.019, -1.52, 0, 0, 0, 0, 100);
+             AtalaiStatue1->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue1->GetPositionX(), AtalaiStatue1->GetPositionY(), AtalaiStatue1->GetPositionZ(), 0, 0, 0, 0, 0, 100000);
+             AtalaiStatue2->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue2->GetPositionX(), AtalaiStatue2->GetPositionY(), AtalaiStatue2->GetPositionZ(), 0, 0, 0, 0, 0, 100000);
+             AtalaiStatue3->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue3->GetPositionX(), AtalaiStatue3->GetPositionY(), AtalaiStatue3->GetPositionZ(), 0, 0, 0, 0, 0, 100000);
+             AtalaiStatue4->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue4->GetPositionX(), AtalaiStatue4->GetPositionY(), AtalaiStatue4->GetPositionZ(), 0, 0, 0, 0, 0, 100000);
+             AtalaiStatue5->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue5->GetPositionX(), AtalaiStatue5->GetPositionY(), AtalaiStatue5->GetPositionZ(), 0, 0, 0, 0, 0, 100000);
+             AtalaiStatue6->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue6->GetPositionX(), AtalaiStatue6->GetPositionY(), AtalaiStatue6->GetPositionZ(), 0, 0, 0, 0, 0, 100000);
+             go->SummonGameObject(148838, -488.997, 96.61, -189.019, -1.52, 0, 0, 0, 0, 100000);
          }
          */
 
-         void SetData(uint32 type, uint32 data) override
+         void SetData(uint32 type, uint32 data)
          {
             if (type == EVENT_STATE)
                 State = data;
          }
 
-         uint32 GetData(uint32 type) const override
+         uint32 GetData(uint32 type)
          {
             if (type == EVENT_STATE)
                 return State;
@@ -198,7 +195,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_sunken_temple()
 {
     new instance_sunken_temple();
 }
+#endif

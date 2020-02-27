@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -57,15 +47,9 @@ class boss_doomwalker : public CreatureScript
         {
             boss_doomwalkerAI(Creature* creature) : ScriptedAI(creature)
             {
-                Initialize();
             }
 
-            void Initialize()
-            {
-                _inEnrage = false;
-            }
-
-            void Reset() override
+            void Reset()
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_ENRAGE, 0);
@@ -73,10 +57,10 @@ class boss_doomwalker : public CreatureScript
                 _events.ScheduleEvent(EVENT_CHAIN, urand(10000, 30000));
                 _events.ScheduleEvent(EVENT_QUAKE, urand(25000, 35000));
                 _events.ScheduleEvent(EVENT_OVERRUN, urand(30000, 45000));
-                Initialize();
+                _inEnrage = false;
             }
 
-            void KilledUnit(Unit* victim) override
+            void KilledUnit(Unit* victim)
             {
                 victim->CastSpell(victim, SPELL_MARK_DEATH, 0);
 
@@ -86,25 +70,24 @@ class boss_doomwalker : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
             }
 
-            void MoveInLineOfSight(Unit* who) override
-
+            void MoveInLineOfSight(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsValidAttackTarget(who))
-                    if (who->HasAura(SPELL_MARK_DEATH))
+                if (who && who->IsPlayer() && me->IsValidAttackTarget(who))
+                    if (who->HasAura(SPELL_MARK_DEATH, 0))
                         who->CastSpell(who, SPELL_AURA_DEATH, 1);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -165,13 +148,15 @@ class boss_doomwalker : public CreatureScript
                 bool _inEnrage;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_doomwalkerAI(creature);
+            return new boss_doomwalkerAI (creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_doomwalker()
 {
     new boss_doomwalker();
 }
+#endif

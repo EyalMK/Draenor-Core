@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Instance_Hellfire_Ramparts
@@ -30,57 +20,76 @@ EndScriptData */
 class instance_ramparts : public InstanceMapScript
 {
     public:
-        instance_ramparts() : InstanceMapScript("instance_ramparts", 543) { }
+        instance_ramparts()
+            : InstanceMapScript("instance_ramparts", 543)
+        {
+        }
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
-            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) {}
+
+            uint32 m_auiEncounter[MAX_ENCOUNTER];
+            uint64 m_uiChestNGUID;
+            uint64 m_uiChestHGUID;
+            bool spawned;
+
+            void Initialize()
             {
-                SetHeaders(DataHeader);
-                SetBossNumber(EncounterCount);
+                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+                m_uiChestNGUID = 0;
+                m_uiChestHGUID = 0;
             }
 
-            void OnGameObjectCreate(GameObject* go) override
+            void OnGameObjectCreate(GameObject* go)
             {
                 switch (go->GetEntry())
                 {
-                    case GO_FEL_IRON_CHEST_NORMAL:
-                    case GO_FEL_IRON_CHEST_HEROIC:
-                        felIronChestGUID = go->GetGUID();
+                    case 185168:
+                        m_uiChestNGUID = go->GetGUID();
+                        break;
+                    case 185169:
+                        m_uiChestHGUID = go->GetGUID();
                         break;
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state) override
+            void SetData(uint32 uiType, uint32 uiData)
             {
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
+                sLog->outDebug(LOG_FILTER_TSCR, "Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
 
-                switch (type)
+                switch (uiType)
                 {
-                    case DATA_VAZRUDEN:
-                    case DATA_NAZAN:
-                        if (GetBossState(DATA_VAZRUDEN) == DONE && GetBossState(DATA_NAZAN) == DONE)
-                            if (GameObject* chest = instance->GetGameObject(felIronChestGUID))
-                                chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    case TYPE_VAZRUDEN:
+                        if (uiData == DONE && m_auiEncounter[1] == DONE && !spawned)
+                        {
+                            DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
+                            spawned = true;
+                        }
+                        m_auiEncounter[0] = uiData;
                         break;
-                    default:
+                    case TYPE_NAZAN:
+                        if (uiData == DONE && m_auiEncounter[0] == DONE && !spawned)
+                        {
+                            DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
+                            spawned = true;
+                        }
+                        m_auiEncounter[1] = uiData;
                         break;
                 }
-                return true;
             }
-
-        protected:
-            ObjectGuid felIronChestGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
             return new instance_ramparts_InstanceMapScript(map);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_ramparts()
 {
     new instance_ramparts;
 }
+#endif

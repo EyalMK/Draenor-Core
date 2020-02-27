@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_High_Botanist_Freywinn
@@ -25,19 +15,18 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "the_botanica.h"
 
-enum Says
+enum eSays
 {
-    SAY_AGGRO                  = 0,
-    SAY_KILL                   = 1,
-    SAY_TREE                   = 2,
-    SAY_SUMMON                 = 3,
-    SAY_DEATH                  = 4,
-    SAY_OOC_RANDOM             = 5
+    SAY_AGGRO                  = -1553000,
+    SAY_KILL_1                 = -1553001,
+    SAY_KILL_2                 = -1553002,
+    SAY_TREE_1                 = -1553003,
+    SAY_TREE_2                 = -1553004,
+    SAY_DEATH                  = -1553005
 };
 
-enum Spells
+enum eSpells
 {
     SPELL_TRANQUILITY          = 34550,
     SPELL_TREE_FORM            = 34551,
@@ -48,10 +37,7 @@ enum Spells
     SPELL_PLANT_RED            = 34763
 };
 
-enum Creatures
-{
-    NPC_FRAYER                 = 19953
-};
+#define ENTRY_FRAYER                19953
 
 class boss_high_botanist_freywinn : public CreatureScript
 {
@@ -62,21 +48,11 @@ class boss_high_botanist_freywinn : public CreatureScript
         {
         }
 
-        struct boss_high_botanist_freywinnAI : public BossAI
+        struct boss_high_botanist_freywinnAI : public ScriptedAI
         {
-            boss_high_botanist_freywinnAI(Creature* creature) : BossAI(creature, DATA_HIGH_BOTANIST_FREYWINN)
-            {
-                Initialize();
-            }
+            boss_high_botanist_freywinnAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Initialize()
-            {
-                SummonSeedling_Timer = 6000;
-                TreeForm_Timer = 30000;
-                MoveCheck_Timer = 1000;
-                DeadAddsCount = 0;
-                MoveFree = true;
-            }
+            std::list<uint64> Adds_List;
 
             uint32 SummonSeedling_Timer;
             uint32 TreeForm_Timer;
@@ -84,32 +60,31 @@ class boss_high_botanist_freywinn : public CreatureScript
             uint32 DeadAddsCount;
             bool MoveFree;
 
-            void Reset() override
+            void Reset()
             {
-                summons.DespawnAll();
+                Adds_List.clear();
 
-                Initialize();
+                SummonSeedling_Timer = 6000;
+                TreeForm_Timer = 30000;
+                MoveCheck_Timer = 1000;
+                DeadAddsCount = 0;
+                MoveFree = true;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
-                Talk(SAY_AGGRO);
+                DoScriptText(SAY_AGGRO, me);
             }
 
-            void JustSummoned(Creature* summoned) override
+            void JustSummoned(Creature* summoned)
             {
-                if (summoned->GetEntry() == NPC_FRAYER)
-                    summons.Summon(summoned);
-            }
-
-            void SummonedCreatureDespawn(Creature* summon) override
-            {
-                summons.Despawn(summon);
+                if (summoned->GetEntry() == ENTRY_FRAYER)
+                    Adds_List.push_back(summoned->GetGUID());
             }
 
             void DoSummonSeedling()
             {
-                switch (rand32() % 4)
+                switch (rand()%4)
                 {
                     case 0: DoCast(me, SPELL_PLANT_WHITE); break;
                     case 1: DoCast(me, SPELL_PLANT_GREEN); break;
@@ -118,26 +93,26 @@ class boss_high_botanist_freywinn : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* /*victim*/) override
+            void KilledUnit(Unit* /*victim*/)
             {
-                Talk(SAY_KILL);
+                DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
-                Talk(SAY_DEATH);
+                DoScriptText(SAY_DEATH, me);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
 
                 if (TreeForm_Timer <= diff)
                 {
-                    Talk(SAY_TREE);
+                    DoScriptText(RAND(SAY_TREE_1, SAY_TREE_2), me);
 
-                    if (me->IsNonMeleeSpellCast(false))
+                    if (me->IsNonMeleeSpellCasted(false))
                         me->InterruptNonMeleeSpells(true);
 
                     me->RemoveAllAuras();
@@ -158,15 +133,18 @@ class boss_high_botanist_freywinn : public CreatureScript
                 {
                     if (MoveCheck_Timer <= diff)
                     {
-                        for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                        if (!Adds_List.empty())
                         {
-                            if (Unit* temp = ObjectAccessor::GetUnit(*me, *itr))
+                            for (std::list<uint64>::iterator itr = Adds_List.begin(); itr != Adds_List.end(); ++itr)
                             {
-                                if (!temp->IsAlive())
+                                if (Unit* temp = Unit::GetUnit(*me, *itr))
                                 {
-                                    summons.erase(itr);
-                                    ++DeadAddsCount;
-                                    break;
+                                    if (!temp->isAlive())
+                                    {
+                                        Adds_List.erase(itr);
+                                        ++DeadAddsCount;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -176,12 +154,12 @@ class boss_high_botanist_freywinn : public CreatureScript
 
                         if (DeadAddsCount >= 3)
                         {
-                            summons.DespawnAll();
+                            Adds_List.clear();
                             DeadAddsCount = 0;
 
                             me->InterruptNonMeleeSpells(true);
                             me->RemoveAllAuras();
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            me->GetMotionMaster()->MoveChase(me->getVictim());
                             MoveFree = true;
                         }
                         MoveCheck_Timer = 500;
@@ -208,14 +186,15 @@ class boss_high_botanist_freywinn : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_high_botanist_freywinnAI(creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_high_botanist_freywinn()
 {
     new boss_high_botanist_freywinn();
 }
-
+#endif

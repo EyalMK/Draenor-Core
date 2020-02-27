@@ -1,28 +1,19 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __TRINITY_SOCIALMGR_H
 #define __TRINITY_SOCIALMGR_H
 
 #include "DatabaseEnv.h"
 #include "Common.h"
-#include "ObjectGuid.h"
 
+class SocialMgr;
+class PlayerSocial;
 class Player;
 class WorldPacket;
 
@@ -40,14 +31,11 @@ enum SocialFlag
     SOCIAL_FLAG_FRIEND      = 0x01,
     SOCIAL_FLAG_IGNORED     = 0x02,
     SOCIAL_FLAG_MUTED       = 0x04,                          // guessed
-    SOCIAL_FLAG_UNK         = 0x08,                          // Unknown - does not appear to be RaF
-
-    SOCIAL_FLAG_ALL         = SOCIAL_FLAG_FRIEND | SOCIAL_FLAG_IGNORED | SOCIAL_FLAG_MUTED
+    SOCIAL_FLAG_UNK         = 0x08                           // Unknown - does not appear to be RaF
 };
 
 struct FriendInfo
 {
-    ObjectGuid WowAccountGuid;
     FriendStatus Status;
     uint8 Flags;
     uint32 Area;
@@ -56,15 +44,21 @@ struct FriendInfo
     std::string Note;
 
     FriendInfo() : Status(FRIEND_STATUS_OFFLINE), Flags(0), Area(0), Level(0), Class(0), Note()
-    { }
+    {
 
-    FriendInfo(ObjectGuid const& accountGuid, uint8 flags, std::string const& note) : WowAccountGuid(accountGuid), Status(FRIEND_STATUS_OFFLINE),
-        Flags(flags), Area(0), Level(0), Class(0), Note(note)
-    { }
+    }
+
+    FriendInfo(uint8 flags, const std::string& note) : Status(FRIEND_STATUS_OFFLINE), Flags(flags), Area(0), Level(0), Class(0), Note(note)
+    {
+
+    }
 };
 
+typedef std::map<uint32, FriendInfo> PlayerSocialMap;
+typedef std::map<uint32, PlayerSocial> SocialMap;
+
 /// Results of friend related commands
-enum FriendsResult : uint8
+enum FriendsResult
 {
     FRIEND_DB_ERROR         = 0x00,
     FRIEND_LIST_FULL        = 0x01,
@@ -91,72 +85,59 @@ enum FriendsResult : uint8
     FRIEND_MUTE_ADDED       = 0x16,
     FRIEND_MUTE_REMOVED     = 0x17,
     FRIEND_MUTE_AMBIGUOUS   = 0x18,                         // That name is ambiguous, type more of the player's server name
-    FRIEND_UNK1             = 0x19,                         // no message at client
-    FRIEND_UNK2             = 0x1A,
-    FRIEND_UNK3             = 0x1B,
-    FRIEND_UNKNOWN          = 0x1C                          // Unknown friend response from server
+    FRIEND_UNK7             = 0x19,                         // no message at client
+    FRIEND_UNKNOWN          = 0x1A                          // Unknown friend response from server
 };
 
-#define SOCIALMGR_FRIEND_LIMIT  50u
-#define SOCIALMGR_IGNORE_LIMIT  50u
+#define SOCIALMGR_FRIEND_LIMIT  50
+#define SOCIALMGR_IGNORE_LIMIT  50
 
-class TC_GAME_API PlayerSocial
+class PlayerSocial
 {
     friend class SocialMgr;
-
     public:
+        PlayerSocial();
+        ~PlayerSocial();
         // adding/removing
-        bool AddToSocialList(ObjectGuid const& guid, SocialFlag flag);
-        void RemoveFromSocialList(ObjectGuid const& guid, SocialFlag flag);
-        void SetFriendNote(ObjectGuid const& guid, std::string const& note);
-
+        bool AddToSocialList(uint32 friend_guid, bool ignore);
+        void RemoveFromSocialList(uint32 friend_guid, bool ignore);
+        void SetFriendNote(uint32 friendGuid, std::string note);
         // Packet send's
-        void SendSocialList(Player* player, uint32 flags);
-
+        void SendSocialList(Player* player);
         // Misc
-        bool HasFriend(ObjectGuid const& friendGuid);
-        bool HasIgnore(ObjectGuid const& ignoreGuid);
-
-        ObjectGuid const& GetPlayerGUID() const { return _playerGUID; }
-        void SetPlayerGUID(ObjectGuid const& guid) { _playerGUID = guid; }
-
+        bool HasFriend(uint32 friend_guid);
+        bool HasIgnore(uint32 ignore_guid);
+        uint32 GetPlayerGUID() const { return m_playerGUID; }
+        void SetPlayerGUID(uint32 guid, uint32 p_AccountID) { m_playerGUID = guid; m_AccountID = p_AccountID; }
         uint32 GetNumberOfSocialsWithFlag(SocialFlag flag);
-
     private:
-        bool _HasContact(ObjectGuid const& guid, SocialFlag flags);
-
-        typedef std::map<ObjectGuid, FriendInfo> PlayerSocialMap;
-        PlayerSocialMap _playerSocialMap;
-
-        ObjectGuid _playerGUID;
+        PlayerSocialMap m_playerSocialMap;
+        uint32 m_playerGUID;
+        uint32 m_AccountID;
 };
 
 class SocialMgr
 {
+    friend class ACE_Singleton<SocialMgr, ACE_Null_Mutex>;
+
     private:
-        SocialMgr() { }
-        ~SocialMgr() { }
+        SocialMgr();
+        ~SocialMgr();
 
     public:
-        static SocialMgr* instance();
-
         // Misc
-        void RemovePlayerSocial(ObjectGuid const& guid) { _socialMap.erase(guid); }
+        void RemovePlayerSocial(uint32 guid) { m_socialMap.erase(guid); }
 
-        void GetFriendInfo(Player* player, ObjectGuid const& friendGUID, FriendInfo& friendInfo);
-
-        // Packet send's
-        void SendFriendStatus(Player* player, FriendsResult result, ObjectGuid const& friendGuid, bool broadcast = false);
-        void BroadcastToFriendListers(Player* player, WorldPacket const* packet);
-
+        void GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &friendInfo);
+        // Packet management
+        void SendFriendStatus(Player* player, FriendsResult result, uint32 friend_guid, bool broadcast);
+        void BroadcastToFriendListers(Player* player, WorldPacket* packet);
         // Loading
-        PlayerSocial* LoadFromDB(PreparedQueryResult result, ObjectGuid const& guid);
-
+        PlayerSocial *LoadFromDB(PreparedQueryResult result, uint32 guid, uint32 account_id);
     private:
-        typedef std::map<ObjectGuid, PlayerSocial> SocialMap;
-        SocialMap _socialMap;
+        SocialMap m_socialMap;
 };
 
-#define sSocialMgr SocialMgr::instance()
-
+#define sSocialMgr ACE_Singleton<SocialMgr, ACE_Null_Mutex>::instance()
 #endif
+

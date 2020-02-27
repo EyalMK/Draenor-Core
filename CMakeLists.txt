@@ -1,38 +1,29 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
 #
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-# We require CMake >= 3.0
-cmake_minimum_required(VERSION 3.0)
 
 # Set projectname (must be done AFTER setting configurationtypes)
-project(TrinityCore)
+project(WoDCore)
 
 # CMake policies (can not be handled elsewhere)
-cmake_policy(SET CMP0005 OLD)
-if(POLICY CMP0043)
-  cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
-endif()
-
-if(POLICY CMP0054)
-  cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if (SOME_STRING_VARIABLE MATCHES "MSVC") as if (SOME_STRING_VARIABLE MATCHES "1")
-endif()
-
-# add this options before PROJECT keyword
-set(CMAKE_DISABLE_SOURCE_CHANGES ON)
-set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+ cmake_minimum_required(VERSION 2.8.9)
+ cmake_policy(SET CMP0005 OLD)
+ if(POLICY CMP0043)
+   cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
+ endif(POLICY CMP0043)
 
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH 0)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+if ( CMAKE_INSTALL_PREFIX MATCHES "/usr/local" )
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/firestorm")
+else()
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif()
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # set macro-directory
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/macros")
@@ -42,9 +33,16 @@ if( NOT CMAKE_BUILD_TYPE )
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+if( UNIX )
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+endif()
+
+if ( WIN32 )
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DACE_HAS_POSIX_TIME -DACE_LACKS_TIMESPEC_T")
+endif()
+
 include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
-include(ConfigureScripts)
 
 # set default buildoptions and print them
 include(cmake/options.cmake)
@@ -58,12 +56,21 @@ endif()
 include(CheckPlatform)
 
 include(GroupSources)
-include(AutoCollect)
 
+# basic packagesearching and setup (further support will be needed, this is a preliminary release!)
 find_package(PCHSupport)
-find_package(MySQL)
+find_package(ACE REQUIRED)
+find_package(OpenSSL REQUIRED)
+# FIND_PACKAGE(msFramework REQUIRED)
+find_package(MySQL REQUIRED)
 
-if(NOT WITHOUT_GIT)
+if( UNIX )
+  find_package(Readline)
+  find_package(ZLIB)
+  find_package(BZip2)
+endif()
+
+if( NOT DISABLEGITCHECK )
   find_package(Git)
 endif()
 

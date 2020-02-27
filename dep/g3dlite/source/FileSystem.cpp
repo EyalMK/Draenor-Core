@@ -137,9 +137,6 @@ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::s
     
     zip_close(z);
     z = NULL;
-#else
-    (void)zipfile;
-    (void)_pathInsideZipfile;
 #endif
 }
 

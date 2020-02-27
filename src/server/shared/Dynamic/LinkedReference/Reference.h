@@ -1,28 +1,15 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _REFERENCE_H
 #define _REFERENCE_H
 
 #include "Dynamic/LinkedList.h"
-#include "Errors.h" // for ASSERT
-
-//=====================================================
 
 template <class TO, class FROM> class Reference : public LinkedListElement
 {
@@ -40,12 +27,12 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         virtual void sourceObjectDestroyLink() = 0;
     public:
         Reference() { iRefTo = NULL; iRefFrom = NULL; }
-        virtual ~Reference() { }
+        virtual ~Reference() {}
 
         // Create new link
         void link(TO* toObj, FROM* fromObj)
         {
-            ASSERT(fromObj);                                // fromObj MUST not be NULL
+            assert(fromObj);                                // fromObj MUST not be NULL
             if (isValid())
                 unlink();
             if (toObj != NULL)
@@ -93,12 +80,7 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         TO* operator ->() const { return iRefTo; }
         TO* getTarget() const { return iRefTo; }
 
-        FROM* GetSource() const { return iRefFrom; }
-
-    private:
-        Reference(Reference const&);
-        Reference& operator=(Reference const&);
+        FROM* getSource() const { return iRefFrom; }
 };
 
-//=====================================================
 #endif

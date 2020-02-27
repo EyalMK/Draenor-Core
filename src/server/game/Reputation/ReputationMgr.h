@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __TRINITY_REPUTATION_MGR_H
 #define __TRINITY_REPUTATION_MGR_H
@@ -24,7 +14,6 @@
 #include "Language.h"
 #include "DBCStructure.h"
 #include "QueryResult.h"
-#include <map>
 
 static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
 {
@@ -61,7 +50,7 @@ typedef std::map<uint32, ReputationRank> ForcedReactions;
 
 class Player;
 
-class TC_GAME_API ReputationMgr
+class ReputationMgr
 {
     public:                                                 // constructors and global modifiers
         explicit ReputationMgr(Player* owner) : _player(owner),
@@ -111,12 +100,7 @@ class TC_GAME_API ReputationMgr
 
         ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
         {
-            return GetForcedRankIfAny(factionTemplateEntry->Faction);
-        }
-
-        ReputationRank const* GetForcedRankIfAny(uint32 factionId) const
-        {
-            ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionId);
+            ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionTemplateEntry->Faction);
             return forceItr != _forcedReactions.end() ? &forceItr->second : NULL;
         }
 
@@ -125,9 +109,9 @@ class TC_GAME_API ReputationMgr
         {
             return SetReputation(factionEntry, standing, false);
         }
-        bool ModifyReputation(FactionEntry const* factionEntry, int32 standing)
+        bool ModifyReputation(FactionEntry const* factionEntry, int32 standing, bool p_NoSpillOver = false)
         {
-            return SetReputation(factionEntry, standing, true);
+            return SetReputation(factionEntry, standing, true, p_NoSpillOver);
         }
 
         void SetVisible(FactionTemplateEntry const* factionTemplateEntry);
@@ -149,7 +133,7 @@ class TC_GAME_API ReputationMgr
     private:                                                // internal helper functions
         void Initialize();
         uint32 GetDefaultStateFlags(FactionEntry const* factionEntry) const;
-        bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
+        bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental, bool p_NoSpillOver = false);
         void SetVisible(FactionState* faction);
         void SetAtWar(FactionState* faction, bool atWar) const;
         void SetInactive(FactionState* faction, bool inactive) const;

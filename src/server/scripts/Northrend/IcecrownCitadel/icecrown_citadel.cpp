@@ -1,31 +1,24 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
-#include "PassiveAI.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "Group.h"
 #include "SpellAuraEffects.h"
 #include "SmartAI.h"
+#include "PassiveAI.h"
 #include "icecrown_citadel.h"
 
 // Weekly quest support
@@ -97,7 +90,7 @@ enum Texts
     SAY_CAPTAIN_SURVIVE_TALK        = 4,
     SAY_CROK_WEAKENING_GAUNTLET     = 6,
     SAY_CROK_WEAKENING_SVALNA       = 7,
-    SAY_CROK_DEATH                  = 8,
+    SAY_CROK_DEATH                  = 8
 };
 
 enum Spells
@@ -129,6 +122,9 @@ enum Spells
     SPELL_UNDEATH                   = 70089,
     SPELL_IMPALING_SPEAR            = 71443,
     SPELL_AETHER_SHIELD             = 71463,
+    SPELL_DIVINE_SURGE              = 71465,
+    SPELL_AETHER_BURST_10           = 71468,
+    SPELL_AETHER_BURST_25           = 71469,
     SPELL_HURL_SPEAR                = 71466,
 
     // Captain Arnath
@@ -162,6 +158,106 @@ enum Spells
 
     // Invisible Stalker (Float, Uninteractible, LargeAOI)
     SPELL_SOUL_MISSILE              = 72585,
+
+    //----------- PLAGUE WORKS -----------//
+    // Blighted Abomination
+    SPELL_CLEAVE                    = 40504,
+    SPELL_PLAGUE_CLOUD              = 71150,
+    SPELL_SCOURGE_HOOK              = 71140,
+
+    // Vengeful Fleshreaper
+    SPELL_LEAPING_FACE_MAUL         = 71164,
+    SPELL_DEVOUR_HUMANOID           = 71164,
+
+    // Plague Scientist
+    SPELL_PLAGUE_BLAST              = 73079,
+    SPELL_PLAGUE_STREAM             = 69871,
+    SPELL_COMBOBULATING_SPRAY       = 71103,
+
+    // Pustulating Horror
+    SPELL_BLIGHT_BOMB               = 71088,
+    SPELL_BUBBLING_PUS_10N          = 71089,
+    SPELL_BUBBLING_PUS_25N          = 71090,
+
+    // Decaying Colossus
+    SPELL_MASSIVE_STOMP_10N         = 71114,
+    SPELL_MASSIVE_STOMP_25N         = 71115,
+
+    //-------- SANCTUARY OF BLOOD --------//
+    // Darkfallen Archmage
+    SPELL_AMPLIFY_MAGIC_10N         = 70408,
+    SPELL_AMPLIFY_MAGIC_25N         = 72336,
+    SPELL_BLAST_WAVE_10N            = 70407,
+    SPELL_BLAST_WAVE_25N            = 71151,
+    SPELL_FIREBALL_10N              = 70409,
+    SPELL_FIREBALL_25N              = 71153,
+    SPELL_POLYMORPH_SPIDER          = 70410,
+    SPELL_SIPHON_ESSENCE            = 70299,
+
+    // Darkfallen Blood Knight
+    SPELL_VAMPIRIC_AURA             = 71736,
+    SPELL_UNHOLY_STRIKE             = 70437,
+    SPELL_BLOOD_MIRROR_DAMAGE       = 70445,
+    SPELL_BLOOD_MIRROR_BUFF         = 70451,
+    SPELL_BLOOD_MIRROR_DUMMY        = 70450,
+
+    // Darkfallen Noble
+    SPELL_CHAINS_OF_SHADOW          = 70645,
+    SPELL_SHADOW_BOLT_10N           = 72960,
+    SPELL_SHADOW_BOLT_25N           = 72961,
+
+    // Vampiric Fiend
+    SPELL_DISEASE_CLOUD             = 41290,
+    SPELL_LEECHING_ROT              = 70671,
+
+    // Darkfallen Advisor
+    SPELL_LICH_SLAP_10N             = 72057,
+    SPELL_LICH_SLAP_25N             = 72421,
+    SPELL_SHROUD_OF_PROTECTION      = 72065,
+    SPELL_SHROUD_OF_SPELL_WARDING   = 72066,
+
+    // Darkfallen Commander
+    SPELL_VAMPIRE_RUSH_10N          = 70449,
+    SPELL_VAMPIRE_RUSH_25N          = 71155,
+    SPELL_BATTLE_SHOUT              = 70750,
+
+    // Darkfallen Lieutenant
+    SPELL_VAMPIRIC_CURSE            = 70423,
+    SPELL_REND_FLESH_10N            = 70435,
+    SPELL_REND_FLESH_25N            = 71154,
+
+    // Darkfallen Tactician
+    SPELL_SHADOWSTEP                = 70431,
+    SPELL_BLOOD_SAP                 = 70432,
+
+    //------------ FROST WING ------------//
+    // Ymirjar Deathbringer
+    SPELL_BANISH                    = 71298,
+    SPELL_DEATHS_EMBRACE_10N        = 71299,
+    SPELL_DEATHS_EMBRACE_25N        = 71300,
+    SPELL_SHADOW_BOLT_YMIRJAR_10N   = 71296,
+    SPELL_SHADOW_BOLT_YMIRJAR_25N   = 71297,
+    SPELL_SUMMON_YMIRJAR            = 71303,
+
+    // Ymirjar Frostbinder
+    SPELL_ARCTIC_CHILL              = 71270,
+    SPELL_FROZEN_ORB                = 71274,
+    SPELL_TWISTED_WINDS             = 71306,
+    SPELL_SPIRIT_STREAM             = 69929,
+
+    // Ymirjar Battle-Maiden
+    SPELL_ADRENALINE_RUSH           = 71258,
+    SPELL_BARBARIC_STRIKE           = 71257,
+
+    // Ymirjar Huntress
+    SPELL_ICE_TRAP                  = 71249,
+    SPELL_RAPID_SHOT                = 71251,
+    SPELL_SHOOT                     = 71253,
+    SPELL_VOLLEY                    = 71252,
+    SPELL_SUMMON_WARHAWK            = 71705,
+
+    //Ymirjar Warlord
+    SPELL_WHIRLWIND                 = 41056
 };
 
 // Helper defines
@@ -253,13 +349,99 @@ enum EventTypes
     EVENT_RUPERT_MACHINE_GUN            = 53,
     EVENT_RUPERT_ROCKET_LAUNCH          = 54,
 
+    // Sindragosas Ward
+    EVENT_SUB_WAVE_1                    = 55,
+    EVENT_SUB_WAVE_2                    = 56,
+    EVENT_UPDATE_CHECK                  = 57,
+
+    //-------- SANCTUARY OF BLOOD --------//
+    // Darkfallen Archmage
+    EVENT_AMPLIFY                       = 58,
+    EVENT_BLAST                         = 59,
+    EVENT_FIREBALL                      = 60,
+    EVENT_POLYMORPH                     = 61,
+
+    // Darkfallen Blood Knight
+    EVENT_AURA                          = 62,
+    EVENT_STRIKE                        = 63,
+    EVENT_MIRROR                        = 64,
+
+    // Darkfallen Noble
+    EVENT_CHAINS                        = 65,
+    EVENT_BOLT                          = 66,
+    EVENT_FIEND                         = 67,
+
+    // Vampiric Fiend
+    EVENT_LEECHING                      = 68,
+
+    // Darkfallen Advisor
+    EVENT_LICH                          = 69,
+    EVENT_PROTECTION                    = 70,
+
+    // Darkfallen Commander
+    EVENT_RUSH                          = 71,
+    EVENT_SHOUT                         = 72,
+
+    // Darkfallen Lieutenant
+    EVENT_REND                          = 73,
+    EVENT_CURSE                         = 74,
+
+    // Darkfallen Tactician
+    EVENT_SHADOW_STEP                   = 75,
+    EVENT_SAP                           = 76,
+    EVENT_STRIKER                       = 77,
+
+    //----------- PLAGUE WORKS -----------//
+    // Blighted Abomination
+    EVENT_CLEAVE                        = 78,
+    EVENT_CLOUD                         = 79,
+    EVENT_HOOK                          = 80,
+
+    // Vengeful Fleshreaper
+    EVENT_JUMP_1                          = 81,
+    EVENT_DEVOUR                        = 82,
+
+    // Plague Scientist
+    EVENT_STREAM                        = 83,
+    EVENT_STREAM_OUT                    = 84,
+    EVENT_SPRAY                         = 85,
+    EVENT_BLAST_PL                      = 86,
+
+    // Pustulating Horror
+    EVENT_PUS                           = 87,
+
+    // Decaying Colossus
+    EVENT_STOMP_PL                      = 88,
+
+    //------------- FROST WING -------------//
+    // Ymirjar Deathbringer
+    EVENT_BANISH                        = 89,
+    EVENT_EMBRACE                       = 90,
+    EVENT_BOLT_FW                       = 91,
+
+    // Ymirjar Frostbinder
+    EVENT_ORB                           = 92,
+
+    // Ymirjar Battle-Maiden
+    EVENT_RUSH_FW                       = 93,
+    EVENT_STRIKE_FW                     = 94,
+
+    // Ymirjar Huntress
+    EVENT_TRAP                          = 95,
+    EVENT_SHOT                          = 96,
+    EVENT_RSHOT                         = 97,
+    EVENT_VOLLEY                        = 98,
+
+    //Ymirjar Warlord
+    EVENT_WHIRLWIND                     = 99,
+
     // Invisible Stalker (Float, Uninteractible, LargeAOI)
-    EVENT_SOUL_MISSILE                  = 55,
+    EVENT_SOUL_MISSILE                  = 100
 };
 
 enum DataTypesICC
 {
-    DATA_DAMNED_KILLS       = 1,
+    DATA_DAMNED_KILLS       = 1
 };
 
 enum Actions
@@ -269,7 +451,7 @@ enum Actions
     ACTION_START_GAUNTLET       = 2,
     ACTION_RESURRECT_CAPTAINS   = 3,
     ACTION_CAPTAIN_DIES         = 4,
-    ACTION_RESET_EVENT          = 5,
+    ACTION_RESET_EVENT          = 5
 };
 
 enum EventIds
@@ -277,25 +459,41 @@ enum EventIds
     EVENT_AWAKEN_WARD_1 = 22900,
     EVENT_AWAKEN_WARD_2 = 22907,
     EVENT_AWAKEN_WARD_3 = 22908,
-    EVENT_AWAKEN_WARD_4 = 22909,
+    EVENT_AWAKEN_WARD_4 = 22909
 };
 
 enum MovementPoints
 {
-    POINT_LAND  = 1,
+    POINT_LAND  = 1
+};
+
+const Position SindragosaGauntletSpawn[12] =
+{
+    { 4130.71f, 2484.10f, 211.033f, 0 },
+    { 4137.93f, 2505.52f, 211.033f, 0 },
+    { 4160.64f, 2528.13f, 211.033f, 0 },
+    { 4180.81f, 2533.88f, 211.033f, 0 },
+    { 4200.92f, 2527.18f, 211.033f, 0 },
+    { 4222.23f, 2503.56f, 211.033f, 0 },
+    { 4229.40f, 2484.63f, 211.033f, 0 },
+    { 4222.01f, 2464.93f, 211.033f, 0 },
+    { 4201.55f, 2441.03f, 211.033f, 0 },
+    { 4181.29f, 2433.38f, 211.033f, 0 },
+    { 4161.86f, 2441.94f, 211.033f, 0 },
+    { 4138.78f, 2463.95f, 211.033f, 0 }
 };
 
 class FrostwingVrykulSearcher
 {
     public:
-        FrostwingVrykulSearcher(Creature const* source, float range) : _source(source), _range(range) { }
+        FrostwingVrykulSearcher(Creature const* source, float range) : _source(source), _range(range) {}
 
-        bool operator()(Unit* unit)
+        bool operator()(WorldObject* object) const
         {
-            if (!unit->IsAlive())
+            if (!object->ToUnit()->isAlive())
                 return false;
 
-            switch (unit->GetEntry())
+            switch (object->ToUnit()->GetEntry())
             {
                 case NPC_YMIRJAR_BATTLE_MAIDEN:
                 case NPC_YMIRJAR_DEATHBRINGER:
@@ -307,7 +505,7 @@ class FrostwingVrykulSearcher
                     return false;
             }
 
-            if (!unit->IsWithinDist(_source, _range, false))
+            if (!object->IsWithinDist(_source, _range, false))
                 return false;
 
             return true;
@@ -363,9 +561,9 @@ class FrostwingGauntletRespawner
 class CaptainSurviveTalk : public BasicEvent
 {
     public:
-        explicit CaptainSurviveTalk(Creature const& owner) : _owner(owner) { }
+        explicit CaptainSurviveTalk(Creature const& owner) : _owner(owner), BasicEvent() { }
 
-        bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
+        bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
         {
             _owner.AI()->Talk(SAY_CAPTAIN_SURVIVE_TALK);
             return true;
@@ -373,6 +571,161 @@ class CaptainSurviveTalk : public BasicEvent
 
     private:
         Creature const& _owner;
+};
+
+enum AshenRingRecover
+{
+    FACTION_ASHEN_VEREDICT  = 1156,
+    NPC_TEXT_ID             = 537006,
+    MAX_RINGS_NUMBER        = 20
+};
+
+class npc_icc_ring_recover : public CreatureScript
+{
+    public:
+        npc_icc_ring_recover() : CreatureScript("npc_icc_ring_recover") { }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            for (int i = 0; i < MAX_RINGS_NUMBER; ++i)
+            {
+                if (player->HasItemCount(rings[i], 1, true)) // Check items also in bank
+                {
+                    creature->MonsterWhisper(sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_ALREADY_HAVE), player->GetGUID());
+                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_DELETE), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_CONFIRM), 0, false);
+                    player->SEND_GOSSIP_MENU(NPC_TEXT_ID, creature->GetGUID());
+                    return true;
+                }
+            }
+
+            switch (player->GetReputationRank(FACTION_ASHEN_VEREDICT))
+            {
+                case REP_FRIENDLY:
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_CASTER_FRIENDLY), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_HEALER_FRIENDLY), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_MELEE_STRENGTH_FRIENDLY), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_MELEE_AGILITY_FRIENDLY), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_TANK_FRIENDLY), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                    break;
+                case REP_HONORED:
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_CASTER_HONORED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_HEALER_HONORED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_MELEE_STRENGTH_HONORED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_MELEE_AGILITY_HONORED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_TANK_HONORED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
+                    break;
+                case REP_REVERED:
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_CASTER_REVERED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_HEALER_REVERED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_MELEE_STRENGTH_REVERED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_MELEE_AGILITY_REVERED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_TANK_REVERED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
+                    break;
+                case REP_EXALTED:
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_CASTER_EXALTED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_HEALER_EXALTED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 17);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_MELEE_STRENGTH_EXALTED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 18);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_MELEE_AGILITY_EXALTED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 19);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_TANK_EXALTED), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
+                    break;
+                default:
+                    creature->MonsterWhisper(sObjectMgr->GetTrinityStringForDBCLocale(LANG_ICC_RING_NOT_ENOUGH_REP), player->GetGUID());
+                    break;
+            }
+
+            player->SEND_GOSSIP_MENU(NPC_TEXT_ID, creature->GetGUID());
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 21)
+            {
+                for (int i = 0; i < MAX_RINGS_NUMBER; ++i)
+                {
+                    if (player->HasItemCount(rings[i], 1, true))
+                        player->DestroyItemCount(rings[i], 1, true);
+                }
+
+                player->CastSpell(player, 71811, false); // visual effect
+                player->CLOSE_GOSSIP_MENU();
+                return true;
+            }
+
+            if (!player->HasEnoughMoney(int64(2000000)))   // 200 gold
+                player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+            else
+            {
+                player->ModifyMoney(int64(-2000000));
+
+                int id = action - (GOSSIP_ACTION_INFO_DEF + 1);
+                if (id < 20)
+                    player->AddItem(rings[id], 1);
+                
+                player->CastSpell(player, 66400, false); // visual effect
+                creature->CastSpell(creature, 66402, false); // visual effect
+            }
+
+            player->CLOSE_GOSSIP_MENU();
+            return true;
+        }
+
+    private:
+        uint32 static const rings[20];
+};
+
+uint32 const npc_icc_ring_recover::rings[MAX_RINGS_NUMBER] =
+{
+    50377, 50378, 52569, 50376, 50375, // Friendly
+    50384, 50386, 52570, 50387, 50388, // Honored
+    50397, 50399, 52571, 50401, 50403, // Revered
+    50398, 50400, 52572, 50402, 50404  // Exalted
+};
+
+enum BuffRemoverEnum
+{
+    NPC_TEXT_ID_1   = 15602,
+    NPC_TEXT_ID_2   = 15606
+};
+
+class npc_icc_buff_remover : public CreatureScript
+{
+    public:
+        npc_icc_buff_remover() : CreatureScript("npc_icc_buff_remover") { }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            InstanceScript* _instance = creature->GetInstanceScript();
+            if (!_instance)
+                return false;
+
+            if (_instance->GetData(DATA_BUFF_REMOVED) != DONE)
+                if (player->GetGroup() && player->GetGroup()->IsLeader(player->GetGUID()))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(creature->GetEntry() == NPC_KING_VARIAN_WRYNN ? LANG_ICC_BUFF_REMOVE_A : LANG_ICC_BUFF_REMOVE_H), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            player->SEND_GOSSIP_MENU(creature->GetEntry() == NPC_KING_VARIAN_WRYNN ? NPC_TEXT_ID_1 : NPC_TEXT_ID_2, creature->GetGUID());
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            InstanceScript* _instance = creature->GetInstanceScript();
+            if (!_instance)
+                return false;
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                _instance->SetData(DATA_BUFF_REMOVED, DONE);
+                _instance->DoRemoveAurasDueToSpellOnPlayers(creature->GetEntry() == NPC_KING_VARIAN_WRYNN ? SPELL_STRENGTH_OF_WRYNN : SPELL_HELLSCREAM_S_WARSONG);
+            }
+
+            player->CLOSE_GOSSIP_MENU();
+            return true;
+        }
 };
 
 // at Light's Hammer
@@ -385,26 +738,20 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
         {
             npc_highlord_tirion_fordringAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
-                Initialize();
             }
 
-            void Initialize()
-            {
-                _theLichKing.Clear();
-                _bolvarFordragon.Clear();
-                _factionNPC.Clear();
-                _damnedKills = 0;
-            }
-
-            void Reset() override
+            void Reset()
             {
                 _events.Reset();
-                Initialize();
+                _theLichKing = 0;
+                _bolvarFordragon = 0;
+                _factionNPC = 0;
+                _damnedKills = 0;
             }
 
             // IMPORTANT NOTE: This is triggered from per-GUID scripts
             // of The Damned SAI
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 data)
             {
                 if (type == DATA_DAMNED_KILLS && data == 1)
                 {
@@ -466,7 +813,7 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (_damnedKills != 2)
                     return;
@@ -545,7 +892,7 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
                         case EVENT_MURADIN_RUN:
                         case EVENT_SAURFANG_RUN:
                             if (Creature* factionNPC = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                factionNPC->GetMotionMaster()->MovePath(factionNPC->GetSpawnId() * 10, false);
+                                factionNPC->GetMotionMaster()->MovePath(factionNPC->GetDBTableGUIDLow()*10, false);
                             me->setActive(false);
                             _damnedKills = 3;
                             break;
@@ -581,13 +928,13 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* const _instance;
-            ObjectGuid _theLichKing;
-            ObjectGuid _bolvarFordragon;
-            ObjectGuid _factionNPC;
+            uint64 _theLichKing;
+            uint64 _bolvarFordragon;
+            uint64 _factionNPC;
             uint16 _damnedKills;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_highlord_tirion_fordringAI>(creature);
         }
@@ -604,7 +951,7 @@ class npc_rotting_frost_giant : public CreatureScript
             {
             }
 
-            void Reset() override
+            void Reset()
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
@@ -612,12 +959,12 @@ class npc_rotting_frost_giant : public CreatureScript
                 _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(10000, 15000));
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
                 _events.Reset();
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -634,7 +981,7 @@ class npc_rotting_frost_giant : public CreatureScript
                         case EVENT_DEATH_PLAGUE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
-                                Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
+                                Talk(EMOTE_DEATH_PLAGUE_WARNING, target->GetGUID());
                                 DoCast(target, SPELL_DEATH_PLAGUE);
                             }
                             _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
@@ -659,7 +1006,7 @@ class npc_rotting_frost_giant : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_rotting_frost_giantAI>(creature);
         }
@@ -670,14 +1017,13 @@ class npc_frost_freeze_trap : public CreatureScript
     public:
         npc_frost_freeze_trap() : CreatureScript("npc_frost_freeze_trap") { }
 
-        struct npc_frost_freeze_trapAI: public ScriptedAI
+        struct npc_frost_freeze_trapAI: public Scripted_NoMovementAI
         {
-            npc_frost_freeze_trapAI(Creature* creature) : ScriptedAI(creature)
+            npc_frost_freeze_trapAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                SetCombatMovement(false);
             }
 
-            void DoAction(int32 action) override
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {
@@ -690,7 +1036,7 @@ class npc_frost_freeze_trap : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 _events.Update(diff);
 
@@ -705,7 +1051,7 @@ class npc_frost_freeze_trap : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_frost_freeze_trapAI>(creature);
         }
@@ -716,7 +1062,7 @@ class npc_alchemist_adrianna : public CreatureScript
     public:
         npc_alchemist_adrianna() : CreatureScript("npc_alchemist_adrianna") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        bool OnGossipHello(Player* player, Creature* creature)
         {
             if (!creature->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN) && !creature->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN25))
                 if (player->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE) && player->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
@@ -737,7 +1083,7 @@ class boss_sister_svalna : public CreatureScript
             {
             }
 
-            void InitializeAI() override
+            void InitializeAI()
             {
                 if (!me->isDead())
                     Reset();
@@ -745,14 +1091,14 @@ class boss_sister_svalna : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void Reset() override
+            void Reset()
             {
                 _Reset();
                 me->SetReactState(REACT_DEFENSIVE);
                 _isEventInProgress = false;
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_SVALNA_DEATH);
@@ -760,9 +1106,9 @@ class boss_sister_svalna : public CreatureScript
                 uint64 delay = 1;
                 for (uint32 i = 0; i < 4; ++i)
                 {
-                    if (Creature* crusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CAPTAIN_ARNATH + i)))
+                    if (Creature* crusader = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CAPTAIN_ARNATH + i)))
                     {
-                        if (crusader->IsAlive() && crusader->GetEntry() == crusader->GetCreatureData()->id)
+                        if (crusader->isAlive() && crusader->GetEntry() == crusader->GetCreatureData()->id)
                         {
                             crusader->m_Events.AddEvent(new CaptainSurviveTalk(*crusader), crusader->m_Events.CalculateTime(delay));
                             delay += 6000;
@@ -771,17 +1117,17 @@ class boss_sister_svalna : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/)
             {
                 _EnterCombat();
-                if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
+                if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CROK_SCOURGEBANE)))
                     crok->AI()->Talk(SAY_CROK_COMBAT_SVALNA);
                 events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9000);
                 events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(40000, 50000));
                 events.ScheduleEvent(EVENT_AETHER_SHIELD, urand(100000, 110000));
             }
 
-            void KilledUnit(Unit* victim) override
+            void KilledUnit(Unit* victim)
             {
                 switch (victim->GetTypeId())
                 {
@@ -806,7 +1152,7 @@ class boss_sister_svalna : public CreatureScript
                 }
             }
 
-            void JustReachedHome() override
+            void JustReachedHome()
             {
                 _JustReachedHome();
                 me->SetReactState(REACT_PASSIVE);
@@ -814,7 +1160,7 @@ class boss_sister_svalna : public CreatureScript
                 me->SetHover(false);
             }
 
-            void DoAction(int32 action) override
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {
@@ -842,16 +1188,18 @@ class boss_sister_svalna : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(Unit* caster, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_HURL_SPEAR && me->HasAura(SPELL_AETHER_SHIELD))
                 {
                     me->RemoveAurasDueToSpell(SPELL_AETHER_SHIELD);
-                    Talk(EMOTE_SVALNA_BROKEN_SHIELD, caster);
+                    me->RemoveAurasDueToSpell(SPELL_DIVINE_SURGE);
+                    me->CastSpell(me, Is25ManRaid() ? SPELL_AETHER_BURST_25 : SPELL_AETHER_BURST_10, true);
+                    Talk(EMOTE_SVALNA_BROKEN_SHIELD, caster->GetGUID());
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id) override
+            void MovementInform(uint32 type, uint32 id)
             {
                 if (type != EFFECT_MOTION_TYPE || id != POINT_LAND)
                     return;
@@ -863,7 +1211,7 @@ class boss_sister_svalna : public CreatureScript
                 me->SetHover(false);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 switch (spell->Id)
                 {
@@ -873,7 +1221,7 @@ class boss_sister_svalna : public CreatureScript
                     case SPELL_IMPALING_SPEAR:
                         if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))
                         {
-                            Talk(EMOTE_SVALNA_IMPALE, target);
+                            Talk(EMOTE_SVALNA_IMPALE, target->GetGUID());
                             summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, 1, target, false);
                             summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1 | UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                         }
@@ -883,7 +1231,7 @@ class boss_sister_svalna : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() && !_isEventInProgress)
                     return;
@@ -912,6 +1260,7 @@ class boss_sister_svalna : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_IMPALING_SPEAR))
                             {
                                 DoCast(me, SPELL_AETHER_SHIELD);
+                                DoCast(me, SPELL_DIVINE_SURGE);
                                 DoCast(target, SPELL_IMPALING_SPEAR);
                             }
                             events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(20000, 25000));
@@ -928,7 +1277,7 @@ class boss_sister_svalna : public CreatureScript
             bool _isEventInProgress;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<boss_sister_svalnaAI>(creature);
         }
@@ -945,41 +1294,35 @@ class npc_crok_scourgebane : public CreatureScript
                 _instance(creature->GetInstanceScript()), _respawnTime(creature->GetRespawnDelay()),
                 _corpseDelay(creature->GetCorpseDelay())
             {
-                Initialize();
                 SetDespawnAtEnd(false);
                 SetDespawnAtFar(false);
                 _isEventActive = false;
                 _isEventDone = _instance->GetBossState(DATA_SISTER_SVALNA) == DONE;
-                _currentWPid = 0;
-            }
-
-            void Initialize()
-            {
                 _didUnderTenPercentText = false;
-                _wipeCheckTimer = 1000;
             }
 
-            void Reset() override
+            void Reset()
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, urand(7500, 12500));
                 _events.ScheduleEvent(EVENT_DEATH_STRIKE, urand(25000, 30000));
                 me->SetReactState(REACT_DEFENSIVE);
-                Initialize();
+                _didUnderTenPercentText = false;
+                _wipeCheckTimer = 1000;
             }
 
-            void DoAction(int32 action) override
+            void DoAction(int32 const action)
             {
                 if (action == ACTION_START_GAUNTLET)
                 {
-                    if (_isEventDone || !me->IsAlive())
+                    if (_isEventDone || !me->isAlive())
                         return;
 
                     _isEventActive = true;
                     _isEventDone = true;
                     // Load Grid with Sister Svalna
                     me->GetMap()->LoadGrid(4356.71f, 2484.33f);
-                    if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SISTER_SVALNA)))
+                    if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                         svalna->AI()->DoAction(ACTION_START_GAUNTLET);
                     Talk(SAY_CROK_INTRO_1);
                     _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7000);
@@ -987,7 +1330,7 @@ class npc_crok_scourgebane : public CreatureScript
                     _events.ScheduleEvent(EVENT_START_PATHING, 37000);
                     me->setActive(true);
                     for (uint32 i = 0; i < 4; ++i)
-                        if (Creature* crusader = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_CAPTAIN_ARNATH + i)))
+                        if (Creature* crusader = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_CAPTAIN_ARNATH + i)))
                             crusader->AI()->DoAction(ACTION_START_GAUNTLET);
                 }
                 else if (action == ACTION_RESET_EVENT)
@@ -1000,7 +1343,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 type/* = 0*/) override
+            void SetGUID(uint64 guid, int32 type/* = 0*/)
             {
                 if (type == ACTION_VRYKUL_DEATH)
                 {
@@ -1013,14 +1356,14 @@ class npc_crok_scourgebane : public CreatureScript
                             _isEventActive = false;
                             me->setActive(false);
                             Talk(SAY_CROK_FINAL_WP);
-                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SISTER_SVALNA)))
+                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                                 svalna->AI()->DoAction(ACTION_RESURRECT_CAPTAINS);
                         }
                     }
                 }
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId)
             {
                 switch (waypointId)
                 {
@@ -1041,7 +1384,7 @@ class npc_crok_scourgebane : public CreatureScript
                             _isEventActive = false;
                             me->setActive(false);
                             Talk(SAY_CROK_FINAL_WP);
-                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SISTER_SVALNA)))
+                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                                 svalna->AI()->DoAction(ACTION_RESURRECT_CAPTAINS);
                         }
                         break;
@@ -1050,7 +1393,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void WaypointStart(uint32 waypointId) override
+            void WaypointStart(uint32 waypointId)
             {
                 _currentWPid = waypointId;
                 switch (waypointId)
@@ -1067,7 +1410,7 @@ class npc_crok_scourgebane : public CreatureScript
                             minY -= 50.0f;
                             maxY -= 50.0f;
                             // at waypoints 1 and 2 she kills one captain
-                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SISTER_SVALNA)))
+                            if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                                 svalna->AI()->DoAction(ACTION_KILL_CAPTAIN);
                         }
                         else if (waypointId == 4)
@@ -1079,7 +1422,7 @@ class npc_crok_scourgebane : public CreatureScript
                         // get all nearby vrykul
                         std::list<Creature*> temp;
                         FrostwingVrykulSearcher check(me, 80.0f);
-                        Trinity::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
+                        JadeCore::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
                         me->VisitNearbyGridObject(80.0f, searcher);
 
                         _aliveTrash.clear();
@@ -1090,7 +1433,7 @@ class npc_crok_scourgebane : public CreatureScript
                     }
                     // at waypoints 1 and 2 she kills one captain
                     case 2:
-                        if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SISTER_SVALNA)))
+                        if (Creature* svalna = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SISTER_SVALNA)))
                             svalna->AI()->DoAction(ACTION_KILL_CAPTAIN);
                         break;
                     default:
@@ -1098,15 +1441,15 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 // check wipe
                 if (!_wipeCheckTimer)
                 {
                     _wipeCheckTimer = 1000;
                     Player* player = NULL;
-                    Trinity::AnyPlayerInObjectRangeCheck check(me, 60.0f);
-                    Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
+                    JadeCore::AnyPlayerInObjectRangeCheck check(me, 60.0f);
+                    JadeCore::PlayerSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
                     me->VisitNearbyWorldObject(60.0f, searcher);
                     // wipe
                     if (!player)
@@ -1115,7 +1458,7 @@ class npc_crok_scourgebane : public CreatureScript
                         if (damage >= me->GetHealth())
                         {
                             FrostwingGauntletRespawner respawner;
-                            Trinity::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
+                            JadeCore::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
                             me->VisitNearbyGridObject(333.0f, worker);
                             Talk(SAY_CROK_DEATH);
                         }
@@ -1140,7 +1483,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void UpdateEscortAI(uint32 diff) override
+            void UpdateEscortAI(uint32 const diff)
             {
                 if (_wipeCheckTimer <= diff)
                     _wipeCheckTimer = 0;
@@ -1160,7 +1503,7 @@ class npc_crok_scourgebane : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ARNATH_INTRO_2:
-                            if (Creature* arnath = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_CAPTAIN_ARNATH)))
+                            if (Creature* arnath = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_CAPTAIN_ARNATH)))
                                 arnath->AI()->Talk(SAY_ARNATH_INTRO_2);
                             break;
                         case EVENT_CROK_INTRO_3:
@@ -1198,7 +1541,7 @@ class npc_crok_scourgebane : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            bool CanAIAttack(Unit const* target) const override
+            bool CanAIAttack(Unit const* target) const
             {
                 // do not see targets inside Frostwing Halls when we are not there
                 return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f);
@@ -1206,7 +1549,7 @@ class npc_crok_scourgebane : public CreatureScript
 
         private:
             EventMap _events;
-            GuidSet _aliveTrash;
+            std::set<uint64> _aliveTrash;
             InstanceScript* _instance;
             uint32 _currentWPid;
             uint32 _wipeCheckTimer;
@@ -1217,7 +1560,7 @@ class npc_crok_scourgebane : public CreatureScript
             bool _didUnderTenPercentText;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_crok_scourgebaneAI>(creature);
         }
@@ -1233,7 +1576,7 @@ struct npc_argent_captainAI : public ScriptedAI
             IsUndead = false;
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/)
         {
             if (_firstDeath)
             {
@@ -1244,17 +1587,17 @@ struct npc_argent_captainAI : public ScriptedAI
                 Talk(SAY_CAPTAIN_SECOND_DEATH);
         }
 
-        void KilledUnit(Unit* victim) override
+        void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
                 Talk(SAY_CAPTAIN_KILL);
         }
 
-        void DoAction(int32 action) override
+        void DoAction(int32 const action)
         {
             if (action == ACTION_START_GAUNTLET)
             {
-                if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
+                if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CROK_SCOURGEBANE)))
                 {
                     me->SetReactState(REACT_DEFENSIVE);
                     FollowAngle = me->GetAngle(crok) + me->GetOrientation();
@@ -1270,42 +1613,42 @@ struct npc_argent_captainAI : public ScriptedAI
             }
         }
 
-        void EnterCombat(Unit* /*target*/) override
+        void EnterCombat(Unit* /*target*/)
         {
             me->SetHomePosition(*me);
             if (IsUndead)
                 DoZoneInCombat();
         }
 
-        bool CanAIAttack(Unit const* target) const override
+        bool CanAIAttack(Unit const* target) const
         {
             // do not see targets inside Frostwing Halls when we are not there
             return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f);
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode()
         {
             // not yet following
             if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CHASE_MOTION_TYPE || IsUndead)
             {
-                ScriptedAI::EnterEvadeMode(why);
+                ScriptedAI::EnterEvadeMode();
                 return;
             }
 
-            if (!_EnterEvadeMode(why))
+            if (!_EnterEvadeMode())
                 return;
 
             if (!me->GetVehicle())
             {
                 me->GetMotionMaster()->Clear(false);
-                if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
+                if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CROK_SCOURGEBANE)))
                     me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_IDLE);
             }
 
             Reset();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
             if (spell->Id == SPELL_REVIVE_CHAMPION && !IsUndead)
             {
@@ -1331,8 +1674,9 @@ struct npc_argent_captainAI : public ScriptedAI
                 }
 
                 Talk(SAY_CAPTAIN_RESURRECTED);
-                me->UpdateEntry(newEntry, me->GetCreatureData());
+                me->UpdateEntry(newEntry, instance->GetData(DATA_TEAM_IN_INSTANCE), me->GetCreatureData());
                 DoCast(me, SPELL_UNDEATH, true);
+                DoZoneInCombat();
             }
         }
 
@@ -1358,7 +1702,7 @@ class npc_captain_arnath : public CreatureScript
             {
             }
 
-            void Reset() override
+            void Reset()
             {
                 Events.Reset();
                 Events.ScheduleEvent(EVENT_ARNATH_FLASH_HEAL, urand(4000, 7000));
@@ -1368,7 +1712,7 @@ class npc_captain_arnath : public CreatureScript
                     Events.ScheduleEvent(EVENT_ARNATH_DOMINATE_MIND, urand(22000, 27000));
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1390,7 +1734,7 @@ class npc_captain_arnath : public CreatureScript
                         case EVENT_ARNATH_PW_SHIELD:
                         {
                             std::list<Creature*> targets = DoFindFriendlyMissingBuff(40.0f, SPELL_POWER_WORD_SHIELD);
-                            DoCast(Trinity::Containers::SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
+                            DoCast(JadeCore::Containers::SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
                             Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, urand(15000, 20000));
                             break;
                         }
@@ -1415,14 +1759,14 @@ class npc_captain_arnath : public CreatureScript
             Creature* FindFriendlyCreature() const
             {
                 Creature* target = NULL;
-                Trinity::MostHPMissingInRange u_check(me, 60.0f, 0);
-                Trinity::CreatureLastSearcher<Trinity::MostHPMissingInRange> searcher(me, target, u_check);
+                JadeCore::MostHPMissingInRange u_check(me, 60.0f, 0);
+                JadeCore::CreatureLastSearcher<JadeCore::MostHPMissingInRange> searcher(me, target, u_check);
                 me->VisitNearbyGridObject(60.0f, searcher);
                 return target;
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_captain_arnathAI>(creature);
         }
@@ -1439,7 +1783,7 @@ class npc_captain_brandon : public CreatureScript
             {
             }
 
-            void Reset() override
+            void Reset()
             {
                 Events.Reset();
                 Events.ScheduleEvent(EVENT_BRANDON_CRUSADER_STRIKE, urand(6000, 10000));
@@ -1449,7 +1793,7 @@ class npc_captain_brandon : public CreatureScript
                     Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, urand(25000, 30000));
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1490,7 +1834,7 @@ class npc_captain_brandon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_captain_brandonAI>(creature);
         }
@@ -1507,7 +1851,7 @@ class npc_captain_grondel : public CreatureScript
             {
             }
 
-            void Reset() override
+            void Reset()
             {
                 Events.Reset();
                 Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 500);
@@ -1517,7 +1861,7 @@ class npc_captain_grondel : public CreatureScript
                     Events.ScheduleEvent(EVENT_GRONDEL_CONFLAGRATION, urand(12000, 17000));
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1557,7 +1901,7 @@ class npc_captain_grondel : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_captain_grondelAI>(creature);
         }
@@ -1574,7 +1918,7 @@ class npc_captain_rupert : public CreatureScript
             {
             }
 
-            void Reset() override
+            void Reset()
             {
                 Events.Reset();
                 Events.ScheduleEvent(EVENT_RUPERT_FEL_IRON_BOMB, urand(15000, 20000));
@@ -1582,7 +1926,7 @@ class npc_captain_rupert : public CreatureScript
                 Events.ScheduleEvent(EVENT_RUPERT_ROCKET_LAUNCH, urand(10000, 15000));
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1620,33 +1964,9 @@ class npc_captain_rupert : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_captain_rupertAI>(creature);
-        }
-};
-
-class npc_frostwing_vrykul : public CreatureScript
-{
-    public:
-        npc_frostwing_vrykul() : CreatureScript("npc_frostwing_vrykul") { }
-
-        struct npc_frostwing_vrykulAI : public SmartAI
-        {
-            npc_frostwing_vrykulAI(Creature* creature) : SmartAI(creature)
-            {
-            }
-
-            bool CanAIAttack(Unit const* target) const override
-            {
-                // do not see targets inside Frostwing Halls when we are not there
-                return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f) && SmartAI::CanAIAttack(target);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_frostwing_vrykulAI(creature);
         }
 };
 
@@ -1659,21 +1979,15 @@ class npc_impaling_spear : public CreatureScript
         {
             npc_impaling_spearAI(Creature* creature) : CreatureAI(creature)
             {
-                Initialize();
             }
 
-            void Initialize()
+            void Reset()
             {
+                me->SetReactState(REACT_PASSIVE);
                 _vehicleCheckTimer = 500;
             }
 
-            void Reset() override
-            {
-                me->SetReactState(REACT_PASSIVE);
-                Initialize();
-            }
-
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (_vehicleCheckTimer <= diff)
                 {
@@ -1688,7 +2002,7 @@ class npc_impaling_spear : public CreatureScript
             uint32 _vehicleCheckTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_impaling_spearAI(creature);
         }
@@ -1705,7 +2019,7 @@ class npc_arthas_teleport_visual : public CreatureScript
             {
             }
 
-            void Reset() override
+            void Reset()
             {
                 _events.Reset();
                 if (_instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE &&
@@ -1714,7 +2028,7 @@ class npc_arthas_teleport_visual : public CreatureScript
                     _events.ScheduleEvent(EVENT_SOUL_MISSILE, urand(1000, 6000));
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (_events.Empty())
                     return;
@@ -1733,7 +2047,7 @@ class npc_arthas_teleport_visual : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             // Distance from the center of the spire
             if (creature->GetExactDist2d(4357.052f, 2769.421f) < 100.0f && creature->GetHomePosition().GetPositionZ() < 315.0f)
@@ -1744,7 +2058,7 @@ class npc_arthas_teleport_visual : public CreatureScript
         }
 };
 
-class spell_icc_stoneform : public SpellScriptLoader
+class spell_icc_stoneform: public SpellScriptLoader
 {
     public:
         spell_icc_stoneform() : SpellScriptLoader("spell_icc_stoneform") { }
@@ -1759,7 +2073,7 @@ class spell_icc_stoneform : public SpellScriptLoader
                 {
                     target->SetReactState(REACT_PASSIVE);
                     target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                    target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_02);
+                    target->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_CUSTOM_SPELL_02);
                 }
             }
 
@@ -1769,24 +2083,24 @@ class spell_icc_stoneform : public SpellScriptLoader
                 {
                     target->SetReactState(REACT_AGGRESSIVE);
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                    target->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                    target->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                 }
             }
 
-            void Register() override
+            void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_icc_stoneform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_icc_stoneform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const override
+        AuraScript* GetAuraScript() const
         {
             return new spell_icc_stoneform_AuraScript();
         }
 };
 
-class spell_icc_sprit_alarm : public SpellScriptLoader
+class spell_icc_sprit_alarm: public SpellScriptLoader
 {
     public:
         spell_icc_sprit_alarm() : SpellScriptLoader("spell_icc_sprit_alarm") { }
@@ -1799,7 +2113,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 uint32 trapId = 0;
-                switch (GetSpellInfo()->GetEffect(effIndex)->MiscValue)
+                switch (GetSpellInfo()->Effects[effIndex].MiscValue)
                 {
                     case EVENT_AWAKEN_WARD_1:
                         trapId = GO_SPIRIT_ALARM_1;
@@ -1818,14 +2132,14 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
                 }
 
                 if (GameObject* trap = GetCaster()->FindNearestGameObject(trapId, 5.0f))
-                    trap->SetRespawnTime(trap->GetGOInfo()->GetAutoCloseTime());
+                    trap->SetRespawnTime(trap->GetGOInfo()->trap.autoClose);
 
                 std::list<Creature*> wards;
                 GetCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
-                wards.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                wards.sort(JadeCore::ObjectDistanceOrderPred(GetCaster()));
                 for (std::list<Creature*>::iterator itr = wards.begin(); itr != wards.end(); ++itr)
                 {
-                    if ((*itr)->IsAlive() && (*itr)->HasAura(SPELL_STONEFORM))
+                    if ((*itr)->isAlive() && (*itr)->HasAura(SPELL_STONEFORM))
                     {
                         (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
                         (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
@@ -1836,13 +2150,13 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
                 }
             }
 
-            void Register() override
+            void Register()
             {
                 OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const
         {
             return new spell_icc_sprit_alarm_SpellScript();
         }
@@ -1851,7 +2165,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 class DeathPlagueTargetSelector
 {
     public:
-        explicit DeathPlagueTargetSelector(Unit* caster) : _caster(caster) { }
+        explicit DeathPlagueTargetSelector(Unit* caster) : _caster(caster) {}
 
         bool operator()(WorldObject* object) const
         {
@@ -1871,7 +2185,7 @@ class DeathPlagueTargetSelector
         Unit* _caster;
 };
 
-class spell_frost_giant_death_plague : public SpellScriptLoader
+class spell_frost_giant_death_plague: public SpellScriptLoader
 {
     public:
         spell_frost_giant_death_plague() : SpellScriptLoader("spell_frost_giant_death_plague") { }
@@ -1880,13 +2194,12 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
         {
             PrepareSpellScript(spell_frost_giant_death_plague_SpellScript);
 
-        public:
-            spell_frost_giant_death_plague_SpellScript()
+            bool Load()
             {
                 _failed = false;
+                return true;
             }
 
-        private:
             // First effect
             void CountTargets(std::list<WorldObject*>& targets)
             {
@@ -1901,7 +2214,7 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
                 targets.remove_if(DeathPlagueTargetSelector(GetCaster()));
                 if (!targets.empty())
                 {
-                    WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                    WorldObject* target = JadeCore::Containers::SelectRandomContainerElement(targets);
                     targets.clear();
                     targets.push_back(target);
                 }
@@ -1918,7 +2231,7 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
                     GetCaster()->CastSpell(GetCaster(), SPELL_DEATH_PLAGUE_KILL, true);
             }
 
-            void Register() override
+            void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
@@ -1928,13 +2241,13 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
             bool _failed;
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const
         {
             return new spell_frost_giant_death_plague_SpellScript();
         }
 };
 
-class spell_icc_harvest_blight_specimen : public SpellScriptLoader
+class spell_icc_harvest_blight_specimen: public SpellScriptLoader
 {
     public:
         spell_icc_harvest_blight_specimen() : SpellScriptLoader("spell_icc_harvest_blight_specimen") { }
@@ -1954,14 +2267,14 @@ class spell_icc_harvest_blight_specimen : public SpellScriptLoader
                 GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
             }
 
-            void Register() override
+            void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
                 OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleQuestComplete, EFFECT_1, SPELL_EFFECT_QUEST_COMPLETE);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const
         {
             return new spell_icc_harvest_blight_specimen_SpellScript();
         }
@@ -1973,12 +2286,12 @@ class AliveCheck
         bool operator()(WorldObject* object) const
         {
             if (Unit* unit = object->ToUnit())
-                return unit->IsAlive();
+                return unit->isAlive();
             return true;
         }
 };
 
-class spell_svalna_revive_champion : public SpellScriptLoader
+class spell_svalna_revive_champion: public SpellScriptLoader
 {
     public:
         spell_svalna_revive_champion() : SpellScriptLoader("spell_svalna_revive_champion") { }
@@ -1990,7 +2303,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
             void RemoveAliveTarget(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(AliveCheck());
-                Trinity::Containers::RandomResizeList(targets, 2);
+                JadeCore::RandomResizeList(targets, 2);
             }
 
             void Land(SpellEffIndex /*effIndex*/)
@@ -1999,27 +2312,29 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                Position pos = caster->GetNearPosition(5.0f, 0.0f);
+                Position pos;
+                caster->GetPosition(&pos);
+                caster->GetNearPosition(pos, 5.0f, 0.0f);
                 //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
                 //pos.m_positionZ += 0.05f;
                 caster->SetHomePosition(pos);
                 caster->GetMotionMaster()->MoveLand(POINT_LAND, pos);
             }
 
-            void Register() override
+            void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_svalna_revive_champion_SpellScript::RemoveAliveTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
                 OnEffectHit += SpellEffectFn(spell_svalna_revive_champion_SpellScript::Land, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const
         {
             return new spell_svalna_revive_champion_SpellScript();
         }
 };
 
-class spell_svalna_remove_spear : public SpellScriptLoader
+class spell_svalna_remove_spear: public SpellScriptLoader
 {
     public:
         spell_svalna_remove_spear() : SpellScriptLoader("spell_svalna_remove_spear") { }
@@ -2039,20 +2354,19 @@ class spell_svalna_remove_spear : public SpellScriptLoader
                 }
             }
 
-            void Register() override
+            void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_svalna_remove_spear_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const
         {
             return new spell_svalna_remove_spear_SpellScript();
         }
 };
 
-// 72585 - Soul Missile
-class spell_icc_soul_missile : public SpellScriptLoader
+class spell_icc_soul_missile: public SpellScriptLoader
 {
     public:
         spell_icc_soul_missile() : SpellScriptLoader("spell_icc_soul_missile") { }
@@ -2061,19 +2375,19 @@ class spell_icc_soul_missile : public SpellScriptLoader
         {
             PrepareSpellScript(spell_icc_soul_missile_SpellScript);
 
-            void RelocateDest(SpellDestination& dest)
+            void RelocateDest()
             {
-                static Position const offset = { 0.0f, 0.0f, 200.0f, 0.0f };
-                dest.RelocateOffset(offset);
+                static Position const offset = {0.0f, 0.0f, 200.0f, 0.0f};
+                const_cast<WorldLocation*>(GetExplTargetDest())->RelocateOffset(offset);
             }
 
-            void Register() override
+            void Register()
             {
-                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icc_soul_missile_SpellScript::RelocateDest, EFFECT_0, TARGET_DEST_CASTER);
+                OnCast += SpellCastFn(spell_icc_soul_missile_SpellScript::RelocateDest);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const
         {
             return new spell_icc_soul_missile_SpellScript();
         }
@@ -2084,7 +2398,7 @@ class at_icc_saurfang_portal : public AreaTriggerScript
     public:
         at_icc_saurfang_portal() : AreaTriggerScript("at_icc_saurfang_portal") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
@@ -2100,7 +2414,7 @@ class at_icc_saurfang_portal : public AreaTriggerScript
                 instance->SetData(DATA_COLDFLAME_JETS, IN_PROGRESS);
                 std::list<Creature*> traps;
                 GetCreatureListWithEntryInGrid(traps, player, NPC_FROST_FREEZE_TRAP, 120.0f);
-                traps.sort(Trinity::ObjectDistanceOrderPred(player));
+                traps.sort(JadeCore::ObjectDistanceOrderPred(player));
                 bool instant = false;
                 for (std::list<Creature*>::iterator itr = traps.begin(); itr != traps.end(); ++itr)
                 {
@@ -2118,11 +2432,10 @@ class at_icc_shutdown_traps : public AreaTriggerScript
     public:
         at_icc_shutdown_traps() : AreaTriggerScript("at_icc_shutdown_traps") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                instance->SetData(DATA_UPPERSPIRE_TELE_ACT, DONE);
-
+                instance->SetData(DATA_COLDFLAME_JETS, DONE);
             return true;
         }
 };
@@ -2132,7 +2445,7 @@ class at_icc_start_blood_quickening : public AreaTriggerScript
     public:
         at_icc_start_blood_quickening() : AreaTriggerScript("at_icc_start_blood_quickening") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetData(DATA_BLOOD_QUICKENING_STATE) == NOT_STARTED)
@@ -2146,17 +2459,1341 @@ class at_icc_start_frostwing_gauntlet : public AreaTriggerScript
     public:
         at_icc_start_frostwing_gauntlet() : AreaTriggerScript("at_icc_start_frostwing_gauntlet") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* crok = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
+                if (Creature* crok = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_CROK_SCOURGEBANE)))
                     crok->AI()->DoAction(ACTION_START_GAUNTLET);
             return true;
         }
 };
 
+enum WardEnums
+{
+    SAY_AGGRO   = 0
+};
+
+class npc_sindragosas_ward : public CreatureScript
+{
+    public:
+        npc_sindragosas_ward() : CreatureScript("npc_sindragosas_ward") { }
+
+        struct npc_sindragosas_wardAI : public ScriptedAI
+        {
+            npc_sindragosas_wardAI(Creature* creature) : ScriptedAI(creature), _summons(me)
+            {
+                _instance = creature->GetInstanceScript();
+            }
+
+            void Reset()
+            {
+                _events.Reset();
+                _isEventInProgressOrDone = false;
+                _spawnCountToBeSummonedInWave = 0;
+                _waveNumber = 0;
+                _summons.DespawnAll();
+
+                if (_instance)
+                    _instance->SetData(DATA_SINDRAGOSA_GAUNTLET, NOT_STARTED);
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_START_GAUNTLET)
+                    if (!_isEventInProgressOrDone)
+                        if (!IsAnyPlayerOutOfRange())
+                            DoZoneInCombat(me, 150.0f);
+            }
+
+            void EnterCombat(Unit* /*attacker*/)
+            {
+                Talk(SAY_AGGRO);
+                _isEventInProgressOrDone = true;
+                _spawnCountToBeSummonedInWave = 32;
+                _waveNumber = 1;
+                DoSummonWave(_waveNumber);
+                _events.ScheduleEvent(EVENT_SUB_WAVE_1, 10000);
+                _events.ScheduleEvent(EVENT_SUB_WAVE_2, 25000);
+                _events.ScheduleEvent(EVENT_UPDATE_CHECK, 5000);
+            }
+
+            void DoSummonWave(uint8 number)
+            {
+                switch (number)
+                {
+                    case 1:
+                    case 3:
+                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[7], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_NERUBAR_WEBWEAVER, SindragosaGauntletSpawn[10], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[5], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[8], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_NERUBAR_CHAMPION, SindragosaGauntletSpawn[11], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        break;
+                    case 2:
+                        me->SummonCreature(NPC_FROSTWARDEN_SORCERESS, SindragosaGauntletSpawn[3].GetPositionX() + 5, SindragosaGauntletSpawn[3].GetPositionY() - 5, SindragosaGauntletSpawn[3].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_FROSTWARDEN_SORCERESS, SindragosaGauntletSpawn[9].GetPositionX() - 5, SindragosaGauntletSpawn[9].GetPositionY() + 5, SindragosaGauntletSpawn[9].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[3].GetPositionX() - 5, SindragosaGauntletSpawn[3].GetPositionY() + 5, SindragosaGauntletSpawn[3].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[9].GetPositionX() + 5, SindragosaGauntletSpawn[9].GetPositionY() - 5, SindragosaGauntletSpawn[9].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[3].GetPositionX(), SindragosaGauntletSpawn[3].GetPositionY(), SindragosaGauntletSpawn[3].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_FROSTWARDEN_WARRIOR, SindragosaGauntletSpawn[9].GetPositionX(), SindragosaGauntletSpawn[9].GetPositionY(), SindragosaGauntletSpawn[9].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        break;
+                    case EVENT_SUB_WAVE_1:
+                    case EVENT_SUB_WAVE_2:
+                        for (uint8 i = 0; i < 12; i++)
+                            me->SummonCreature(NPC_NERUBAR_BROODLING, SindragosaGauntletSpawn[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            bool IsAnyPlayerOutOfRange()
+            {
+                if (!me->GetMap())
+                    return true;
+
+                Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+
+                if (playerList.isEmpty())
+                    return true;
+
+                for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                {
+                    if (Player* player = itr->getSource())
+                    {
+                        if (player->isGameMaster())
+                            continue;
+
+                        if (player->isAlive() && me->GetDistance(player) > 125.0f)
+                            return true;
+                    }
+                }
+
+                return false;
+            }
+
+            void JustSummoned(Creature* summon)
+            {
+                _summons.Summon(summon);
+                DoZoneInCombat(summon, 150.0f);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _summons.DespawnAll();
+            }
+
+            void SummonedCreatureDies(Creature* summon, Unit* /*who*/)
+            {
+                _spawnCountToBeSummonedInWave--;
+                summon->DespawnOrUnsummon(30000);
+            }
+
+            void SummonedCreatureDespawn(Creature* summon)
+            {
+                // This one should never happen, if summoned creature despawns alive, reset!
+                if (summon->isAlive())
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
+                _summons.Despawn(summon);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim() || !_isEventInProgressOrDone)
+                    return;
+
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SUB_WAVE_1:
+                            DoSummonWave(EVENT_SUB_WAVE_1);
+                            break;
+                        case EVENT_SUB_WAVE_2:
+                            DoSummonWave(EVENT_SUB_WAVE_2);
+                            break;
+                        case EVENT_UPDATE_CHECK:
+                        {
+                            if (_spawnCountToBeSummonedInWave <= 5)
+                            {
+                                if (_summons.size() < _spawnCountToBeSummonedInWave)
+                                    _spawnCountToBeSummonedInWave = _summons.size();
+
+                                if (!_spawnCountToBeSummonedInWave)
+                                {
+                                    switch (_waveNumber)
+                                    {
+                                        case 1:
+                                            _spawnCountToBeSummonedInWave += 30;
+                                            break;
+                                        case 2:
+                                            _spawnCountToBeSummonedInWave += 32;
+                                            break;
+                                        case 3:
+                                            me->Kill(me);
+                                            if (_instance)
+                                                _instance->SetData(DATA_SINDRAGOSA_GAUNTLET, DONE);
+                                            return;
+                                    }
+
+                                    _waveNumber++;
+                                    DoSummonWave(_waveNumber);
+                                    _events.ScheduleEvent(EVENT_SUB_WAVE_1, 10000);
+                                    _events.ScheduleEvent(EVENT_SUB_WAVE_2, 25000);
+                                }
+                            }
+
+                            if (IsAnyPlayerOutOfRange())
+                            {
+                                EnterEvadeMode();
+                                return;
+                            }
+
+                            _events.ScheduleEvent(EVENT_UPDATE_CHECK, 5000);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        private:
+            bool _isEventInProgressOrDone;
+            uint32 _spawnCountToBeSummonedInWave;
+            uint8 _waveNumber;
+            InstanceScript* _instance;
+            EventMap _events;
+            SummonList _summons;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetIcecrownCitadelAI<npc_sindragosas_wardAI>(creature);
+        }
+};
+
+class at_icc_start_sindragosa_gauntlet : public AreaTriggerScript
+{
+    public:
+        at_icc_start_sindragosa_gauntlet() : AreaTriggerScript("at_icc_start_sindragosa_gauntlet") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (Creature* ward = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SINDRAGOSA_GAUNTLET)))
+                    ward->AI()->DoAction(ACTION_START_GAUNTLET);
+            return true;
+        }
+};
+
+class npc_blighted_abomination : public CreatureScript
+{
+    public:
+        npc_blighted_abomination() : CreatureScript("npc_blighted_abomination") { }
+
+        struct npc_blighted_abominationAI : public ScriptedAI
+        {
+            npc_blighted_abominationAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_CLOUD, 10000);
+                Events.ScheduleEvent(EVENT_CLEAVE, 4000);
+                Events.ScheduleEvent(EVENT_HOOK, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CLOUD:
+                            DoCastAOE(SPELL_PLAGUE_CLOUD);
+                            Events.ScheduleEvent(EVENT_CLOUD, 20000);
+                            break;
+                        case EVENT_HOOK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_SCOURGE_HOOK);
+                            Events.ScheduleEvent(EVENT_HOOK, urand(12000, 20000));
+                            break;
+                        case EVENT_CLEAVE:
+                            DoCastVictim(SPELL_CLEAVE);
+                            Events.ScheduleEvent(EVENT_CLEAVE, 6000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_blighted_abominationAI(creature);
+        }
+};
+
+class npc_vengeful_fleshreapert : public CreatureScript
+{
+    public:
+        npc_vengeful_fleshreapert() : CreatureScript("npc_vengeful_fleshreapert") { }
+
+        struct npc_vengeful_fleshreapertAI : public ScriptedAI
+        {
+            npc_vengeful_fleshreapertAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_JUMP_1, urand(3000, 20000));
+                Events.ScheduleEvent(EVENT_DEVOUR, urand(3000, 5000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_JUMP_1:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_LEAPING_FACE_MAUL);
+                            Events.ScheduleEvent(EVENT_JUMP_1, urand(20000,40000));
+                            break;
+                        case EVENT_DEVOUR:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_DEVOUR_HUMANOID);
+                            Events.ScheduleEvent(EVENT_DEVOUR, urand(5000,8000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_vengeful_fleshreapertAI(creature);
+        }
+};
+
+class npc_plague_scientist : public CreatureScript
+{
+    public:
+        npc_plague_scientist() : CreatureScript("npc_plague_scientist") { }
+
+        struct npc_plague_scientistAI : public ScriptedAI
+        {
+            npc_plague_scientistAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_BLAST_PL, 2000);
+                Events.ScheduleEvent(EVENT_STREAM, urand(8000, 12000));
+                Events.ScheduleEvent(EVENT_SPRAY, urand(5000, 8000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_STREAM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_PLAGUE_STREAM);
+                            Events.ScheduleEvent(EVENT_STREAM_OUT, 24000);
+                            break;
+                        case EVENT_STREAM_OUT:
+                            me->CastStop(SPELL_PLAGUE_STREAM);
+                            Events.ScheduleEvent(EVENT_STREAM, 10000);
+                            break;
+                        case EVENT_SPRAY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_COMBOBULATING_SPRAY);
+                            Events.ScheduleEvent(EVENT_STREAM, urand(8000,12000));
+                            break;
+                        case EVENT_BLAST_PL:
+                            DoCastVictim(SPELL_PLAGUE_BLAST);
+                            Events.ScheduleEvent(EVENT_BLAST_PL, 4000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_plague_scientistAI(creature);
+        }
+};
+
+class npc_pustulating_horror : public CreatureScript
+{
+    public:
+        npc_pustulating_horror() : CreatureScript("npc_pustulating_horror") { }
+
+        struct npc_pustulating_horrorAI : public ScriptedAI
+        {
+            npc_pustulating_horrorAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_PUS, 2000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_PUS:
+                        {
+                            if (HealthBelowPct(15))
+                            {
+                                DoCastAOE(SPELL_BLIGHT_BOMB);
+                                Events.ScheduleEvent(EVENT_PUS, 5000);
+                                break;
+                            }
+                            else
+                            {
+                                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                                    DoCast(target, RAID_MODE(SPELL_BUBBLING_PUS_10N, SPELL_BUBBLING_PUS_25N, SPELL_BUBBLING_PUS_10N, SPELL_BUBBLING_PUS_25N));
+                                Events.ScheduleEvent(EVENT_PUS, urand(15000, 25000));
+                                break;
+                            }
+                        }
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_pustulating_horrorAI(creature);
+        }
+};
+
+class npc_decaying_colossus : public CreatureScript
+{
+    public:
+        npc_decaying_colossus() : CreatureScript("npc_decaying_colossus") { }
+
+        struct npc_decaying_colossusAI : public ScriptedAI
+        {
+            npc_decaying_colossusAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_STOMP_PL, 5000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_STOMP_PL:
+                            DoCastVictim(RAID_MODE(SPELL_MASSIVE_STOMP_10N, SPELL_MASSIVE_STOMP_25N, SPELL_MASSIVE_STOMP_10N, SPELL_MASSIVE_STOMP_25N));
+                            Events.ScheduleEvent(EVENT_STOMP_PL, urand(15000, 25000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_decaying_colossusAI(creature);
+        }
+};
+
+class npc_darkfallen_archmage : public CreatureScript
+{
+    public:
+        npc_darkfallen_archmage() : CreatureScript("npc_darkfallen_archmage") { }
+
+        struct npc_darkfallen_archmageAI : public ScriptedAI
+        {
+            npc_darkfallen_archmageAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_AMPLIFY, urand(10000, 15000));
+                Events.ScheduleEvent(EVENT_BLAST, urand(8000, 10000));
+                Events.ScheduleEvent(EVENT_FIREBALL, 2000);
+                Events.ScheduleEvent(EVENT_POLYMORPH, urand(9000, 12000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_AMPLIFY:
+                            DoCastVictim(RAID_MODE(SPELL_AMPLIFY_MAGIC_10N, SPELL_AMPLIFY_MAGIC_25N, SPELL_AMPLIFY_MAGIC_10N, SPELL_AMPLIFY_MAGIC_25N));
+                            Events.ScheduleEvent(EVENT_AMPLIFY, urand(15000, 20000));
+                            break;
+                        case EVENT_POLYMORPH:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_POLYMORPH_SPIDER);
+                            Events.ScheduleEvent(EVENT_POLYMORPH, urand(15000, 20000));
+                            break;
+                        case EVENT_FIREBALL:
+                            DoCastVictim(RAID_MODE(SPELL_FIREBALL_10N, SPELL_FIREBALL_25N, SPELL_FIREBALL_10N, SPELL_FIREBALL_25N));
+                            Events.ScheduleEvent(EVENT_FIREBALL, urand(3000, 4000));
+                            break;
+                        case EVENT_BLAST:
+                            DoCastAOE(RAID_MODE(SPELL_BLAST_WAVE_10N, SPELL_BLAST_WAVE_25N, SPELL_BLAST_WAVE_10N, SPELL_BLAST_WAVE_25N));
+                            Events.ScheduleEvent(EVENT_BLAST, urand(10000, 20000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_archmageAI(creature);
+        }
+};
+
+class npc_darkfallen_blood_knight : public CreatureScript
+{
+    public:
+        npc_darkfallen_blood_knight() : CreatureScript("npc_darkfallen_blood_knight") { }
+
+        struct npc_darkfallen_blood_knightAI : public ScriptedAI
+        {
+            npc_darkfallen_blood_knightAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_AURA, urand(12000, 15000));
+                Events.ScheduleEvent(EVENT_STRIKE, urand(2000, 3000));
+                Events.ScheduleEvent(EVENT_MIRROR, urand(4000, 5000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_STRIKE:
+                            DoCastVictim(SPELL_UNHOLY_STRIKE);
+                            Events.ScheduleEvent(EVENT_STRIKE, urand(3000, 4000));
+                            break;
+                        case EVENT_AURA:
+                            DoCast(me, SPELL_VAMPIRIC_AURA);
+                            Events.ScheduleEvent(EVENT_AURA, urand(12000, 15000));
+                        case EVENT_MIRROR:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            {
+                                DoCastVictim(SPELL_BLOOD_MIRROR_DUMMY);
+
+                                if (Unit* victim = me->getVictim())
+                                {
+                                    victim->CastSpell(target, SPELL_BLOOD_MIRROR_DAMAGE, true);
+                                    me->CastSpell(victim, SPELL_BLOOD_MIRROR_BUFF, true);
+                                }
+                            }
+                            Events.ScheduleEvent(EVENT_MIRROR, urand(32000, 37000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_blood_knightAI(creature);
+        }
+};
+
+enum Noblemisc
+{
+    NPC_VAMPIRIC_FIEND = 37901
+};
+
+class npc_darkfallen_noble : public CreatureScript
+{
+    public:
+        npc_darkfallen_noble() : CreatureScript("npc_darkfallen_noble") { }
+
+        struct npc_darkfallen_nobleAI : public ScriptedAI
+        {
+            npc_darkfallen_nobleAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_CHAINS, urand(2000, 4000));
+                Events.ScheduleEvent(EVENT_BOLT, urand(3000, 5000));
+                Events.ScheduleEvent(EVENT_FIEND, 15000);
+            }
+
+            void JustSummoned(Creature* summon)
+            {
+                DoZoneInCombat(summon, 150.0f);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_BOLT:
+                            DoCastVictim(RAID_MODE(SPELL_SHADOW_BOLT_10N, SPELL_SHADOW_BOLT_25N, SPELL_SHADOW_BOLT_10N, SPELL_SHADOW_BOLT_25N));
+                            Events.ScheduleEvent(EVENT_BOLT, urand(3000, 4000));
+                            break;
+                        case EVENT_CHAINS:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_CHAINS_OF_SHADOW);
+                            Events.ScheduleEvent(EVENT_CHAINS, urand(20000, 25000));
+                            break;
+                        case EVENT_FIEND:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                me->SummonCreature(NPC_VAMPIRIC_FIEND, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+                            Events.ScheduleEvent(EVENT_FIEND, 60000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_nobleAI(creature);
+        }
+};
+
+class npc_vampiric_fiend : public CreatureScript
+{
+    public:
+        npc_vampiric_fiend() : CreatureScript("npc_vampiric_fiend") { }
+
+        struct npc_vampiric_fiendAI : public ScriptedAI
+        {
+            npc_vampiric_fiendAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_LEECHING, 10000);
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
+                DoCast(me, SPELL_DISEASE_CLOUD);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_LEECHING:
+                            DoCastAOE(SPELL_LEECHING_ROT);
+                            me->DespawnOrUnsummon(3000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_vampiric_fiendAI(creature);
+        }
+};
+
+class npc_darkfallen_advisor : public CreatureScript
+{
+    public:
+        npc_darkfallen_advisor() : CreatureScript("npc_darkfallen_advisor") { }
+
+        struct npc_darkfallen_advisorAI : public ScriptedAI
+        {
+            npc_darkfallen_advisorAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_LICH, urand(2000, 5000));
+                Events.ScheduleEvent(EVENT_PROTECTION, urand(10000, 15000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_LICH:
+                            DoCastVictim(RAID_MODE(SPELL_LICH_SLAP_10N, SPELL_LICH_SLAP_25N, SPELL_LICH_SLAP_10N, SPELL_LICH_SLAP_25N));
+                            Events.ScheduleEvent(EVENT_LICH, 10000);
+                            break;
+                        case EVENT_PROTECTION:
+                            if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0) : DoSelectLowestHpFriendly(40.0f))
+                            {
+                                DoCast(target, SPELL_SHROUD_OF_PROTECTION);
+                                DoCast(target, SPELL_SHROUD_OF_SPELL_WARDING);
+                            }
+                            Events.ScheduleEvent(EVENT_PROTECTION, urand(15000, 20000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_advisorAI(creature);
+        }
+};
+
+class npc_darkfallen_commander : public CreatureScript
+{
+    public:
+        npc_darkfallen_commander() : CreatureScript("npc_darkfallen_commander") { }
+
+        struct npc_darkfallen_commanderAI : public ScriptedAI
+        {
+            npc_darkfallen_commanderAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_RUSH, urand(4000, 8000));
+                Events.ScheduleEvent(EVENT_SHOUT, urand(8000, 10000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SHOUT:
+                            DoCast(me, SPELL_BATTLE_SHOUT);
+                            Events.ScheduleEvent(EVENT_SHOUT, urand(15000, 20000));
+                            break;
+                        case EVENT_RUSH:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, RAID_MODE(SPELL_VAMPIRE_RUSH_10N, SPELL_VAMPIRE_RUSH_25N, SPELL_VAMPIRE_RUSH_10N, SPELL_VAMPIRE_RUSH_25N));
+                            Events.ScheduleEvent(EVENT_RUSH, urand(10000, 15000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_commanderAI(creature);
+        }
+};
+
+class npc_darkfallen_lieutenant : public CreatureScript
+{
+    public:
+        npc_darkfallen_lieutenant() : CreatureScript("npc_darkfallen_lieutenant") { }
+
+        struct npc_darkfallen_lieutenantAI : public ScriptedAI
+        {
+            npc_darkfallen_lieutenantAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_REND, urand(1000, 2000));
+                Events.ScheduleEvent(EVENT_CURSE, urand(8000, 15000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_REND:
+                            DoCastVictim(RAID_MODE(SPELL_REND_FLESH_10N, SPELL_REND_FLESH_25N, SPELL_REND_FLESH_10N, SPELL_REND_FLESH_25N));
+                            Events.ScheduleEvent(EVENT_REND, 25000);
+                            break;
+                        case EVENT_CURSE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_VAMPIRIC_CURSE);
+                            Events.ScheduleEvent(EVENT_REND, urand(10000,20000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_lieutenantAI(creature);
+        }
+};
+
+class npc_darkfallen_tactician : public CreatureScript
+{
+    public:
+        npc_darkfallen_tactician() : CreatureScript("npc_darkfallen_tactician") { }
+
+        struct npc_darkfallen_tacticianAI : public ScriptedAI
+        {
+            npc_darkfallen_tacticianAI(Creature* creature) : ScriptedAI(creature) {}
+
+            uint32 m_uiSHADOWSTEP_Timer;
+            uint32 m_uiSAP_Timer;
+            uint32 m_uiSTRIKE_Timer;
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_SHADOW_STEP, urand(1000, 2000));
+                Events.ScheduleEvent(EVENT_SAP, urand(5000, 15000));
+                Events.ScheduleEvent(EVENT_STRIKER, urand(2000, 3000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_STRIKER:
+                            DoCastVictim(SPELL_UNHOLY_STRIKE);
+                            Events.ScheduleEvent(EVENT_STRIKER, 6000);
+                            break;
+                        case EVENT_SAP:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_BLOOD_SAP);
+                            Events.ScheduleEvent(EVENT_SAP, urand(15000, 25000));
+                            break;
+                        case EVENT_SHADOW_STEP:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_SHADOWSTEP);
+                            Events.ScheduleEvent(EVENT_SHADOW_STEP, urand(15000, 20000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_tacticianAI(creature);
+        }
+};
+
+class npc_ymirjar_deathbringer : public CreatureScript
+{
+    public:
+        npc_ymirjar_deathbringer() : CreatureScript("npc_ymirjar_deathbringer") { }
+
+        struct npc_ymirjar_deathbringerAI : public ScriptedAI
+        {
+            npc_ymirjar_deathbringerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_BANISH, urand(5000, 10000));
+                Events.ScheduleEvent(EVENT_EMBRACE, urand(10000, 15000));
+                Events.ScheduleEvent(EVENT_BOLT_FW, urand(1000, 2000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_EMBRACE:
+                            DoCast(me, RAID_MODE(SPELL_DEATHS_EMBRACE_10N, SPELL_DEATHS_EMBRACE_25N, SPELL_DEATHS_EMBRACE_10N, SPELL_DEATHS_EMBRACE_25N));
+                            Events.ScheduleEvent(EVENT_EMBRACE, urand(15000, 25000));
+                            break;
+                        case EVENT_BANISH:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_BANISH);
+                            Events.ScheduleEvent(EVENT_BANISH, urand(15000, 25000));
+                            break;
+                        case EVENT_BOLT_FW:
+                            DoCastVictim(RAID_MODE(SPELL_SHADOW_BOLT_YMIRJAR_10N, SPELL_SHADOW_BOLT_YMIRJAR_25N, SPELL_SHADOW_BOLT_YMIRJAR_10N, SPELL_SHADOW_BOLT_YMIRJAR_25N));
+                            Events.ScheduleEvent(EVENT_BOLT_FW, 2000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_deathbringerAI(creature);
+        }
+};
+
+class npc_ymirjar_frostbinder : public CreatureScript
+{
+    public:
+        npc_ymirjar_frostbinder() : CreatureScript("npc_ymirjar_frostbinder") { }
+
+        struct npc_ymirjar_frostbinderAI : public ScriptedAI
+        {
+            npc_ymirjar_frostbinderAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiORB_Timer;
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_ORB, 2000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_ORB:
+                            DoCastAOE(SPELL_FROZEN_ORB);
+                            Events.ScheduleEvent(EVENT_ORB, urand(3000, 5000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_frostbinderAI(creature);
+        }
+};
+
+class npc_ymirjar_battlemaiden : public CreatureScript
+{
+    public:
+        npc_ymirjar_battlemaiden() : CreatureScript("npc_ymirjar_battlemaiden") { }
+
+        struct npc_ymirjar_battlemaidenAI : public ScriptedAI
+        {
+            npc_ymirjar_battlemaidenAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_RUSH_FW, urand(10000, 15000));
+                Events.ScheduleEvent(EVENT_STRIKE_FW, urand(1000, 5000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_STRIKE_FW:
+                            DoCastVictim(SPELL_BARBARIC_STRIKE);
+                            Events.ScheduleEvent(EVENT_STRIKE_FW, urand(2000, 3000));
+                            break;
+                        case EVENT_RUSH_FW:
+                            DoCast(me, SPELL_ADRENALINE_RUSH);
+                            Events.ScheduleEvent(EVENT_RUSH_FW, urand(15000, 25000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_battlemaidenAI(creature);
+        }
+};
+
+class npc_ymirjar_huntress : public CreatureScript
+{
+    public:
+        npc_ymirjar_huntress() : CreatureScript("npc_ymirjar_huntress") { }
+
+        struct npc_ymirjar_huntressAI : public ScriptedAI
+        {
+            npc_ymirjar_huntressAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_TRAP, urand(5000, 15000));
+                Events.ScheduleEvent(EVENT_RSHOT, urand(10000, 15000));
+                Events.ScheduleEvent(EVENT_SHOT, urand(1000, 2000));
+                Events.ScheduleEvent(EVENT_VOLLEY, urand(5000, 15000));
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
+                if (Is25ManRaid())
+                    DoCast(SPELL_SUMMON_WARHAWK);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_RSHOT:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_RAPID_SHOT);
+                            Events.ScheduleEvent(EVENT_RSHOT, urand(15000, 25000));
+                            break;
+                        case EVENT_VOLLEY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_VOLLEY);
+                            Events.ScheduleEvent(EVENT_VOLLEY, urand(10000, 15000));
+                            break;
+                        case EVENT_TRAP:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_ICE_TRAP);
+                            Events.ScheduleEvent(EVENT_TRAP, urand(30000, 35000));
+                            break;
+                        case EVENT_SHOT:
+                            DoCastVictim(SPELL_SHOOT);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (me->isAttackReady())
+                {
+                    if (me->IsWithinMeleeRange(me->getVictim()))
+                        DoMeleeAttackIfReady();
+                    else
+                        Events.ScheduleEvent(EVENT_SHOT, 1000);
+                }
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_huntressAI(creature);
+        }
+};
+
+class npc_ymirjar_warlord : public CreatureScript
+{
+    public:
+        npc_ymirjar_warlord() : CreatureScript("npc_ymirjar_warlord") { }
+
+        struct npc_ymirjar_warlordAI : public ScriptedAI
+        {
+            npc_ymirjar_warlordAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiWHIRLWIND_Timer;
+
+            void Reset()
+            {
+                Events.Reset();
+                Events.ScheduleEvent(EVENT_WHIRLWIND, urand(5000, 15000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                Events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = Events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_WHIRLWIND:
+                            DoCastAOE(SPELL_WHIRLWIND);
+                            Events.ScheduleEvent(EVENT_WHIRLWIND, urand(12000, 20000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        protected:
+            EventMap Events;
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_warlordAI(creature);
+        }
+};
+
+#ifndef __clang_analyzer__
 void AddSC_icecrown_citadel()
 {
+    new npc_icc_ring_recover();
+    new npc_icc_buff_remover();
     new npc_highlord_tirion_fordring_lh();
     new npc_rotting_frost_giant();
     new npc_frost_freeze_trap();
@@ -2167,7 +3804,6 @@ void AddSC_icecrown_citadel()
     new npc_captain_brandon();
     new npc_captain_grondel();
     new npc_captain_rupert();
-    new npc_frostwing_vrykul();
     new npc_impaling_spear();
     new npc_arthas_teleport_visual();
     new spell_icc_stoneform();
@@ -2182,4 +3818,25 @@ void AddSC_icecrown_citadel()
     new at_icc_shutdown_traps();
     new at_icc_start_blood_quickening();
     new at_icc_start_frostwing_gauntlet();
+    new npc_sindragosas_ward();
+    new at_icc_start_sindragosa_gauntlet();
+    new npc_blighted_abomination();
+    new npc_vengeful_fleshreapert();
+    new npc_plague_scientist();
+    new npc_pustulating_horror();
+    new npc_decaying_colossus();
+    new npc_darkfallen_archmage();
+    new npc_darkfallen_blood_knight();
+    new npc_darkfallen_noble();
+    new npc_vampiric_fiend();
+    new npc_darkfallen_advisor();
+    new npc_darkfallen_commander();
+    new npc_darkfallen_lieutenant();
+    new npc_darkfallen_tactician();
+    new npc_ymirjar_deathbringer();
+    new npc_ymirjar_frostbinder();
+    new npc_ymirjar_battlemaiden();
+    new npc_ymirjar_huntress();
+    new npc_ymirjar_warlord();
 }
+#endif

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITYSERVER_MOVESPLINEINIT_H
 #define TRINITYSERVER_MOVESPLINEINIT_H
@@ -35,7 +25,7 @@ namespace Movement
     };
 
     // Transforms coordinates from global to transport offsets
-    class TC_GAME_API TransportPathTransform
+    class TransportPathTransform
     {
     public:
         TransportPathTransform(Unit* owner, bool transformForTransport)
@@ -49,7 +39,7 @@ namespace Movement
 
     /*  Initializes and launches spline movement
      */
-    class TC_GAME_API MoveSplineInit
+    class MoveSplineInit
     {
     public:
 
@@ -61,7 +51,7 @@ namespace Movement
 
         /*  Final pass of initialization that stops movement.
          */
-        void Stop();
+        void Stop(bool force = false);
 
         /* Adds movement by parabolic trajectory
          * @param amplitude  - the maximum height of parabola, value could be negative and positive
@@ -160,7 +150,7 @@ namespace Movement
     inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
     inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable; }
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
-    inline void MoveSplineInit::SetUncompressed() { args.flags.uncompressedPath = true; }
+    inline void MoveSplineInit::SetUncompressed() { args.flags.SetUncompressed(); }
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
     inline void MoveSplineInit::SetOrientationInversed() { args.flags.orientationInversed = true;}
@@ -189,7 +179,7 @@ namespace Movement
 
     inline void MoveSplineInit::SetAnimation(AnimType anim)
     {
-        args.time_perc = 0.f;
+        args.time_perc = 0.0f;
         args.flags.EnableAnimation((uint8)anim);
     }
 

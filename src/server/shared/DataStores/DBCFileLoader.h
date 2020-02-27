@@ -1,29 +1,20 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef DBC_FILE_LOADER_H
 #define DBC_FILE_LOADER_H
-
 #include "Define.h"
+#include "Common.h"
 #include "Utilities/ByteConverter.h"
+
 #include <cassert>
 
-class TC_SHARED_API DBCFileLoader
+class DBCFileLoader
 {
     public:
         DBCFileLoader();
@@ -37,29 +28,23 @@ class TC_SHARED_API DBCFileLoader
                 float getFloat(size_t field) const
                 {
                     assert(field < file.fieldCount);
-                    float val = *reinterpret_cast<float*>(offset + file.GetOffset(field));
+                    float val = *reinterpret_cast<float*>(offset+file.GetOffset(field));
                     EndianConvert(val);
                     return val;
                 }
                 uint32 getUInt(size_t field) const
                 {
                     assert(field < file.fieldCount);
-                    uint32 val = *reinterpret_cast<uint32*>(offset + file.GetOffset(field));
+                    uint32 val = *reinterpret_cast<uint32*>(offset+file.GetOffset(field));
                     EndianConvert(val);
                     return val;
                 }
                 uint8 getUInt8(size_t field) const
                 {
                     assert(field < file.fieldCount);
-                    return *reinterpret_cast<uint8*>(offset + file.GetOffset(field));
+                    return *reinterpret_cast<uint8*>(offset+file.GetOffset(field));
                 }
-                uint64 getUInt64(size_t field) const
-                {
-                    assert(field < file.fieldCount);
-                    uint64 val = *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
-                    EndianConvert(val);
-                    return val;
-                }
+
                 const char *getString(size_t field) const
                 {
                     assert(field < file.fieldCount);
@@ -69,9 +54,9 @@ class TC_SHARED_API DBCFileLoader
                 }
 
             private:
-                Record(DBCFileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) { }
-                unsigned char* offset;
-                DBCFileLoader& file;
+                Record(DBCFileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) {}
+                unsigned char *offset;
+                DBCFileLoader &file;
 
                 friend class DBCFileLoader;
 
@@ -98,8 +83,5 @@ class TC_SHARED_API DBCFileLoader
         uint32 *fieldsOffset;
         unsigned char *data;
         unsigned char *stringTable;
-
-        DBCFileLoader(DBCFileLoader const& right) = delete;
-        DBCFileLoader& operator=(DBCFileLoader const& right) = delete;
 };
 #endif

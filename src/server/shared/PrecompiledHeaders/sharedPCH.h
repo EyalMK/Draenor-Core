@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 //add here most rarely modified headers to speed up debug build compilation
 
 #include "Common.h"
@@ -6,5 +14,4 @@
 #include "SQLOperation.h"
 #include "Errors.h"
 #include "TypeList.h"
-#include "TaskScheduler.h"
-#include "EventMap.h"
+#include "GitRevision.h"

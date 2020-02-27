@@ -1,25 +1,98 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-#ifndef TRINITYCORE_TEMPSUMMON_H
-#define TRINITYCORE_TEMPSUMMON_H
+#ifndef TEMPSUMMON_H
+#define TEMPSUMMON_H
 
 #include "Creature.h"
+
+// Creature Pet entries
+enum EPetEntries
+{
+	// Warlock
+	PET_ENTRY_INFERNAL = 89,
+	PET_ENTRY_IMP = 416,
+	PET_ENTRY_VOIDWALKER = 1860,
+	PET_ENTRY_SUCCUBUS = 1863,
+	PET_ENTRY_FELHUNTER = 417,
+	PET_ENTRY_FELGUARD = 17252,
+	PET_ENTRY_FEL_IMP = 58959,
+	PET_ENTRY_VOIDLORD = 58960,
+	PET_ENTRY_SHIVARRA = 58963,
+	PET_ENTRY_OBSERVER = 58964,
+	PET_ENTRY_WRATHGUARD = 58965,
+	PET_ENTRY_WILD_IMP = 55659,
+	PET_ENTRY_EBON_IMP = 50675,
+	PET_ENTRY_ABYSSAL = 58997,
+	PET_ENTRY_TERRORGUARD = 59000,
+	PET_ENTRY_DOOMGUARD = 11859,
+
+	// Mage
+	PET_ENTRY_WATER_ELEMENTAL = 510,
+	PET_ENTRY_MIRROR_IMAGE = 31216,
+
+	// Druid
+	PET_ENTRY_TREANT_GUARDIAN = 54985,
+	PET_ENTRY_TREANT_FERAL = 54984,
+	PET_ENTRY_TREANT_RESTO = 54983,
+	PET_ENTRY_TREANT_BALANCE = 1964,
+	PET_ENTRY_FEY_MOONWING = 94852,
+
+	// Shaman
+	PET_ENTRY_FIRE_ELEMENTAL = 15438,
+	PET_ENTRY_FERAL_SPIRIT = 29264,
+	PET_ENTRY_FERAL_SPIRIT_SYMBIOSIS = 58488,
+	PET_ENTRY_EARTH_ELEMENTAL = 15352,
+	PET_ENTRY_HEALING_TIDE_TOTEM = 59764,
+
+	// Death Knight
+	PET_ENTRY_GHOUL = 26125,
+	PET_ENTRY_BLOODWORM = 28017,
+	PET_ENTRY_GARGOYLE = 27829,
+	PET_ENTRY_DEAD_ARMY = 24207,
+
+	// Priest 
+	PET_ENTRY_SHADOWFIEND = 19668,
+	PET_ENTRY_MINDBENDER = 62982,
+	PET_ENTRY_MINDBENDER_SHA = 67236,
+	PET_ENTRY_SHADOWY_APPARITION = 61966,
+	PET_ENTRY_SHADOWY_APPARITION2 = 46954,
+	PET_ENTRY_PSYFIEND = 59190,
+
+	// Hunter
+	PET_ENTRY_VENOMOUS_SNAKE = 19833,
+	PET_ENTRY_VIPER = 19921,
+	PET_ENTRY_MURDER_OF_CROWS = 61994,
+	PET_ENTRY_DIRE_BEAST_DUNGEONS = 62005,
+	PET_ENTRY_DIRE_BEAST_VALLEY_OF_THE_FW = 62210,
+	PET_ENTRY_DIRE_BEAST_KALIMDOR = 62855,
+	PET_ENTRY_DIRE_BEAST_ESTERN_KINGDOMS = 62856,
+	PET_ENTRY_DIRE_BEAST_OUTLAND = 62857,
+	PET_ENTRY_DIRE_BEAST_NORTHREND = 62858,
+	PET_ENTRY_DIRE_BEAST_KRASARANG_WILDS = 62860,
+	PET_ENTRY_DIRE_BEAST_JADE_FOREST = 62865,
+	PET_ENTRY_DIRE_BEAST_VALE_OF_ETERNAL_BLOSSOMS = 64617,
+	PET_ENTRY_DIRE_BEAST_KUNLAI_SUMMIT = 64618,
+	PET_ENTRY_DIRE_BEAST_TOWNLONG_STEPPES = 64619,
+	PET_ENTRY_DIRE_BEAST_DREAD_WASTES = 64620,
+
+	// Rogue
+	PET_ENTRY_DECOY = 62261,
+
+	// Paladin
+	PET_ENTRY_GUARDIAN_OF_ANCIENT_KINGS = 46506,
+
+	// Monk
+	PET_ENTRY_XUEN_THE_WHITE_TIGER = 63508,
+	PET_ENTRY_STORM_SPIRIT = 69680,
+	PET_ENTRY_EARTH_SPIRIT = 69792,
+	PET_ENTRY_FIRE_SPIRIT = 69791
+};
 
 enum SummonerType
 {
@@ -27,6 +100,17 @@ enum SummonerType
     SUMMONER_TYPE_GAMEOBJECT    = 1,
     SUMMONER_TYPE_MAP           = 2
 };
+
+enum StatsIncreaseType
+{
+    INCREASE_HEALTH_PERCENT         = 1,
+    INCREASE_MELEE_DAMAGE_PERCENT   = 2,
+    INCREASE_RANGED_DAMAGE_PERCENT  = 3,
+    INCREASE_ARMOR_PERCENT          = 13,
+    INCREASE_MAGIC_DAMAGE_PERCENT   = 24
+};
+
+struct PetStatInfo;
 
 /// Stores data for temp summons
 struct TempSummonData
@@ -37,89 +121,88 @@ struct TempSummonData
     uint32 time;         ///< Despawn time, usable only with certain temp summon types
 };
 
-class TC_GAME_API TempSummon : public Creature
+class TempSummon : public Creature
 {
     public:
         explicit TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
-        virtual ~TempSummon() { }
-        void Update(uint32 time) override;
+        virtual ~TempSummon() {}
+        void Update(uint32 time);
         virtual void InitStats(uint32 lifetime);
         virtual void InitSummon();
-        void UpdateObjectVisibilityOnCreate() override;
         virtual void UnSummon(uint32 msTime = 0);
-        void RemoveFromWorld() override;
+        void RemoveFromWorld();
         void SetTempSummonType(TempSummonType type);
-        void SaveToDB(uint32 /*mapid*/, uint32 /*spawnMask*/, uint32 /*phaseMask*/) override { }
+        void SaveToDB(uint32 /*mapid*/, uint32 /*spawnMask*/, uint32 /*phaseMask*/) {}
         Unit* GetSummoner() const;
-        Creature* GetSummonerCreatureBase() const;
-        ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
+        uint64 GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType const& GetSummonType() { return m_type; }
-        uint32 GetTimer() const { return m_timer; }
+        uint32 GetTimer() { return m_timer; }
 
         const SummonPropertiesEntry* const m_Properties;
     private:
         TempSummonType m_type;
         uint32 m_timer;
         uint32 m_lifetime;
-        ObjectGuid m_summonerGUID;
+        uint64 m_summonerGUID;
 };
 
-class TC_GAME_API Minion : public TempSummon
+class Minion : public TempSummon
 {
     public:
         Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
-        void InitStats(uint32 duration) override;
-        void RemoveFromWorld() override;
-        Unit* GetOwner() const { return m_owner; }
-        float GetFollowAngle() const override { return m_followAngle; }
+        void InitStats(uint32 duration);
+        void RemoveFromWorld();
+        float GetFollowAngle() const { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
-        bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
-        bool IsSpiritWolf() const {return GetEntry() == 29264;} // Spirit wolf from feral spirits
+        bool IsPetGhoul() const {return GetEntry() == ENTRY_GHOUL;} // Ghoul may be guardian or pet
+        bool IsPetGargoyle() const { return GetEntry() == ENTRY_GARGOYLE; }
+        bool IsTreant() const { return GetEntry() == ENTRY_TREANT_GUARDIAN || GetEntry() == ENTRY_TREANT_FERAL || GetEntry() == ENTRY_TREANT_BALANCE || GetEntry() == ENTRY_TREANT_RESTO; }
         bool IsGuardianPet() const;
     protected:
-        Unit* const m_owner;
         float m_followAngle;
 };
 
-class TC_GAME_API Guardian : public Minion
+class Guardian : public Minion
 {
     public:
         Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
-        void InitStats(uint32 duration) override;
+        void InitStats(uint32 duration);
         bool InitStatsForLevel(uint8 level);
-        void InitSummon() override;
+        void InitSummon();
 
-        bool UpdateStats(Stats stat) override;
-        bool UpdateAllStats() override;
-        void UpdateResistances(uint32 school) override;
-        void UpdateArmor() override;
-        void UpdateMaxHealth() override;
-        void UpdateMaxPower(Powers power) override;
-        void UpdateAttackPowerAndDamage(bool ranged = false) override;
-        void UpdateDamagePhysical(WeaponAttackType attType) override;
+        bool UpdateStats(Stats stat);
+        bool UpdateAllStats();
+        void UpdateResistances(uint32 school);
+        void UpdateArmor();
+        void UpdateMaxHealth();
+        void UpdateMaxPower(Powers power);
+        void UpdateAttackPowerAndDamage(bool ranged = false);
+        void UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields = false);
 
-        int32 GetBonusDamage() const { return m_bonusSpellDamage; }
-        void SetBonusDamage(int32 damage);
+        PetStatInfo const* GetPetStat(bool p_Force = false) const;
+
     protected:
         int32   m_bonusSpellDamage;
         float   m_statFromOwner[MAX_STATS];
 };
 
-class TC_GAME_API Puppet : public Minion
+class Puppet : public Minion
 {
     public:
         Puppet(SummonPropertiesEntry const* properties, Unit* owner);
-        void InitStats(uint32 duration) override;
-        void InitSummon() override;
-        void Update(uint32 time) override;
-        void RemoveFromWorld() override;
+        void InitStats(uint32 duration);
+        void InitSummon();
+        void Update(uint32 time);
+        void RemoveFromWorld();
+    protected:
+        Player* m_owner;
 };
 
-class TC_GAME_API ForcedUnsummonDelayEvent : public BasicEvent
+class ForcedUnsummonDelayEvent : public BasicEvent
 {
 public:
     ForcedUnsummonDelayEvent(TempSummon& owner) : BasicEvent(), m_owner(owner) { }
-    bool Execute(uint64 e_time, uint32 p_time) override;
+    bool Execute(uint64 e_time, uint32 p_time);
 
 private:
     TempSummon& m_owner;

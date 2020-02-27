@@ -1,24 +1,15 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include "loadlib.h"
+#include <cstdio>
 
 u_map_fcc MverMagic = { { 'R','E','V','M' } };
 
@@ -33,20 +24,20 @@ ChunkedFile::~ChunkedFile()
     free();
 }
 
-bool ChunkedFile::loadFile(HANDLE mpq, std::string const& fileName, bool log)
+bool ChunkedFile::loadFile(HANDLE mpq, char* filename, bool log)
 {
     free();
     HANDLE file;
-    if (!CascOpenFile(mpq, fileName.c_str(), CASC_LOCALE_ALL, 0, &file))
+    if (!CascOpenFile(mpq, filename, CASC_LOCALE_ALL, 0, &file))
     {
         if (log)
-            printf("No such file %s\n", fileName.c_str());
+            printf("No such file %s\n", filename);
         return false;
     }
 
-    data_size = CascGetFileSize(file, nullptr);
+    data_size = CascGetFileSize(file, NULL);
     data = new uint8[data_size];
-    CascReadFile(file, data, data_size, nullptr/*bytesRead*/);
+    CascReadFile(file, data, data_size, NULL/*bytesRead*/);
     parseChunks();
     if (prepareLoadedData())
     {
@@ -54,7 +45,7 @@ bool ChunkedFile::loadFile(HANDLE mpq, std::string const& fileName, bool log)
         return true;
     }
 
-    printf("Error loading %s\n", fileName.c_str());
+    printf("Error loading %s\n", filename);
     CascCloseFile(file);
     free();
 

@@ -1,125 +1,124 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+/* ScriptData
+SDName: Boss_Pandemonius
+SD%Complete: 75
+SDComment: Not known how void blast is done (amount of rapid cast seems to be related to players in party). All mobs remaining in surrounding area should aggro when engaged.
+SDCategory: Auchindoun, Mana Tombs
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "mana_tombs.h"
 
-enum Texts
-{
-    SAY_AGGRO                       = 0,
-    SAY_KILL                        = 1,
-    SAY_DEATH                       = 2,
-    EMOTE_DARK_SHELL                = 3
-};
+#define SAY_AGGRO_1                     -1557008
+#define SAY_AGGRO_2                     -1557009
+#define SAY_AGGRO_3                     -1557010
 
-enum Spells
-{
-    SPELL_VOID_BLAST = 32325,
-    SPELL_DARK_SHELL = 32358
-};
+#define SAY_KILL_1                      -1557011
+#define SAY_KILL_2                      -1557012
 
-enum Events
-{
-    EVENT_VOID_BLAST = 1,
-    EVENT_DARK_SHELL
-};
+#define SAY_DEATH                       -1557013
 
+#define EMOTE_DARK_SHELL                -1557014
+
+#define SPELL_VOID_BLAST                32325
+#define H_SPELL_VOID_BLAST              38760
+#define SPELL_DARK_SHELL                32358
+#define H_SPELL_DARK_SHELL              38759
+
+// 18341
 class boss_pandemonius : public CreatureScript
 {
 public:
     boss_pandemonius() : CreatureScript("boss_pandemonius") { }
 
-    struct boss_pandemoniusAI : public BossAI
+    CreatureAI* GetAI(Creature* creature) const
     {
-        boss_pandemoniusAI(Creature* creature) : BossAI(creature, DATA_PANDEMONIUS)
+        return new boss_pandemoniusAI (creature);
+    }
+
+    struct boss_pandemoniusAI : public ScriptedAI
+    {
+        boss_pandemoniusAI(Creature* creature) : ScriptedAI(creature)
         {
-            VoidBlastCounter = 0;
         }
 
-        void Reset() override
+        uint32 VoidBlast_Timer;
+        uint32 DarkShell_Timer;
+        uint32 VoidBlast_Counter;
+
+        void Reset()
         {
-            _Reset();
-            VoidBlastCounter = 0;
+            VoidBlast_Timer = 8000+rand()%15000;
+            DarkShell_Timer = 20000;
+            VoidBlast_Counter = 0;
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/)
         {
-            Talk(SAY_DEATH);
+            DoScriptText(SAY_DEATH, me);
         }
 
-        void KilledUnit(Unit* /*victim*/) override
+        void KilledUnit(Unit* /*victim*/)
         {
-            Talk(SAY_KILL);
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/)
         {
-            _EnterCombat();
-            Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_DARK_SHELL, 20000);
-            events.ScheduleEvent(EVENT_VOID_BLAST, urand(8000, 23000));
+            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
         }
 
-        void ExecuteEvent(uint32 eventId) override
+        void UpdateAI(const uint32 diff)
         {
-            switch (eventId)
+            if (!UpdateVictim())
+                return;
+
+            if (VoidBlast_Timer <= diff)
             {
-                case EVENT_VOID_BLAST:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                    {
-                        DoCast(target, SPELL_VOID_BLAST);
-                        ++VoidBlastCounter;
-                    }
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                {
+                    DoCast(target, SPELL_VOID_BLAST);
+                    VoidBlast_Timer = 500;
+                    ++VoidBlast_Counter;
+                }
 
-                    if (VoidBlastCounter == 5)
-                    {
-                        VoidBlastCounter = 0;
-                        events.ScheduleEvent(EVENT_VOID_BLAST, urand(15000, 25000));
-                    }
-                    else
-                    {
-                        events.ScheduleEvent(EVENT_VOID_BLAST, 500);
-                        events.DelayEvents(EVENT_DARK_SHELL, 500);
-                    }
-                    break;
-                case EVENT_DARK_SHELL:
-                    if (me->IsNonMeleeSpellCast(false))
+                if (VoidBlast_Counter == 5)
+                {
+                    VoidBlast_Timer = 15000+rand()%10000;
+                    VoidBlast_Counter = 0;
+                }
+            } else VoidBlast_Timer -= diff;
+
+            if (!VoidBlast_Counter)
+            {
+                if (DarkShell_Timer <= diff)
+                {
+                    if (me->IsNonMeleeSpellCasted(false))
                         me->InterruptNonMeleeSpells(true);
-                    Talk(EMOTE_DARK_SHELL);
-                    DoCast(me, SPELL_DARK_SHELL);
-                    events.ScheduleEvent(EVENT_DARK_SHELL, 20000);
-                    break;
-                default:
-                    break;
-            }
-        }
 
-        private:
-            uint32 VoidBlastCounter;
+                    DoScriptText(EMOTE_DARK_SHELL, me);
+
+                    DoCast(me, SPELL_DARK_SHELL);
+                    DarkShell_Timer = 20000;
+                } else DarkShell_Timer -= diff;
+            }
+
+            DoMeleeAttackIfReady();
+        }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetManaTombsAI<boss_pandemoniusAI>(creature);
-    }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_pandemonius()
 {
     new boss_pandemonius();
 }
+#endif

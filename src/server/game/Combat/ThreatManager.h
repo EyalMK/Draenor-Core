@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _THREATMANAGER
 #define _THREATMANAGER
@@ -23,9 +13,6 @@
 #include "SharedDefines.h"
 #include "LinkedReference/Reference.h"
 #include "UnitEvents.h"
-#include "ObjectGuid.h"
-
-#include <list>
 
 //==============================================================
 
@@ -39,14 +26,14 @@ class SpellInfo;
 //==============================================================
 // Class to calculate the real threat based
 
-struct TC_GAME_API ThreatCalcHelper
+struct ThreatCalcHelper
 {
     static float calcThreat(Unit* hatedUnit, Unit* hatingUnit, float threat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = NULL);
     static bool isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* threatSpell = NULL);
 };
 
 //==============================================================
-class TC_GAME_API HostileReference : public Reference<Unit, ThreatManager>
+class HostileReference : public Reference<Unit, ThreatManager>
 {
     public:
         HostileReference(Unit* refUnit, ThreatManager* threatManager, float threat);
@@ -104,7 +91,7 @@ class TC_GAME_API HostileReference : public Reference<Unit, ThreatManager>
 
         //=================================================
 
-        ObjectGuid getUnitGuid() const { return iUnitGuid; }
+        uint64 getUnitGuid() const { return iUnitGuid; }
 
         //=================================================
         // reference is not needed anymore. realy delete it !
@@ -118,22 +105,22 @@ class TC_GAME_API HostileReference : public Reference<Unit, ThreatManager>
         //=================================================
 
         // Tell our refTo (target) object that we have a link
-        void targetObjectBuildLink() override;
+        void targetObjectBuildLink();
 
         // Tell our refTo (taget) object, that the link is cut
-        void targetObjectDestroyLink() override;
+        void targetObjectDestroyLink();
 
         // Tell our refFrom (source) object, that the link is cut (Target destroyed)
-        void sourceObjectDestroyLink() override;
+        void sourceObjectDestroyLink();
     private:
         // Inform the source, that the status of that reference was changed
         void fireStatusChanged(ThreatRefStatusChangeEvent& threatRefStatusChangeEvent);
 
-        Unit* GetSourceUnit();
+        Unit* getSourceUnit();
     private:
         float iThreat;
         float iTempThreatModifier;                          // used for taunt
-        ObjectGuid iUnitGuid;
+        uint64 iUnitGuid;
         bool iOnline;
         bool iAccessible;
 };
@@ -141,64 +128,47 @@ class TC_GAME_API HostileReference : public Reference<Unit, ThreatManager>
 //==============================================================
 class ThreatManager;
 
-class TC_GAME_API ThreatContainer
+class ThreatContainer
 {
+    private:
+        std::list<HostileReference*> iThreatList;
+        bool iDirty;
+    protected:
         friend class ThreatManager;
 
+        void remove(HostileReference* hostileRef) { iThreatList.remove(hostileRef); }
+        void addReference(HostileReference* hostileRef) { iThreatList.push_back(hostileRef); }
+        void clearReferences();
+
+        // Sort the list if necessary
+        void update();
     public:
-        typedef std::list<HostileReference*> StorageType;
-
-        ThreatContainer(): iDirty(false) { }
-
+        ThreatContainer() { iDirty = false; }
         ~ThreatContainer() { clearReferences(); }
 
         HostileReference* addThreat(Unit* victim, float threat);
 
         void modifyThreatPercent(Unit* victim, int32 percent);
 
-        HostileReference* selectNextVictim(Creature* attacker, HostileReference* currentVictim) const;
+        HostileReference* selectNextVictim(Creature* attacker, HostileReference* currentVictim);
 
         void setDirty(bool isDirty) { iDirty = isDirty; }
 
         bool isDirty() const { return iDirty; }
 
-        bool empty() const
-        {
-            return iThreatList.empty();
-        }
+        bool empty() const { return iThreatList.empty(); }
 
-        HostileReference* getMostHated() const
-        {
-            return iThreatList.empty() ? nullptr : iThreatList.front();
-        }
+        HostileReference* getMostHated() { return iThreatList.empty() ? NULL : iThreatList.front(); }
 
-        HostileReference* getReferenceByTarget(Unit* victim) const;
+        HostileReference* getReferenceByTarget(Unit* victim);
 
-        StorageType const & getThreatList() const { return iThreatList; }
-
-    private:
-        void remove(HostileReference* hostileRef)
-        {
-            iThreatList.remove(hostileRef);
-        }
-
-        void addReference(HostileReference* hostileRef)
-        {
-            iThreatList.push_back(hostileRef);
-        }
-
-        void clearReferences();
-
-        // Sort the list if necessary
-        void update();
-
-        StorageType iThreatList;
-        bool iDirty;
+        std::list<HostileReference*>& getThreatList() { return iThreatList; }
+        std::list<HostileReference*> GetThreatList() const { return iThreatList; }
 };
 
 //=================================================
 
-class TC_GAME_API ThreatManager
+class ThreatManager
 {
     public:
         friend class HostileReference;
@@ -217,15 +187,15 @@ class TC_GAME_API ThreatManager
 
         float getThreat(Unit* victim, bool alsoSearchOfflineList = false);
 
-        bool isThreatListEmpty() const { return iThreatContainer.empty(); }
+        bool isThreatListEmpty() { return iThreatContainer.empty(); }
 
         void processThreatEvent(ThreatRefStatusChangeEvent* threatRefStatusChangeEvent);
 
         bool isNeedUpdateToClient(uint32 time);
 
-        HostileReference* getCurrentVictim() const { return iCurrentVictim; }
+        HostileReference* getCurrentVictim() { return iCurrentVictim; }
 
-        Unit* GetOwner() const { return iOwner; }
+        Unit* getOwner() { return iOwner; }
 
         Unit* getHostilTarget();
 
@@ -242,11 +212,11 @@ class TC_GAME_API ThreatManager
         // Reset all aggro of unit in threadlist satisfying the predicate.
         template<class PREDICATE> void resetAggro(PREDICATE predicate)
         {
-            ThreatContainer::StorageType &threatList = iThreatContainer.iThreatList;
+            std::list<HostileReference*> &threatList = getThreatList();
             if (threatList.empty())
                 return;
 
-            for (ThreatContainer::StorageType::iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+            for (std::list<HostileReference*>::iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
             {
                 HostileReference* ref = (*itr);
 
@@ -260,10 +230,14 @@ class TC_GAME_API ThreatManager
 
         // methods to access the lists from the outside to do some dirty manipulation (scriping and such)
         // I hope they are used as little as possible.
-        ThreatContainer::StorageType const & getThreatList() const { return iThreatContainer.getThreatList(); }
-        ThreatContainer::StorageType const & getOfflineThreatList() const { return iThreatOfflineContainer.getThreatList(); }
+        std::list<HostileReference*>& getThreatList() { return iThreatContainer.getThreatList(); }
+        std::list<HostileReference*> GetThreatList() const { return iThreatContainer.GetThreatList(); }
+        std::list<HostileReference*>& getOfflineThreatList() { return iThreatOfflineContainer.getThreatList(); }
         ThreatContainer& getOnlineContainer() { return iThreatContainer; }
         ThreatContainer& getOfflineContainer() { return iThreatOfflineContainer; }
+
+        bool HaveInThreatList(uint64 p_Guid) const;
+
     private:
         void _addThreat(Unit* victim, float threat);
 
@@ -276,13 +250,13 @@ class TC_GAME_API ThreatManager
 
 //=================================================
 
-namespace Trinity
+namespace JadeCore
 {
     // Binary predicate for sorting HostileReferences based on threat value
     class ThreatOrderPred
     {
         public:
-            ThreatOrderPred(bool ascending = false) : m_ascending(ascending) { }
+            ThreatOrderPred(bool ascending = false) : m_ascending(ascending) {}
             bool operator() (HostileReference const* a, HostileReference const* b) const
             {
                 return m_ascending ? a->getThreat() < b->getThreat() : a->getThreat() > b->getThreat();
@@ -292,3 +266,4 @@ namespace Trinity
     };
 }
 #endif
+

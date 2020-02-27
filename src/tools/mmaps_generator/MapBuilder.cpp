@@ -1,25 +1,15 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include <limits.h>
 
 #include "PathCommon.h"
 #include "MapBuilder.h"
-#include "StringFormat.h"
 
 #include "MapTree.h"
 #include "ModelInstance.h"
@@ -118,7 +108,10 @@ namespace MMAP
             mapID = (*itr).m_mapId;
 
             files.clear();
-            getDirContents(files, "vmaps", Trinity::StringFormat("%04u*.vmtile", mapID));
+            char l_Buffer[4096];
+            sprintf(l_Buffer, "%04u*.vmtile", mapID);
+
+            getDirContents(files, "vmaps", l_Buffer);
             for (uint32 i = 0; i < files.size(); ++i)
             {
                 tileX = uint32(atoi(files[i].substr(8, 2).c_str()));
@@ -130,7 +123,8 @@ namespace MMAP
             }
 
             files.clear();
-            getDirContents(files, "maps", Trinity::StringFormat("%04u*", mapID));
+            sprintf(l_Buffer, "%04u*", mapID);
+            getDirContents(files, "maps", l_Buffer);
             for (uint32 i = 0; i < files.size(); ++i)
             {
                 tileY = uint32(atoi(files[i].substr(5, 2).c_str()));
@@ -529,7 +523,10 @@ namespace MMAP
         dtNavMesh* navMesh)
     {
         // console output
-        std::string tileString = Trinity::StringFormat("[Map %04u] [%02i,%02i]: ", mapID, tileX, tileY);
+        char l_Buffer[4096];
+        sprintf(l_Buffer, "[Map %04u] [%02i,%02i]: ", mapID, tileX, tileY);
+
+        std::string tileString = l_Buffer;
         printf("%s Building movemap tiles...\n", tileString.c_str());
 
         IntermediateValues iv;
@@ -561,7 +558,7 @@ namespace MMAP
         rcVcopy(config.bmin, bmin);
         rcVcopy(config.bmax, bmax);
 
-        config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
+   /*     config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
         config.cs = BASE_UNIT_DIM;
         config.ch = BASE_UNIT_DIM;
         config.walkableSlopeAngle = m_maxWalkableAngle;
@@ -577,7 +574,23 @@ namespace MMAP
         config.mergeRegionArea = rcSqr(50);
         config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
         config.detailSampleDist = config.cs * 64;
-        config.detailSampleMaxError = config.ch * 2;
+        config.detailSampleMaxError = config.ch * 2;*/
+        config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
+        config.cs = BASE_UNIT_DIM;
+        config.ch = BASE_UNIT_DIM;
+        config.walkableSlopeAngle = m_maxWalkableAngle;
+        config.tileSize = VERTEX_PER_TILE;
+        config.walkableRadius = m_bigBaseUnit ? 1 : 2;
+        config.borderSize = config.walkableRadius + 3;
+        config.maxEdgeLen = VERTEX_PER_TILE + 1;        //anything bigger than tileSize
+        config.walkableHeight = m_bigBaseUnit ? 3 : 6;
+        config.walkableClimb = m_bigBaseUnit ? 2 : 4;   // keep less than walkableHeight
+        config.minRegionArea = rcSqr(50);
+        config.mergeRegionArea = rcSqr(40);
+        config.maxSimplificationError = 3.0f;       // eliminates most jagged edges (tinny polygons)
+        config.detailSampleDist = config.cs * 64;
+        config.detailSampleMaxError = config.ch * 4;
+
 
         // this sets the dimensions of the heightfield - should maybe happen before border padding
         rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);

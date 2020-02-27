@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _LINKEDLIST
 #define _LINKEDLIST
@@ -22,7 +12,6 @@
 #include "Define.h"
 #include <iterator>
 
-//============================================
 class LinkedListHead;
 
 class LinkedListElement
@@ -33,8 +22,8 @@ class LinkedListElement
         LinkedListElement* iNext;
         LinkedListElement* iPrev;
     public:
-        LinkedListElement() : iNext(NULL), iPrev(NULL) { }
-        virtual ~LinkedListElement() { delink(); }
+        LinkedListElement(): iNext(NULL), iPrev(NULL) {}
+        ~LinkedListElement() { delink(); }
 
         bool hasNext() const { return(iNext && iNext->iNext != NULL); }
         bool hasPrev() const { return(iPrev && iPrev->iPrev != NULL); }
@@ -73,13 +62,7 @@ class LinkedListElement
             iNext->iPrev = pElem;
             iNext = pElem;
         }
-
-    private:
-        LinkedListElement(LinkedListElement const&);
-        LinkedListElement& operator=(LinkedListElement const&);
 };
-
-//============================================
 
 class LinkedListHead
 {
@@ -87,7 +70,6 @@ class LinkedListHead
         LinkedListElement iFirst;
         LinkedListElement iLast;
         uint32 iSize;
-
     public:
         LinkedListHead(): iSize(0)
         {
@@ -97,9 +79,13 @@ class LinkedListHead
             iLast.iPrev = &iFirst;
         }
 
-        virtual ~LinkedListHead() { }
+        bool isEmpty() const
+        {
+            if (iFirst.iNext == NULL)
+                return true;
 
-        bool isEmpty() const { return(!iFirst.iNext->isInList()); }
+            return(!iFirst.iNext->isInList());
+        }
 
         LinkedListElement      * getFirst()       { return(isEmpty() ? NULL : iFirst.iNext); }
         LinkedListElement const* getFirst() const { return(isEmpty() ? NULL : iFirst.iNext); }
@@ -150,7 +136,7 @@ class LinkedListHead
                 typedef _Ty&                                reference;
                 typedef _Ty const &                         const_reference;
 
-                Iterator() : _Ptr(nullptr)
+                Iterator() : _Ptr(0)
                 {                                           // construct with null node pointer
                 }
 
@@ -246,11 +232,6 @@ class LinkedListHead
         };
 
         typedef Iterator<LinkedListElement> iterator;
-
-    private:
-        LinkedListHead(LinkedListHead const&);
-        LinkedListHead& operator=(LinkedListHead const&);
 };
 
-//============================================
 #endif

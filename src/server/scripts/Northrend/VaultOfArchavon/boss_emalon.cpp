@@ -1,25 +1,17 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "vault_of_archavon.h"
 
+//Emalon spells
 enum Spells
 {
     SPELL_OVERCHARGE            = 64218,    // Cast every 45 sec on a random Tempest Minion
@@ -28,37 +20,34 @@ enum Spells
     SPELL_SHOCK                 = 64363,
     SPELL_OVERCHARGED           = 64217,
     SPELL_OVERCHARGED_BLAST     = 64219,    // Cast when Overcharged reaches 10 stacks. Mob dies after that
-    SPELL_CHAIN_LIGHTNING       = 64213,
-    SPELL_LIGHTNING_NOVA        = 64216
 };
 
-enum Emotes
+// cannot let SpellDifficulty handle it, no entries for these
+#define SPELL_CHAIN_LIGHTNING           RAID_MODE(64213, 64215)
+#define SPELL_LIGHTNING_NOVA            RAID_MODE(64216, 65279)
+
+enum BossEmotes
 {
-    EMOTE_OVERCHARGE            = 0,
-    EMOTE_MINION_RESPAWN        = 1,
-    EMOTE_BERSERK               = 2
+    EMOTE_OVERCHARGE        = -1590000,
+    EMOTE_MINION_RESPAWN    = -1590001,
+    EMOTE_BERSERK           = -1590002
 };
 
 enum Events
 {
-    EVENT_CHAIN_LIGHTNING       = 1,
-    EVENT_LIGHTNING_NOVA        = 2,
-    EVENT_OVERCHARGE            = 3,
-    EVENT_BERSERK               = 4,
-    EVENT_SHOCK                 = 5,
+    EVENT_CHAIN_LIGHTNING   = 1,
+    EVENT_LIGHTNING_NOVA    = 2,
+    EVENT_OVERCHARGE        = 3,
+    EVENT_BERSERK           = 4,
+    EVENT_SHOCK             = 5
 };
 
-enum Npcs
-{
-    NPC_TEMPEST_MINION          = 33998
-};
+//Creatures
+#define MOB_TEMPEST_MINION          33998
 
-enum Misc
-{
-    MAX_TEMPEST_MINIONS         = 4
-};
+#define MAX_TEMPEST_MINIONS         4
 
-Position const TempestMinions[MAX_TEMPEST_MINIONS] =
+struct Position TempestMinions[MAX_TEMPEST_MINIONS] =
 {
     {-203.980103f, -281.287720f, 91.650223f, 1.598807f},
     {-233.489410f, -281.139282f, 91.652412f, 1.598807f},
@@ -80,31 +69,31 @@ class boss_emalon : public CreatureScript
             {
             }
 
-            void Reset() override
+            void Reset()
             {
                 _Reset();
 
                 for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
-                    me->SummonCreature(NPC_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
             }
 
-            void JustSummoned(Creature* summoned) override
+            void JustSummoned(Creature* summoned)
             {
                 BossAI::JustSummoned(summoned);
 
                 // AttackStart has NULL-check for victim
                 if (summoned->AI())
-                    summoned->AI()->AttackStart(me->GetVictim());
+                    summoned->AI()->AttackStart(me->getVictim());
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* who)
             {
                 if (!summons.empty())
                 {
-                    for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                    for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
                     {
-                        Creature* minion = ObjectAccessor::GetCreature(*me, *itr);
-                        if (minion && minion->IsAlive() && !minion->GetVictim() && minion->AI())
+                        Creature* minion = Unit::GetCreature(*me, *itr);
+                        if (minion && minion->isAlive() && !minion->getVictim() && minion->AI())
                             minion->AI()->AttackStart(who);
                     }
                 }
@@ -117,7 +106,7 @@ class boss_emalon : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -143,19 +132,19 @@ class boss_emalon : public CreatureScript
                         case EVENT_OVERCHARGE:
                             if (!summons.empty())
                             {
-                                Creature* minion = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(summons));
-                                if (minion && minion->IsAlive())
+                                Creature* minion = Unit::GetCreature(*me, JadeCore::Containers::SelectRandomContainerElement(summons));
+                                if (minion && minion->isAlive())
                                 {
                                     minion->CastSpell(me, SPELL_OVERCHARGED, true);
                                     minion->SetFullHealth();
-                                    Talk(EMOTE_OVERCHARGE);
+                                    DoScriptText(EMOTE_OVERCHARGE, me);
                                     events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
                                 }
                             }
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK);
-                            Talk(EMOTE_BERSERK);
+                            DoScriptText(EMOTE_BERSERK, me);
                             break;
                         default:
                             break;
@@ -166,7 +155,7 @@ class boss_emalon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_emalonAI(creature);
         }
@@ -175,55 +164,49 @@ class boss_emalon : public CreatureScript
 /*######
 ##  Tempest Minion
 ######*/
-class npc_tempest_minion : public CreatureScript
+class mob_tempest_minion : public CreatureScript
 {
     public:
-        npc_tempest_minion() : CreatureScript("npc_tempest_minion") { }
+        mob_tempest_minion() : CreatureScript("mob_tempest_minion") { }
 
-        struct npc_tempest_minionAI : public ScriptedAI
+        struct mob_tempest_minionAI : public ScriptedAI
         {
-            npc_tempest_minionAI(Creature* creature) : ScriptedAI(creature)
+            mob_tempest_minionAI(Creature* creature) : ScriptedAI(creature)
             {
-                Initialize();
                 instance = creature->GetInstanceScript();
             }
 
-            void Initialize()
+            void Reset()
             {
+                events.Reset();
                 OverchargedTimer = 0;
             }
 
-            void Reset() override
+            void JustDied(Unit* /*killer*/)
             {
-                events.Reset();
-                Initialize();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                if (Creature* emalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EMALON)))
+                if (Creature* emalon = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EMALON) : 0))
                 {
-                    if (emalon->IsAlive())
+                    if (emalon->isAlive())
                     {
-                        emalon->SummonCreature(NPC_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        Talk(EMOTE_MINION_RESPAWN);
+                        emalon->SummonCreature(MOB_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        DoScriptText(EMOTE_MINION_RESPAWN, me);
                     }
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* who)
             {
                 DoZoneInCombat();
                 events.ScheduleEvent(EVENT_SHOCK, 20000);
 
-                if (Creature* pEmalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EMALON)))
+                if (Creature* pEmalon = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EMALON) : 0))
                 {
-                    if (!pEmalon->GetVictim() && pEmalon->AI())
+                    if (!pEmalon->getVictim() && pEmalon->AI())
                         pEmalon->AI()->AttackStart(who);
                 }
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 //Return since we have no target
                 if (!UpdateVictim())
@@ -252,7 +235,7 @@ class npc_tempest_minion : public CreatureScript
                         {
                             DoCast(me, SPELL_OVERCHARGED_BLAST);
                             me->DespawnOrUnsummon();
-                            Talk(EMOTE_MINION_RESPAWN);
+                            DoScriptText(EMOTE_MINION_RESPAWN, me);
                         }
                     }
                 }
@@ -272,14 +255,16 @@ class npc_tempest_minion : public CreatureScript
             uint32 OverchargedTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return GetInstanceAI<npc_tempest_minionAI>(creature);
+            return new mob_tempest_minionAI(creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_emalon()
 {
     new boss_emalon();
-    new npc_tempest_minion();
+    new mob_tempest_minion();
 }
+#endif

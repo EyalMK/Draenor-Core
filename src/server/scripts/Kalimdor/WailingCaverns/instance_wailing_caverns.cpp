@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Instance_Wailing_Caverns
@@ -34,33 +24,35 @@ class instance_wailing_caverns : public InstanceMapScript
 public:
     instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns", 43) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
         return new instance_wailing_caverns_InstanceMapScript(map);
     }
 
     struct instance_wailing_caverns_InstanceMapScript : public InstanceScript
     {
-        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map)
-        {
-            SetHeaders(DataHeader);
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            yelled = false;
-        }
+        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         bool yelled;
-        ObjectGuid NaralexGUID;
+        uint64 NaralexGUID;
 
-        void OnCreatureCreate(Creature* creature) override
+        void Initialize()
+        {
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+            yelled = false;
+            NaralexGUID = 0;
+        }
+
+        void OnCreatureCreate(Creature* creature)
         {
             if (creature->GetEntry() == DATA_NARALEX)
                 NaralexGUID = creature->GetGUID();
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 type, uint32 data)
         {
             switch (type)
             {
@@ -78,7 +70,7 @@ public:
             if (data == DONE)SaveToDB();
         }
 
-        uint32 GetData(uint32 type) const override
+        uint32 GetData(uint32 type)
         {
             switch (type)
             {
@@ -96,13 +88,13 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 data) const override
+        uint64 GetData64(uint32 data)
         {
             if (data == DATA_NARALEX)return NaralexGUID;
-            return ObjectGuid::Empty;
+            return 0;
         }
 
-        std::string GetSaveData() override
+        std::string GetSaveData()
         {
             OUT_SAVE_INST_DATA;
 
@@ -115,7 +107,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* in) override
+        void Load(const char* in)
         {
             if (!in)
             {
@@ -140,7 +132,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_wailing_caverns()
 {
     new instance_wailing_caverns();
 }
+#endif

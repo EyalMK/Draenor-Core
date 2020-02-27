@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /// \addtogroup Trinityd
 /// @{
@@ -39,11 +29,11 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-char* command_finder(const char* text, int state)
+char * command_finder(const char* text, int state)
 {
-    static size_t idx, len;
+    static int idx, len;
     const char* ret;
-    std::vector<ChatCommand> const& cmd = ChatHandler::getCommandTable();
+    ChatCommand* cmd = ChatHandler::getCommandTable();
 
     if (!state)
     {
@@ -51,39 +41,45 @@ char* command_finder(const char* text, int state)
         len = strlen(text);
     }
 
-    while (idx < cmd.size())
+    while ((ret = cmd[idx].Name))
     {
-        ret = cmd[idx].Name;
         if (!cmd[idx].AllowConsole)
         {
-            ++idx;
+            idx++;
             continue;
         }
 
-        ++idx;
+        idx++;
         //printf("Checking %s \n", cmd[idx].Name);
         if (strncmp(ret, text, len) == 0)
             return strdup(ret);
+        if (cmd[idx].Name == NULL)
+            break;
     }
 
     return ((char*)NULL);
 }
 
-char** cli_completion(const char* text, int start, int /*end*/)
+char ** cli_completion(const char * text, int start, int /*end*/)
 {
-    char** matches = NULL;
+    char ** matches;
+    matches = (char**)NULL;
 
-    if (start)
-        rl_bind_key('\t', rl_abort);
-    else
+    if (start == 0)
         matches = rl_completion_matches((char*)text, &command_finder);
-    return matches;
+/*#ifdef PLATFORM != PLATFORM_APPLE
+    else
+        rl_bind_key('\t', rl_abort);
+#endif*/
+    return (matches);
 }
 
-int cli_hook_func()
+int cli_hook_func(void)
 {
+#if PLATFORM != PLATFORM_APPLE
        if (World::IsStopped())
            rl_done = 1;
+#endif
        return 0;
 }
 
@@ -130,16 +126,18 @@ int kb_hit_return()
 #endif
 
 /// %Thread start
-void CliThread()
+void CliRunnable::run()
 {
     ///- Display the list of available CLI functions then beep
-    //TC_LOG_INFO("server.worldserver", "");
+    //sLog->outInfo(LOG_FILTER_WORLDSERVER, "");
 #if PLATFORM != PLATFORM_WINDOWS
     rl_attempted_completion_function = cli_completion;
+    #if PLATFORM != PLATFORM_APPLE
     rl_event_hook = cli_hook_func;
+    #endif
 #endif
 
-    if (sConfigMgr->GetBoolDefault("BeepAtStart", true))
+    if (ConfigMgr::GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
     // print this here the first time

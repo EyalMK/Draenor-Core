@@ -1,25 +1,17 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef SC_ESCORTAI_H
 #define SC_ESCORTAI_H
 
 #include "ScriptSystem.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 #define DEFAULT_MAX_PLAYER_DISTANCE 50
 
@@ -49,29 +41,29 @@ enum eEscortState
     STATE_ESCORT_PAUSED     = 0x004                         //will not proceed with waypoints before state is removed
 };
 
-struct TC_GAME_API npc_escortAI : public ScriptedAI
+struct npc_escortAI : public ScriptedAI
 {
     public:
         explicit npc_escortAI(Creature* creature);
-        ~npc_escortAI() { }
+        ~npc_escortAI() {}
 
         // CreatureAI functions
-        void AttackStart(Unit* who) override;
+        void AttackStart(Unit* who);
 
-        void MoveInLineOfSight(Unit* who) override;
+        void MoveInLineOfSight(Unit* who);
 
-        void JustDied(Unit*) override;
+        void JustDied(Unit*);
 
-        void JustRespawned() override;
+        void JustRespawned();
 
         void ReturnToLastPoint();
 
-        void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER) override;
+        void EnterEvadeMode();
 
-        void UpdateAI(uint32 diff) override;        // the "internal" update, calls UpdateEscortAI()
-        virtual void UpdateEscortAI(uint32 diff);   // used when it's needed to add code in update (abilities, scripted events, etc)
+        void UpdateAI(uint32 const diff);                   //the "internal" update, calls UpdateEscortAI()
+        virtual void UpdateEscortAI(uint32 const diff);     //used when it's needed to add code in update (abilities, scripted events, etc)
 
-        void MovementInform(uint32, uint32) override;
+        void MovementInform(uint32, uint32);
 
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime = 0);    // waitTime is in ms
@@ -86,27 +78,28 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         bool GetWaypointPosition(uint32 pointId, float& x, float& y, float& z);
 
         virtual void WaypointReached(uint32 pointId) = 0;
-        virtual void WaypointStart(uint32 /*pointId*/) { }
+        virtual void LastWaypointReached() {}
+        virtual void WaypointStart(uint32 /*pointId*/) {}
 
-        void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);
+        void Start(bool isActiveAttacker = true, bool run = false, uint64 playerGUID = 0, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);
 
         void SetRun(bool on = true);
         void SetEscortPaused(bool on);
 
-        bool HasEscortState(uint32 escortState) { return (m_uiEscortState & escortState) != 0; }
-        virtual bool IsEscorted() const override { return (m_uiEscortState & STATE_ESCORT_ESCORTING); }
+        bool HasEscortState(uint32 escortState) { return (m_uiEscortState & escortState); }
+        virtual bool IsEscorted() { return (m_uiEscortState & STATE_ESCORT_ESCORTING); }
 
         void SetMaxPlayerDistance(float newMax) { MaxPlayerDistance = newMax; }
-        float GetMaxPlayerDistance() const { return MaxPlayerDistance; }
+        float GetMaxPlayerDistance() { return MaxPlayerDistance; }
 
         void SetDespawnAtEnd(bool despawn) { DespawnAtEnd = despawn; }
         void SetDespawnAtFar(bool despawn) { DespawnAtFar = despawn; }
-        bool GetAttack() const { return m_bIsActiveAttacker; }//used in EnterEvadeMode override
+        bool GetAttack() { return m_bIsActiveAttacker; }//used in EnterEvadeMode override
         void SetCanAttack(bool attack) { m_bIsActiveAttacker = attack; }
-        ObjectGuid GetEventStarterGUID() const { return m_uiPlayerGUID; }
+        uint64 GetEventStarterGUID() { return m_uiPlayerGUID; }
 
     protected:
-        Player* GetPlayerForEscort() { return ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID); }
+        Player* GetPlayerForEscort() { return (Player*)Unit::GetUnit(*me, m_uiPlayerGUID); }
 
     private:
         bool AssistPlayerInCombat(Unit* who);
@@ -116,7 +109,7 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         void AddEscortState(uint32 escortState) { m_uiEscortState |= escortState; }
         void RemoveEscortState(uint32 escortState) { m_uiEscortState &= ~escortState; }
 
-        ObjectGuid m_uiPlayerGUID;
+        uint64 m_uiPlayerGUID;
         uint32 m_uiWPWaitTimer;
         uint32 m_uiPlayerCheckTimer;
         uint32 m_uiEscortState;

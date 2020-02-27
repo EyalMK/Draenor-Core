@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "PointMovementGenerator.h"
 #include "Errors.h"
@@ -26,6 +16,7 @@
 #include "Player.h"
 #include "CreatureGroups.h"
 #include "ObjectAccessor.h"
+#include <stack>
 
 //----- Point Movement Generator
 template<class T>
@@ -41,6 +32,9 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
 
     Movement::MoveSplineInit init(unit);
     init.MoveTo(i_x, i_y, i_z, m_generatePath);
+    if (m_Angle != -1000.0f)
+        init.SetFacing(m_Angle);
+
     if (speed > 0.0f)
         init.SetVelocity(speed);
     init.Launch();
@@ -89,6 +83,33 @@ void PointMovementGenerator<T>::DoFinalize(T* unit)
     if (unit->HasUnitState(UNIT_STATE_CHARGING))
         unit->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
 
+    /// Update all passengers after updating vehicle position
+    /// This will prevent some base positioning if vehicles are updated in the wrong order
+    if (unit->GetVehicleBase())
+    {
+        std::stack<Unit*> l_RecursivesVehicles;
+        Unit* l_Current = unit;
+
+        do
+        {
+            l_Current = l_Current->GetVehicleBase();
+
+            if (l_Current != nullptr)
+                l_RecursivesVehicles.push(l_Current);
+        }
+        while (l_Current);
+
+        while (!l_RecursivesVehicles.empty())
+        {
+            Unit* l_Vehicle = l_RecursivesVehicles.top();
+
+            l_Vehicle->UpdateSplinePosition();
+            l_RecursivesVehicles.pop();
+        }
+
+        unit->UpdateSplinePosition();
+    }
+
     if (unit->movespline->Finalized())
         MovementInform(unit);
 }
@@ -105,10 +126,73 @@ void PointMovementGenerator<T>::DoReset(T* unit)
 template<class T>
 void PointMovementGenerator<T>::MovementInform(T* /*unit*/) { }
 
+enum specialSpells
+{
+    BABY_ELEPHANT_TAKES_A_BATH          = 108938,
+    BABY_ELEPHANT_TAKES_A_BATH_2        = 108937,
+    MONK_CLASH                          = 126452,
+    MONK_CLASH_IMPACT                   = 126451,
+    TOT_RETRIEVE_SPEAR                  = 137070,
+    TOT_RETRIEVE_SPEAR_DAMAGE           = 137072,
+
+    // Jin'Rokh the Breaker - ToT
+    SPELL_THUNDERING_THROW_JUMP_DEST    = 137173,
+    SPELL_THUNDERING_THROW_VEHICLE      = 137161,
+    SPELL_THUNDERING_THROW_AOE          = 137167,
+    SPELL_THUNDERING_THROW_STUN_PLAYER  = 137371,
+
+    // Horridon - ToT
+    SPELL_HORRIDON_CHARGE               = 136769,
+    SPELL_DOUBLE_SWIPE                  = 136741,
+
+    /// Kargath Bladefist - Highmaul
+    ChainHurlJumpDest                   = 160061,
+    ChainHurlKnockBack                  = 160062,
+    ChainHurlJumpDestPlayer             = 159995,
+    ChainHurlAoEStunPlayer              = 160904,
+    ChainHurl                           = 159947,
+    AnimChainHurl                       = 5917,
+
+    /// Krush - Highmaul
+    BoarsRuchJump                       = 166225,
+    Winded                              = 166227,
+
+    /// Ogron Earthshaker - Highmaul
+    IntimidatingRoarJump                = 166170,
+    IntimidatingRoarFear                = 166171,
+    Squash                              = 166172
+};
+
 template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit)
 {
     if (unit->AI())
-        unit->AI()->MovementInform(POINT_MOTION_TYPE, id);
+        unit->AddMovementInform(POINT_MOTION_TYPE, id);
+
+    switch (id)
+    {
+        case BABY_ELEPHANT_TAKES_A_BATH:
+            unit->CastSpell(unit, BABY_ELEPHANT_TAKES_A_BATH_2, true);
+            break;
+        case SPELL_HORRIDON_CHARGE:
+            unit->CastSpell(unit, SPELL_DOUBLE_SWIPE, false);
+            break;
+        default:
+            break;
+    }
+}
+
+template <> void PointMovementGenerator<Player>::MovementInform(Player* unit)
+{
+    sScriptMgr->OnPlayerMovementInform(unit, POINT_MOTION_TYPE, id);
+
+    switch (id)
+    {
+        case MONK_CLASH:
+            unit->CastSpell(unit, MONK_CLASH_IMPACT, true);
+            break;
+        default:
+            break;
+    }
 }
 
 template void PointMovementGenerator<Player>::DoInitialize(Player*);
@@ -124,13 +208,18 @@ void AssistanceMovementGenerator::Finalize(Unit* unit)
 {
     unit->ToCreature()->SetNoCallAssistance(false);
     unit->ToCreature()->CallAssistance();
-    if (unit->IsAlive())
+    if (unit->isAlive())
         unit->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
 }
 
-bool EffectMovementGenerator::Update(Unit* unit, uint32)
+bool EffectMovementGenerator::Update(Unit* p_Unit, uint32)
 {
-    return !unit->movespline->Finalized();
+    if (p_Unit->movespline->Finalized())
+    {
+        if (Player* l_Player = p_Unit->ToPlayer())
+            sScriptMgr->OnFinishMovement(l_Player, _id, _arrivalSpellTargetGuid);
+    }
+    return !p_Unit->movespline->Finalized();
 }
 
 void EffectMovementGenerator::Finalize(Unit* unit)
@@ -142,14 +231,56 @@ void EffectMovementGenerator::Finalize(Unit* unit)
         return;
 
     // Need restore previous movement since we have no proper states system
-    if (unit->IsAlive() && !unit->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING))
+    if (unit->isAlive() && !unit->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING))
     {
-        if (Unit* victim = unit->GetVictim())
+        if (Unit* victim = unit->getVictim())
             unit->GetMotionMaster()->MoveChase(victim);
         else
             unit->GetMotionMaster()->Initialize();
     }
 
-    if (unit->ToCreature()->AI())
-        unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, _id);
+    MovementInform(unit);
+}
+
+void EffectMovementGenerator::MovementInform(Unit* unit)
+{
+    if (unit->GetTypeId() == TYPEID_UNIT)
+    {
+        Creature* creature = unit->ToCreature();
+
+        if (creature->AI())
+            creature->AddMovementInform(EFFECT_MOTION_TYPE, _id);
+    }
+
+    switch (_id)
+    {
+        case TOT_RETRIEVE_SPEAR:
+            unit->CastSpell(unit, TOT_RETRIEVE_SPEAR_DAMAGE, true);
+            break;
+        case SPELL_THUNDERING_THROW_JUMP_DEST:
+            if (unit->HasAura(SPELL_THUNDERING_THROW_VEHICLE))
+                break;
+            unit->CastSpell(unit, SPELL_THUNDERING_THROW_AOE, true);
+            unit->CastSpell(unit, SPELL_THUNDERING_THROW_STUN_PLAYER, true);
+            break;
+        case specialSpells::ChainHurlJumpDest:
+            unit->CastSpell(unit, specialSpells::ChainHurlKnockBack, true);
+            unit->CastSpell(unit, specialSpells::ChainHurl, false);
+            unit->PlayOneShotAnimKit(specialSpells::AnimChainHurl);
+            unit->SetControlled(true, UnitState::UNIT_STATE_ROOT);
+            break;
+        case specialSpells::ChainHurlJumpDestPlayer:
+            unit->CastSpell(unit, specialSpells::ChainHurlAoEStunPlayer, true);
+            break;
+        case specialSpells::BoarsRuchJump:
+            unit->CastSpell(unit, specialSpells::Winded, true);
+            unit->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+            break;
+        case specialSpells::IntimidatingRoarJump:
+            unit->CastSpell(unit, specialSpells::Squash, true);
+            unit->CastSpell(unit, specialSpells::IntimidatingRoarFear, false);
+            break;
+        default:
+            break;
+    }
 }

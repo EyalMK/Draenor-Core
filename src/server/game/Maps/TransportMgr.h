@@ -1,28 +1,19 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRANSPORTMGR_H
 #define TRANSPORTMGR_H
 
+#include "Common.h"
 #include <G3D/Quat.h>
-#include "Spline.h"
 #include "DBCStores.h"
 #include "DB2Stores.h"
-#include "ObjectGuid.h"
+#include "../game/Movement/Spline/Spline.h"
 
 struct KeyFrame;
 struct GameObjectTemplate;
@@ -39,7 +30,7 @@ typedef std::unordered_map<uint32, std::set<uint32> > TransportInstanceMap;
 
 struct KeyFrame
 {
-    explicit KeyFrame(TaxiPathNodeEntry const* node) : Index(0), Node(node), InitialOrientation(0.0f),
+    explicit KeyFrame(TaxiPathNodeEntry const& _node) : Node(&_node),
         DistSinceStop(-1.0f), DistUntilStop(-1.0f), DistFromPrev(-1.0f), TimeFrom(0.0f), TimeTo(0.0f),
         Teleport(false), ArriveTime(0), DepartureTime(0), Spline(NULL), NextDistFromPrev(0.0f), NextArriveTime(0)
     {
@@ -47,7 +38,6 @@ struct KeyFrame
 
     uint32 Index;
     TaxiPathNodeEntry const* Node;
-    float InitialOrientation;
     float DistSinceStop;
     float DistUntilStop;
     float DistFromPrev;
@@ -68,7 +58,7 @@ struct KeyFrame
 
 struct TransportTemplate
 {
-    TransportTemplate() : inInstance(false), pathTime(0), accelTime(0.0f), accelDist(0.0f), entry(0) { }
+    TransportTemplate() : pathTime(0), accelTime(0.0f), accelDist(0.0f) { }
     ~TransportTemplate();
 
     std::set<uint32> mapsUsed;
@@ -83,10 +73,8 @@ struct TransportTemplate
 typedef std::map<uint32, TransportAnimationEntry const*> TransportPathContainer;
 typedef std::map<uint32, TransportRotationEntry const*> TransportPathRotationContainer;
 
-struct TC_GAME_API TransportAnimation
+struct TransportAnimation
 {
-    TransportAnimation() : TotalTime(0) { }
-
     TransportPathContainer Path;
     TransportPathRotationContainer Rotations;
     uint32 TotalTime;
@@ -97,19 +85,18 @@ struct TC_GAME_API TransportAnimation
 
 typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
-class TC_GAME_API TransportMgr
+class TransportMgr
 {
-        friend void DB2Manager::LoadStores(std::string const&, uint32);
+        friend class ACE_Singleton<TransportMgr, ACE_Thread_Mutex>;
+        friend void LoadDBCStores(std::string const&);
 
     public:
-        static TransportMgr* instance();
-
         void Unload();
 
         void LoadTransportTemplates();
 
         // Creates a transport using given GameObject template entry
-        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = UI64LIT(0), Map* map = nullptr, uint32 phaseid = 0, uint32 phasegroup = 0);
+        Transport* CreateTransport(uint32 entry, uint32 guid = 0, Map* map = NULL);
 
         // Spawns all continent transports, used at core startup
         void SpawnContinentTransports();
@@ -159,6 +146,6 @@ class TC_GAME_API TransportMgr
         TransportAnimationContainer _transportAnimations;
 };
 
-#define sTransportMgr TransportMgr::instance()
+#define sTransportMgr ACE_Singleton<TransportMgr, ACE_Thread_Mutex>::instance()
 
 #endif // TRANSPORTMGR_H

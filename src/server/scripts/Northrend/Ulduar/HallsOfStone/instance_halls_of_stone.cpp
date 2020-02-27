@@ -1,217 +1,268 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-#include "InstanceScript.h"
-#include "Player.h"
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "halls_of_stone.h"
 
-DoorData const doorData[] =
-{
-    { GO_SJONNIR_DOOR, DATA_TRIBUNAL_OF_AGES, DOOR_TYPE_PASSAGE },
-    { 0,               0,                     DOOR_TYPE_ROOM } // END
-};
+#define MAX_ENCOUNTER 4
+
+/* Halls of Stone encounters:
+0- Krystallus
+1- Maiden of Grief
+2- Escort Event
+3- Sjonnir The Ironshaper
+*/
 
 class instance_halls_of_stone : public InstanceMapScript
 {
-    public:
-        instance_halls_of_stone() : InstanceMapScript(HoSScriptName, 599) { }
+public:
+    instance_halls_of_stone() : InstanceMapScript("instance_halls_of_stone", 599) { }
 
-        struct instance_halls_of_stone_InstanceMapScript : public InstanceScript
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    {
+        return new instance_halls_of_stone_InstanceMapScript(map);
+    }
+
+    struct instance_halls_of_stone_InstanceMapScript : public InstanceScript
+    {
+        instance_halls_of_stone_InstanceMapScript(Map* map) : InstanceScript(map) {}
+
+        uint64 uiMaidenOfGrief;
+        uint64 uiKrystallus;
+        uint64 uiSjonnir;
+
+        uint64 uiKaddrak;
+        uint64 uiAbedneum;
+        uint64 uiMarnak;
+        uint64 uiBrann;
+
+        uint64 uiMaidenOfGriefDoor;
+        uint64 uiSjonnirDoor;
+        uint64 uiBrannDoor;
+        uint64 uiTribunalConsole;
+        uint64 uiTribunalChest;
+        uint64 uiTribunalSkyFloor;
+        uint64 uiKaddrakGo;
+        uint64 uiAbedneumGo;
+        uint64 uiMarnakGo;
+
+        uint32 m_auiEncounter[MAX_ENCOUNTER];
+
+        std::string str_data;
+
+        void Initialize()
         {
-            instance_halls_of_stone_InstanceMapScript(Map* map) : InstanceScript(map)
-            {
-                SetHeaders(DataHeader);
-                SetBossNumber(EncounterCount);
-                LoadDoorData(doorData);
-            }
+            uiMaidenOfGrief = 0;
+            uiKrystallus = 0;
+            uiSjonnir = 0;
 
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_KRYSTALLUS:
-                        KrystallusGUID = creature->GetGUID();
-                        break;
-                    case NPC_MAIDEN:
-                        MaidenOfGriefGUID = creature->GetGUID();
-                        break;
-                    case NPC_SJONNIR:
-                        SjonnirGUID = creature->GetGUID();
-                        break;
-                    case NPC_MARNAK:
-                        MarnakGUID = creature->GetGUID();
-                        break;
-                    case NPC_KADDRAK:
-                        KaddrakGUID = creature->GetGUID();
-                        break;
-                    case NPC_ABEDNEUM:
-                        AbedneumGUID = creature->GetGUID();
-                        break;
-                    case NPC_BRANN:
-                        BrannGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
+            uiKaddrak = 0;
+            uiMarnak = 0;
+            uiAbedneum = 0;
+            uiBrann = 0;
 
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_ABEDNEUM:
-                        AbedneumGoGUID = go->GetGUID();
-                        break;
-                    case GO_MARNAK:
-                        MarnakGoGUID = go->GetGUID();
-                        break;
-                    case GO_KADDRAK:
-                        KaddrakGoGUID = go->GetGUID();
-                        break;
-                    case GO_TRIBUNAL_CONSOLE:
-                        TribunalConsoleGUID = go->GetGUID();
-                        break;
-                    case GO_TRIBUNAL_CHEST:
-                    case GO_TRIBUNAL_CHEST_HERO:
-                        TribunalChestGUID = go->GetGUID();
-                        if (GetBossState(DATA_TRIBUNAL_OF_AGES) == DONE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                        break;
-                    case GO_TRIBUNAL_SKY_FLOOR:
-                        TribunalSkyFloorGUID = go->GetGUID();
-                        break;
-                    case GO_SJONNIR_DOOR:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
+            uiMaidenOfGriefDoor = 0;
+            uiSjonnirDoor = 0;
+            uiBrannDoor = 0;
+            uiKaddrakGo = 0;
+            uiMarnakGo = 0;
+            uiAbedneumGo = 0;
+            uiTribunalConsole = 0;
+            uiTribunalChest = 0;
+            uiTribunalSkyFloor = 0;
 
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_SJONNIR_DOOR:
-                        AddDoor(go, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_MAIDEN_OF_GRIEF:
-                        return MaidenOfGriefGUID;
-                    case DATA_KRYSTALLUS:
-                        return KrystallusGUID;
-                    case DATA_SJONNIR:
-                        return SjonnirGUID;
-                    case DATA_KADDRAK:
-                        return KaddrakGUID;
-                    case DATA_MARNAK:
-                        return MarnakGUID;
-                    case DATA_ABEDNEUM:
-                        return AbedneumGUID;
-                    case DATA_GO_TRIBUNAL_CONSOLE:
-                        return TribunalConsoleGUID;
-                    case DATA_GO_KADDRAK:
-                        return KaddrakGoGUID;
-                    case DATA_GO_ABEDNEUM:
-                        return AbedneumGoGUID;
-                    case DATA_GO_MARNAK:
-                        return MarnakGoGUID;
-                    case DATA_GO_SKY_FLOOR:
-                        return TribunalSkyFloorGUID;
-                    default:
-                        break;
-                }
-
-                return ObjectGuid::Empty;
-            }
-
-            bool SetBossState(uint32 type, EncounterState state) override
-            {
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
-
-                switch (type)
-                {
-                    case DATA_TRIBUNAL_OF_AGES:
-                        if (state == DONE)
-                        {
-                            if (GameObject* go = instance->GetGameObject(TribunalChestGUID))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-                return true;
-            }
-
-            bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override
-            {
-                if (_SkipCheckRequiredBosses(player))
-                    return true;
-
-                switch (bossId)
-                {
-                    case DATA_SJONNIR:
-                        if (GetBossState(DATA_TRIBUNAL_OF_AGES) != DONE)
-                            return false;
-                        break;
-                    default:
-                        break;
-                }
-
-                return true;
-            }
-
-        protected:
-            ObjectGuid KrystallusGUID;
-            ObjectGuid MaidenOfGriefGUID;
-            ObjectGuid SjonnirGUID;
-
-            ObjectGuid KaddrakGUID;
-            ObjectGuid AbedneumGUID;
-            ObjectGuid MarnakGUID;
-            ObjectGuid BrannGUID;
-
-            ObjectGuid TribunalConsoleGUID;
-            ObjectGuid TribunalChestGUID;
-            ObjectGuid TribunalSkyFloorGUID;
-            ObjectGuid KaddrakGoGUID;
-            ObjectGuid AbedneumGoGUID;
-            ObjectGuid MarnakGoGUID;
-        };
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
-        {
-            return new instance_halls_of_stone_InstanceMapScript(map);
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                m_auiEncounter[i] = NOT_STARTED;
         }
+
+        void OnCreatureCreate(Creature* creature)
+        {
+            switch (creature->GetEntry())
+            {
+                case CREATURE_MAIDEN: uiMaidenOfGrief = creature->GetGUID(); break;
+                case CREATURE_KRYSTALLUS: uiKrystallus = creature->GetGUID(); break;
+                case CREATURE_SJONNIR: uiSjonnir = creature->GetGUID(); break;
+                case CREATURE_MARNAK: uiMarnak = creature->GetGUID(); break;
+                case CREATURE_KADDRAK: uiKaddrak = creature->GetGUID(); break;
+                case CREATURE_ABEDNEUM: uiAbedneum = creature->GetGUID(); break;
+                case CREATURE_BRANN: uiBrann = creature->GetGUID(); break;
+            }
+        }
+
+        void OnGameObjectCreate(GameObject* go)
+        {
+            switch (go->GetEntry())
+            {
+                case GO_ABEDNEUM:
+                    uiAbedneumGo = go->GetGUID();
+                    break;
+                case GO_MARNAK:
+                    uiMarnakGo = go->GetGUID();
+                    break;
+                case GO_KADDRAK:
+                    uiKaddrakGo = go->GetGUID();
+                    break;
+                case GO_MAIDEN_DOOR:
+                    uiMaidenOfGriefDoor = go->GetGUID();
+                    if (m_auiEncounter[0] == DONE)
+                        go->SetGoState(GO_STATE_ACTIVE);
+                    else
+                        go->SetGoState(GO_STATE_READY);
+                    break;
+                case GO_BRANN_DOOR:
+                    uiBrannDoor = go->GetGUID();
+                    if (m_auiEncounter[1] == DONE)
+                        go->SetGoState(GO_STATE_ACTIVE);
+                    else
+                        go->SetGoState(GO_STATE_READY);
+                    break;
+                case GO_SJONNIR_DOOR:
+                    uiSjonnirDoor = go->GetGUID();
+                    if (m_auiEncounter[2] == DONE)
+                        go->SetGoState(GO_STATE_ACTIVE);
+                    else
+                        go->SetGoState(GO_STATE_READY);
+                    break;
+                case GO_TRIBUNAL_CONSOLE:
+                    uiTribunalConsole = go->GetGUID();
+                    break;
+                case GO_TRIBUNAL_CHEST:
+                case GO_TRIBUNAL_CHEST_HERO:
+                    uiTribunalChest = go->GetGUID();
+                    if (m_auiEncounter[2] == DONE)
+                        go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+                    break;
+                case 191527:
+                    uiTribunalSkyFloor = go->GetGUID();
+                    break;
+            }
+        }
+
+        void SetData(uint32 type, uint32 data)
+        {
+            switch (type)
+            {
+                case DATA_MAIDEN_OF_GRIEF_EVENT:
+                    m_auiEncounter[1] = data;
+                    if (m_auiEncounter[1] == DONE)
+                        HandleGameObject(uiBrannDoor, true);
+                    break;
+                case DATA_KRYSTALLUS_EVENT:
+                    m_auiEncounter[0] = data;
+                    if (m_auiEncounter[0] == DONE)
+                        HandleGameObject(uiMaidenOfGriefDoor, true);
+                    break;
+                case DATA_SJONNIR_EVENT:
+                    m_auiEncounter[3] = data;
+                    break;
+                case DATA_BRANN_EVENT:
+                    m_auiEncounter[2] = data;
+                    if (m_auiEncounter[2] == DONE)
+                    {
+                        HandleGameObject(uiSjonnirDoor, true);
+                        GameObject* go = instance->GetGameObject(uiTribunalChest);
+                        if (go)
+                            go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+                    }
+                    break;
+            }
+
+            if (data == DONE)
+                SaveToDB();
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            switch (type)
+            {
+                case DATA_KRYSTALLUS_EVENT:                return m_auiEncounter[0];
+                case DATA_MAIDEN_OF_GRIEF_EVENT:           return m_auiEncounter[1];
+                case DATA_SJONNIR_EVENT:                   return m_auiEncounter[2];
+                case DATA_BRANN_EVENT:                     return m_auiEncounter[3];
+            }
+
+            return 0;
+        }
+
+        uint64 GetData64(uint32 identifier)
+        {
+            switch (identifier)
+            {
+                case DATA_MAIDEN_OF_GRIEF:                 return uiMaidenOfGrief;
+                case DATA_KRYSTALLUS:                      return uiKrystallus;
+                case DATA_SJONNIR:                         return uiSjonnir;
+                case DATA_KADDRAK:                         return uiKaddrak;
+                case DATA_MARNAK:                          return uiMarnak;
+                case DATA_ABEDNEUM:                        return uiAbedneum;
+                case DATA_GO_TRIBUNAL_CONSOLE:             return uiTribunalConsole;
+                case DATA_GO_KADDRAK:                      return uiKaddrakGo;
+                case DATA_GO_ABEDNEUM:                     return uiAbedneumGo;
+                case DATA_GO_MARNAK:                       return uiMarnakGo;
+                case DATA_GO_SKY_FLOOR:                    return uiTribunalSkyFloor;
+                case DATA_SJONNIR_DOOR:                    return uiSjonnirDoor;
+                case DATA_MAIDEN_DOOR:                     return uiMaidenOfGriefDoor;
+            }
+
+            return 0;
+        }
+
+        std::string GetSaveData()
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << "H S " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
+
+            str_data = saveStream.str();
+
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return str_data;
+        }
+
+        void Load(const char* in)
+        {
+            if (!in)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(in);
+
+            char dataHead1, dataHead2;
+            uint16 data0, data1, data2, data3;
+
+            std::istringstream loadStream(in);
+            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
+
+            if (dataHead1 == 'H' && dataHead2 == 'S')
+            {
+                m_auiEncounter[0] = data0;
+                m_auiEncounter[1] = data1;
+                m_auiEncounter[2] = data2;
+                m_auiEncounter[3] = data3;
+
+                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    if (m_auiEncounter[i] == IN_PROGRESS)
+                        m_auiEncounter[i] = NOT_STARTED;
+
+            } else OUT_LOAD_INST_DATA_FAIL;
+
+            OUT_LOAD_INST_DATA_COMPLETE;
+        }
+    };
+
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_halls_of_stone()
 {
     new instance_halls_of_stone();
 }
+#endif

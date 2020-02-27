@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Omar_The_Unscarred
@@ -25,47 +15,61 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Player.h"
-#include "hellfire_ramparts.h"
 
-enum Says
+enum eSays
 {
-    SAY_AGGRO                    = 0,
-    SAY_SUMMON                   = 1,
-    SAY_CURSE                    = 2,
-    SAY_KILL_1                   = 3,
-    SAY_DIE                      = 4,
-    SAY_WIPE                     = 5
+    SAY_AGGRO_1                = -1543009,
+    SAY_AGGRO_2                = -1543010,
+    SAY_AGGRO_3                = -1543011,
+    SAY_SUMMON                 = -1543012,
+    SAY_CURSE                  = -1543013,
+    SAY_KILL_1                 = -1543014,
+    SAY_DIE                    = -1543015,
+    SAY_WIPE                   = -1543016
 };
 
-enum Spells
+enum eSpells
 {
-    SPELL_ORBITAL_STRIKE         = 30637,
-    SPELL_SHADOW_WHIP            = 30638,
-    SPELL_TREACHEROUS_AURA       = 30695,
-    H_SPELL_BANE_OF_TREACHERY    = 37566,
-    SPELL_DEMONIC_SHIELD         = 31901,
-    SPELL_SHADOW_BOLT            = 30686,
-    H_SPELL_SHADOW_BOLT          = 39297,
-    SPELL_SUMMON_FIENDISH_HOUND  = 30707
+    SPELL_ORBITAL_STRIKE       = 30637,
+    SPELL_SHADOW_WHIP          = 30638,
+    SPELL_TREACHEROUS_AURA     = 30695,
+    H_SPELL_BANE_OF_TREACHERY  = 37566,
+    SPELL_DEMONIC_SHIELD       = 31901,
+    SPELL_SHADOW_BOLT          = 30686,
+    H_SPELL_SHADOW_BOLT        = 39297,
+    SPELL_SUMMON_FIENDISH_HOUND= 30707
 };
 
 class boss_omor_the_unscarred : public CreatureScript
 {
     public:
 
-        boss_omor_the_unscarred() : CreatureScript("boss_omor_the_unscarred") { }
-
-        struct boss_omor_the_unscarredAI : public BossAI
+        boss_omor_the_unscarred()
+            : CreatureScript("boss_omor_the_unscarred")
         {
-            boss_omor_the_unscarredAI(Creature* creature) : BossAI(creature, DATA_OMOR_THE_UNSCARRED)
+        }
+
+        struct boss_omor_the_unscarredAI : public ScriptedAI
+        {
+            boss_omor_the_unscarredAI(Creature* creature) : ScriptedAI(creature)
             {
-                Initialize();
                 SetCombatMovement(false);
             }
 
-            void Initialize()
+            uint32 OrbitalStrike_Timer;
+            uint32 ShadowWhip_Timer;
+            uint32 Aura_Timer;
+            uint32 DemonicShield_Timer;
+            uint32 Shadowbolt_Timer;
+            uint32 Summon_Timer;
+            uint32 SummonedCount;
+            uint64 PlayerGUID;
+            bool CanPullBack;
+
+            void Reset()
             {
+                DoScriptText(SAY_WIPE, me);
+
                 OrbitalStrike_Timer = 25000;
                 ShadowWhip_Timer = 2000;
                 Aura_Timer = 10000;
@@ -73,36 +77,26 @@ class boss_omor_the_unscarred : public CreatureScript
                 Shadowbolt_Timer = 2000;
                 Summon_Timer = 10000;
                 SummonedCount = 0;
-                PlayerGUID.Clear();
+                PlayerGUID = 0;
                 CanPullBack = false;
             }
 
-            void Reset() override
+            void EnterCombat(Unit* /*who*/)
             {
-                Talk(SAY_WIPE);
-
-                Initialize();
-
-                _Reset();
+                DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void KilledUnit(Unit* /*victim*/)
             {
-                _EnterCombat();
-                Talk(SAY_AGGRO);
-            }
-
-            void KilledUnit(Unit* /*victim*/) override
-            {
-                if (rand32() % 2)
+                if (rand()%2)
                     return;
 
-                Talk(SAY_KILL_1);
+                DoScriptText(SAY_KILL_1, me);
             }
 
-            void JustSummoned(Creature* summoned) override
+            void JustSummoned(Creature* summoned)
             {
-                Talk(SAY_SUMMON);
+                DoScriptText(SAY_SUMMON, me);
 
                 if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     summoned->AI()->AttackStart(random);
@@ -110,13 +104,12 @@ class boss_omor_the_unscarred : public CreatureScript
                 ++SummonedCount;
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
-                Talk(SAY_DIE);
-                _JustDied();
+                DoScriptText(SAY_DIE, me);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -128,7 +121,7 @@ class boss_omor_the_unscarred : public CreatureScript
                     {
                         me->InterruptNonMeleeSpells(false);
                         DoCast(me, SPELL_SUMMON_FIENDISH_HOUND);
-                        Summon_Timer = 15000 + rand32() % 15000;
+                        Summon_Timer = 15000+rand()%15000;
                     }
                     else
                         Summon_Timer -= diff;
@@ -138,7 +131,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 {
                     if (ShadowWhip_Timer <= diff)
                     {
-                        if (Player* temp = ObjectAccessor::GetPlayer(*me, PlayerGUID))
+                        if (Player* temp = Unit::GetPlayer(*me, PlayerGUID))
                         {
                             //if unit dosen't have this flag, then no pulling back (script will attempt cast, even if orbital strike was resisted)
                             if (temp->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR))
@@ -147,7 +140,7 @@ class boss_omor_the_unscarred : public CreatureScript
                                 DoCast(temp, SPELL_SHADOW_WHIP);
                             }
                         }
-                        PlayerGUID.Clear();
+                        PlayerGUID = 0;
                         ShadowWhip_Timer = 2000;
                         CanPullBack = false;
                     }
@@ -158,17 +151,17 @@ class boss_omor_the_unscarred : public CreatureScript
                     if (OrbitalStrike_Timer <= diff)
                     {
                         Unit* temp = NULL;
-                        if (me->IsWithinMeleeRange(me->GetVictim()))
-                            temp = me->GetVictim();
+                        if (me->IsWithinMeleeRange(me->getVictim()))
+                            temp = me->getVictim();
                         else temp = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                        if (temp && temp->GetTypeId() == TYPEID_PLAYER)
+                        if (temp && temp->IsPlayer())
                         {
                             DoCast(temp, SPELL_ORBITAL_STRIKE);
-                            OrbitalStrike_Timer = 14000 + rand32() % 2000;
+                            OrbitalStrike_Timer = 14000+rand()%2000;
                             PlayerGUID = temp->GetGUID();
 
-                            if (!PlayerGUID.IsEmpty())
+                            if (PlayerGUID)
                                 CanPullBack = true;
                         }
                     }
@@ -188,12 +181,12 @@ class boss_omor_the_unscarred : public CreatureScript
 
                 if (Aura_Timer <= diff)
                 {
-                    Talk(SAY_CURSE);
+                    DoScriptText(SAY_CURSE, me);
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         DoCast(target, SPELL_TREACHEROUS_AURA);
-                        Aura_Timer = 8000 + rand32() % 8000;
+                        Aura_Timer = 8000+rand()%8000;
                     }
                 }
                 else
@@ -204,10 +197,10 @@ class boss_omor_the_unscarred : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         if (target)
-                            target = me->GetVictim();
+                            target = me->getVictim();
 
                         DoCast(target, SPELL_SHADOW_BOLT);
-                        Shadowbolt_Timer = 4000 + rand32() % 2500;
+                        Shadowbolt_Timer = 4000+rand()%2500;
                     }
                 }
                 else
@@ -215,27 +208,17 @@ class boss_omor_the_unscarred : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-
-            private:
-                uint32 OrbitalStrike_Timer;
-                uint32 ShadowWhip_Timer;
-                uint32 Aura_Timer;
-                uint32 DemonicShield_Timer;
-                uint32 Shadowbolt_Timer;
-                uint32 Summon_Timer;
-                uint32 SummonedCount;
-                ObjectGuid PlayerGUID;
-                bool CanPullBack;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return GetInstanceAI<boss_omor_the_unscarredAI>(creature);
+            return new boss_omor_the_unscarredAI(creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_omor_the_unscarred()
 {
     new boss_omor_the_unscarred();
 }
-
+#endif

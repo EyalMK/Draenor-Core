@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_POINTMOVEMENTGENERATOR_H
 #define TRINITY_POINTMOVEMENTGENERATOR_H
@@ -26,8 +16,8 @@ template<class T>
 class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f) : id(_id),
-            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false) { }
+        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f, float p_Angle = -1000.0f) : id(_id),
+            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_Angle(p_Angle), m_generatePath(_generatePath), i_recalculateSpeed(false) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -45,6 +35,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         uint32 id;
         float i_x, i_y, i_z;
         float speed;
+        float m_Angle;
         bool m_generatePath;
         bool i_recalculateSpeed;
 };
@@ -63,13 +54,15 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 class EffectMovementGenerator : public MovementGenerator
 {
     public:
-        EffectMovementGenerator(uint32 id, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty)
+        EffectMovementGenerator(uint32 id, uint32 arrivalSpellId = 0, uint64 const arrivalSpellTargetGuid = 0)
             : _id(id), _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid) { }
         void Initialize(Unit*) override { }
         void Finalize(Unit*) override;
         void Reset(Unit*) override { }
         bool Update(Unit*, uint32) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return EFFECT_MOTION_TYPE; }
+        void MovementInform(Unit*);
+
     private:
         uint32 _id;
         uint32 _arrivalSpellId;

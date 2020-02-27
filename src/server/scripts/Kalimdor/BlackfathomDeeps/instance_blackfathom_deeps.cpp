@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Instance_Blackfathom_Deeps
@@ -26,6 +16,14 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "blackfathom_deeps.h"
+
+#define MAX_ENCOUNTER 4
+
+/* Encounter 0 = Gelihast
+   Encounter 1 = Twilight Lord Kelris
+   Encounter 2 = Shrine event
+   Encounter 3 = Aku'Mai
+ */
 
 const Position LorgusPosition[4] =
 {
@@ -49,23 +47,45 @@ class instance_blackfathom_deeps : public InstanceMapScript
 public:
     instance_blackfathom_deeps() : InstanceMapScript("instance_blackfathom_deeps", 48) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
         return new instance_blackfathom_deeps_InstanceMapScript(map);
     }
 
     struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
     {
-        instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map)
-        {
-            SetHeaders(DataHeader);
-            SetBossNumber(EncounterCount);
+        instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
+        uint64 twilightLordKelrisGUID;
+        uint64 shrine1GUID;
+        uint64 shrine2GUID;
+        uint64 shrine3GUID;
+        uint64 shrine4GUID;
+        uint64 shrineOfGelihastGUID;
+        uint64 altarOfTheDeepsGUID;
+        uint64 mainDoorGUID;
+
+        uint8 encounter[MAX_ENCOUNTER];
+        uint8 countFires;
+        uint8 deathTimes;
+
+        void Initialize()
+        {
+            memset(&encounter, 0, sizeof(encounter));
+
+            twilightLordKelrisGUID = 0;
+            shrine1GUID = 0;
+            shrine2GUID = 0;
+            shrine3GUID = 0;
+            shrine4GUID = 0;
+            shrineOfGelihastGUID = 0;
+            altarOfTheDeepsGUID = 0;
+            mainDoorGUID = 0;
             countFires = 0;
             deathTimes = 0;
         }
 
-        void OnCreatureCreate(Creature* creature) override
+        void OnCreatureCreate(Creature* creature)
         {
             switch (creature->GetEntry())
             {
@@ -78,7 +98,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) override
+        void OnGameObjectCreate(GameObject* go)
         {
             switch (go->GetEntry())
             {
@@ -96,26 +116,41 @@ public:
                     break;
                 case GO_SHRINE_OF_GELIHAST:
                     shrineOfGelihastGUID = go->GetGUID();
-                    if (GetBossState(DATA_GELIHAST) != DONE)
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if (encounter[0] != DONE)
+                        go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_ALTAR_OF_THE_DEEPS:
                     altarOfTheDeepsGUID = go->GetGUID();
-                    if (GetBossState(DATA_AKU_MAI) != DONE)
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if (encounter[3] != DONE)
+                        go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_AKU_MAI_DOOR:
-                    if (GetBossState(DATA_AKU_MAI) == DONE)
-                        HandleGameObject(ObjectGuid::Empty, true, go);
+                    if (encounter[2] == DONE)
+                        HandleGameObject(0, true, go);
                     mainDoorGUID = go->GetGUID();
                     break;
             }
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 type, uint32 data)
         {
             switch (type)
             {
+                case TYPE_GELIHAST:
+                    encounter[0] = data;
+                    if (data == DONE)
+                        if (GameObject* go = instance->GetGameObject(shrineOfGelihastGUID))
+                            go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    break;
+                case TYPE_AKU_MAI:
+                    encounter[3] = data;
+                    if (data == DONE)
+                        if (GameObject* go = instance->GetGameObject(altarOfTheDeepsGUID))
+                        {
+                            go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->SummonCreature(NPC_MORRIDUNE, SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                        }
+                    break;
                 case DATA_FIRE:
                     countFires = data;
                     switch (countFires)
@@ -123,8 +158,10 @@ public:
                         case 1:
                             if (GameObject* go = instance->GetGameObject(shrine1GUID))
                             {
-                                for (uint8 i = 0; i < 4; ++i)
-                                    go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                             }
                             break;
                         case 2:
@@ -149,8 +186,10 @@ public:
                         case 4:
                             if (GameObject* go = instance->GetGameObject(shrine1GUID))
                             {
-                                for (uint8 i = 0; i < 4; ++i)
-                                    go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                go->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                             }
                             break;
                     }
@@ -163,37 +202,18 @@ public:
             }
         }
 
-        bool SetBossState(uint32 type, EncounterState state) override
-        {
-            if (!InstanceScript::SetBossState(type, state))
-                return false;
-
-            switch (type)
-            {
-                case DATA_GELIHAST:
-                    if (state == DONE)
-                        if (GameObject* go = instance->GetGameObject(shrineOfGelihastGUID))
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    break;
-                case DATA_AKU_MAI:
-                    if (state == DONE)
-                        if (GameObject* go = instance->GetGameObject(altarOfTheDeepsGUID))
-                        {
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            go->SummonCreature(NPC_MORRIDUNE, SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                        }
-                    break;
-                default:
-                    break;
-            }
-
-            return true;
-        }
-
-        uint32 GetData(uint32 type) const override
+        uint32 GetData(uint32 type)
         {
             switch (type)
             {
+                case TYPE_GELIHAST:
+                    return encounter[0];
+                case TYPE_KELRIS:
+                    return encounter[1];
+                case TYPE_SHRINE:
+                    return encounter[2];
+                case TYPE_AKU_MAI:
+                    return encounter[3];
                 case DATA_FIRE:
                     return countFires;
                 case DATA_EVENT:
@@ -203,7 +223,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 data) const override
+        uint64 GetData64(uint32 data)
         {
             switch (data)
             {
@@ -223,24 +243,14 @@ public:
                     return mainDoorGUID;
             }
 
-            return ObjectGuid::Empty;
+            return 0;
         }
-
-    private:
-        ObjectGuid twilightLordKelrisGUID;
-        ObjectGuid shrine1GUID;
-        ObjectGuid shrine2GUID;
-        ObjectGuid shrine3GUID;
-        ObjectGuid shrine4GUID;
-        ObjectGuid shrineOfGelihastGUID;
-        ObjectGuid altarOfTheDeepsGUID;
-        ObjectGuid mainDoorGUID;
-        uint8 countFires;
-        uint8 deathTimes;
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_blackfathom_deeps()
 {
     new instance_blackfathom_deeps();
 }
+#endif

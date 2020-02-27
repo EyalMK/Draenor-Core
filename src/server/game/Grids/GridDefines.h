@@ -1,27 +1,16 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_GRIDDEFINES_H
 #define TRINITY_GRIDDEFINES_H
 
 #include "Common.h"
 #include "NGrid.h"
-#include <cmath>
 
 // Forward class definitions
 class Corpse;
@@ -31,12 +20,14 @@ class GameObject;
 class Pet;
 class Player;
 class AreaTrigger;
+class Conversation;
+class Conversation;
 
 #define MAX_NUMBER_OF_CELLS     8
 
 #define MAX_NUMBER_OF_GRIDS      64
 
-#define SIZE_OF_GRIDS            533.3333f
+#define SIZE_OF_GRIDS            533.33333f
 #define CENTER_GRID_ID           (MAX_NUMBER_OF_GRIDS/2)
 
 #define CENTER_GRID_OFFSET      (SIZE_OF_GRIDS/2)
@@ -56,10 +47,15 @@ class AreaTrigger;
 #define MAP_SIZE                (SIZE_OF_GRIDS*MAX_NUMBER_OF_GRIDS)
 #define MAP_HALFSIZE            (MAP_SIZE/2)
 
+#define MAX_HEIGHT            100000.0f                     // can be use for find ground height at surface
+#define INVALID_HEIGHT       -100000.0f                     // for check, must be equal to VMAP_INVALID_HEIGHT, real value for unknown height is VMAP_INVALID_HEIGHT_VALUE
+#define MAX_FALL_DISTANCE     250000.0f                     // "unlimited fall" to find VMap ground if it is available, just larger than MAX_HEIGHT - INVALID_HEIGHT
+#define DEFAULT_HEIGHT_SEARCH     50.0f                     // default search distance to find height at nearby locations
+#define MIN_UNLOAD_DELAY      1                             // immediate unload
+
 // Creature used instead pet to simplify *::Visit templates (not required duplicate code for Creature->Pet case)
-typedef TYPELIST_4(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/) AllWorldObjectTypes;
-typedef TYPELIST_5(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger) AllGridObjectTypes;
-typedef TYPELIST_6(Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger) AllMapStoredObjectTypes;
+typedef TYPELIST_6(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/, AreaTrigger, Conversation) AllWorldObjectTypes;
+typedef TYPELIST_6(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger, Conversation) AllGridObjectTypes;
 
 typedef GridRefManager<Corpse>          CorpseMapType;
 typedef GridRefManager<Creature>        CreatureMapType;
@@ -67,6 +63,7 @@ typedef GridRefManager<DynamicObject>   DynamicObjectMapType;
 typedef GridRefManager<GameObject>      GameObjectMapType;
 typedef GridRefManager<Player>          PlayerMapType;
 typedef GridRefManager<AreaTrigger>     AreaTriggerMapType;
+typedef GridRefManager<Conversation>    ConversationMapType;
 
 enum GridMapTypeMask
 {
@@ -76,7 +73,8 @@ enum GridMapTypeMask
     GRID_MAP_TYPE_MASK_GAMEOBJECT       = 0x08,
     GRID_MAP_TYPE_MASK_PLAYER           = 0x10,
     GRID_MAP_TYPE_MASK_AREATRIGGER      = 0x20,
-    GRID_MAP_TYPE_MASK_ALL              = 0x3F
+    GRID_MAP_TYPE_MASK_CONVERSATION     = 0x40,
+    GRID_MAP_TYPE_MASK_ALL              = 0x7F
 };
 
 typedef Grid<Player, AllWorldObjectTypes, AllGridObjectTypes> GridType;
@@ -89,12 +87,14 @@ template<uint32 LIMIT>
 struct CoordPair
 {
     CoordPair(uint32 x=0, uint32 y=0)
-        : x_coord(x), y_coord(y)
-    { }
+        : x_coord(x)
+        , y_coord(y)
+    {}
 
     CoordPair(const CoordPair<LIMIT> &obj)
-        : x_coord(obj.x_coord), y_coord(obj.y_coord)
-    { }
+        : x_coord(obj.x_coord)
+        , y_coord(obj.y_coord)
+    {}
 
     CoordPair<LIMIT> & operator=(const CoordPair<LIMIT> &obj)
     {
@@ -171,7 +171,7 @@ bool operator!=(const CoordPair<LIMIT> &p1, const CoordPair<LIMIT> &p2)
 typedef CoordPair<MAX_NUMBER_OF_GRIDS> GridCoord;
 typedef CoordPair<TOTAL_NUMBER_OF_CELLS_PER_MAP> CellCoord;
 
-namespace Trinity
+namespace JadeCore
 {
     template<class RET_TYPE, int CENTER_VAL>
     inline RET_TYPE Compute(float x, float y, float center_offset, float size)
@@ -202,8 +202,8 @@ namespace Trinity
 
         int x_val = int(x_offset + CENTER_GRID_CELL_ID + 0.5f);
         int y_val = int(y_offset + CENTER_GRID_CELL_ID + 0.5f);
-        x_off = (float(x_offset) - float(x_val) + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
-        y_off = (float(y_offset) - float(y_val) + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
+        x_off = (float(x_offset) - x_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
+        y_off = (float(y_offset) - y_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
         return CellCoord(x_val, y_val);
     }
 

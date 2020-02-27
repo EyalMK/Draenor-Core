@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_OBJECTGRIDLOADER_H
 #define TRINITY_OBJECTGRIDLOADER_H
@@ -27,20 +17,21 @@
 
 class ObjectWorldLoader;
 
-class TC_GAME_API ObjectGridLoader
+class ObjectGridLoader
 {
     friend class ObjectWorldLoader;
 
     public:
         ObjectGridLoader(NGridType &grid, Map* map, const Cell &cell)
             : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses (0)
-            { }
+            {}
 
         void Visit(GameObjectMapType &m);
         void Visit(CreatureMapType &m);
-        void Visit(CorpseMapType &) const { }
-        void Visit(DynamicObjectMapType&) const { }
-        void Visit(AreaTriggerMapType &) const { }
+        void Visit(CorpseMapType &) const {}
+        void Visit(DynamicObjectMapType&) const {}
+        void Visit(AreaTriggerMapType &) const {}
+        void Visit(ConversationMapType &) const {}
 
         void LoadN(void);
 
@@ -56,20 +47,20 @@ class TC_GAME_API ObjectGridLoader
 };
 
 //Stop the creatures before unloading the NGrid
-class TC_GAME_API ObjectGridStoper
+class ObjectGridStoper
 {
     public:
         void Visit(CreatureMapType &m);
-        template<class T> void Visit(GridRefManager<T> &) { }
+        template<class T> void Visit(GridRefManager<T> &) {}
 };
 
 //Move the foreign creatures back to respawn positions before unloading the NGrid
-class TC_GAME_API ObjectGridEvacuator
+class ObjectGridEvacuator
 {
     public:
         void Visit(CreatureMapType &m);
         void Visit(GameObjectMapType &m);
-        template<class T> void Visit(GridRefManager<T> &) { }
+        template<class T> void Visit(GridRefManager<T> &) {}
 };
 
 //Clean up and remove from world
@@ -83,7 +74,6 @@ class ObjectGridCleaner
 class ObjectGridUnloader
 {
     public:
-        void Visit(CorpseMapType& /*m*/) { }    // corpses are deleted with Map
         template<class T> void Visit(GridRefManager<T> &m);
 };
 #endif

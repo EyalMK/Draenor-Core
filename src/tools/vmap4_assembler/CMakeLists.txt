@@ -1,28 +1,39 @@
-# Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
 #
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+include_directories(
+  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/collision
+  ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
+  ${CMAKE_SOURCE_DIR}/src/server/collision/Models
+  ${ZLIB_INCLUDE_DIR}
+  ${ACE_INCLUDE_DIR}
+)
 
 add_executable(vmap4assembler VMapAssembler.cpp)
+add_dependencies(vmap4assembler casc)
+
+if( UNIX AND NOT NOJEM AND NOT APPLE )
+    set_target_properties(vmap4assembler PROPERTIES LINK_FLAGS "-pthread")
+endif()
 
 target_link_libraries(vmap4assembler
-  common
-  casc
-  zlib)
-
-set_target_properties(vmap4assembler
-    PROPERTIES
-      FOLDER
-        "tools")
+  collision
+  g3dlib
+  ${ACE_LIBRARY}
+  ${ZLIB_LIBRARIES}
+)
 
 if( UNIX )
   install(TARGETS vmap4assembler DESTINATION bin)
 elseif( WIN32 )
   install(TARGETS vmap4assembler DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
+
+set_property(TARGET vmap4assembler PROPERTY FOLDER "tools")

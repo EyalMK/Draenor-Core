@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Huhuran
@@ -26,37 +16,41 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Huhuran
-{
-    EMOTE_FRENZY_KILL           = 0,
-    EMOTE_BERSERK               = 1,
+#define EMOTE_GENERIC_FRENZY_KILL   -1000001
+#define EMOTE_GENERIC_BERSERK       -1000004
 
-    SPELL_FRENZY                = 26051,
-    SPELL_BERSERK               = 26068,
-    SPELL_POISONBOLT            = 26052,
-    SPELL_NOXIOUSPOISON         = 26053,
-    SPELL_WYVERNSTING           = 26180,
-    SPELL_ACIDSPIT              = 26050
-};
+#define SPELL_FRENZY 26051
+#define SPELL_BERSERK 26068
+#define SPELL_POISONBOLT 26052
+#define SPELL_NOXIOUSPOISON 26053
+#define SPELL_WYVERNSTING 26180
+#define SPELL_ACIDSPIT 26050
 
 class boss_huhuran : public CreatureScript
 {
 public:
     boss_huhuran() : CreatureScript("boss_huhuran") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_huhuranAI(creature);
+        return new boss_huhuranAI (creature);
     }
 
     struct boss_huhuranAI : public ScriptedAI
     {
-        boss_huhuranAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
+        boss_huhuranAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Initialize()
+        uint32 Frenzy_Timer;
+        uint32 Wyvern_Timer;
+        uint32 Spit_Timer;
+        uint32 PoisonBolt_Timer;
+        uint32 NoxiousPoison_Timer;
+        uint32 FrenzyBack_Timer;
+
+        bool Frenzy;
+        bool Berserk;
+
+        void Reset()
         {
             Frenzy_Timer = urand(25000, 35000);
             Wyvern_Timer = urand(18000, 28000);
@@ -69,26 +63,11 @@ public:
             Berserk = false;
         }
 
-        uint32 Frenzy_Timer;
-        uint32 Wyvern_Timer;
-        uint32 Spit_Timer;
-        uint32 PoisonBolt_Timer;
-        uint32 NoxiousPoison_Timer;
-        uint32 FrenzyBack_Timer;
-
-        bool Frenzy;
-        bool Berserk;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/)
         {
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -98,7 +77,7 @@ public:
             if (!Frenzy && Frenzy_Timer <= diff)
             {
                 DoCast(me, SPELL_FRENZY);
-                Talk(EMOTE_FRENZY_KILL);
+                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
                 Frenzy = true;
                 PoisonBolt_Timer = 3000;
                 Frenzy_Timer = urand(25000, 35000);
@@ -115,14 +94,14 @@ public:
             //Spit Timer
             if (Spit_Timer <= diff)
             {
-                DoCastVictim(SPELL_ACIDSPIT);
+                DoCast(me->getVictim(), SPELL_ACIDSPIT);
                 Spit_Timer = urand(5000, 10000);
             } else Spit_Timer -= diff;
 
             //NoxiousPoison_Timer
             if (NoxiousPoison_Timer <= diff)
             {
-                DoCastVictim(SPELL_NOXIOUSPOISON);
+                DoCast(me->getVictim(), SPELL_NOXIOUSPOISON);
                 NoxiousPoison_Timer = urand(12000, 24000);
             } else NoxiousPoison_Timer -= diff;
 
@@ -131,7 +110,7 @@ public:
             {
                 if (PoisonBolt_Timer <= diff)
                 {
-                    DoCastVictim(SPELL_POISONBOLT);
+                    DoCast(me->getVictim(), SPELL_POISONBOLT);
                     PoisonBolt_Timer = 3000;
                 } else PoisonBolt_Timer -= diff;
             }
@@ -147,7 +126,7 @@ public:
             if (!Berserk && HealthBelowPct(31))
             {
                 me->InterruptNonMeleeSpells(false);
-                Talk(EMOTE_BERSERK);
+                DoScriptText(EMOTE_GENERIC_BERSERK, me);
                 DoCast(me, SPELL_BERSERK);
                 Berserk = true;
             }
@@ -158,7 +137,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_huhuran()
 {
     new boss_huhuran();
 }
+#endif

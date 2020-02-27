@@ -1,253 +1,250 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "Player.h"
-#include "CreatureTextMgr.h"
-#include "SpellScript.h"
+#include "ScriptPCH.h"
 #include "zulaman.h"
-
-enum Says
-{
-    // Vol'jin
-    SAY_INTRO_1                 = 0,
-    SAY_INTRO_2                 = 1,
-    SAY_INTRO_3                 = 2,
-    SAY_INTRO_4                 = 3,
-    SAY_INTRO_FAIL              = 4,
-
-    // Hex Lord Malacrass
-    SAY_HEXLOR_INTRO            = 0
-};
 
 enum Spells
 {
-    // Vol'jin
-    SPELL_BANGING_THE_GONG      = 45225
+    SPELL_REMOVE_AMANI_CURSE        = 43732,
+    SPELL_PUSH_MOJO                 = 43923,
+    SPELL_SUMMON_MONEY_BAG          = 43774,
+    SPELL_SUMMON_AMANI_CHARM_CHEST1 = 43835,
+    SPELL_SUMMON_AMANI_CHARM_CHEST2 = 43756,
+
+    // Amani'shi Tempest
+    SPELL_THUNDERCLAP               = 44033,
+    SPELL_CHAIN_LIGHTNING           = 97496,
+
+    // Amani Eagle
+    SPELL_TALON                     = 43517,
+
+    // Amani'shi Warrior
+    SPELL_CHARGE                    = 43519,
+    SPELL_KICK                      = 43518,
+
+    // Achievement Hex Mix
+    SPELL_MELISSA_ACHIEVEMENT       = 97905,
+    SPELL_MAWAGO_ACHIEVEMENT        = 97906,
+    SPELL_TYLLAN_ACHIEVEMENT        = 97907,
+    SPELL_MICAH_ACHIEVEMENT         = 97908,
+    SPELL_ARINOTH_ACHIEVEMENT       = 97909,
+    SPELL_KALDRICK_ACHIEVEMENT      = 97910,
+    SPELL_LENZO_ACHIEVEMENT         = 97911,
+    SPELL_MELASONG_ACHIEVEMENT      = 97912,
+    SPELL_HARALD_ACHIEVEMENT        = 97913,
+    SPELL_RELISSA_ACHIEVEMENT       = 97914,
+    SPELL_EULINDA_ACHIEVEMENT       = 97915,
+    SPELL_ROSA_ACHIEVEMENT          = 97916,
+
 };
 
 enum Events
 {
-    EVENT_INTRO_MOVEPOINT_1     = 1,
-    EVENT_INTRO_MOVEPOINT_2     = 2,
-    EVENT_INTRO_MOVEPOINT_3     = 3,
-    EVENT_BANGING_THE_GONG      = 4,
-    EVENT_START_DOOR_OPENING_1  = 5,
-    EVENT_START_DOOR_OPENING_2  = 6,
-    EVENT_START_DOOR_OPENING_3  = 7,
-    EVENT_START_DOOR_OPENING_4  = 8,
-    EVENT_START_DOOR_OPENING_5  = 9,
-    EVENT_START_DOOR_OPENING_6  = 10,
-    EVENT_START_DOOR_OPENING_7  = 11
+    // Amani'shi Tempest
+    EVENT_SUMMON_EAGLES     = 1,
+    EVENT_SUMMON_MOBS       = 2,
+    EVENT_THUNDERCLAP       = 3,
+    EVENT_CHAIN_LIGHTNING   = 4,
+
+    // Amani'shi Warrior
+    EVENT_CHARGE1            = 5,
+    EVENT_KICK              = 6,
+
+    // Amani Eagle
+    SPELL_TALON1             = 7
 };
 
 enum Points
 {
-    POINT_INTRO                 = 1,
-    POINT_STRANGE_GONG          = 2,
-    POINT_START_DOOR_OPENING_1  = 3,
-    POINT_START_DOOR_OPENING_2  = 4
+    POINT_TURN  = 1,
+    POINT_DOWN  = 2
 };
 
-enum Misc
+enum Actions
 {
-    ITEM_VIRTUAL_ITEM           = 5301
+    ACTION_START_EVENT  = 1
 };
 
-Position const VoljinIntroWaypoint[4] =
-{
-    { 117.7349f, 1662.77f, 42.02156f, 0.0f },
-    { 132.14f, 1645.143f, 42.02158f, 0.0f },
-    { 121.8901f, 1639.118f, 42.23253f, 0.0f },
-    { 122.618f, 1639.546f, 42.11659f, 0.0f },
-};
+const Position posTurnPoint = {232.83f, 1367.78f, 48.58f, 1.79f};
+const Position posDownPoint = {227.75f, 1460.83f, 25.98f, 4.75f};
+const Position posUpPoint   = {280.12f, 1380.63f, 49.35f, 3.46f};
 
-class npc_voljin_zulaman : public CreatureScript
+/// Forest Frog - 24396
+class npc_zulaman_forest_frog : public CreatureScript
 {
     public:
-        npc_voljin_zulaman() : CreatureScript("npc_voljin_zulaman") { }
 
-        struct npc_voljin_zulamanAI : public ScriptedAI
+        CreatureAI* GetAI(Creature* pCreature) const
         {
-            npc_voljin_zulamanAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            return new npc_zulaman_forest_frogAI(pCreature);
+        }
+
+        npc_zulaman_forest_frog() : CreatureScript("npc_zulaman_forest_frog") { }
+
+        struct npc_zulaman_forest_frogAI : public ScriptedAI
+        {
+            npc_zulaman_forest_frogAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-                if (_instance->GetData(DATA_ZULAMAN_STATE) == NOT_STARTED)
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                pInstance = pCreature->GetInstanceScript();
+                reward = 0;
             }
 
-            void Reset() override
-            {
-                _gongCount = 0;
-            }
+            InstanceScript *pInstance;
+            uint8 reward;
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            void DoSpawnRandom()
             {
-                if (_instance->GetData(DATA_ZULAMAN_STATE) != NOT_STARTED)
-                    return;
-
-                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
+                if (pInstance)
                 {
-                    _events.Reset();
-                    me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    me->SetUInt32Value(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
-                    _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_1, 1000);
-                    Talk(SAY_INTRO_1, player);
-                    me->SetWalk(true);
-                }
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_START_ZULAMAN)
-                {
-                    if (++_gongCount == 10)
-                        _events.ScheduleEvent(EVENT_START_DOOR_OPENING_1, 500);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
+                    uint32 cEntry = 0;
+                    uint32 spellId = 0; // For Achievement
+                    switch(urand(0, 11))
                     {
-                        case EVENT_INTRO_MOVEPOINT_1:
-                            me->GetMotionMaster()->MovePoint(POINT_INTRO, VoljinIntroWaypoint[0]);
-                            _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_2, 1000);
-                            break;
-                        case EVENT_INTRO_MOVEPOINT_2:
-                            me->GetMotionMaster()->MovePoint(POINT_STRANGE_GONG, VoljinIntroWaypoint[1]);
-                            _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_3, 4000);
-                            break;
-                        case EVENT_INTRO_MOVEPOINT_3:
-                            Talk(SAY_INTRO_2);
-                            _events.ScheduleEvent(EVENT_BANGING_THE_GONG, 3000);
-                            break;
-                        case EVENT_BANGING_THE_GONG:
-                            DoCast(me, SPELL_BANGING_THE_GONG);
-                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
-                                strangeGong->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            me->SetVirtualItem(0, uint32(ITEM_VIRTUAL_ITEM));
-                            break;
-                        case EVENT_START_DOOR_OPENING_1:
-                            me->RemoveAura(SPELL_BANGING_THE_GONG);
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_2, 500);
-                            break;
-                        case EVENT_START_DOOR_OPENING_2:
-                            me->SetVirtualItem(0, uint32(0));
-                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
-                                strangeGong->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_3, 500);
-                            break;
-                        case EVENT_START_DOOR_OPENING_3:
-                            me->GetMotionMaster()->MovePoint(POINT_START_DOOR_OPENING_1, VoljinIntroWaypoint[2]);
-                            break;
-                        case EVENT_START_DOOR_OPENING_4:
-                            _instance->SetData(DATA_ZULAMAN_STATE, IN_PROGRESS);
-                            if (GameObject* masiveGate = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_MASSIVE_GATE)))
-                                masiveGate->SetGoState(GO_STATE_ACTIVE);
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_5, 3000);
-                            break;
-                        case EVENT_START_DOOR_OPENING_5:
-                            Talk(SAY_INTRO_4);
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_6, 6000);
-                            break;
-                        case EVENT_START_DOOR_OPENING_6:
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_7, 6000);
-                            break;
-                        case EVENT_START_DOOR_OPENING_7:
-                            if (Creature* hexLordTrigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HEXLORD_TRIGGER)))
-                                sCreatureTextMgr->SendChat(hexLordTrigger, SAY_HEXLOR_INTRO, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
-                            break;
-                        default:
-                            break;
+                        case 0: cEntry = NPC_HARALD; spellId = SPELL_HARALD_ACHIEVEMENT; break;
+                        case 1: cEntry = NPC_EULINDA; spellId = SPELL_EULINDA_ACHIEVEMENT; break;
+                        case 2: cEntry = NPC_ARINOTH; reward = 1; spellId = SPELL_ARINOTH_ACHIEVEMENT; break;
+                        case 3: cEntry = NPC_LENZO; reward = 1; spellId = SPELL_LENZO_ACHIEVEMENT; break;
+                        case 4: cEntry = NPC_MELISSA; reward = 2; spellId = SPELL_MELISSA_ACHIEVEMENT; break;
+                        case 5: cEntry = NPC_MAWAGO; reward = 2; spellId = SPELL_MAWAGO_ACHIEVEMENT; break;
+                        case 6: cEntry = NPC_MELASONG; reward = 2; spellId = SPELL_MELASONG_ACHIEVEMENT; break;
+                        case 7: cEntry = NPC_ROSA; reward = 2; spellId = SPELL_ROSA_ACHIEVEMENT; break;
+                        case 8: cEntry = NPC_RELISSA; reward = 2; spellId = SPELL_RELISSA_ACHIEVEMENT; break;
+                        case 9: cEntry = NPC_TYLLAN; reward = 2; spellId = SPELL_TYLLAN_ACHIEVEMENT; break;
+                        case 10: cEntry = NPC_KALDRICK; reward = 2; spellId = SPELL_KALDRICK_ACHIEVEMENT; break;
+                        case 11: cEntry = NPC_MICAH; reward = 2; spellId = SPELL_MICAH_ACHIEVEMENT; break;
+                    }
+
+                    if (cEntry == NPC_HARALD && pInstance->GetData(DATA_VENDOR_1))
+                        cEntry = NPC_TYLLAN;
+                    if (cEntry == NPC_EULINDA && pInstance->GetData(DATA_VENDOR_2))
+                        cEntry = NPC_ARINOTH;
+
+                    if (cEntry)
+                        me->UpdateEntry(cEntry);
+
+                    if (spellId)
+                        DoCastAOE(spellId, true);
+
+                    // There must be only one vendor per instance
+                    if (cEntry == NPC_HARALD)
+                        pInstance->SetData(DATA_VENDOR_1, DONE);
+                    else if (cEntry == NPC_EULINDA)
+                        pInstance->SetData(DATA_VENDOR_2, DONE);
+                    else
+                    {
+                        if (reward == 1)
+                            me->CastSpell(me, SPELL_SUMMON_MONEY_BAG, true);
+                        else if (reward == 2)
+                            me->CastSpell(me, urand(0, 1)? SPELL_SUMMON_AMANI_CHARM_CHEST1: SPELL_SUMMON_AMANI_CHARM_CHEST2, true);
+
+                        me->DespawnOrUnsummon(5000);
                     }
                 }
             }
 
-            void MovementInform(uint32 movementType, uint32 pointId) override
+            void SpellHit(Unit *caster, const SpellInfo* spell)
             {
-                if (movementType != POINT_MOTION_TYPE)
-                    return;
-
-                switch (pointId)
+                if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->IsPlayer() && me->GetEntry() == NPC_FOREST_FROG)
                 {
-                    case POINT_STRANGE_GONG:
-                        if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
-                            me->SetFacingToObject(strangeGong); // setInFront
-                        break;
-                    case POINT_START_DOOR_OPENING_1:
-                        me->SetFacingTo(4.747295f);
-                        me->GetMotionMaster()->MovePoint(POINT_START_DOOR_OPENING_2, VoljinIntroWaypoint[3]);
-                        Talk(SAY_INTRO_3);
-                        _events.ScheduleEvent(EVENT_START_DOOR_OPENING_4, 4500);
-                        break;
-                    default:
-                        break;
+                    if (roll_chance_i(6))
+                    {
+                        if (!caster->ToPlayer()->HasItemCount(33993) && !caster->HasSpell(43918))
+                        {
+                            DoCast(caster, SPELL_PUSH_MOJO, true);
+                            me->DespawnOrUnsummon();
+                        }
+                        else
+                            DoSpawnRandom();
+                    }
+                    else
+                        DoSpawnRandom();
                 }
             }
-
-        private:
-            InstanceScript* _instance;
-            EventMap _events;
-            uint8 _gongCount = 0;
         };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<npc_voljin_zulamanAI>(creature);
-        }
 };
 
-// 45226 - Banging the Gong
-class spell_banging_the_gong : public SpellScriptLoader
+class go_strange_gong : public GameObjectScript
 {
     public:
-        spell_banging_the_gong() : SpellScriptLoader("spell_banging_the_gong") { }
+        go_strange_gong() : GameObjectScript("go_strange_gong") {}
 
-        class spell_banging_the_gong_SpellScript : public SpellScript
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
-            PrepareSpellScript(spell_banging_the_gong_SpellScript);
-
-            void Activate(SpellEffIndex index)
+            if (InstanceScript* pInstance = pGo->GetInstanceScript())
             {
-                PreventHitDefaultEffect(index);
-                GetHitGObj()->SendCustomAnim(0);
+                pInstance->SetData(DATA_MAIN_GATE, 1);
             }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_banging_the_gong_SpellScript::Activate, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_banging_the_gong_SpellScript();
+            return false;
         }
 };
 
+class npc_amanishi_tempest : public CreatureScript
+{
+    public:
+        npc_amanishi_tempest() : CreatureScript("npc_amanishi_tempest") { }
+
+        CreatureAI* GetAI(Creature* pCreature) const
+        {
+            return new npc_amanishi_tempestAI(pCreature);
+        }
+
+        struct npc_amanishi_tempestAI : public ScriptedAI
+        {
+            npc_amanishi_tempestAI(Creature* pCreature) : ScriptedAI(pCreature)
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+            }
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/)
+            {
+                events.ScheduleEvent(EVENT_THUNDERCLAP, urand(5000, 10000));
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(6000, 12000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_THUNDERCLAP:
+                            DoCastAOE(SPELL_THUNDERCLAP);
+                            events.ScheduleEvent(EVENT_THUNDERCLAP, urand(14000, 18000));
+                            break;
+                        case EVENT_CHAIN_LIGHTNING:
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(10000, 12000));
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+     };
+};
+
+#ifndef __clang_analyzer__
 void AddSC_zulaman()
 {
-    new npc_voljin_zulaman();
-    new spell_banging_the_gong();
+    new npc_zulaman_forest_frog();
+    new go_strange_gong();
+    //new npc_amanishi_tempest();
+    //new npc_amanishi_lookout();
+    //new npc_amani_eagle();
+    //new npc_amanishi_warrior();
 }
+#endif

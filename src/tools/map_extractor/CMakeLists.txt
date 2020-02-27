@@ -1,49 +1,38 @@
-# Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
 #
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
+file(GLOB_RECURSE sources *.cpp *.h)
+
+include_directories (
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/dep/CascLib/src
+  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES)
-
-add_executable(mapextractor
-  ${PRIVATE_SOURCES}
+  ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
 )
 
-target_include_directories(mapextractor
-  PUBLIC
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/loadlib)
+include_directories(${include_Dirs})
+
+add_executable(mapextractor
+  ${sources}
+)
 
 target_link_libraries(mapextractor
-  PUBLIC
-    common
-    casc)
+  casc
+  g3dlib
+  ${BZIP2_LIBRARIES}
+  ${ZLIB_LIBRARIES}
+)
 
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES)
-
-target_include_directories(mapextractor
-  PUBLIC
-    ${PUBLIC_INCLUDES}
-  PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR})
-
-set_target_properties(mapextractor
-    PROPERTIES
-      FOLDER
-        "tools")
+add_dependencies(mapextractor casc)
 
 if( UNIX )
   install(TARGETS mapextractor DESTINATION bin)
 elseif( WIN32 )
   install(TARGETS mapextractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
+
+set_property(TARGET mapextractor PROPERTY FOLDER "tools")

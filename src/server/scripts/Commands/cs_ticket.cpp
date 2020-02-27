@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 Name: ticket_commandscript
@@ -22,406 +13,727 @@ Comment: All ticket related commands
 Category: commandscripts
 EndScriptData */
 
-#include "AccountMgr.h"
-#include "Chat.h"
-#include "Config.h"
-#include "Language.h"
-#include "ObjectMgr.h"
-#include "Opcodes.h"
-#include "Player.h"
+#ifndef CROSS
 #include "ScriptMgr.h"
-#include "SupportMgr.h"
+#include "Chat.h"
+#include "AccountMgr.h"
+#include "ObjectMgr.h"
+#include "TicketMgr.h"
 
-class ticket_commandscript : public CommandScript
+class ticket_commandscript: public CommandScript
 {
 public:
     ticket_commandscript() : CommandScript("ticket_commandscript") { }
 
-    template<typename T>
-    static bool HandleTicketAssignToCommand(ChatHandler* handler, char const* args);
-
-    template<typename T>
-    static bool HandleTicketCloseByIdCommand(ChatHandler* handler, char const* args);
-
-    template<typename T>
-    static bool HandleTicketCommentCommand(ChatHandler* handler, char const* args);
-
-    template<typename T>
-    static bool HandleTicketDeleteByIdCommand(ChatHandler* handler, char const* args);
-
-    template<typename T>
-    static bool HandleTicketListCommand(ChatHandler* handler, char const* /*args*/);
-
-    template<typename T>
-    static bool HandleTicketListClosedCommand(ChatHandler* handler, char const* /*args*/);
-
-    template<typename T>
-    static bool HandleTicketResetCommand(ChatHandler* handler, char const* /*args*/);
-
-    template<typename T>
-    static bool HandleTicketUnAssignCommand(ChatHandler* handler, char const* args);
-
-    template<typename T>
-    static bool HandleTicketGetByIdCommand(ChatHandler* handler, char const* args);
-
-    static bool HandleTicketResetAllCommand(ChatHandler* handler, char const* /*args*/)
+    ChatCommand* GetCommands() const
     {
-        if (sSupportMgr->GetOpenTicketCount<BugTicket>() || sSupportMgr->GetOpenTicketCount<ComplaintTicket>() || sSupportMgr->GetOpenTicketCount<SuggestionTicket>())
+        static ChatCommand ticketResponseCommandTable[] =
+        {
+            { "append",         SEC_MODERATOR,      true,  &HandleGMTicketResponseAppendCommand,    "", NULL },
+            { "appendln",       SEC_MODERATOR,      true,  &HandleGMTicketResponseAppendLnCommand,  "", NULL },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
+        };
+        static ChatCommand ticketCommandTable[] =
+        {
+            { "assign",         SEC_GAMEMASTER,     true,  &HandleGMTicketAssignToCommand,          "", NULL },
+            { "close",          SEC_MODERATOR,      true,  &HandleGMTicketCloseByIdCommand,         "", NULL },
+            { "closedlist",     SEC_MODERATOR,      true,  &HandleGMTicketListClosedCommand,        "", NULL },
+            { "comment",        SEC_MODERATOR,      true,  &HandleGMTicketCommentCommand,           "", NULL },
+            { "complete",       SEC_MODERATOR,      true,  &HandleGMTicketCompleteCommand,          "", NULL },
+            { "delete",         SEC_ADMINISTRATOR,  true,  &HandleGMTicketDeleteByIdCommand,        "", NULL },
+            { "escalate",       SEC_MODERATOR,      true,  &HandleGMTicketEscalateCommand,          "", NULL },
+            { "escalatedlist",  SEC_GAMEMASTER,     true,  &HandleGMTicketListEscalatedCommand,     "", NULL },
+            { "list",           SEC_MODERATOR,      true,  &HandleGMTicketListCommand,              "", NULL },
+            { "onlinelist",     SEC_MODERATOR,      true,  &HandleGMTicketListOnlineCommand,        "", NULL },
+            { "reset",          SEC_ADMINISTRATOR,  true,  &HandleGMTicketResetCommand,             "", NULL },
+            { "response",       SEC_MODERATOR,      true,  NULL,                                    "", ticketResponseCommandTable },
+            { "togglesystem",   SEC_ADMINISTRATOR,  true,  &HandleToggleGMTicketSystem,             "", NULL },
+            { "unassign",       SEC_GAMEMASTER,     true,  &HandleGMTicketUnAssignCommand,          "", NULL },
+            { "viewid",         SEC_MODERATOR,      true,  &HandleGMTicketGetByIdCommand,           "", NULL },
+            { "viewname",       SEC_MODERATOR,      true,  &HandleGMTicketGetByNameCommand,         "", NULL },
+            { "fsccreate",      SEC_PLAYER,         true,  &FSCHandleGMTicketCreate,                "", NULL },
+            { "fscupdate",      SEC_PLAYER,         true,  &FSCHandleGMTicketUpdate,                "", NULL },
+            { "fscappend",      SEC_PLAYER,         true,  &FSCHandleGMTicketAppend,                "", NULL },
+            { "fscend",         SEC_PLAYER,         true,  &FSCHandleGMTicketEnd,                "", NULL },
+            { "fscdelete",      SEC_PLAYER,         true,  &FSCHandleGMTicketDelete,                "", NULL },
+            { "fscticketget",   SEC_PLAYER,         true,  &FSCHandleGMTicketGet,                   "", NULL },
+            { "fscticketres",   SEC_PLAYER,         true,  &FSCHandleGMResponseResolve,             "", NULL },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
+        };
+        static ChatCommand commandTable[] =
+        {
+            { "ticket",         SEC_PLAYER,         false, NULL,                                    "", ticketCommandTable },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
+        };
+        return commandTable;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    static bool FSCHandleGMTicketCreate(ChatHandler* p_Handler, char const* p_Args)
+    {
+        auto l_ReplaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+            if (from.empty())
+                return;
+            size_t start_pos = 0;
+            while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+                str.replace(start_pos, from.length(), to);
+                start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+            }
+        };
+
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        if (!l_Player)
+            return true;
+
+        if (l_Player->getLevel() < sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ))
+        {
+            p_Handler->GetSession()->SendNotification(p_Handler->GetSession()->GetTrinityString(LANG_TICKET_REQ), sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ));
+            return true;
+        }
+
+        std::string l_Message = p_Args;
+        l_ReplaceAll(l_Message, "$$n", "\n");
+
+        GMTicketResponse l_Response = GMTICKET_RESPONSE_CREATE_ERROR;
+        // Player must not have opened ticket
+        if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(l_Player->GetGUID()))
+        {
+            if (l_Ticket->IsCompleted())
+            {
+                sTicketMgr->CloseTicket(l_Ticket->GetId(), l_Player->GetGUID());
+                sTicketMgr->SendTicket(p_Handler->GetSession(), NULL);
+
+                p_Handler->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
+
+                GmTicket* l_NewTicket = new GmTicket(l_Player->GetName(), l_Player->GetGUID(), l_Player->GetMapId(), *l_Player, l_Message);
+                sTicketMgr->AddTicket(l_NewTicket);
+                sTicketMgr->UpdateLastChange();
+
+                sWorld->SendGMText(LANG_COMMAND_TICKETNEW, l_Player->GetName(), l_NewTicket->GetId());
+
+                //sTicketMgr->SendTicket(p_Handler->GetSession(), l_NewTicket);
+
+                l_Response = GMTICKET_RESPONSE_CREATE_SUCCESS;
+            }
+            else
+                l_Response = GMTICKET_RESPONSE_ALREADY_EXIST;
+        }
+        else
+        {
+            GmTicket* l_NewTicket = new GmTicket(l_Player->GetName(), l_Player->GetGUID(), l_Player->GetMapId(), *l_Player, l_Message);
+            sTicketMgr->AddTicket(l_NewTicket);
+            sTicketMgr->UpdateLastChange();
+
+            sWorld->SendGMText(LANG_COMMAND_TICKETNEW, l_Player->GetName(), l_NewTicket->GetId());
+
+            //sTicketMgr->SendTicket(p_Handler->GetSession(), l_NewTicket);
+
+            l_Response = GMTICKET_RESPONSE_CREATE_SUCCESS;
+        }
+
+        p_Handler->GetSession()->SendTicketStatusUpdate(l_Response);
+        return true;
+    }
+
+    static bool FSCHandleGMTicketUpdate(ChatHandler* p_Handler, char const* p_Args)
+    {
+        auto l_ReplaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+            if (from.empty())
+                return;
+            size_t start_pos = 0;
+            while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+                str.replace(start_pos, from.length(), to);
+                start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+            }
+        };
+
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        if (!l_Player)
+            return true;
+
+        std::string l_Message = p_Args;
+        l_ReplaceAll(l_Message, "$$n", "\n");
+
+        GMTicketResponse l_Response = GMTICKET_RESPONSE_UPDATE_ERROR;
+        if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(l_Player->GetGUID()))
+        {
+            SQLTransaction l_Transaction = SQLTransaction(NULL);
+            l_Ticket->SetMessage(l_Message);
+            l_Ticket->SaveToDB(l_Transaction);
+
+            sWorld->SendGMText(LANG_COMMAND_TICKETUPDATED, l_Player->GetName(), l_Ticket->GetId());
+
+            sTicketMgr->SendTicket(p_Handler->GetSession(), l_Ticket);
+            l_Response = GMTICKET_RESPONSE_UPDATE_SUCCESS;
+        }
+
+        p_Handler->GetSession()->SendTicketStatusUpdate(l_Response);
+
+        return true;
+    }
+
+    static bool FSCHandleGMTicketAppend(ChatHandler* p_Handler, char const* p_Args)
+    {
+        auto l_ReplaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+            if (from.empty())
+                return;
+            size_t start_pos = 0;
+            while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+                str.replace(start_pos, from.length(), to);
+                start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+            }
+        };
+
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        if (!l_Player)
+            return true;
+
+        std::string l_Message = p_Args;
+        l_ReplaceAll(l_Message, "$$n", "\n");
+
+        GMTicketResponse l_Response = GMTICKET_RESPONSE_UPDATE_ERROR;
+        if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(l_Player->GetGUID()))
+        {
+            SQLTransaction l_Transaction = SQLTransaction(NULL);
+            l_Ticket->SetMessage(l_Ticket->GetMessage() + l_Message);
+            l_Ticket->SaveToDB(l_Transaction);
+        }
+
+        p_Handler->GetSession()->SendTicketStatusUpdate(l_Response);
+
+        return true;
+    }
+    
+    static bool FSCHandleGMTicketEnd(ChatHandler* p_Handler, char const* /*p_Args*/)
+    {
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        if (!l_Player)
+            return true;
+
+        GMTicketResponse l_Response = GMTICKET_RESPONSE_UPDATE_ERROR;
+        if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(l_Player->GetGUID()))
+        {
+            sTicketMgr->SendTicket(p_Handler->GetSession(), l_Ticket);
+        }
+
+        return true;
+    }
+
+    static bool FSCHandleGMTicketDelete(ChatHandler* p_Handler, char const* /*p_Args*/)
+    {
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        if (!l_Player)
+            return true;
+
+        if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(l_Player->GetGUID()))
+        {
+            p_Handler->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
+
+            sWorld->SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, l_Player->GetName(), l_Ticket->GetId());
+
+            sTicketMgr->CloseTicket(l_Ticket->GetId(), l_Player->GetGUID());
+            sTicketMgr->SendTicket(p_Handler->GetSession(), NULL);
+        }
+
+        return true;
+    }
+
+    static bool FSCHandleGMTicketGet(ChatHandler* p_Handler, char const* /*p_Args*/)
+    {
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        if (!l_Player)
+            return true;
+
+        p_Handler->GetSession()->OnGMTicketGetTicketEvent();
+
+        return true;
+    }
+
+    static bool FSCHandleGMResponseResolve(ChatHandler* p_Handler, char const* /*p_Args*/)
+    {
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        if (!l_Player)
+            return true;
+
+        if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(l_Player->GetGUID()))
+        {
+            p_Handler->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
+
+            sTicketMgr->CloseTicket(l_Ticket->GetId(), l_Player->GetGUID());
+            sTicketMgr->SendTicket(p_Handler->GetSession(), NULL);
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    static bool HandleGMTicketAssignToCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* ticketIdStr = strtok((char*)args, " ");
+        uint32 ticketId = atoi(ticketIdStr);
+
+        char* targetStr = strtok(NULL, " ");
+        if (!targetStr)
+            return false;
+
+        std::string target(targetStr);
+        if (!normalizePlayerName(target))
+            return false;
+
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
+        if (!ticket || ticket->IsClosed())
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+
+        // Get target information
+        uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target.c_str());
+        uint64 targetAccountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
+        uint32 targetGmLevel = AccountMgr::GetSecurity(targetAccountId, g_RealmID);
+
+        // Target must exist and have administrative rights
+        if (!targetGuid || AccountMgr::IsPlayerAccount(targetGmLevel))
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
+            return true;
+        }
+
+        // If already assigned, leave
+        if (ticket->IsAssignedTo(targetGuid))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_B, ticket->GetId());
+            return true;
+        }
+
+        // If assigned to different player other than current, leave
+        //! Console can override though
+        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+        if (player && ticket->IsAssignedNotTo(player->GetGUID()))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId(), target.c_str());
+            return true;
+        }
+
+        // Assign ticket
+        SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(targetGmLevel));
+        ticket->SaveToDB(trans);
+        sTicketMgr->UpdateLastChange();
+
+        std::string msg = ticket->FormatMessageString(*handler, NULL, target.c_str(), NULL, NULL);
+        handler->SendGlobalGMSysMessage(msg.c_str());
+        return true;
+    }
+
+    static bool HandleGMTicketCloseByIdCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 ticketId = atoi(args);
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
+        if (!ticket || ticket->IsClosed() || ticket->IsCompleted())
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+
+        // Ticket should be assigned to the player who tries to close it.
+        // Console can override though
+        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+        if (player && ticket->IsAssignedNotTo(player->GetGUID()))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_TICKETCANNOTCLOSE, ticket->GetId());
+            return true;
+        }
+
+        sTicketMgr->CloseTicket(ticket->GetId(), player ? player->GetGUID() : -1);
+        sTicketMgr->UpdateLastChange();
+
+        std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName() : "Console", NULL, NULL, NULL);
+        handler->SendGlobalGMSysMessage(msg.c_str());
+
+        /*
+        // Inform player, who submitted this ticket, that it is closed
+        if (Player* submitter = ticket->GetPlayer())
+        {
+            if (submitter->IsInWorld())
+                submitter->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
+        }
+        */
+
+        return true;
+    }
+
+    static bool HandleGMTicketCommentCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* ticketIdStr = strtok((char*)args, " ");
+        uint32 ticketId = atoi(ticketIdStr);
+
+        char* comment = strtok(NULL, "\n");
+        if (!comment)
+            return false;
+
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
+        if (!ticket || ticket->IsClosed())
+        {
+            handler->PSendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+
+        // Cannot comment ticket assigned to someone else
+        //! Console excluded
+        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+        if (player && ticket->IsAssignedNotTo(player->GetGUID()))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId());
+            return true;
+        }
+
+        SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetComment(comment);
+        ticket->SaveToDB(trans);
+        sTicketMgr->UpdateLastChange();
+
+        std::string msg = ticket->FormatMessageString(*handler, NULL, ticket->GetAssignedToName().c_str(), NULL, NULL);
+        msg += handler->PGetParseString(LANG_COMMAND_TICKETLISTADDCOMMENT, player ? player->GetName() : "Console", comment);
+        handler->SendGlobalGMSysMessage(msg.c_str());
+
+        return true;
+    }
+
+    static bool HandleGMTicketListClosedCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        sTicketMgr->ShowClosedList(*handler);
+        return true;
+    }
+
+    static bool HandleGMTicketCompleteCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 ticketId = atoi(args);
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
+        if (!ticket || ticket->IsClosed() || ticket->IsCompleted())
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+
+        ticket->SetCompleted(true);
+
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        ticket->SaveToDB(trans);
+        CharacterDatabase.CommitTransaction(trans);
+
+        if (Player* player = ticket->GetPlayer())
+            if (player->IsInWorld())
+                ticket->SendResponse(player->GetSession());
+
+        sTicketMgr->UpdateLastChange();
+        return true;
+    }
+
+    static bool HandleGMTicketDeleteByIdCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 ticketId = atoi(args);
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
+        if (!ticket)
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+
+        if (!ticket->IsClosed())
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETCLOSEFIRST);
+            return true;
+        }
+
+        std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName() : "Console");
+        handler->SendGlobalGMSysMessage(msg.c_str());
+
+        /*
+        if (Player* player = ticket->GetPlayer())
+        {
+            if (player->IsInWorld())
+                player->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
+        }
+        */
+
+        sTicketMgr->RemoveTicket(ticket->GetId());
+        sTicketMgr->UpdateLastChange();
+
+        return true;
+    }
+
+    static bool HandleGMTicketEscalateCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 ticketId = atoi(args);
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
+        if (!ticket || ticket->IsClosed() || ticket->IsCompleted() || ticket->GetEscalatedStatus() != TICKET_UNASSIGNED)
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+
+        ticket->SetEscalatedStatus(TICKET_IN_ESCALATION_QUEUE);
+
+        if (Player* player = ticket->GetPlayer())
+            if (player->IsInWorld())
+                sTicketMgr->SendTicket(player->GetSession(), ticket);
+
+        sTicketMgr->UpdateLastChange();
+        return true;
+    }
+
+    static bool HandleGMTicketListEscalatedCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        sTicketMgr->ShowEscalatedList(*handler);
+        return true;
+    }
+
+    static bool HandleGMTicketListCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        sTicketMgr->ShowList(*handler, false);
+        return true;
+    }
+
+    static bool HandleGMTicketListOnlineCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        sTicketMgr->ShowList(*handler, true);
+        return true;
+    }
+
+    static bool HandleGMTicketResetCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        if (sTicketMgr->GetOpenTicketCount())
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETPENDING);
             return true;
         }
         else
         {
-            sSupportMgr->ResetTickets<BugTicket>();
-            sSupportMgr->ResetTickets<ComplaintTicket>();
-            sSupportMgr->ResetTickets<SuggestionTicket>();
+            sTicketMgr->ResetTickets();
             handler->SendSysMessage(LANG_COMMAND_TICKETRESET);
         }
+
         return true;
     }
 
     static bool HandleToggleGMTicketSystem(ChatHandler* handler, char const* /*args*/)
     {
-        if (!sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED))
-        {
-            handler->SendSysMessage(LANG_DISALLOW_TICKETS_CONFIG);
-            return true;
-        }
-
-        bool status = !sSupportMgr->GetSupportSystemStatus();
-        sSupportMgr->SetSupportSystemStatus(status);
+        bool status = !sTicketMgr->GetStatus();
+        sTicketMgr->SetStatus(status);
         handler->PSendSysMessage(status ? LANG_ALLOW_TICKETS : LANG_DISALLOW_TICKETS);
         return true;
     }
 
-    std::vector<ChatCommand> GetCommands() const override;
+    static bool HandleGMTicketUnAssignCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 ticketId = atoi(args);
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
+        if (!ticket || ticket->IsClosed())
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+        // Ticket must be assigned
+        if (!ticket->IsAssigned())
+        {
+            handler->PSendSysMessage(LANG_COMMAND_TICKETNOTASSIGNED, ticket->GetId());
+            return true;
+        }
+
+        // Get security level of player, whom this ticket is assigned to
+        uint32 security = SEC_PLAYER;
+        Player* assignedPlayer = ticket->GetAssignedPlayer();
+        if (assignedPlayer && assignedPlayer->IsInWorld())
+            security = assignedPlayer->GetSession()->GetSecurity();
+        else
+        {
+            uint64 guid = ticket->GetAssignedToGUID();
+            uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(guid);
+            security = AccountMgr::GetSecurity(accountId, g_RealmID);
+        }
+
+        // Check security
+        //! If no m_session present it means we're issuing this command from the console
+        uint32 mySecurity = handler->GetSession() ? handler->GetSession()->GetSecurity() : SEC_CONSOLE;
+        if (security > mySecurity)
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETUNASSIGNSECURITY);
+            return true;
+        }
+
+        SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetUnassigned();
+        ticket->SaveToDB(trans);
+        sTicketMgr->UpdateLastChange();
+
+        std::string msg = ticket->FormatMessageString(*handler, NULL, ticket->GetAssignedToName().c_str(),
+            handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName() : "Console", NULL);
+        handler->SendGlobalGMSysMessage(msg.c_str());
+
+        return true;
+    }
+
+    static bool HandleGMTicketGetByIdCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 ticketId = atoi(args);
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
+        if (!ticket || ticket->IsClosed() || ticket->IsCompleted())
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+
+        SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetViewed();
+        ticket->SaveToDB(trans);
+
+        handler->SendSysMessage(ticket->FormatMessageString(*handler, true).c_str());
+        return true;
+    }
+
+    static bool HandleGMTicketGetByNameCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        std::string name(args);
+        if (!normalizePlayerName(name))
+            return false;
+
+        // Detect target's GUID
+        uint64 guid = 0;
+        if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
+            guid = player->GetGUID();
+        else
+            guid = sObjectMgr->GetPlayerGUIDByName(name);
+
+        // Target must exist
+        if (!guid)
+        {
+            handler->SendSysMessage(LANG_NO_PLAYERS_FOUND);
+            return true;
+        }
+
+        // Ticket must exist
+        GmTicket* ticket = sTicketMgr->GetTicketByPlayer(guid);
+        if (!ticket)
+        {
+            handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+
+        SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetViewed();
+        ticket->SaveToDB(trans);
+
+        handler->SendSysMessage(ticket->FormatMessageString(*handler, true).c_str());
+        return true;
+    }
+
+    static bool _HandleGMTicketResponseAppendCommand(char const* args, bool newLine, ChatHandler* handler)
+    {
+        if (!*args)
+            return false;
+
+        char* ticketIdStr = strtok((char*)args, " ");
+        uint32 ticketId = atoi(ticketIdStr);
+
+        char* response = strtok(NULL, "\n");
+        if (!response)
+            return false;
+
+        GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
+        if (!ticket || ticket->IsClosed())
+        {
+            handler->PSendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+            return true;
+        }
+
+        // Cannot add response to ticket, assigned to someone else
+        //! Console excluded
+        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+        if (player && ticket->IsAssignedNotTo(player->GetGUID()))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId());
+            return true;
+        }
+
+        SQLTransaction trans = SQLTransaction(NULL);
+        ticket->AppendResponse(response);
+        if (newLine)
+            ticket->AppendResponse("\n");
+        ticket->SaveToDB(trans);
+
+        return true;
+    }
+
+    static bool HandleGMTicketResponseAppendCommand(ChatHandler* handler, char const* args)
+    {
+        return _HandleGMTicketResponseAppendCommand(args, false, handler);
+    }
+
+    static bool HandleGMTicketResponseAppendLnCommand(ChatHandler* handler, char const* args)
+    {
+        return _HandleGMTicketResponseAppendCommand(args, true, handler);
+    }
 };
 
-template<typename T>
-bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, char const* args)
-{
-    if (!*args)
-        return false;
-
-    char* ticketIdStr = strtok((char*)args, " ");
-    uint32 ticketId = atoi(ticketIdStr);
-
-    char* targetStr = strtok(NULL, " ");
-    if (!targetStr)
-        return false;
-
-    std::string target(targetStr);
-    if (!normalizePlayerName(target))
-        return false;
-
-    T* ticket = sSupportMgr->GetTicket<T>(ticketId);
-    if (!ticket || ticket->IsClosed())
-    {
-        handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
-        return true;
-    }
-
-    ObjectGuid targetGuid = ObjectMgr::GetPlayerGUIDByName(target);
-    uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(targetGuid);
-    // Target must exist and have administrative rights
-    if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realm.Id.Realm))
-    {
-        handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
-        return true;
-    }
-
-    // If already assigned, leave
-    if (ticket->IsAssignedTo(targetGuid))
-    {
-        handler->PSendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_B, ticket->GetId());
-        return true;
-    }
-
-    // If assigned to different player other than current, leave
-    //! Console can override though
-    Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
-    if (player && ticket->IsAssignedNotTo(player->GetGUID()))
-    {
-        handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId(), target.c_str());
-        return true;
-    }
-
-    // Assign ticket
-    ticket->SetAssignedTo(targetGuid);
-
-    ticket->SaveToDB();
-
-    std::string msg = ticket->FormatViewMessageString(*handler, NULL, target.c_str(), NULL, NULL);
-    handler->SendGlobalGMSysMessage(msg.c_str());
-    return true;
-}
-
-
-
-template<typename T>
-bool ticket_commandscript::HandleTicketCloseByIdCommand(ChatHandler* handler, char const* args)
-{
-    if (!*args)
-        return false;
-
-    uint32 ticketId = atoi(args);
-    T* ticket = sSupportMgr->GetTicket<T>(ticketId);
-    if (!ticket || ticket->IsClosed())
-    {
-        handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
-        return true;
-    }
-
-    // Ticket should be assigned to the player who tries to close it.
-    // Console can override though
-    Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
-    if (player && ticket->IsAssignedNotTo(player->GetGUID()))
-    {
-        handler->PSendSysMessage(LANG_COMMAND_TICKETCANNOTCLOSE, ticket->GetId());
-        return true;
-    }
-
-    ObjectGuid closedByGuid;
-    if (player)
-        closedByGuid = player->GetGUID();
-    else
-        closedByGuid.SetRawValue(0, uint64(-1));
-
-    sSupportMgr->CloseTicket<T>(ticket->GetId(), closedByGuid);
-
-    std::string msg = ticket->FormatViewMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL);
-    handler->SendGlobalGMSysMessage(msg.c_str());
-
-    return true;
-}
-
-template<typename T>
-bool ticket_commandscript::HandleTicketCommentCommand(ChatHandler* handler, char const* args)
-{
-    if (!*args)
-        return false;
-
-    char* ticketIdStr = strtok((char*)args, " ");
-    uint32 ticketId = atoi(ticketIdStr);
-
-    char* comment = strtok(NULL, "\n");
-    if (!comment)
-        return false;
-
-    T* ticket = sSupportMgr->GetTicket<T>(ticketId);
-    if (!ticket || ticket->IsClosed())
-    {
-        handler->PSendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
-        return true;
-    }
-
-    // Cannot comment ticket assigned to someone else
-    //! Console excluded
-    Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
-    if (player && ticket->IsAssignedNotTo(player->GetGUID()))
-    {
-        handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId());
-        return true;
-    }
-
-    ticket->SetComment(comment);
-    ticket->SaveToDB();
-    sSupportMgr->UpdateLastChange();
-
-    std::string msg = ticket->FormatViewMessageString(*handler, NULL, ticket->GetAssignedToName().c_str(), NULL, NULL);
-    msg += handler->PGetParseString(LANG_COMMAND_TICKETLISTADDCOMMENT, player ? player->GetName().c_str() : "Console", comment);
-    handler->SendGlobalGMSysMessage(msg.c_str());
-
-    return true;
-}
-
-template<typename T>
-bool ticket_commandscript::HandleTicketListCommand(ChatHandler* handler, char const* /*args*/)
-{
-    sSupportMgr->ShowList<T>(*handler);
-    return true;
-}
-
-template<typename T>
-bool ticket_commandscript::HandleTicketListClosedCommand(ChatHandler* handler, char const* /*args*/)
-{
-    sSupportMgr->ShowClosedList<T>(*handler);
-    return true;
-}
-
-template<typename T>
-bool ticket_commandscript::HandleTicketDeleteByIdCommand(ChatHandler* handler, char const* args)
-{
-    if (!*args)
-        return false;
-
-    uint32 ticketId = atoi(args);
-    T* ticket = sSupportMgr->GetTicket<T>(ticketId);
-    if (!ticket)
-    {
-        handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
-        return true;
-    }
-
-    if (!ticket->IsClosed())
-    {
-        handler->SendSysMessage(LANG_COMMAND_TICKETCLOSEFIRST);
-        return true;
-    }
-
-    std::string msg = ticket->FormatViewMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console");
-    handler->SendGlobalGMSysMessage(msg.c_str());
-
-    sSupportMgr->RemoveTicket<T>(ticket->GetId());
-
-    return true;
-}
-
-
-template<typename T>
-bool ticket_commandscript::HandleTicketResetCommand(ChatHandler* handler, char const* /*args*/)
-{
-    if (sSupportMgr->GetOpenTicketCount<T>())
-    {
-        handler->SendSysMessage(LANG_COMMAND_TICKETPENDING);
-        return true;
-    }
-    else
-    {
-        sSupportMgr->ResetTickets<T>();
-        handler->SendSysMessage(LANG_COMMAND_TICKETRESET);
-    }
-    return true;
-}
-
-template<typename T>
-bool ticket_commandscript::HandleTicketUnAssignCommand(ChatHandler* handler, char const* args)
-{
-    if (!*args)
-        return false;
-
-    uint32 ticketId = atoi(args);
-    T* ticket = sSupportMgr->GetTicket<T>(ticketId);
-    if (!ticket || ticket->IsClosed())
-    {
-        handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
-        return true;
-    }
-    // Ticket must be assigned
-    if (!ticket->IsAssigned())
-    {
-        handler->PSendSysMessage(LANG_COMMAND_TICKETNOTASSIGNED, ticket->GetId());
-        return true;
-    }
-
-    // Get security level of player, whom this ticket is assigned to
-    uint32 security = SEC_PLAYER;
-    Player* assignedPlayer = ticket->GetAssignedPlayer();
-    if (assignedPlayer)
-        security = assignedPlayer->GetSession()->GetSecurity();
-    else
-    {
-        ObjectGuid guid = ticket->GetAssignedToGUID();
-        uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(guid);
-        security = AccountMgr::GetSecurity(accountId, realm.Id.Realm);
-    }
-
-    // Check security
-    //! If no m_session present it means we're issuing this command from the console
-    uint32 mySecurity = handler->GetSession() ? handler->GetSession()->GetSecurity() : SEC_CONSOLE;
-    if (security > mySecurity)
-    {
-        handler->SendSysMessage(LANG_COMMAND_TICKETUNASSIGNSECURITY);
-        return true;
-    }
-
-    std::string assignedTo = ticket->GetAssignedToName(); // copy assignedto name because we need it after the ticket has been unnassigned
-    ticket->SetUnassigned();
-    ticket->SaveToDB();
-
-    std::string msg = ticket->FormatViewMessageString(*handler, NULL, assignedTo.c_str(), handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL);
-    handler->SendGlobalGMSysMessage(msg.c_str());
-
-    return true;
-}
-
-template<typename T>
-bool ticket_commandscript::HandleTicketGetByIdCommand(ChatHandler* handler, char const* args)
-{
-    if (!*args)
-        return false;
-
-    uint32 ticketId = atoi(args);
-    T* ticket = sSupportMgr->GetTicket<T>(ticketId);
-    if (!ticket || ticket->IsClosed())
-    {
-        handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
-        return true;
-    }
-
-    handler->SendSysMessage(ticket->FormatViewMessageString(*handler, true).c_str());
-    return true;
-}
-
-std::vector<ChatCommand> ticket_commandscript::GetCommands() const
-{
-    static std::vector<ChatCommand> ticketBugCommandTable =
-    {
-        { "assign",     rbac::RBAC_PERM_COMMAND_TICKET_BUG_ASSIGN,      true, &HandleTicketAssignToCommand<BugTicket>,      "" },
-        { "close",      rbac::RBAC_PERM_COMMAND_TICKET_BUG_CLOSE,       true, &HandleTicketCloseByIdCommand<BugTicket>,     "" },
-        { "closedlist", rbac::RBAC_PERM_COMMAND_TICKET_BUG_CLOSEDLIST,  true, &HandleTicketListClosedCommand<BugTicket>,    "" },
-        { "comment",    rbac::RBAC_PERM_COMMAND_TICKET_BUG_COMMENT,     true, &HandleTicketCommentCommand<BugTicket>,       "" },
-        { "delete",     rbac::RBAC_PERM_COMMAND_TICKET_BUG_DELETE,      true, &HandleTicketDeleteByIdCommand<BugTicket>,    "" },
-        { "list",       rbac::RBAC_PERM_COMMAND_TICKET_BUG_LIST,        true, &HandleTicketListCommand<BugTicket>,          "" },
-        { "unassign",   rbac::RBAC_PERM_COMMAND_TICKET_BUG_UNASSIGN,    true, &HandleTicketUnAssignCommand<BugTicket>,      "" },
-        { "view",       rbac::RBAC_PERM_COMMAND_TICKET_BUG_VIEW,        true, &HandleTicketGetByIdCommand<BugTicket>,       "" },
-    };
-    static std::vector<ChatCommand> ticketComplaintCommandTable =
-    {
-        { "assign",     rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_ASSIGN,        true, &HandleTicketAssignToCommand<ComplaintTicket>,    "" },
-        { "close",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_CLOSE,         true, &HandleTicketCloseByIdCommand<ComplaintTicket>,   "" },
-        { "closedlist", rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_CLOSEDLIST,    true, &HandleTicketListClosedCommand<ComplaintTicket>,  "" },
-        { "comment",    rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_COMMENT,       true, &HandleTicketCommentCommand<ComplaintTicket>,     "" },
-        { "delete",     rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_DELETE,        true, &HandleTicketDeleteByIdCommand<ComplaintTicket>,  "" },
-        { "list",       rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_LIST,          true, &HandleTicketListCommand<ComplaintTicket>,        "" },
-        { "unassign",   rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_UNASSIGN,      true, &HandleTicketUnAssignCommand<ComplaintTicket>,    "" },
-        { "view",       rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_VIEW,          true, &HandleTicketGetByIdCommand<ComplaintTicket>,     "" },
-    };
-    static std::vector<ChatCommand> ticketSuggestionCommandTable =
-    {
-        { "assign",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_ASSIGN,       true, &HandleTicketAssignToCommand<SuggestionTicket>,   "" },
-        { "close",      rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_CLOSE,        true, &HandleTicketCloseByIdCommand<SuggestionTicket>,  "" },
-        { "closedlist", rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_CLOSEDLIST,   true, &HandleTicketListClosedCommand<SuggestionTicket>, "" },
-        { "comment",    rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_COMMENT,      true, &HandleTicketCommentCommand<SuggestionTicket>,    "" },
-        { "delete",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_DELETE,       true, &HandleTicketDeleteByIdCommand<SuggestionTicket>, "" },
-        { "list",       rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_LIST,         true, &HandleTicketListCommand<SuggestionTicket>,       "" },
-        { "unassign",   rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_UNASSIGN,     true, &HandleTicketUnAssignCommand<SuggestionTicket>,   "" },
-        { "view",       rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_VIEW,         true, &HandleTicketGetByIdCommand<SuggestionTicket>,    "" },
-    };
-    static std::vector<ChatCommand> ticketResetCommandTable =
-    {
-        { "all",        rbac::RBAC_PERM_COMMAND_TICKET_RESET_ALL,           true, &HandleTicketResetAllCommand,                 "" },
-        { "bug",        rbac::RBAC_PERM_COMMAND_TICKET_RESET_BUG,           true, &HandleTicketResetCommand<BugTicket>,         "" },
-        { "complaint",  rbac::RBAC_PERM_COMMAND_TICKET_RESET_COMPLAINT,     true, &HandleTicketResetCommand<ComplaintTicket>,   "" },
-        { "suggestion", rbac::RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION,    true, &HandleTicketResetCommand<SuggestionTicket>,  "" },
-    };
-    static std::vector<ChatCommand> ticketCommandTable =
-    {
-        { "bug",            rbac::RBAC_PERM_COMMAND_TICKET_BUG,             true, NULL, "", ticketBugCommandTable },
-        { "complaint",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT,       true, NULL,              "", ticketComplaintCommandTable },
-        { "reset",          rbac::RBAC_PERM_COMMAND_TICKET_RESET,           true, NULL,                  "", ticketResetCommandTable },
-        { "suggestion",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION,      true, NULL,             "", ticketSuggestionCommandTable },
-        { "togglesystem",   rbac::RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,    true, &HandleToggleGMTicketSystem,              "" },
-    };
-    static std::vector<ChatCommand> commandTable =
-    {
-        { "ticket", rbac::RBAC_PERM_COMMAND_TICKET, false, NULL, "", ticketCommandTable },
-    };
-    return commandTable;
-}
-
+#ifndef __clang_analyzer__
 void AddSC_ticket_commandscript()
 {
     new ticket_commandscript();
 }
+#endif
+#endif

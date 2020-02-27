@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -44,7 +34,7 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
     _getPoint(owner, x, y, z);
 
     // Add LOS check for target point
-    Position mypos = owner->GetPosition();
+    Position mypos = *owner;
     bool isInLOS = VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(owner->GetMapId(),
                                                                                 mypos.m_positionX,
                                                                                 mypos.m_positionY,
@@ -107,7 +97,8 @@ void FleeingMovementGenerator<T>::_getPoint(T* owner, float &x, float &y, float 
         angle = frand(0, 2*static_cast<float>(M_PI));
     }
 
-    Position pos = owner->GetFirstCollisionPosition(dist, angle);
+    Position pos;
+    owner->GetFirstCollisionPosition(pos, dist, angle);
     x = pos.m_positionX;
     y = pos.m_positionY;
     z = pos.m_positionZ;
@@ -137,7 +128,7 @@ void FleeingMovementGenerator<Creature>::DoFinalize(Creature* owner)
 {
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
-    if (owner->GetVictim())
+    if (owner->getVictim())
         owner->SetTarget(owner->EnsureVictim()->GetGUID());
 }
 
@@ -150,7 +141,7 @@ void FleeingMovementGenerator<T>::DoReset(T* owner)
 template<class T>
 bool FleeingMovementGenerator<T>::DoUpdate(T* owner, uint32 time_diff)
 {
-    if (!owner || !owner->IsAlive())
+    if (!owner || !owner->isAlive())
         return false;
 
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
@@ -181,9 +172,9 @@ void TimedFleeingMovementGenerator::Finalize(Unit* owner)
 {
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
-    if (Unit* victim = owner->GetVictim())
+    if (Unit* victim = owner->getVictim())
     {
-        if (owner->IsAlive())
+        if (owner->isAlive())
         {
             owner->AttackStop();
             owner->ToCreature()->AI()->AttackStart(victim);
@@ -193,7 +184,7 @@ void TimedFleeingMovementGenerator::Finalize(Unit* owner)
 
 bool TimedFleeingMovementGenerator::Update(Unit* owner, uint32 time_diff)
 {
-    if (!owner->IsAlive())
+    if (!owner->isAlive())
         return false;
 
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))

@@ -1,12 +1,9 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
 #
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 
 set(g3dlib_STAT_SRCS
   source/AABox.cpp
@@ -54,18 +51,22 @@ set(g3dlib_STAT_SRCS
   source/Vector4.cpp
 )
 
+if(WIN32)
+  include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/dep/zlib
+  )
+else()
+  include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+  )
+endif()
+
 add_library(g3dlib STATIC ${g3dlib_STAT_SRCS})
 
-target_include_directories(g3dlib
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 target_link_libraries(g3dlib
-  PUBLIC
-    zlib
-    threads)
+  ${ZLIB_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
+)
 
-set_target_properties(g3dlib
-    PROPERTIES
-      FOLDER
-        "dep")
+set_property(TARGET g3dlib PROPERTY FOLDER "dep")

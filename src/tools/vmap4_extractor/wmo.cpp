@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "vmapexport.h"
 #include "wmo.h"
@@ -188,7 +178,6 @@ bool WMOGroup::open()
             f.read(&fogIdx, 4);
             f.read(&liquidType, 4);
             f.read(&groupWMOID,4);
-
         }
         else if (!strcmp(fourcc,"MOPY"))
         {
@@ -352,9 +341,20 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
         for (int i=0; i<nTriangles; ++i)
         {
             // Skip no collision triangles
-            if (MOPY[2*i]&WMO_MATERIAL_NO_COLLISION ||
-              !(MOPY[2*i]&(WMO_MATERIAL_HINT|WMO_MATERIAL_COLLIDE_HIT)) )
+
+            uint8 l_TriangleFlags = MOPY[2 * i];
+
+            bool l_MOPYIsNoCamCollid      = l_TriangleFlags & 0x02;
+            bool l_MOPYIsDetailFace       = l_TriangleFlags & 0x04;
+            bool l_MOPYIsCollisionFace    = l_TriangleFlags & 0x08;
+            bool l_MOPYIsColor            = (l_TriangleFlags & 0x08) == 0;
+            bool l_MOPYIsRenderFace       = (l_TriangleFlags & 0x24) == 0x20;
+            bool l_MOPYIsTransFace        = (l_TriangleFlags & 0x01) && (l_TriangleFlags & 0x24);
+            bool l_MOPYIsCollidable       = l_MOPYIsCollisionFace || (l_MOPYIsRenderFace && !l_MOPYIsDetailFace);
+
+            if (!l_MOPYIsCollidable || l_TriangleFlags == 0xFF)
                 continue;
+
             // Use this triangle
             for (int j=0; j<3; ++j)
             {

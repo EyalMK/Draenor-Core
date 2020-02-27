@@ -1,26 +1,15 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_MOTIONMASTER_H
 #define TRINITY_MOTIONMASTER_H
 
 #include "Common.h"
-#include <vector>
 #include "SharedDefines.h"
 #include "Object.h"
 
@@ -79,7 +68,7 @@ enum RotateDirection
 // assume it is 25 yard per 0.6 second
 #define SPEED_CHARGE    42.0f
 
-class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
+class MotionMaster //: private std::stack<MovementGenerator *>
 {
     private:
         //typedef std::stack<MovementGenerator *> Impl;
@@ -170,30 +159,43 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true)
-            { MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath); }
+        {
+            MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath);
+        }
+        void MovePoint(uint32 id, G3D::Vector3 const& pos, bool generatePath = true)
+        {
+            MovePoint(id, pos.x, pos.y, pos.z, generatePath);
+        }
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true);
-
-        /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
-            Only works in 2D.
-            This method doesn't account for any movement done by the target. in other words, it only works if the target is stationary.
-        */
-        void MoveCloserAndStop(uint32 id, Unit* target, float distance);
+        void MovePointWithRot(uint32 id, float x, float y, float z, float p_Orientation = -1000.0f, bool generatePath = true);
 
         // These two movement types should only be used with creatures having landing/takeoff animations
         void MoveLand(uint32 id, Position const& pos);
         void MoveTakeoff(uint32 id, Position const& pos);
+        void MoveTakeoff(uint32 id, float p_X, float p_Y, float p_Z);
 
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE);
+        void MoveCharge(Position const* p_Pos, float p_Speed = SPEED_CHARGE, uint32 p_ID = EVENT_CHARGE, bool generatePath = false)
+        {
+            MoveCharge(p_Pos->m_positionX, p_Pos->m_positionY, p_Pos->m_positionZ, p_Speed, p_ID, generatePath);
+        }
+
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
-        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty)
-        {
-            MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalSpellId, arrivalSpellTargetGuid);
-        }
-        void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty);
+        void MoveJump(float x, float y, float z, float speedXY, float speedZ, float o = 10.0f, uint32 id = 0);
+        void MoveJump(Position const p_Pos, float p_SpeedXY, float p_SpeedZ, uint32 p_ID = 0);
+        void MoveJump(uint32 p_LocEntry, float p_SpeedXY, float p_SpeedZ, uint32 p_ID = 0);
+
+        void CustomJump(float x, float y, float z, float speedXY, float speedZ, uint32 id = 0);
+        void CustomJump(Unit* p_Target, float speedXY, float speedZ, uint32 id = 0);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk);
+		void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk, bool repeatable);   // Atonement custom
+		void MoveSmoothPath(uint32 pointId, Position const p_Position, bool walk);											// Atonement custom
+        void MoveSmoothFlyPath(uint32 p_PointID, G3D::Vector3 const* p_Path, size_t p_Size);
+		void MoveSmoothFlyPath(uint32 p_PointID, G3D::Vector3 const* p_Path, size_t p_Size, bool repeatable);				// Atonement custom
+        void MoveSmoothFlyPath(uint32 p_PointID, Position const p_Position);
         void MoveFall(uint32 id = 0);
 
         void MoveSeekAssistance(float x, float y, float z);
@@ -202,6 +204,8 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveDistract(uint32 time);
         void MovePath(uint32 path_id, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
+
+        void MoveBackward(uint32 id, float x, float y, float z, float speed = 0.0f);
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
         MovementGeneratorType GetMotionSlotType(int slot) const;

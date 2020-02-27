@@ -1,24 +1,13 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "halls_of_reflection.h"
 
 enum Texts
@@ -34,8 +23,7 @@ enum Spells
     SPELL_OBLITERATE                              = 72360,
     SPELL_WELL_OF_CORRUPTION                      = 72362,
     SPELL_CORRUPTED_FLESH                         = 72363,
-    SPELL_SHARED_SUFFERING                        = 72368,
-    SPELL_SHARED_SUFFERING_DISPEL                 = 72373
+    SPELL_SHARED_SUFFERING                        = 72368
 };
 
 enum Events
@@ -49,125 +37,94 @@ enum Events
 
 class boss_marwyn : public CreatureScript
 {
-    public:
-        boss_marwyn() : CreatureScript("boss_marwyn") { }
+public:
+    boss_marwyn() : CreatureScript("boss_marwyn") { }
 
-        struct boss_marwynAI : public boss_horAI
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_marwynAI(creature);
+    }
+
+    struct boss_marwynAI : public boss_horAI
+    {
+        boss_marwynAI(Creature* creature) : boss_horAI(creature) {}
+
+        void Reset()
         {
-            boss_marwynAI(Creature* creature) : boss_horAI(creature, DATA_MARWYN) { }
+            boss_horAI::Reset();
 
-            void Reset() override
-            {
-                boss_horAI::Reset();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                Talk(SAY_AGGRO);
-                DoZoneInCombat();
-                instance->SetBossState(DATA_MARWYN, IN_PROGRESS);
-
-                events.ScheduleEvent(EVENT_OBLITERATE, urand(8000, 13000));
-                events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
-                events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
-                events.ScheduleEvent(EVENT_SHARED_SUFFERING, urand(14000, 15000));
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                Talk(SAY_DEATH);
-                events.Reset();
-                instance->SetBossState(DATA_MARWYN, DONE);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                switch (events.ExecuteEvent())
-                {
-                    case EVENT_OBLITERATE:
-                        DoCastVictim(SPELL_OBLITERATE);
-                        events.ScheduleEvent(EVENT_OBLITERATE, urand(8000, 13000));
-                        break;
-                    case EVENT_WELL_OF_CORRUPTION:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            DoCast(target, SPELL_WELL_OF_CORRUPTION);
-                        events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
-                        break;
-                    case EVENT_CORRUPTED_FLESH:
-                        Talk(SAY_CORRUPTED_FLESH);
-                        DoCastAOE(SPELL_CORRUPTED_FLESH);
-                        events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
-                        break;
-                    case EVENT_SHARED_SUFFERING:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            DoCast(target, SPELL_SHARED_SUFFERING);
-                        events.ScheduleEvent(EVENT_SHARED_SUFFERING, urand(14000, 15000));
-                        break;
-                    default:
-                        break;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfReflectionAI<boss_marwynAI>(creature);
+            if (instance)
+                instance->SetBossState(DATA_MARWYN_EVENT, NOT_STARTED);
         }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            Talk(SAY_AGGRO);
+            if (instance)
+                instance->SetBossState(DATA_MARWYN_EVENT, IN_PROGRESS);
+
+            events.ScheduleEvent(EVENT_OBLITERATE, urand(2000,3000));          /// @todo Check timer
+            events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 5000);
+            events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
+            events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);    /// @todo Check timer
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            Talk(SAY_DEATH);
+
+            if (instance)
+                instance->SetBossState(DATA_MARWYN_EVENT, DONE);
+        }
+
+        void KilledUnit(Unit* /*victim*/)
+        {
+            Talk(SAY_SLAY);
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            // Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_OBLITERATE:
+                    DoCast(SPELL_OBLITERATE);
+                    events.ScheduleEvent(EVENT_OBLITERATE, urand(13000,15000));
+                    break;
+                case EVENT_WELL_OF_CORRUPTION:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        DoCast(target, SPELL_WELL_OF_CORRUPTION);
+                    events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, urand(13000,15000));
+                    break;
+                case EVENT_CORRUPTED_FLESH:
+                    Talk(SAY_CORRUPTED_FLESH);
+                    DoCast(SPELL_CORRUPTED_FLESH);
+                    events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
+                    break;
+                case EVENT_SHARED_SUFFERING:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        DoCast(target, SPELL_SHARED_SUFFERING);
+                    events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);
+                    break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-// 72368, 72369 - Shared Suffering
-class spell_marwyn_shared_suffering : public SpellScriptLoader
-{
-    public:
-        spell_marwyn_shared_suffering() : SpellScriptLoader("spell_marwyn_shared_suffering") { }
-
-        class spell_marwyn_shared_suffering_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_marwyn_shared_suffering_AuraScript);
-
-            void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
-                    return;
-
-                if (Unit* caster = GetCaster())
-                {
-                    int32 remainingDamage = aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
-                    if (remainingDamage > 0)
-                        caster->CastCustomSpell(SPELL_SHARED_SUFFERING_DISPEL, SPELLVALUE_BASE_POINT1, remainingDamage, GetTarget(), TRIGGERED_FULL_MASK);
-                }
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_marwyn_shared_suffering_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_marwyn_shared_suffering_AuraScript();
-        }
-};
-
+#ifndef __clang_analyzer__
 void AddSC_boss_marwyn()
 {
     new boss_marwyn();
-    new spell_marwyn_shared_suffering();
 }
+#endif

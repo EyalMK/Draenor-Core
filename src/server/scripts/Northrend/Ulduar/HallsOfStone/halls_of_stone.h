@@ -1,76 +1,56 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-#ifndef HALLS_OF_STONE_H_
-#define HALLS_OF_STONE_H_
-
-#define HoSScriptName "instance_halls_of_stone"
-#define DataHeader    "HOS"
-
-uint32 const EncounterCount = 4;
-
-enum DataTypes
+#ifndef DEF_HALLS_OF_STONE_H
+#define DEF_HALLS_OF_STONE_H
+enum Data
 {
-    // Encounter States/Boss GUIDs
-    DATA_KRYSTALLUS             = 0,
-    DATA_MAIDEN_OF_GRIEF        = 1,
-    DATA_TRIBUNAL_OF_AGES       = 2,
-    DATA_SJONNIR                = 3,
-
-    // Additional data
-    DATA_KADDRAK                = 4,
-    DATA_MARNAK                 = 5,
-    DATA_ABEDNEUM               = 6,
-    DATA_GO_TRIBUNAL_CONSOLE    = 7,
-    DATA_GO_KADDRAK             = 8,
-    DATA_GO_MARNAK              = 9,
-    DATA_GO_ABEDNEUM            = 10,
-    DATA_GO_SKY_FLOOR           = 11
+    DATA_KRYSTALLUS_EVENT,
+    DATA_MAIDEN_OF_GRIEF_EVENT,
+    DATA_SJONNIR_EVENT,
+    DATA_BRANN_EVENT
 };
-
-enum CreatureIds
+enum Data64
 {
-    NPC_MAIDEN                  = 27975,
-    NPC_KRYSTALLUS              = 27977,
-    NPC_SJONNIR                 = 27978,
-    NPC_MARNAK                  = 30897,
-    NPC_KADDRAK                 = 30898,
-    NPC_ABEDNEUM                = 30899,
-    NPC_BRANN                   = 28070
+    DATA_KRYSTALLUS,
+    DATA_MAIDEN_OF_GRIEF,
+    DATA_SJONNIR,
+    DATA_KADDRAK,
+    DATA_MARNAK,
+    DATA_ABEDNEUM,
+    DATA_GO_TRIBUNAL_CONSOLE,
+    DATA_GO_KADDRAK,
+    DATA_GO_MARNAK,
+    DATA_GO_ABEDNEUM,
+    DATA_GO_SKY_FLOOR,
+    DATA_SJONNIR_DOOR,
+    DATA_MAIDEN_DOOR
 };
-
-enum GameObjectIds
+enum Creatures
 {
-    GO_ABEDNEUM                 = 191669,
-    GO_MARNAK                   = 191670,
-    GO_KADDRAK                  = 191671,
-    GO_MAIDEN_DOOR              = 191292,
-    GO_BRANN_DOOR               = 191295,
-    GO_SJONNIR_DOOR             = 191296,
-    GO_TRIBUNAL_CONSOLE         = 193907,
-    GO_TRIBUNAL_CHEST           = 190586,
-    GO_TRIBUNAL_CHEST_HERO      = 193996,
-    GO_TRIBUNAL_SKY_FLOOR       = 191527
+    CREATURE_MAIDEN                                        = 27975,
+    CREATURE_KRYSTALLUS                                    = 27977,
+    CREATURE_SJONNIR                                       = 27978,
+    CREATURE_MARNAK                                        = 30897,
+    CREATURE_KADDRAK                                       = 30898,
+    CREATURE_ABEDNEUM                                      = 30899,
+    CREATURE_BRANN                                         = 28070
 };
-
-template<class AI>
-AI* GetHallsOfStoneAI(Creature* creature)
+enum GameObjects
 {
-    return GetInstanceAI<AI>(creature, HoSScriptName);
-}
-
-#endif // HALLS_OF_STONE_H_
+    GO_ABEDNEUM                                            = 191669,
+    GO_MARNAK                                              = 192170,
+    GO_KADDRAK                                             = 192171,
+    GO_MAIDEN_DOOR                                         = 191292,
+    GO_BRANN_DOOR                                          = 191295,
+    GO_SJONNIR_DOOR                                        = 191296,
+    GO_TRIBUNAL_CONSOLE                                    = 193907,
+    GO_TRIBUNAL_CHEST                                      = 190586,
+    GO_TRIBUNAL_CHEST_HERO                                 = 193996
+};
+#endif

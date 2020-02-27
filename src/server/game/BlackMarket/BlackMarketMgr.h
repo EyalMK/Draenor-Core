@@ -1,158 +1,141 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-#ifndef BLACK_MARKET_H
-#define BLACK_MARKET_H
+#ifndef CROSS
+#ifndef _BLACK_MARKET_MGR_H
+#define _BLACK_MARKET_MGR_H
 
 #include "Common.h"
-#include "ObjectGuid.h"
-#include "ItemPackets.h"
-#include "Item.h"
+#include "DatabaseEnv.h"
+#include "DBCStructure.h"
 
-namespace WorldPackets
+class Item;
+class Player;
+class WorldPacket;
+
+enum BMMailAuctionAnswers
 {
-    namespace BlackMarket
+    BM_AUCTION_OUTBIDDED           = 0,
+    BM_AUCTION_WON                 = 1
+};
+
+/// Last update : 6.0.3 19342
+namespace BlackMarketBidResult
+{
+    enum
     {
-        class BlackMarketRequestItemsResult;
-    }
+        BidPlaced            = 0,
+        ItemNotFound         = 1,
+        AlreadyBid           = 2,
+        HigherBid            = 4,
+        NotEnoughMoney       = 7,
+        RestrictedAccount    = 9,
+        DatabaseError        = 6
+    };
 }
 
-enum BlackMarketError : int32      // Extracted from client
+#define BLACKMARKET_AUCTION_HOUSE 7
+
+struct BMAuctionTemplate
 {
-    ERR_BMAH_OK = 0,
-    ERR_BMAH_ITEM_NOT_FOUND = 1,
-    ERR_BMAH_ALREADY_BID = 2,
-    ERR_BMAH_HIGHER_BID = 4,
-    ERR_BMAH_DATABASE_ERROR = 6,
-    ERR_BMAH_NOT_ENOUGH_MONEY = 7,
-    ERR_BMAH_RESTRICTED_ACCOUNT_TRIAL = 9
+    uint32 id;
+    uint32 itemEntry;
+    uint32 itemCount;
+    uint32 seller;
+    uint32 duration;
+    uint64 startBid;
+    uint32 chance;
 };
 
-enum BMAHMailAuctionAnswers
+struct BMAuctionEntry
 {
-    BMAH_AUCTION_OUTBID = 0,
-    BMAH_AUCTION_WON = 1,
-};
+    uint32 id;
+    uint32 templateId;
+    uint32 startTime;
+    uint64 bid;
+    uint32 bidder;
+    uint32 bidderCount;
+    BMAuctionTemplate* bm_template;
 
-const static uint64 BMAH_MAX_BID = 1000000LL * GOLD;
-
-struct BlackMarketTemplate
-{
-    int32 MarketID = 0;
-    int32 SellerNPC = 0;
-    int32 Quantity = 0;
-    uint64 MinBid = UI64LIT(0);
-    time_t Duration = time_t(0);
-    float Chance = 0.0f;
-    WorldPackets::Item::ItemInstance Item;
-
-    // Helpers
+    // helpers
+    void DeleteFromDB(SQLTransaction& trans);
+    void SaveToDB(SQLTransaction& trans);
     bool LoadFromDB(Field* fields);
+    void UpdateToDB(SQLTransaction& trans);
+
+    uint32 EndTime() { return startTime + bm_template->duration; }
+    uint32 TimeLeft();
+    bool IsActive() { return time(NULL) > startTime; }
+    bool IsExpired() { return EndTime() <= time(NULL); }
+
+    std::string BuildAuctionMailSubject(BMMailAuctionAnswers response);
+    std::string BuildAuctionMailBody(uint32 lowGuid);
 };
 
-class BlackMarketEntry
+typedef struct BMAuctionTemplate BMAuctionTemplate;
+typedef struct BMAuctionEntry BMAuctionEntry;
+
+class BlackMarketMgr
 {
-public:
+    friend class ACE_Singleton<BlackMarketMgr, ACE_Null_Mutex>;
 
-    void Update(time_t newTimeOfUpdate);
-    void Initialize(int32 marketId, uint32 duration)
-    {
-        _marketId = marketId;
-        _secondsRemaining = duration;
-    }
+    private:
+        BlackMarketMgr();
+        ~BlackMarketMgr();
 
-    BlackMarketTemplate const* GetTemplate() const;
-    int32 GetMarketId() const { return _marketId; }
+        typedef std::map<uint32, BMAuctionTemplate*> BMAuctionTemplateMap;
+        typedef std::map<uint32, BMAuctionEntry*> BMAuctionEntryMap;
 
-    uint64 GetCurrentBid() const { return _currentBid; }
-    void SetCurrentBid(uint64 bid) { _currentBid = bid; }
+        BMAuctionTemplateMap BMTemplatesMap;
+        BMAuctionEntryMap BMAuctionsMap;
 
-    int32 GetNumBids() const { return _numBids; }
-    void SetNumBids(int32 numBids) { _numBids = numBids; }
+    public:
 
-    ObjectGuid::LowType GetBidder() const { return _bidder; }
-    void SetBidder(ObjectGuid::LowType bidder) { _bidder = bidder; }
+        BMAuctionTemplate* GetTemplate(uint32 id) const
+        {
+            BMAuctionTemplateMap::const_iterator itr = BMTemplatesMap.find(id);
+            return itr != BMTemplatesMap.end() ? itr->second : NULL;
+        }
 
-    uint32 GetSecondsRemaining() const; // Get seconds remaining relative to now
-    time_t GetExpirationTime() const;
-    bool IsCompleted() const;
+        uint32 GetTemplatesCount() { return BMTemplatesMap.size(); }
 
-    void DeleteFromDB(SQLTransaction& trans) const;
-    void SaveToDB(SQLTransaction& trans) const;
-    bool LoadFromDB(Field* fields);
+        BMAuctionTemplateMap::iterator GetTemplatesBegin() { return BMTemplatesMap.begin(); }
+        BMAuctionTemplateMap::iterator GetTemplatesEnd() { return BMTemplatesMap.end(); }
 
-    uint64 GetMinIncrement() const { return (_currentBid / 20) - ((_currentBid / 20) % GOLD); } //5% increase every bid (has to be round gold value)
-    bool ValidateBid(uint64 bid) const;
-    void PlaceBid(uint64 bid, Player* player, SQLTransaction& trans);
+        BMAuctionEntry* GetAuction(uint32 id) const
+        {
+            BMAuctionEntryMap::const_iterator itr = BMAuctionsMap.find(id);
+            return itr != BMAuctionsMap.end() ? itr->second : NULL;
+        }
 
-    std::string BuildAuctionMailSubject(BMAHMailAuctionAnswers response) const;
-    std::string BuildAuctionMailBody();
+        uint32 GetAuctionCount() { return BMAuctionsMap.size(); }
 
-    void MailSent() { _mailSent = true; } // Set when mail has been sent
-    bool GetMailSent() const { return _mailSent; }
+        BMAuctionEntryMap::iterator GetAuctionsBegin() { return BMAuctionsMap.begin(); }
+        BMAuctionEntryMap::iterator GetAuctionsEnd() { return BMAuctionsMap.end(); }
 
-private:
-    int32 _marketId = 0;
-    uint64 _currentBid = 0;
-    int32 _numBids = 0;
-    ObjectGuid::LowType _bidder = 0;
-    uint32 _secondsRemaining = 0;
-    bool _mailSent = false;
+        // Auction messages
+        void SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& trans);
+        void SendAuctionOutbidded(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans);
+
+        void LoadTemplates();
+        void LoadAuctions();
+
+        uint32 GetNewAuctionId();
+        uint64 GetAuctionOutBid(uint64 bid);
+        void CreateAuctions(uint32 number, SQLTransaction& trans);
+        void UpdateAuction(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder);
+
+        void Update();
+
+        void BuildBlackMarketAuctionsPacket(WorldPacket& p_Data, uint32 p_GuidLow);
 };
 
-class TC_GAME_API BlackMarketMgr
-{
-  private:
-    BlackMarketMgr();
-    ~BlackMarketMgr();
+#define sBlackMarketMgr ACE_Singleton<BlackMarketMgr, ACE_Null_Mutex>::instance()
 
-  public:
-    static BlackMarketMgr* Instance();
-
-    typedef std::unordered_map<int32, BlackMarketEntry*> BlackMarketEntryMap;
-    typedef std::unordered_map<int32, BlackMarketTemplate const*> BlackMarketTemplateMap;
-
-    // Load templates first
-    void LoadTemplates();
-    void LoadAuctions();
-
-    void Update(bool updateTime = false);
-    void RefreshAuctions();
-    time_t GetLastUpdate() const { return _lastUpdate; }
-
-    bool IsEnabled() const;
-
-    void BuildItemsResponse(WorldPackets::BlackMarket::BlackMarketRequestItemsResult& packet, Player* player);
-
-    BlackMarketEntry* GetAuctionByID(int32 marketId) const;
-    BlackMarketTemplate const* GetTemplateByID(int32 marketId) const;
-
-    void AddAuction(BlackMarketEntry* auction);
-    void AddTemplate(BlackMarketTemplate* templ);
-
-    void SendAuctionWonMail(BlackMarketEntry* entry, SQLTransaction& trans);
-    void SendAuctionOutbidMail(BlackMarketEntry* entry, SQLTransaction& trans); // Call before incrementing bid
-
-  private:
-      BlackMarketEntryMap _auctions;
-      BlackMarketTemplateMap _templates;
-      time_t _lastUpdate = time_t(0);
-};
-
-#define sBlackMarketMgr BlackMarketMgr::Instance()
-
+#endif
 #endif

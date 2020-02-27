@@ -1,172 +1,371 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _BYTEBUFFER_H
 #define _BYTEBUFFER_H
 
-#include "Define.h"
-#include "Errors.h"
-#include "ByteConverter.h"
-#include "Util.h"
+#include "Common.h"
+#include "Debugging/Errors.h"
+#include "Log.h"
+#include "Utilities/ByteConverter.h"
+#include "Guid.h"
+#include <G3D/Vector2.h>
+#include <G3D/Vector3.h>
 
-
-class MessageBuffer;
-
-// Root of ByteBuffer exception hierarchy
-class TC_SHARED_API ByteBufferException : public std::exception
-{
-public:
-    ~ByteBufferException() throw() { }
-
-    char const* what() const throw() override { return msg_.c_str(); }
-
-protected:
-    std::string & message() throw() { return msg_; }
-
-private:
-    std::string msg_;
-};
-
-class TC_SHARED_API ByteBufferPositionException : public ByteBufferException
-{
-public:
-    ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize);
-
-    ~ByteBufferPositionException() throw() { }
-};
-
-class TC_SHARED_API ByteBufferSourceException : public ByteBufferException
-{
-public:
-    ByteBufferSourceException(size_t pos, size_t size, size_t valueSize);
-
-    ~ByteBufferSourceException() throw() { }
-};
-
-class TC_SHARED_API ByteBuffer
+//! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
+//! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
+struct ObjectGuid
 {
     public:
-        static size_t const DEFAULT_SIZE = 0x1000;
-        static uint8 const InitialBitPos = 8;
+        ObjectGuid() { _data.u64 = 0LL; }
+        ObjectGuid(uint64 guid) { _data.u64 = guid; }
+        ObjectGuid(ObjectGuid const& other) { _data.u64 = other._data.u64; }
+
+        uint8& operator[](uint32 index)
+        {
+            ASSERT(index < sizeof(uint64));
+
+#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+            return _data.byte[index];
+#else
+            return _data.byte[7 - index];
+#endif
+        }
+
+        uint8 const& operator[](uint32 index) const
+        {
+            ASSERT(index < sizeof(uint64));
+
+#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+            return _data.byte[index];
+#else
+            return _data.byte[7 - index];
+#endif
+        }
+
+        operator uint64()
+        {
+            return _data.u64;
+        }
+
+        ObjectGuid& operator=(uint64 guid)
+        {
+            _data.u64 = guid;
+            return *this;
+        }
+
+        ObjectGuid& operator=(ObjectGuid const& other)
+        {
+            _data.u64 = other._data.u64;
+            return *this;
+        }
+
+        void Clear()
+        {
+            _data.u64 = 0LL;
+        }
+
+        bool IsEmpty() const
+        {
+            return bool(_data.u64);
+        }
+
+    private:
+        union
+        {
+            uint64 u64;
+            uint8 byte[8];
+        } _data;
+};
+
+class ByteBufferException
+{
+    public:
+        ByteBufferException(size_t pos, size_t size, size_t valueSize)
+            : Pos(pos), Size(size), ValueSize(valueSize)
+        {
+        }
+
+    protected:
+        size_t Pos;
+        size_t Size;
+        size_t ValueSize;
+};
+
+class ByteBufferPositionException : public ByteBufferException
+{
+    public:
+        ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize)
+        : ByteBufferException(pos, size, valueSize), _add(add)
+        {
+            PrintError();
+        }
+
+    protected:
+        void PrintError() const
+        {
+#ifdef DEBUG
+            ACE_Stack_Trace trace;
+
+            sLog->outError(LOG_FILTER_GENERAL, "Attempted to %s value with size: " SIZEFMTD " in ByteBuffer (pos: " SIZEFMTD " size: " SIZEFMTD ")\n[Stack trace: %s]" ,
+                (_add ? "put" : "get"), ValueSize, Pos, Size, trace.c_str());
+#endif
+        }
+
+    private:
+        bool _add;
+};
+
+class ByteBufferSourceException : public ByteBufferException
+{
+    public:
+        ByteBufferSourceException(size_t pos, size_t size, size_t valueSize)
+        : ByteBufferException(pos, size, valueSize)
+        {
+            PrintError();
+        }
+
+    protected:
+        void PrintError() const
+        {
+#ifdef DEBUG
+            ACE_Stack_Trace trace;
+
+            sLog->outError(LOG_FILTER_GENERAL, "Attempted to put a %s in ByteBuffer (pos: " SIZEFMTD " size: " SIZEFMTD ")\n[Stack trace: %s]",
+                (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size, trace.c_str());
+#endif
+        }
+};
+
+class ByteBuffer
+{
+    public:
+
+        void readPackGUID(uint64& guid)
+        {
+            if (rpos() + 1 > size())
+                throw ByteBufferPositionException(false, _rpos, 1, size());
+
+            uint8 l_GuidMaskLow = read<uint8>();
+            uint8 l_GuidMaskHi = read<uint8>();
+
+            uint64 l_GuidLow = 0;
+            uint64 l_GuidHi = 0;
+
+            uint8 l_BitIT = 0;
+            uint8 l_MaskIT = 0;
+
+            do
+            {
+                if ((1 << l_MaskIT) & l_GuidMaskLow)
+                {
+                    uint8 l_CurrentByte = read<uint8>();
+
+                    l_GuidLow |= (uint64(l_CurrentByte) << l_BitIT);
+                }
+
+                l_BitIT += 8;
+                l_MaskIT++;
+            } while (l_BitIT < 64);
+
+            l_BitIT = 0;
+            l_MaskIT = 0;
+
+            do
+            {
+                if ((1 << l_MaskIT) & l_GuidMaskHi)
+                {
+                    uint8 l_CurrentByte = read<uint8>();
+
+                    l_GuidHi |= (uint64(l_CurrentByte) << l_BitIT);
+                }
+
+                l_BitIT += 8;
+                l_MaskIT++;
+            } while (l_BitIT < 64);
+
+            Guid128 l_128Guid = Guid128(l_GuidLow, l_GuidHi);
+
+            guid = Guid128To64(l_128Guid);
+        }
+
+        void appendPackGUID(uint64 guid)
+        {
+            Guid128 l_128Guid = Guid64To128(guid);
+
+            uint32 l_StartWPos = wpos();
+
+            append<uint8>(0);
+            append<uint8>(0);
+
+            uint64 l_GuidLow = l_128Guid.GetLow();
+            uint64 l_GuidHi = l_128Guid.GetHi();
+
+            uint8 l_BitIT = 0;
+            uint8 l_MaskIT = 0;
+
+            do
+            {
+                uint8 l_CurrentByte = (l_GuidLow >> l_BitIT) & 0xFF;
+
+                if (l_CurrentByte)
+                {
+                    _storage[l_StartWPos + 0] |= 1 << l_MaskIT;
+                    append<uint8>(l_CurrentByte);
+                }
+
+                l_BitIT += 8;
+                l_MaskIT++;
+            } while (l_BitIT < 64);
+
+            l_BitIT = 0;
+            l_MaskIT = 0;
+
+            do
+            {
+                uint8 l_CurrentByte = (l_GuidHi >> l_BitIT) & 0xFF;
+
+                if (l_CurrentByte)
+                {
+                    _storage[l_StartWPos + 1] |= 1 << l_MaskIT;
+                    append<uint8>(l_CurrentByte);
+                }
+
+                l_BitIT += 8;
+                l_MaskIT++;
+            } while (l_BitIT < 64);
+        }
+
+        void ReadVector2(G3D::Vector2& p_Vector2)
+        {
+            *this >> p_Vector2.x;
+            *this >> p_Vector2.y;
+        }
+
+        void ReadVector3(G3D::Vector3& p_Vector3)
+        {
+            *this >> p_Vector3.x;
+            *this >> p_Vector3.y;
+            *this >> p_Vector3.z;
+        }
+
+        void WriteVector2(G3D::Vector2& p_Vector2)
+        {
+            *this << float(p_Vector2.x);
+            *this << float(p_Vector2.y);
+        }
+
+        void WriteVector3(G3D::Vector3& p_Vector3)
+        {
+            *this << float(p_Vector3.x);
+            *this << float(p_Vector3.y);
+            *this << float(p_Vector3.z);
+        }
+
+    public:
+        const static size_t DEFAULT_SIZE = 0x1000;
 
         // constructor
-        ByteBuffer() : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0)
+#ifndef CROSS
+        ByteBuffer() : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0)
+#else /* CROSS */
+        ByteBuffer() : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0), isTunneled(false)
+#endif /* CROSS */
         {
             _storage.reserve(DEFAULT_SIZE);
+            m_BaseSize = DEFAULT_SIZE;
         }
 
-        ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0)
+#ifndef CROSS
+        ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0)
+#else /* CROSS */
+        ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0), isTunneled(false)
+#endif /* CROSS */
         {
             _storage.reserve(reserve);
+            m_BaseSize = reserve;
         }
 
-        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf.Move()) { }
+        // copy constructor
+        ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+#ifndef CROSS
+            _wbitpos(buf._wbitpos), _rbitpos(8), _curbitval(buf._curbitval), m_BaseSize(buf.m_BaseSize), _storage(buf._storage)
+#else /* CROSS */
+            _wbitpos(buf._wbitpos), _rbitpos(8), _curbitval(buf._curbitval), m_BaseSize(buf.m_BaseSize), _storage(buf._storage), isTunneled(false)
 
-        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
-            _bitpos(right._bitpos), _curbitval(right._curbitval), _storage(right._storage) { }
-
-        ByteBuffer(MessageBuffer&& buffer);
-
-        std::vector<uint8>&& Move()
         {
-            _rpos = 0;
-            _wpos = 0;
-            _bitpos = InitialBitPos;
-            _curbitval = 0;
-            return std::move(_storage);
         }
 
-        ByteBuffer& operator=(ByteBuffer const& right)
+        void SetTunneled(bool val)
+#endif /* CROSS */
         {
-            if (this != &right)
-            {
-                _rpos = right._rpos;
-                _wpos = right._wpos;
-                _bitpos = right._bitpos;
-                _curbitval = right._curbitval;
-                _storage = right._storage;
-            }
-
-            return *this;
+#ifdef CROSS
+            isTunneled = val;
+#endif /* CROSS */
         }
-
-        ByteBuffer& operator=(ByteBuffer&& right)
-        {
-            if (this != &right)
-            {
-                _rpos = right._rpos;
-                _wpos = right._wpos;
-                _bitpos = right._bitpos;
-                _curbitval = right._curbitval;
-                _storage = right.Move();
-            }
-
-            return *this;
-        }
-
-        virtual ~ByteBuffer() { }
 
         void clear()
         {
-            _rpos = 0;
-            _wpos = 0;
-            _bitpos = InitialBitPos;
-            _curbitval = 0;
             _storage.clear();
+            _rpos = _wpos = 0;
+            _curbitval = 0;
+            _wbitpos = 8;
+            _rbitpos = 8;
         }
 
+#ifndef CROSS
+        void eraseFirst(int num)
+        {
+            if ((int)_storage.size() >= num)
+            {
+                _storage.erase(_storage.begin(), _storage.begin() + num);
+                _storage.shrink_to_fit();
+            }
+        }
+
+#endif /* not CROSS */
         template <typename T> void append(T value)
         {
-            static_assert(std::is_fundamental<T>::value, "append(compound)");
+            FlushBits();
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
         }
 
+        void ResetBitReading()
+        {
+            _rbitpos = 8;
+        }
+
         void FlushBits()
         {
-            if (_bitpos == 8)
+            if (_wbitpos == 8)
                 return;
-
-            _bitpos = 8;
 
             append((uint8 *)&_curbitval, sizeof(uint8));
             _curbitval = 0;
+            _wbitpos = 8;
         }
 
-        void ResetBitPos()
+        void WriteBitInOrder(ObjectGuid guid, uint8 order[8])
         {
-            if (_bitpos > 7)
-                return;
-
-            _bitpos = 8;
-            _curbitval = 0;
+            for (uint8 i = 0; i < 8; ++i)
+                WriteBit(guid[order[i]]);
         }
 
         bool WriteBit(uint32 bit)
         {
-            --_bitpos;
+            --_wbitpos;
             if (bit)
-                _curbitval |= (1 << (_bitpos));
+                _curbitval |= (1 << (_wbitpos));
 
-            if (_bitpos == 0)
+            if (_wbitpos == 0)
             {
-                _bitpos = 8;
+                _wbitpos = 8;
                 append((uint8 *)&_curbitval, sizeof(_curbitval));
                 _curbitval = 0;
             }
@@ -174,32 +373,69 @@ class TC_SHARED_API ByteBuffer
             return (bit != 0);
         }
 
-        bool ReadBit()
+        void ReadBitInOrder(ObjectGuid& guid, uint8 order[8])
         {
-            ++_bitpos;
-            if (_bitpos > 7)
-            {
-                _curbitval = read<uint8>();
-                _bitpos = 0;
-            }
-
-            return ((_curbitval >> (7-_bitpos)) & 1) != 0;
+            for (uint8 i = 0; i < 8; ++i)
+                guid[order[i]] = ReadBit();
         }
 
-        template <typename T> void WriteBits(T value, int32 bits)
+        bool ReadBit()
         {
-            for (int32 i = bits - 1; i >= 0; --i)
+            ++_rbitpos;
+            if (_rbitpos > 7)
+            {
+                _curbitval = read<uint8>();
+                _rbitpos = 0;
+            }
+
+            return ((_curbitval >> (7-_rbitpos)) & 1) != 0;
+        }
+
+        template <typename T> void WriteBits(T value, size_t bits)
+        {
+            for (int32 i = bits-1; i >= 0; --i)
                 WriteBit((value >> i) & 1);
         }
 
-        uint32 ReadBits(int32 bits)
+        uint32 ReadBits(size_t bits)
         {
             uint32 value = 0;
-            for (int32 i = bits - 1; i >= 0; --i)
+            for (int32 i = bits-1; i >= 0; --i)
                 if (ReadBit())
                     value |= (1 << (i));
 
             return value;
+        }
+
+        uint32 ReadPackedTime()
+        {
+            uint32 l_Date = read<uint32>();
+            tm l_Time = tm();
+
+            l_Time.tm_min = l_Date & 0x3F;
+            l_Time.tm_hour = (l_Date >> 6) & 0x1F;
+            l_Time.tm_mday = ((l_Date >> 14) & 0x3F) + 1;
+            l_Time.tm_mon = (l_Date >> 20) & 0xF;
+            l_Time.tm_year = ((l_Date >> 24) & 0x1F) + 100;
+
+            /// Needed for the msvc 2013 support
+#ifdef _MSC_VER
+            return uint32(mktime(&l_Time) + _timezone);
+#else
+            return uint32(mktime(&l_Time) + timezone);
+#endif
+        }
+
+        ByteBuffer& ReadPackedTime(uint32& p_Time)
+        {
+            p_Time = ReadPackedTime();
+            return *this;
+        }
+
+        void ReadBytesSeq(ObjectGuid& guid, uint8 order[8])
+        {
+            for (uint8 i = 0; i < 8; ++i)
+                ReadByteSeq(guid[order[i]]);
         }
 
         // Reads a byte (if needed) in-place
@@ -207,6 +443,12 @@ class TC_SHARED_API ByteBuffer
         {
             if (b != 0)
                 b ^= read<uint8>();
+        }
+
+        void WriteBytesSeq(ObjectGuid guid, uint8 order[8])
+        {
+            for (uint8 i = 0; i < 8; ++i)
+                WriteByteSeq(guid[order[i]]);
         }
 
         void WriteByteSeq(uint8 b)
@@ -217,7 +459,6 @@ class TC_SHARED_API ByteBuffer
 
         template <typename T> void put(size_t pos, T value)
         {
-            static_assert(std::is_fundamental<T>::value, "append(compound)");
             EndianConvert(value);
             put(pos, (uint8 *)&value, sizeof(value));
         }
@@ -319,7 +560,7 @@ class TC_SHARED_API ByteBuffer
         {
             if (size_t len = value.length())
                 append((uint8 const*)value.c_str(), len);
-            append<uint8>(0);
+            append((uint8)0);
             return *this;
         }
 
@@ -327,7 +568,13 @@ class TC_SHARED_API ByteBuffer
         {
             if (size_t len = (str ? strlen(str) : 0))
                 append((uint8 const*)str, len);
-            append<uint8>(0);
+            append((uint8)0);
+            return *this;
+        }
+
+        ByteBuffer &operator<<(bool &value)
+        {
+            append<uint8>(value);
             return *this;
         }
 
@@ -389,16 +636,12 @@ class TC_SHARED_API ByteBuffer
         ByteBuffer &operator>>(float &value)
         {
             value = read<float>();
-            if (!std::isfinite(value))
-                throw ByteBufferException();
             return *this;
         }
 
         ByteBuffer &operator>>(double &value)
         {
             value = read<double>();
-            if (!std::isfinite(value))
-                throw ByteBufferException();
             return *this;
         }
 
@@ -434,6 +677,7 @@ class TC_SHARED_API ByteBuffer
         size_t rpos(size_t rpos_)
         {
             _rpos = rpos_;
+            _rbitpos = 8;
             return _rpos;
         }
 
@@ -451,13 +695,13 @@ class TC_SHARED_API ByteBuffer
         }
 
         /// Returns position of last written bit
-        size_t bitwpos() const { return _wpos * 8 + 8 - _bitpos; }
+        size_t bitwpos() const { return _wpos * 8 + 8 - _wbitpos; }
 
         size_t bitwpos(size_t newPos)
         {
             _wpos = newPos / 8;
-            _bitpos = 8 - (newPos % 8);
-            return _wpos * 8 + 8 - _bitpos;
+            _wbitpos = 8 - (newPos % 8);
+            return _wpos * 8 + 8 - _wbitpos;
         }
 
         template<typename T>
@@ -467,14 +711,13 @@ class TC_SHARED_API ByteBuffer
         {
             if (_rpos + skip > size())
                 throw ByteBufferPositionException(false, _rpos, skip, size());
-
-            ResetBitPos();
             _rpos += skip;
+
+            _rbitpos = 8;
         }
 
         template <typename T> T read()
         {
-            ResetBitPos();
             T r = read<T>(_rpos);
             _rpos += sizeof(T);
             return r;
@@ -486,97 +729,59 @@ class TC_SHARED_API ByteBuffer
                 throw ByteBufferPositionException(false, pos, sizeof(T), size());
             T val = *((T const*)&_storage[pos]);
             EndianConvert(val);
+            const_cast<ByteBuffer*>(this)->_rbitpos = 8;
             return val;
         }
 
         void read(uint8 *dest, size_t len)
         {
-            if (_rpos + len > size())
+            if (_rpos  + len > size())
                throw ByteBufferPositionException(false, _rpos, len, size());
-
-            ResetBitPos();
-            std::memcpy(dest, &_storage[_rpos], len);
+            memcpy(dest, &_storage[_rpos], len);
             _rpos += len;
-        }
-
-        void ReadPackedUInt64(uint64& guid)
-        {
-            guid = 0;
-            ReadPackedUInt64(read<uint8>(), guid);
-        }
-
-        void ReadPackedUInt64(uint8 mask, uint64& value)
-        {
-            for (uint32 i = 0; i < 8; ++i)
-                if (mask & (uint8(1) << i))
-                    value |= (uint64(read<uint8>()) << (i * 8));
+            _rbitpos = 8;
         }
 
         std::string ReadString(uint32 length)
         {
-            if (_rpos + length > size())
-                throw ByteBufferPositionException(false, _rpos, length, size());
-
-            ResetBitPos();
             if (!length)
                 return std::string();
-
-            std::string str((char const*)&_storage[_rpos], length);
-            _rpos += length;
-            return str;
+            char* buffer = new char[length + 1];
+            memset(buffer, 0, length + 1);
+            read((uint8*)buffer, length);
+            std::string retval = buffer;
+            delete[] buffer;
+            return retval;
         }
 
         //! Method for writing strings that have their length sent separately in packet
         //! without null-terminating the string
         void WriteString(std::string const& str)
         {
+            FlushBits();
+            
             if (size_t len = str.length())
                 append(str.c_str(), len);
         }
 
-        void WriteString(char const* str, size_t len)
-        {
-            if (len)
-                append(str, len);
-        }
-
-        uint32 ReadPackedTime()
-        {
-            uint32 packedDate = read<uint32>();
-            tm lt = tm();
-
-            lt.tm_min = packedDate & 0x3F;
-            lt.tm_hour = (packedDate >> 6) & 0x1F;
-            //lt.tm_wday = (packedDate >> 11) & 7;
-            lt.tm_mday = ((packedDate >> 14) & 0x3F) + 1;
-            lt.tm_mon = (packedDate >> 20) & 0xF;
-            lt.tm_year = ((packedDate >> 24) & 0x1F) + 100;
-
-            return uint32(mktime(&lt));
-        }
-
-        ByteBuffer& ReadPackedTime(uint32& time)
-        {
-            time = ReadPackedTime();
-            return *this;
-        }
-
-        uint8* contents()
-        {
-            if (_storage.empty())
-                throw ByteBufferException();
-            return _storage.data();
-        }
-
-        uint8 const* contents() const
-        {
-            if (_storage.empty())
-                throw ByteBufferException();
-            return _storage.data();
-        }
+        const uint8 *contents() const { return &_storage[0]; }
 
         size_t size() const { return _storage.size(); }
+#ifndef CROSS
         bool empty() const { return _storage.empty(); }
+#else /* CROSS */
+        bool empty() const
+        {
+            // we have 10 bytes for tunneled packets
+            // InterRealmClient::Handle_TunneledPacket
+            if (isTunneled)
+            {
+                return _storage.size() <= 10;
+            }
+
+            return _storage.empty();
+        }
+#endif /* CROSS */
 
         void resize(size_t newsize)
         {
@@ -611,11 +816,10 @@ class TC_SHARED_API ByteBuffer
 
             ASSERT(size() < 10000000);
 
-            FlushBits();
-
             if (_storage.size() < _wpos + cnt)
                 _storage.resize(_wpos + cnt);
-            std::memcpy(&_storage[_wpos], src, cnt);
+
+            memcpy(&_storage[_wpos], src, cnt);
             _wpos += cnt;
         }
 
@@ -635,46 +839,6 @@ class TC_SHARED_API ByteBuffer
             *this << packed;
         }
 
-        void AppendPackedUInt64(uint64 guid)
-        {
-            uint8 mask = 0;
-            size_t pos = wpos();
-            *this << uint8(mask);
-
-            uint8 packed[8];
-            if (size_t packedSize = PackUInt64(guid, &mask, packed))
-                append(packed, packedSize);
-
-            put<uint8>(pos, mask);
-        }
-
-        static size_t PackUInt64(uint64 value, uint8* mask, uint8* result)
-        {
-            size_t resultSize = 0;
-            *mask = 0;
-            memset(result, 0, 8);
-
-            for (uint8 i = 0; value != 0; ++i)
-            {
-                if (value & 0xFF)
-                {
-                    *mask |= uint8(1 << i);
-                    result[resultSize++] = uint8(value & 0xFF);
-                }
-
-                value >>= 8;
-            }
-
-            return resultSize;
-        }
-
-        void AppendPackedTime(time_t time)
-        {
-            tm lt;
-            localtime_r(&time, &lt);
-            append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon  << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
-        }
-
         void put(size_t pos, const uint8 *src, size_t cnt)
         {
             if (pos + cnt > size())
@@ -683,19 +847,85 @@ class TC_SHARED_API ByteBuffer
             if (!src)
                 throw ByteBufferSourceException(_wpos, size(), cnt);
 
-            std::memcpy(&_storage[pos], src, cnt);
+            memcpy(&_storage[pos], src, cnt);
         }
 
-        void print_storage() const;
+        void print_storage() const
+        {
+            if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
+                return;
 
-        void textlike() const;
+            std::ostringstream o;
+            o << "STORAGE_SIZE: " << size();
+            for (uint32 i = 0; i < size(); ++i)
+                o << read<uint8>(i) << " - ";
+            o << " ";
 
-        void hexlike() const;
+            sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+        }
+
+        void textlike() const
+        {
+            if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
+                return;
+
+            std::ostringstream o;
+            o << "STORAGE_SIZE: " << size();
+            for (uint32 i = 0; i < size(); ++i)
+            {
+                char buf[1];
+                snprintf(buf, 1, "%c", read<uint8>(i));
+                o << buf;
+            }
+            o << " ";
+            sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+        }
+
+        void hexlike() const
+        {
+            if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
+                return;
+
+            uint32 j = 1, k = 1;
+
+            std::ostringstream o;
+            o << "STORAGE_SIZE: " << size();
+
+            for (uint32 i = 0; i < size(); ++i)
+            {
+                char buf[3];
+                snprintf(buf, 1, "%2X ", read<uint8>(i));
+                if ((i == (j * 8)) && ((i != (k * 16))))
+                {
+                    o << "| ";
+                    ++j;
+                }
+                else if (i == (k * 16))
+                {
+                    o << "\n";
+                    ++k;
+                    ++j;
+                }
+
+                o << buf;
+            }
+            o << " ";
+            sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+        }
+
+        size_t GetBitPos() const
+        {
+            return _wbitpos;
+        }
 
     protected:
-        size_t _rpos, _wpos, _bitpos;
+        size_t _rpos, _wpos, _wbitpos, _rbitpos;
         uint8 _curbitval;
+        uint32 m_BaseSize;
         std::vector<uint8> _storage;
+#ifdef CROSS
+        bool isTunneled;
+#endif /* CROSS */
 };
 
 template <typename T>
@@ -777,7 +1007,6 @@ inline ByteBuffer &operator>>(ByteBuffer &b, std::map<K, V> &m)
     return b;
 }
 
-/// @todo Make a ByteBuffer.cpp and move all this inlining to it.
 template<> inline std::string ByteBuffer::read<std::string>()
 {
     std::string tmp;
@@ -805,3 +1034,4 @@ inline void ByteBuffer::read_skip<std::string>()
 }
 
 #endif
+

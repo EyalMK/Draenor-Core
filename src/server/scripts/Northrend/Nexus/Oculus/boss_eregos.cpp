@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -39,7 +30,7 @@ enum Says
     SAY_ENRAGE          = 2,
     SAY_KILL            = 3,
     SAY_DEATH           = 4,
-    SAY_SHIELD          = 5,
+    SAY_SHIELD          = 5
 };
 
 enum Spells
@@ -85,35 +76,26 @@ class boss_eregos : public CreatureScript
 
         struct boss_eregosAI : public BossAI
         {
-            boss_eregosAI(Creature* creature) : BossAI(creature, DATA_EREGOS)
-            {
-                Initialize();
-            }
+            boss_eregosAI(Creature* creature) : BossAI(creature, DATA_EREGOS) { }
 
-            void Initialize()
+            void Reset()
             {
+                _Reset();
                 _phase = PHASE_NORMAL;
 
                 _rubyVoid = true;
                 _emeraldVoid = true;
                 _amberVoid = true;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
 
                 DoAction(ACTION_SET_NORMAL_EVENTS);
             }
 
-            void KilledUnit(Unit* who) override
+            void KilledUnit(Unit* /*victim*/)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_KILL);
+                Talk(SAY_KILL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
 
@@ -129,7 +111,7 @@ class boss_eregos : public CreatureScript
                     _amberVoid = false;
             }
 
-            uint32 GetData(uint32 type) const override
+            uint32 GetData(uint32 type)
             {
                switch (type)
                {
@@ -145,7 +127,7 @@ class boss_eregos : public CreatureScript
                 return 0;
             }
 
-            void DoAction(int32 action) override
+            void DoAction(const int32 action)
             {
                 if (action != ACTION_SET_NORMAL_EVENTS)
                     return;
@@ -157,7 +139,7 @@ class boss_eregos : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_LEY_WHELP, urand(15, 30) * IN_MILLISECONDS, 0, PHASE_NORMAL);
             }
 
-            void JustSummoned(Creature* summon) override
+            void JustSummoned(Creature* summon)
             {
                 BossAI::JustSummoned(summon);
 
@@ -169,16 +151,16 @@ class boss_eregos : public CreatureScript
                 summon->GetMotionMaster()->MoveRandom(100.0f);
             }
 
-            void SummonedCreatureDespawn(Creature* summon) override
+            void SummonedCreatureDespawn(Creature* summon)
             {
                 if (summon->GetEntry() != NPC_PLANAR_ANOMALY)
                     return;
 
-                /// @todo: See why the spell is not cast
+                /// @todo: See why the spell is not casted
                 summon->CastSpell(summon, SPELL_PLANAR_BLAST, true);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!IsHeroic())
                     return;
@@ -199,7 +181,7 @@ class boss_eregos : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -239,7 +221,7 @@ class boss_eregos : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
 
@@ -253,13 +235,13 @@ class boss_eregos : public CreatureScript
              bool _amberVoid;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_eregosAI(creature);
         }
 };
 
-class spell_eregos_planar_shift : public SpellScriptLoader
+class spell_eregos_planar_shift: public SpellScriptLoader
 {
     public:
         spell_eregos_planar_shift() : SpellScriptLoader("spell_eregos_planar_shift") { }
@@ -274,13 +256,13 @@ class spell_eregos_planar_shift : public SpellScriptLoader
                     creature->AI()->DoAction(ACTION_SET_NORMAL_EVENTS);
             }
 
-            void Register() override
+            void Register()
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_eregos_planar_shift_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const override
+        AuraScript* GetAuraScript() const
         {
             return new spell_eregos_planar_shift_AuraScript();
         }
@@ -291,7 +273,7 @@ class achievement_gen_eregos_void : public AchievementCriteriaScript
     public:
         achievement_gen_eregos_void(char const* name, uint32 data) : AchievementCriteriaScript(name), _data(data) { }
 
-        bool OnCheck(Player* /*player*/, Unit* target) override
+        bool OnCheck(Player* /*player*/, Unit* target)
         {
             return target && target->GetAI()->GetData(_data);
         }
@@ -300,11 +282,13 @@ class achievement_gen_eregos_void : public AchievementCriteriaScript
         uint32 _data;
 };
 
- void AddSC_boss_eregos()
- {
-    new boss_eregos();
-    new spell_eregos_planar_shift();
-    new achievement_gen_eregos_void("achievement_ruby_void", DATA_RUBY_VOID);
-    new achievement_gen_eregos_void("achievement_emerald_void", DATA_EMERALD_VOID);
-    new achievement_gen_eregos_void("achievement_amber_void", DATA_AMBER_VOID);
- }
+#ifndef __clang_analyzer__
+void AddSC_boss_eregos()
+{
+   new boss_eregos();
+   new spell_eregos_planar_shift();
+   new achievement_gen_eregos_void("achievement_ruby_void", DATA_RUBY_VOID);
+   new achievement_gen_eregos_void("achievement_emerald_void", DATA_EMERALD_VOID);
+   new achievement_gen_eregos_void("achievement_amber_void", DATA_AMBER_VOID);
+}
+#endif

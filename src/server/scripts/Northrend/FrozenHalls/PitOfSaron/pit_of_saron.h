@@ -1,27 +1,16 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-#ifndef PIT_OF_SARON_H_
-#define PIT_OF_SARON_H_
+#ifndef DEF_PIT_OF_SARON_H
+#define DEF_PIT_OF_SARON_H
 
 #define PoSScriptName "instance_pit_of_saron"
-#define DataHeader "POS"
-
-uint32 const EncounterCount = 3;
+#define MAX_ENCOUNTER 3
 
 enum DataTypes
 {
@@ -96,10 +85,4 @@ enum GameObjectIds
     GO_HALLS_OF_REFLECTION_PORTCULLIS           = 201848
 };
 
-template<class AI>
-AI* GetPitOfSaronAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, PoSScriptName);
-}
-
-#endif // PIT_OF_SARON_H_
+#endif

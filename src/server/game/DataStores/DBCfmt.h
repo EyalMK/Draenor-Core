@@ -1,128 +1,118 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_DBCSFRM_H
 #define TRINITY_DBCSFRM_H
 
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
-// n - index (included), l - uint64, p - field present in sql dbc, a - field absent in sql dbc
+// n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
-char const AnimKitfmt[] = "nxxx";
-char const AreaTablefmt[] = "niiiiixxxxxxisiiiiixxxxxxxxxx";
-char const AreaTriggerfmt[] = "nifffxxxfffffxxxx";
-char const ArmorLocationfmt[] = "nfffff";
-char const BankBagSlotPricesfmt[] = "ni";
-char const BannedAddOnsfmt[] = "nxxxxxxxxxx";
-char const BattlemasterListfmt[] = "niiiiiiiiiiiiiiiiixsiiiixxxxxxx";
-char const CharSectionsfmt[] = "diiixxxiii";
-char const CharTitlesfmt[] = "nxssix";
-char const ChatChannelsfmt[] = "nixsx";
-char const ChrClassesfmt[] = "nixsxxxixiiiiixxxxx";
-char const ChrRacesfmt[] = "niixiixxxxxxiisxxxxxxxxxxxxxxxxxxxxxxxxx";
-char const ChrSpecializationfmt[] = "nxiiiiiiiiixxxii";
-char const CreatureDisplayInfoExtrafmt[] = "dixxxxxxxxxxxxxxxxxxxx";
-char const CreatureFamilyfmt[] = "nfifiiiiixsx";
-char const CreatureModelDatafmt[] = "niixxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
-char const DifficultyFmt[] = "niiiixiixxxxix";
-char const DungeonEncounterfmt[] = "niiixsxxx";
-char const DurabilityCostsfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
-char const Emotesfmt[] = "nxxiiixx";
-char const EmotesTextfmt[] = "nxixxxxxxxxxxxxxxxx";
-char const EmotesTextSoundEntryfmt[] = "niiii";
-char const Factionfmt[] = "niiiiiiiiiiiiiiiiiiffixsxixx";
-char const FactionTemplatefmt[] = "niiiiiiiiiiiii";
-char const GameObjectDisplayInfofmt[] = "nixxxxxxxxxxffffffxxx";
-char const GemPropertiesfmt[] = "nixxii";
-char const GlyphPropertiesfmt[] = "niiix";
-char const GtArmorMitigationByLvlfmt[] = "xf";
-char const GtBarberShopCostBasefmt[] = "xf";
-char const GtCombatRatingsfmt[] = "xf";
-char const GtOCTHpPerStaminafmt[] = "df";
-char const GtOCTLevelExperiencefmt[] = "xf";
-char const GtChanceToMeleeCritBasefmt[] = "xf";
-char const GtChanceToMeleeCritfmt[] = "xf";
-char const GtChanceToSpellCritBasefmt[] = "xf";
-char const GtChanceToSpellCritfmt[] = "xf";
-char const GtItemSocketCostPerLevelfmt[] = "xf";
-char const GtNPCManaCostScalerfmt[] = "xf";
-char const GtNpcTotalHpfmt[] = "xf";
-char const GtNpcTotalHpExp1fmt[] = "xf";
-char const GtNpcTotalHpExp2fmt[] = "xf";
-char const GtNpcTotalHpExp3fmt[] = "xf";
-char const GtNpcTotalHpExp4fmt[] = "xf";
-char const GtNpcTotalHpExp5fmt[] = "xf";
-char const GtRegenMPPerSptfmt[] = "xf";
-char const GtSpellScalingfmt[] = "df";
-char const GtOCTBaseHPByClassfmt[] = "df";
-char const GtOCTBaseMPByClassfmt[] = "df";
-char const GuildColorBackgroundfmt[] = "nXXX";
-char const GuildColorBorderfmt[] = "nXXX";
-char const GuildColorEmblemfmt[] = "nXXX";
-char const ItemBagFamilyfmt[] = "nx";
-char const ItemArmorQualityfmt[] = "nfffffffi";
-char const ItemArmorShieldfmt[] = "nifffffff";
-char const ItemArmorTotalfmt[] = "niffff";
-char const ItemDamagefmt[] = "nfffffffi";
-char const ItemSetfmt[] = "nsiiiiiiiiiiiiiiiiiii";
-char const ItemSetSpellfmt[] = "niiii";
-char const LFGDungeonfmt[] = "nsiiixxiiiixxixixxxxxxxxxxxxxx";
-char const Lightfmt[] = "nifffxxxxxxxxxx";
-char const LiquidTypefmt[] = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-char const Lockfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
-char const Mapfmt[] = "nxiixxsixxixiffxiiiiix";
-char const MapDifficultyfmt[] = "diisiiii";
-char const MinorTalentfmt[] = "niii";
-char const Moviefmt[] = "nxxxx";
-char const Phasefmt[] = "ni";
-char const QuestFactionRewardfmt[] = "niiiiiiiiii";
-char const PowerDisplayfmt[] = "nixXXX";
-char const PvpDifficultyfmt[] = "diiii";
-char const RandPropPointsfmt[] = "niiiiiiiiiiiiiii";
-char const SkillLinefmt[] = "nisxixixx";
-char const SkillLineAbilityfmt[] = "niiiiiiiiiiii";
-char const SkillRaceClassInfofmt[] = "diiiiiii";
-char const SpellCategoriesfmt[] = "diiiiiiiii";
-char const SpellCategoryfmt[] = "nixxii";
-char const SpellEffectfmt[] = "niifiiiffiiiiiifiifiiiiifiiiiif";
-const std::string CustomSpellEffectfmt = "ppppppppppppppappppppppppp";
-const std::string CustomSpellEffectEntryIndex = "Id";
-char const Spellfmt[] = "nsxxxiiiiiiiiiiiiiiiiiii";
-const std::string CustomSpellfmt = "ppppppppppppppapaaaaaaaaapaaaaaapapppaapppaaapa";
-const std::string CustomSpellEntryIndex = "Id";
-char const SpellEffectScalingfmt[] = "nfffi";
-char const SpellFocusObjectfmt[] = "nx";
-char const SpellItemEnchantmentfmt[] = "niiiiiiiiiixiiiiiiiiiiifff";
-char const SpellScalingfmt[] = "niiiifiii";
-char const SpellTargetRestrictionsfmt[] = "niiffiiii";
-char const SpellInterruptsfmt[] = "diiiiiii";
-char const SpellEquippedItemsfmt[] = "diiiii";
-char const SpellAuraOptionsfmt[] = "niiiiiiii";
-char const SpellCooldownsfmt[] = "diiiii";
-char const SpellLevelsfmt[] = "diiiii";
-char const SpellShapeshiftfmt[] = "niiiix";
-char const SpellShapeshiftFormfmt[] = "nxxiixiiiiiiiiiiiiixx";
-char const SummonPropertiesfmt[] = "niiiii";
-char const Talentfmt[] = "niiiiiiiiix";
-char const Vehiclefmt[] = "niiffffiiiiiiiifffffffffffffffxxxxfifiiii";
-char const VehicleSeatfmt[] = "niiffffffffffiiiiiifffffffiiifffiiiiiiiffiiiiffffffffffffiiiiiiiii";
-char const WMOAreaTablefmt[] = "niiixxxxxiixxxx";
-char const WorldMapAreafmt[] = "xinxffffixxxxx";
-char const WorldMapTransformsfmt[] = "diffffffiffxxxf";
-char const WorldSafeLocsfmt[] = "niffffx";
+char const AnimKitfmt[]                       = "nxxx";
+const char AreaTableEntryfmt[]                = "iiinixxxxxxxisiiiiixxxxxxxxxx";
+const char AreaTriggerEntryfmt[]              = "nifffxxxfffffxxxx";
+const char ArmorLocationfmt[]                 = "nfffff";
+const char BankBagSlotPricesEntryfmt[]        = "ni";
+const char BattlemasterListEntryfmt[]         = "niiiiiiiiiiiiiiiiixsxiiiixxxxxx";
+const char CharTitlesEntryfmt[]               = "nxsxix";
+const char ChatChannelsEntryfmt[]             = "nixsx";
+const char ChrClassesEntryfmt[]               = "nixsxxxixiiiiixxxxi";
+const char ChrRacesEntryfmt[]                 = "niixiixixxxxixsxxxxxxxxxxxxxxxxxxxxxxxxx";
+const char ChrSpecializationsfmt[]            = "nsiixiiixxisxsxi";
+const char CinematicCameraEntryfmt[]          = "nsiffff";
+char const CreatureDisplayInfoExtrafmt[]      = "dixxxxxxxxxxxxxxxxxxxx";
+const char CreatureModelDatafmt[]             = "nixxxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
+const char CreatureFamilyfmt[]                = "nfifiiiiixsx";
+const char DifficultyEntryfmt[]               = "niiiiiiiiiisix";
+const char DungeonEncounterfmt[]              = "niiiisiii";
+const char DurabilityCostsfmt[]               = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
+const char EmotesEntryfmt[]                   = "nsiiiiii";
+const char EmotesTextEntryfmt[]               = "nxixxxxxxxxxxxxxxxx";
+char const EmotesTextSoundEntryfmt[]          = "niiii";
+const char FactionEntryfmt[]                  = "niiiiiiiiiiiiiiiiiiffiissiii";
+const char FactionTemplateEntryfmt[]          = "niiiiiiiiiiiii";
+const char FileDatafmt[]                      = "nss";
+const char GameObjectDisplayInfofmt[]         = "nixxxxxxxxxxffffffxxx";
+const char GemPropertiesEntryfmt[]            = "nixxii";
+const char GlyphPropertiesfmt[]               = "niiii";
+char const gtArmorMitigationByLvlfmt[]        = "df";
+const char GtBarberShopCostBasefmt[]          = "xf";
+const char GtCombatRatingsfmt[]               = "xf";
+const char GtOCTHpPerStaminafmt[]             = "df";
+const char GtChanceToMeleeCritBasefmt[]       = "xf";
+const char GtChanceToMeleeCritfmt[]           = "xf";
+const char GtChanceToSpellCritBasefmt[]       = "xf";
+const char GtChanceToSpellCritfmt[]           = "xf";
+const char GtOCTLevelExperiencefmt[]          = "nf";
+const char GtOCTRegenHPfmt[]                  = "f";
+const char GtRegenMPPerSptfmt[]               = "xf";
+const char GtSpellScalingfmt[]                = "df";
+const char GtOCTBaseHPByClassfmt[]            = "df";
+const char GtOCTBaseMPByClassfmt[]            = "df";
+const char ItemSetSpellFmt[]                  = "diiii";
+const char ItemBagFamilyfmt[]                 = "nx";
+const char ItemArmorQualityfmt[]              = "nfffffffi";
+const char ItemArmorShieldfmt[]               = "nifffffff";
+const char ItemArmorTotalfmt[]                = "niffff";
+const char ItemDamagefmt[]                    = "nfffffffi";
+const char gtItemSocketCostPerLevelfmt[]      = "df";
+const char ItemSetEntryfmt[]                  = "dsiiiiiiiiiiiiiiiiiii";
+const char LFGDungeonEntryfmt[]               = "nxiiiiiiiiixxixixiiiixxxxixxxx";
+const char LiquidTypefmt[]                    = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+const char LockEntryfmt[]                     = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
+const char PhaseEntryfmt[]                    = "ni";
+const char MapEntryfmt[]                      = "nxiixxsixxixiffxiiiixx";
+const char MapDifficultyEntryfmt[]            = "niisiiii";
+const char MinorTalentfmt[]                   = "diii";
+const char MovieEntryfmt[]                    = "nxxxx";
+const char PowerDisplayfmt[]                  = "nisbbb";
+const char PvPDifficultyfmt[]                 = "diiii";
+const char QuestFactionRewardfmt[]            = "niiiiiiiiii";
+const char RandomPropertiesPointsfmt[]        = "niiiiiiiiiiiiiii";
+const char ScenarioStepEntryfmt[]             = "niiissiiii";
+const char ScalingStatValuesfmt[]             = "iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiix";
+const char SkillLinefmt[]                     = "nisxixiii";
+const char SkillLineAbilityfmt[]              = "niiiiiiiiiixx";
+const char SpellCategoriesEntryfmt[]          = "niiiiiiiii";
+const char SpellCategoryEntryfmt[]            = "niisii";
+const char SpellDifficultyfmt[]               = "niiii";
+const std::string CustomSpellDifficultyfmt    = "ppppp";
+const std::string CustomSpellDifficultyIndex  = "id";
+const char SpellEffectEntryfmt[]              = "niifiiiffiiiiiifiifiiiiixiiiixf";
+const char SpellEffectScalingEntryfmt[]       = "xfffn";
+const char SpellEntryfmt[]                    = "nssxxixxiiiiiiiiiiiiiiii";
+const std::string CustomSpellEntryfmt         = "papppppppppppapapaaaaaaaaaaapaaapapppppppaaaaapaapaaaaaaaaaaaaaaaaaappppppppppppppppppppppppppppppppppppaaaaaapppppppppaaapppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaappppppppapppaaaaappaaaaaaa";
+const std::string CustomSpellEntryIndex       = "Id";
+const char SpellFocusObjectfmt[]              = "nx";
+const char SpellItemEnchantmentfmt[]          = "nxiiiiiiiiisiiiiiiiiiiifff";
+const char SpellScalingEntryfmt[]             = "diiiifiii";
+const char SpellTargetRestrictionsEntryfmt[]  = "niiffiiii";
+const char SpellInterruptsEntryfmt[]          = "niiiiiii";
+const char SpellEquippedItemsEntryfmt[]       = "niiiii";
+const char SpellAuraOptionsEntryfmt[]         = "niiiiiiii";
+const char SpellCooldownsEntryfmt[]           = "niiiii";
+const char SpellLevelsEntryfmt[]              = "niiiii";
+const char SpellShapeshiftEntryfmt[]          = "niiiii";
+const char SpellShapeshiftFormfmt[]           = "nxxiixiiiiiiiiiiiiixx";
+const char StableSlotPricesfmt[]              = "ni";
+const char SummonPropertiesfmt[]              = "niiiii";
+const char TalentEntryfmt[]                   = "niiiiiiiiis";
+const char VehicleEntryfmt[]                  = "nixffffiiiiiiiifffffffffffffffssssfifiixx";
+const char VehicleSeatEntryfmt[]              = "niiffffffffffiiiiiifffffffiiifffiiiiiiiffiiiixxxxxxxxxxxxxxxxxxxxx";
+const std::string CustomVehicleSeatEntryfmt   = "ppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapaaaaaaaaaaaaaaaaaaaaa";
+const std::string CustomVehicleSeatEntryIndex = "ID";
+const char WMOAreaTableEntryfmt[]             = "niiixxxxxiixxxx";
+const char WorldMapAreaEntryfmt[]             = "xinxffffixxxii";
+const char World_PVP_AreaEntryfmt[]           = "niiiiiii";
+const char WorldSafeLocsEntryfmt[]            = "niffffx";
+const char GtBattlePetTypeDamageModfmt[]      = "xf";
+const char GtBattlePetXPfmt[]                 = "xf";
+const char WorldStateEntryfmt[]               = "n";
+char const WorldMapTransformsfmt[]            = "diffffffiffxxxf";
+const char WorldStateExpressionEntryfmt[]     = "ns";
 
 #endif

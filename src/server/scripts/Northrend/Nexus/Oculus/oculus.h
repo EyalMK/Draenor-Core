@@ -1,25 +1,15 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef OCULUS_H_
 #define OCULUS_H_
 
 #define OculusScriptName "instance_oculus"
-#define DataHeader "OC"
 
 uint32 const EncounterCount = 4;
 
@@ -29,9 +19,7 @@ enum DataTypes
     DATA_DRAKOS                 = 0,
     DATA_VAROS                  = 1,
     DATA_UROM                   = 2,
-    DATA_EREGOS                 = 3,
-    // GPS System
-    DATA_CONSTRUCTS             = 4
+    DATA_EREGOS                 = 3
 };
 
 enum CreatureIds
@@ -81,34 +69,9 @@ enum OculusSpells
     SPELL_DEATH_SPELL           = 50415
 };
 
-enum InstanceTexts
-{
-    SAY_EREGOS_INTRO_TEXT = 0,
-    SAY_VAROS_INTRO_TEXT  = 4
-};
-
-enum InstanceEvents
-{
-    EVENT_VAROS_INTRO = 1,
-    EVENT_EREGOS_INTRO
-};
-
-enum ConstructKillState
-{
-    KILL_NO_CONSTRUCT           = 0,
-    KILL_ONE_CONSTRUCT          = 1,
-    KILL_MORE_CONSTRUCT         = 2
-};
-
 enum Misc
 {
     POINT_MOVE_OUT              = 1
 };
-
-template<class AI>
-AI* GetOculusAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, OculusScriptName);
-}
 
 #endif // OCULUS_H_

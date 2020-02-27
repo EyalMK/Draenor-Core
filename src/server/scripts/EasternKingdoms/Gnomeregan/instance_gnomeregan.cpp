@@ -1,24 +1,14 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "gnomeregan.h"
-#include "Player.h"
 
 #define    MAX_ENCOUNTER  1
 
@@ -27,7 +17,7 @@ class instance_gnomeregan : public InstanceMapScript
 public:
     instance_gnomeregan() : InstanceMapScript("instance_gnomeregan", 90) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
         return new instance_gnomeregan_InstanceMapScript(map);
     }
@@ -36,18 +26,26 @@ public:
     {
         instance_gnomeregan_InstanceMapScript(Map* map) : InstanceScript(map)
         {
-            SetHeaders(DataHeader);
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        ObjectGuid uiCaveInLeftGUID;
-        ObjectGuid uiCaveInRightGUID;
+        uint64 uiCaveInLeftGUID;
+        uint64 uiCaveInRightGUID;
 
-        ObjectGuid uiBastmasterEmiShortfuseGUID;
+        uint64 uiBastmasterEmiShortfuseGUID;
 
-        void Load(const char* in) override
+        void Initialize()
+        {
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+            uiCaveInLeftGUID                = 0;
+            uiCaveInRightGUID               = 0;
+
+            uiBastmasterEmiShortfuseGUID    = 0;
+        }
+
+        void Load(const char* in)
         {
             if (!in)
             {
@@ -69,7 +67,7 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        void OnCreatureCreate(Creature* creature) override
+        void OnCreatureCreate(Creature* creature)
         {
             switch (creature->GetEntry())
             {
@@ -77,24 +75,24 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) override
+        void OnGameObjectCreate(GameObject* go)
         {
             switch (go->GetEntry())
             {
                 case GO_CAVE_IN_LEFT:
                     uiCaveInLeftGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(ObjectGuid::Empty, false, go);
+                        HandleGameObject(0, false, go);
                     break;
                 case GO_CAVE_IN_RIGHT:
                     uiCaveInRightGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(ObjectGuid::Empty, false, go);
+                        HandleGameObject(0, false, go);
                     break;
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData) override
+        void SetData(uint32 uiType, uint32 uiData)
         {
             switch (uiType)
             {
@@ -106,7 +104,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiType) const override
+        uint32 GetData(uint32 uiType)
         {
             switch (uiType)
             {
@@ -115,7 +113,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 uiType) const override
+        uint64 GetData64(uint32 uiType)
         {
             switch (uiType)
             {
@@ -124,13 +122,15 @@ public:
                 case DATA_NPC_BASTMASTER_EMI_SHORTFUSE: return uiBastmasterEmiShortfuseGUID;
             }
 
-            return ObjectGuid::Empty;
+            return 0;
         }
     };
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_gnomeregan()
 {
     new instance_gnomeregan();
 }
+#endif

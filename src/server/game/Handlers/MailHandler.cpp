@@ -1,20 +1,12 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "DatabaseEnv.h"
 #include "Mail.h"
 #include "WorldPacket.h"
@@ -24,677 +16,780 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "MailPackets.h"
 #include "Language.h"
 #include "DBCStores.h"
 #include "Item.h"
 #include "AccountMgr.h"
-#include "BattlenetAccountMgr.h"
-#include "GuildMgr.h"
 
-bool WorldSession::CanOpenMailBox(ObjectGuid guid)
+void WorldSession::HandleSendMail(WorldPacket& p_Packet)
 {
-    if (guid == _player->GetGUID())
-    {
-        if (!HasPermission(rbac::RBAC_PERM_COMMAND_MAILBOX))
-        {
-            TC_LOG_WARN("cheat", "%s attempted to open mailbox by using a cheat.", _player->GetName().c_str());
-            return false;
-        }
-    }
-    else if (guid.IsGameObject())
-    {
-        if (!_player->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_MAILBOX))
-            return false;
-    }
-    else if (guid.IsAnyTypeCreature())
-    {
-        if (!_player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_MAILBOX))
-            return false;
-    }
-    else
-        return false;
+    uint64 l_Mailbox = 0;
+    uint64 l_SendMoney, l_COD;
+    std::string l_Target, l_Subject, l_Body;
+    uint32 l_BodyLength, l_SubjectLength, l_TargetLenght;
+    uint32 l_StationeryID;
+    uint8 l_AttachmentsCount;
 
-    return true;
-}
+    uint64 itemGUIDs[MAX_MAIL_ITEMS];
 
-void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
-{
-    if (packet.Info.Attachments.size() > MAX_MAIL_ITEMS)        // client limit
+    uint32 l_OldMSTime = getMSTime();
+
+    p_Packet.readPackGUID(l_Mailbox);
+
+    p_Packet >> l_StationeryID;
+    p_Packet >> l_SendMoney;
+    p_Packet >> l_COD;
+
+    l_TargetLenght      = p_Packet.ReadBits(9);
+    l_SubjectLength     = p_Packet.ReadBits(9);
+    l_BodyLength        = p_Packet.ReadBits(11);
+    l_AttachmentsCount  = p_Packet.ReadBits(5);
+
+    if (l_AttachmentsCount > MAX_MAIL_ITEMS)                        // client limit
     {
         GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_TOO_MANY_ATTACHMENTS);
+        p_Packet.rfinish();                                         // set to end to avoid warnings spam
         return;
     }
 
-    if (!CanOpenMailBox(packet.Info.Mailbox))
+    l_Target    = p_Packet.ReadString(l_TargetLenght);
+    l_Subject   = p_Packet.ReadString(l_SubjectLength);
+    l_Body      = p_Packet.ReadString(l_BodyLength);
+
+    for (uint8 l_I = 0; l_I < l_AttachmentsCount; ++l_I)
+    {
+        p_Packet.read_skip<uint8>();           // item slot in mail, not used
+        p_Packet.readPackGUID(itemGUIDs[l_I]);
+    }
+
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(l_Mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    if (packet.Info.Target.empty())
+    if (l_Target.empty())
         return;
 
-    Player* player = _player;
-
-    if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
+    if (m_Player->getLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_MAIL_SENDER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
         return;
     }
 
-    ObjectGuid receiverGuid;
-    if (normalizePlayerName(packet.Info.Target))
-        receiverGuid = ObjectMgr::GetPlayerGUIDByName(packet.Info.Target);
+    uint64 rc = 0;
+    if (normalizePlayerName(l_Target))
+        rc = sWorld->GetCharacterGuidByName(l_Target);
 
-    if (!receiverGuid)
+    if (!rc)
     {
-        TC_LOG_INFO("network", "Player %s is sending mail to %s (GUID: not existing!) with subject %s "
-            "and body %s includes " SZFMTD " items, " SI64FMTD " copper and " SI64FMTD " COD copper with StationeryID = %d",
-            GetPlayerInfo().c_str(), packet.Info.Target.c_str(), packet.Info.Subject.c_str(), packet.Info.Body.c_str(),
-            packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID);
-        player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
+        m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
-    if (packet.Info.SendMoney < 0)
+    if (m_Player->GetGUID() == rc)
     {
-        GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
-        TC_LOG_WARN("cheat", "Player %s attempted to send mail to %s (%s) with negative money value (SendMoney: " SI64FMTD ")",
-            GetPlayerInfo().c_str(), packet.Info.Target.c_str(), receiverGuid.ToString().c_str(), packet.Info.SendMoney);
+        m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANNOT_SEND_TO_SELF);
         return;
     }
 
-    if (packet.Info.Cod < 0)
+    uint32 cost = l_AttachmentsCount ? 30 * l_AttachmentsCount : 30;  // price hardcoded in client
+
+    uint64 reqmoney = cost + l_SendMoney;
+    if (!m_Player->HasEnoughMoney(reqmoney) && !m_Player->isGameMaster())
     {
-        GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
-        TC_LOG_WARN("cheat", "Player %s attempted to send mail to %s (%s) with negative COD value (Cod: " SI64FMTD ")",
-            GetPlayerInfo().c_str(), packet.Info.Target.c_str(), receiverGuid.ToString().c_str(), packet.Info.Cod);
+        m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
     }
 
-    TC_LOG_INFO("network", "Player %s is sending mail to %s (%s) with subject %s and body %s "
-        "includes " SZFMTD " items, " SI64FMTD " copper and " SI64FMTD  " COD copper with StationeryID = %d",
-        GetPlayerInfo().c_str(), packet.Info.Target.c_str(), receiverGuid.ToString().c_str(), packet.Info.Subject.c_str(),
-        packet.Info.Body.c_str(), packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID);
+    Player* receive = ObjectAccessor::FindPlayer(rc);
 
-    if (player->GetGUID() == receiverGuid)
+    uint32 rc_team = 0;
+    uint8 mails_count = 0;                                  //do not allow to send to one player more than 100 mails
+
+    if (receive)
     {
-        player->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANNOT_SEND_TO_SELF);
-        return;
+        rc_team = receive->GetTeam(); ///< rc_team is never read 01/18/16
+        mails_count = receive->GetMailSize();
     }
 
-    uint32 cost = !packet.Info.Attachments.empty() ? 30 * packet.Info.Attachments.size() : 30;  // price hardcoded in client
-
-    int64 reqmoney = cost + packet.Info.SendMoney;
-
-    // Check for overflow
-    if (reqmoney < packet.Info.SendMoney)
+    //do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
+    if (mails_count > 100)
     {
-        player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
-        return;
-    }
-
-    if (!player->HasEnoughMoney(reqmoney) && !player->IsGameMaster())
-    {
-        player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
-        return;
-    }
-
-    Player* receiver = ObjectAccessor::FindConnectedPlayer(receiverGuid);
-
-    uint32 receiverTeam = 0;
-    uint8 mailsCount = 0;                                  //do not allow to send to one player more than 100 mails
-    uint8 receiverLevel = 0;
-    uint32 receiverAccountId = 0;
-    uint32 receiverBnetAccountId = 0;
-
-    if (receiver)
-    {
-        receiverTeam = receiver->GetTeam();
-        mailsCount = receiver->GetMailSize();
-        receiverLevel = receiver->getLevel();
-        receiverAccountId = receiver->GetSession()->GetAccountId();
-        receiverBnetAccountId = receiver->GetSession()->GetBattlenetAccountId();
-    }
-    else
-    {
-        receiverTeam = ObjectMgr::GetPlayerTeamByGUID(receiverGuid);
-
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
-        stmt->setUInt64(0, receiverGuid.GetCounter());
-
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-        if (result)
-        {
-            Field* fields = result->Fetch();
-            mailsCount = fields[0].GetUInt64();
-        }
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-        stmt->setUInt64(0, receiverGuid.GetCounter());
-
-        result = CharacterDatabase.Query(stmt);
-        if (result)
-        {
-            Field* fields = result->Fetch();
-            receiverLevel = fields[0].GetUInt8();
-        }
-
-        receiverAccountId = ObjectMgr::GetPlayerAccountIdByGUID(receiverGuid);
-        receiverBnetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(receiverAccountId);
-    }
-
-    // do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
-    if (mailsCount > 100)
-    {
-        player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_CAP_REACHED);
+        m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_CAP_REACHED);
         return;
     }
 
     // test the receiver's Faction... or all items are account bound
-    bool accountBound = !packet.Info.Attachments.empty();
-    for (auto const& att : packet.Info.Attachments)
+    bool accountBound = l_AttachmentsCount ? true : false; ///< accoubntbound is never read 01/18/16
+    for (uint8 l_I = 0; l_I < l_AttachmentsCount; ++l_I)
     {
-        if (Item* item = player->GetItemByGuid(att.ItemGUID))
+        Item* item = m_Player->GetItemByGuid(itemGUIDs[l_I]);
+        if (item)
         {
             ItemTemplate const* itemProto = item->GetTemplate();
-            if (!itemProto || !(itemProto->GetFlags() & ITEM_FLAG_BIND_TO_ACCOUNT))
+            if (!itemProto || !(itemProto->Flags & ITEM_FLAG_BIND_TO_ACCOUNT))
             {
-                accountBound = false;
+                accountBound = false; ///< accountbound is never read 01/18/16
                 break;
             }
         }
     }
 
-    if (!accountBound && player->GetTeam() != receiverTeam && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_MAIL))
-    {
-        player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_YOUR_TEAM);
-        return;
-    }
+    uint32 rc_account = receive
+        ? receive->GetSession()->GetAccountId()
+        : sObjectMgr->GetPlayerAccountIdByGUID(rc);
 
-    if (receiverLevel < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
-    {
-        SendNotification(GetTrinityString(LANG_MAIL_RECEIVER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
-        return;
-    }
+    Item* items[MAX_MAIL_ITEMS];
 
-    std::vector<Item*> items;
-
-    for (auto const& att : packet.Info.Attachments)
+    for (uint8 l_I = 0; l_I < l_AttachmentsCount; ++l_I)
     {
-        if (att.ItemGUID.IsEmpty())
+        if (!itemGUIDs[l_I])
         {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_MAIL_ATTACHMENT_INVALID);
+            m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_MAIL_ATTACHMENT_INVALID);
             return;
         }
 
-        Item* item = player->GetItemByGuid(att.ItemGUID);
+        Item* item = m_Player->GetItemByGuid(itemGUIDs[l_I]);
 
         // prevent sending bag with items (cheat: can be placed in bag after adding equipped empty bag to mail)
         if (!item)
         {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_MAIL_ATTACHMENT_INVALID);
+            m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_MAIL_ATTACHMENT_INVALID);
             return;
         }
 
         if (!item->CanBeTraded(true))
         {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
+            m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
             return;
         }
 
-        if (item->IsBoundAccountWide() && item->IsSoulBound() && player->GetSession()->GetAccountId() != receiverAccountId)
+        if (item->IsBoundAccountWide() && item->IsSoulBound() && m_Player->GetSession()->GetAccountId() != rc_account)
         {
-            if (!item->IsBattlenetAccountBound() || !player->GetSession()->GetBattlenetAccountId() || player->GetSession()->GetBattlenetAccountId() != receiverBnetAccountId)
-            {
-                player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_NOT_SAME_ACCOUNT);
-                return;
-            }
-        }
-
-        if (item->GetTemplate()->GetFlags() & ITEM_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION))
-        {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
+            m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_NOT_SAME_ACCOUNT);
             return;
         }
 
-        if (packet.Info.Cod && item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
+        if (item->GetTemplate()->Flags & ITEM_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_EXPIRATION))
         {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANT_SEND_WRAPPED_COD);
+            m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
+            return;
+        }
+
+        if (l_COD && item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
+        {
+            m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANT_SEND_WRAPPED_COD);
             return;
         }
 
         if (item->IsNotEmptyBag())
         {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_DESTROY_NONEMPTY_BAG);
+            m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_DESTROY_NONEMPTY_BAG);
             return;
         }
 
-        items.push_back(item);
+        items[l_I] = item;
     }
 
-    player->SendMailResult(0, MAIL_SEND, MAIL_OK);
+    // Check for spamming
+    if (!UpdateAntispamCount())
+    {
+        m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
+        SendNotification(GetTrinityString(LANG_ANTISPAM_ERROR)); ///> Format string is not a string literal (potentially insecure)
+        return;
+    }
 
-    player->ModifyMoney(-reqmoney);
-    player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
+    // Check for special symbols
+    if (!checkMailText(l_Subject) ||  !checkMailText(l_Body))
+    {
+        m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
+        return;
+    }
+
+    m_Player->SendMailResult(0, MAIL_SEND, MAIL_OK);
+
+    m_Player->ModifyMoney(-int64(reqmoney));
+    m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
 
     bool needItemDelay = false;
 
-    MailDraft draft(packet.Info.Subject, packet.Info.Body);
+    MailDraft draft(l_Subject, l_Body);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    if (!packet.Info.Attachments.empty() || packet.Info.SendMoney > 0)
+    if (l_AttachmentsCount > 0 || l_SendMoney > 0)
     {
-        bool log = HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE);
-        if (!packet.Info.Attachments.empty())
+        if (l_AttachmentsCount > 0)
         {
-            for (auto const& item : items)
+            for (uint8 i = 0; i < l_AttachmentsCount; ++i)
             {
-                if (log)
+                Item* item = items[i];
+                bool l_MustLog = !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE);
+                if (l_MustLog && GetAccountId() != rc_account) ///< It's useless to log self
                 {
-                    sLog->outCommand(GetAccountId(), "GM %s (%s) (Account: %u) mail item: %s (Entry: %u Count: %u) "
-                        "to: %s (%s) (Account: %u)", GetPlayerName().c_str(), _player->GetGUID().ToString().c_str(), GetAccountId(),
-                        item->GetTemplate()->GetDefaultLocaleName(), item->GetEntry(), item->GetCount(),
-                        packet.Info.Target.c_str(), receiverGuid.ToString().c_str(), receiverAccountId);
+                    sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
+                                    rc_account, "", 0, l_Target.c_str(),
+                                    "GM %s (Account: %u) mail item: %s (Entry: %u Count: %u) to player: %s (Account: %u)",
+                                    GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), item->GetEntry(), item->GetCount(), l_Target.c_str(), rc_account);
                 }
 
                 item->SetNotRefundable(GetPlayer()); // makes the item no longer refundable
-                player->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
+                m_Player->MoveItemFromInventory(items[i]->GetBagSlot(), item->GetSlot(), true);
 
                 item->DeleteFromInventoryDB(trans);     // deletes item from character's inventory
-                item->SetOwnerGUID(receiverGuid);
+                item->SetOwnerGUID(rc);
                 item->SaveToDB(trans);                  // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
                 draft.AddItem(item);
             }
 
             // if item send to character at another account, then apply item delivery delay
-            needItemDelay = player->GetSession()->GetAccountId() != receiverAccountId;
+            needItemDelay = GetAccountId() != rc_account;
         }
 
-        if (log && packet.Info.SendMoney > 0)
+        bool l_MustLog = !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE);
+        if (l_SendMoney > 0 && l_MustLog && GetAccountId() != rc_account) ///< It's useless to log self
         {
-            sLog->outCommand(GetAccountId(), "GM %s (%s) (Account: %u) mail money: " SI64FMTD " to: %s (%s) (Account: %u)",
-                GetPlayerName().c_str(), _player->GetGUID().ToString().c_str(), GetAccountId(), packet.Info.SendMoney, packet.Info.Target.c_str(), receiverGuid.ToString().c_str(), receiverAccountId);
+            //TODO: character guid
+            sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
+                            rc_account, "", 0, l_Target.c_str(),
+                            "GM %s (Account: %u) mail money: " UI64FMTD " to player: %s (Account: %u)",
+                            GetPlayerName().c_str(), GetAccountId(), l_SendMoney, l_Target.c_str(), rc_account);
         }
     }
 
     // If theres is an item, there is a one hour delivery delay if sent to another account's character.
     uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
 
-    // Mail sent between guild members arrives instantly if they have the guild perk "Guild Mail"
-    if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
-        if (guild->GetLevel() >= 17 && guild->IsMember(receiverGuid))
+    // Guild Mail
+    if (receive && receive->GetGuildId() && m_Player->GetGuildId())
+    {
+        if (m_Player->HasAura(83951) && (m_Player->GetGuildId() == receive->GetGuildId()))
             deliver_delay = 0;
+    }
 
-    // don't ask for COD if there are no items
-    if (packet.Info.Attachments.empty())
-        packet.Info.Cod = 0;
+    // VIP Accounts receive mails instantly
+    if (receive && receive->GetSession()->IsPremium())
+        deliver_delay = 0;
 
     // will delete item or place to receiver mail list
     draft
-        .AddMoney(packet.Info.SendMoney)
-        .AddCOD(packet.Info.Cod)
-        .SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), MailSender(player), packet.Info.Body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
+        .AddMoney(l_SendMoney)
+        .AddCOD(l_COD)
+        .SendMailTo(trans, MailReceiver(receive, GUID_LOPART(rc)), MailSender(m_Player), l_Body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
 
-    player->SaveInventoryAndGoldToDB(trans);
+    m_Player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Time diff on mail send %u ms", GetMSTimeDiffToNow(l_OldMSTime));
 }
 
-//called when mail is read
-void WorldSession::HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& packet)
+// Called when mail is read
+void WorldSession::HandleMailMarkAsRead(WorldPacket& p_Packet)
 {
-    if (!CanOpenMailBox(packet.Mailbox))
+    uint64 l_Mailbox;
+    uint32 l_MailID;
+
+    p_Packet.readPackGUID(l_Mailbox);
+    p_Packet >> l_MailID;
+
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(l_Mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
-    Mail* m = player->GetMail(packet.MailID);
-    if (m && m->state != MAIL_STATE_DELETED)
+    Mail * l_Mail = m_Player->GetMail(l_MailID);
+
+    if (l_Mail)
     {
-        if (player->unReadMails)
-            --player->unReadMails;
-        m->checked = m->checked | MAIL_CHECK_MASK_READ;
-        player->m_mailsUpdated = true;
-        m->state = MAIL_STATE_CHANGED;
+        if (m_Player->unReadMails)
+            --m_Player->unReadMails;
+
+        l_Mail->checked = l_Mail->checked | MAIL_CHECK_MASK_READ;
+        m_Player->m_mailsUpdated = true;
+        l_Mail->state = MAIL_STATE_CHANGED;
     }
 }
 
-//called when client deletes mail
-void WorldSession::HandleMailDelete(WorldPackets::Mail::MailDelete& packet)
+// Called when client deletes mail
+void WorldSession::HandleMailDelete(WorldPacket & p_Packet)
 {
-    Mail* m = _player->GetMail(packet.MailID);
-    Player* player = _player;
-    player->m_mailsUpdated = true;
-    if (m)
+    uint32 l_MailID;
+
+    p_Packet >> l_MailID;                       // mailTemplateId
+    p_Packet.read_skip<uint32>();
+
+    Mail * l_Mail = m_Player->GetMail(l_MailID);
+
+    m_Player->m_mailsUpdated = true;
+
+    if (l_Mail)
     {
         // delete shouldn't show up for COD mails
-        if (m->COD)
+        if (l_Mail->COD)
         {
-            player->SendMailResult(packet.MailID, MAIL_DELETED, MAIL_ERR_INTERNAL_ERROR);
+            m_Player->SendMailResult(l_MailID, MAIL_DELETED, MAIL_ERR_INTERNAL_ERROR);
             return;
         }
 
-        m->state = MAIL_STATE_DELETED;
+        l_Mail->state = MAIL_STATE_DELETED;
     }
-    player->SendMailResult(packet.MailID, MAIL_DELETED, MAIL_OK);
+    m_Player->SendMailResult(l_MailID, MAIL_DELETED, MAIL_OK);
 }
 
-void WorldSession::HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet)
+void WorldSession::HandleMailReturnToSender(WorldPacket & p_Packet)
 {
-    //TODO: find a proper way to replace this check. Idea: Save Guid form MailGetList until CMSG_CLOSE_INTERACTION is sent
-    /*if (!CanOpenMailBox(mailbox))
-        return;*/
+    uint64 l_Owner  = 0;
+    uint32 l_MailID = 0;
 
-    Player* player = _player;
-    Mail* m = player->GetMail(packet.MailID);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr) || m->sender != packet.SenderGUID.GetCounter())
+    p_Packet >> l_MailID;
+    p_Packet.readPackGUID(l_Owner);
+
+    //if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
+    //    return;
+
+    Mail * l_Mail = m_Player->GetMail(l_MailID);
+    if (!l_Mail || l_Mail->state == MAIL_STATE_DELETED || l_Mail->deliver_time > time(NULL))
     {
-        player->SendMailResult(packet.MailID, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
+        m_Player->SendMailResult(l_MailID, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;
     }
-    //we can return mail now, so firstly delete the old one
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    //we can return mail now
+    //so firstly delete the old one
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-    stmt->setUInt32(0, packet.MailID);
-    trans->Append(stmt);
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
+    l_Stmt->setUInt32(0, l_MailID);
+    l_Transaction->Append(l_Stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-    stmt->setUInt32(0, packet.MailID);
-    trans->Append(stmt);
+    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
+    l_Stmt->setUInt32(0, l_MailID);
+    l_Transaction->Append(l_Stmt);
 
-    player->RemoveMail(packet.MailID);
+    m_Player->RemoveMail(l_MailID);
 
     // only return mail if the player exists (and delete if not existing)
-    if (m->messageType == MAIL_NORMAL && m->sender)
+    if (l_Mail->messageType == MAIL_NORMAL && l_Mail->sender)
     {
-        MailDraft draft(m->subject, m->body);
-        if (m->mailTemplateId)
-            draft = MailDraft(m->mailTemplateId, false);     // items already included
+        MailDraft l_Draft(l_Mail->subject, l_Mail->body);
+        if (l_Mail->mailTemplateId)
+            l_Draft = MailDraft(l_Mail->mailTemplateId, false);     // items already included
 
-        if (m->HasItems())
+        if (l_Mail->HasItems())
         {
-            for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+            for (MailItemInfoVec::iterator itr2 = l_Mail->items.begin(); itr2 != l_Mail->items.end(); ++itr2)
             {
-                if (Item* const item = player->GetMItem(itr2->item_guid))
-                    draft.AddItem(item);
-                player->RemoveMItem(itr2->item_guid);
+                Item* l_Item = m_Player->GetMItem(itr2->item_guid);
+                if (l_Item)
+                    l_Draft.AddItem(l_Item);
+                else
+                {
+                    //WTF?
+                }
+
+                m_Player->RemoveMItem(itr2->item_guid);
             }
         }
-        draft.AddMoney(m->money).SendReturnToSender(GetAccountId(), m->receiver, m->sender, trans);
+        l_Draft.AddMoney(l_Mail->money).SendReturnToSender(GetAccountId(), l_Mail->receiver, l_Mail->sender, l_Transaction);
     }
 
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.CommitTransaction(l_Transaction);
 
-    delete m;                                               //we can deallocate old mail
-    player->SendMailResult(packet.MailID, MAIL_RETURNED_TO_SENDER, MAIL_OK);
+    delete l_Mail;                                               //we can deallocate old mail
+    m_Player->SendMailResult(l_MailID, MAIL_RETURNED_TO_SENDER, MAIL_OK);
 }
 
-//called when player takes item attached in mail
-void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet)
+// Called when player takes item attached in mail
+void WorldSession::HandleMailTakeItem(WorldPacket& p_Packet)
 {
-    uint32 AttachID = packet.AttachID;
+    uint64 l_Mailbox;
+    uint32 l_MailID;
+    uint32 l_ItemID;
 
-    if (!CanOpenMailBox(packet.Mailbox))
+    p_Packet.readPackGUID(l_Mailbox);
+    p_Packet >> l_MailID;
+    p_Packet >> l_ItemID;
+
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(l_Mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
-
-    Mail* m = player->GetMail(packet.MailID);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr))
+    Mail * l_Mail = m_Player->GetMail(l_MailID);
+    if (!l_Mail || l_Mail->state == MAIL_STATE_DELETED || l_Mail->deliver_time > time(NULL))
     {
-        player->SendMailResult(packet.MailID, MAIL_ITEM_TAKEN, MAIL_ERR_INTERNAL_ERROR);
-        return;
-    }
-
-    // verify that the mail has the item to avoid cheaters taking COD items without paying
-    if (std::find_if(m->items.begin(), m->items.end(), [AttachID](MailItemInfo info){ return info.item_guid == AttachID; }) == m->items.end())
-    {
-        player->SendMailResult(packet.MailID, MAIL_ITEM_TAKEN, MAIL_ERR_INTERNAL_ERROR);
+        m_Player->SendMailResult(l_MailID, MAIL_ITEM_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
     }
 
     // prevent cheating with skip client money check
-    if (!player->HasEnoughMoney(uint64(m->COD)))
+    if (!m_Player->HasEnoughMoney(uint64(l_Mail->COD)))
     {
-        player->SendMailResult(packet.MailID, MAIL_ITEM_TAKEN, MAIL_ERR_NOT_ENOUGH_MONEY);
+        m_Player->SendMailResult(l_MailID, MAIL_ITEM_TAKEN, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
     }
 
-    Item* it = player->GetMItem(packet.AttachID);
+    Item * l_Item = m_Player->GetMItem(l_ItemID);
 
-    ItemPosCountVec dest;
-    uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, it, false);
-    if (msg == EQUIP_ERR_OK)
+    ItemPosCountVec l_Dest;
+    uint8 l_Msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, l_Dest, l_Item, false);
+
+    if (l_Msg == EQUIP_ERR_OK)
     {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        m->RemoveItem(packet.AttachID);
-        m->removedItems.push_back(packet.AttachID);
+        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+        l_Mail->RemoveItem(l_ItemID);
+        l_Mail->removedItems.push_back(l_ItemID);
 
-        if (m->COD > 0)                                     //if there is COD, take COD money from player and send them to sender by mail
+        if (l_Mail->COD > 0)                                     //if there is COD, take COD money from player and send them to sender by mail
         {
-            ObjectGuid sender_guid = ObjectGuid::Create<HighGuid::Player>(m->sender);
-            Player* receiver = ObjectAccessor::FindConnectedPlayer(sender_guid);
+            uint64 sender_guid = MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER);
+            Player* receive = ObjectAccessor::FindPlayer(sender_guid);
 
             uint32 sender_accId = 0;
 
-            if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
+            if (!AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
             {
                 std::string sender_name;
-                if (receiver)
+                if (receive)
                 {
-                    sender_accId = receiver->GetSession()->GetAccountId();
-                    sender_name = receiver->GetName();
+                    sender_accId = receive->GetSession()->GetAccountId();
+                    sender_name = receive->GetName();
                 }
                 else
                 {
                     // can be calculated early
-                    sender_accId = ObjectMgr::GetPlayerAccountIdByGUID(sender_guid);
+                    sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
 
-                    if (!ObjectMgr::GetPlayerNameByGUID(sender_guid, sender_name))
+                    if (!sObjectMgr->GetPlayerNameByGUID(sender_guid, sender_name))
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
-                sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
-                    GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->GetDefaultLocaleName(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
+                sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
+                                sender_accId, "", sender_guid, sender_name.c_str(),
+                                "GM %s (Account: %u) receive mail item: %s (Entry: %u Count: %u) and send COD money: %lu to player: %s (Account: %u)",
+                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_Item->GetEntry(), l_Item->GetCount(), l_Mail->COD, sender_name.c_str(), sender_accId);
             }
-            else if (!receiver)
-                sender_accId = ObjectMgr::GetPlayerAccountIdByGUID(sender_guid);
+            else if (!receive)
+                sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
 
             // check player existence
-            if (receiver || sender_accId)
+            if (receive || sender_accId)
             {
-                MailDraft(m->subject, "")
-                    .AddMoney(m->COD)
-                    .SendMailTo(trans, MailReceiver(receiver, m->sender), MailSender(MAIL_NORMAL, m->receiver), MAIL_CHECK_MASK_COD_PAYMENT);
+                MailDraft(l_Mail->subject, "")
+                    .AddMoney(l_Mail->COD)
+                    .SendMailTo(l_Transaction, MailReceiver(receive, l_Mail->sender), MailSender(MAIL_NORMAL, l_Mail->receiver), MAIL_CHECK_MASK_COD_PAYMENT);
             }
 
-            player->ModifyMoney(-int32(m->COD));
+            m_Player->ModifyMoney(-int32(l_Mail->COD));
         }
-        m->COD = 0;
-        m->state = MAIL_STATE_CHANGED;
-        player->m_mailsUpdated = true;
-        player->RemoveMItem(it->GetGUID().GetCounter());
+        l_Mail->COD = 0;
+        l_Mail->state = MAIL_STATE_CHANGED;
+        m_Player->m_mailsUpdated = true;
+        m_Player->RemoveMItem(l_Item->GetGUIDLow());
 
-        uint32 count = it->GetCount();                      // save counts before store and possible merge with deleting
-        it->SetState(ITEM_UNCHANGED);                       // need to set this state, otherwise item cannot be removed later, if neccessary
-        player->MoveItemToInventory(dest, it, true);
+        uint32 count = l_Item->GetCount();                      // save counts before store and possible merge with deleting
+        l_Item->SetState(ITEM_UNCHANGED);                       // need to set this state, otherwise item cannot be removed later, if neccessary
+        m_Player->MoveItemToInventory(l_Dest, l_Item, true);
 
-        player->SaveInventoryAndGoldToDB(trans);
-        player->_SaveMail(trans);
-        CharacterDatabase.CommitTransaction(trans);
+        m_Player->SaveInventoryAndGoldToDB(l_Transaction);
+        m_Player->_SaveMail(l_Transaction);
+        CharacterDatabase.CommitTransaction(l_Transaction);
 
-        player->SendMailResult(packet.MailID, MAIL_ITEM_TAKEN, MAIL_OK, 0, packet.AttachID, count);
+        m_Player->SendMailResult(l_MailID, MAIL_ITEM_TAKEN, MAIL_OK, 0, l_ItemID, count);
     }
     else
-        player->SendMailResult(packet.MailID, MAIL_ITEM_TAKEN, MAIL_ERR_EQUIP_ERROR, msg);
+        m_Player->SendMailResult(l_MailID, MAIL_ITEM_TAKEN, MAIL_ERR_EQUIP_ERROR, l_Msg);
 }
 
-void WorldSession::HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& packet)
+void WorldSession::HandleMailTakeMoney(WorldPacket& p_Packet)
 {
-    if (!CanOpenMailBox(packet.Mailbox))
+    uint64 l_MailBox = 0;
+    uint64 l_Money;
+    uint32 l_MailID;
+
+    p_Packet.readPackGUID(l_MailBox);
+    p_Packet >> l_MailID;
+    p_Packet >> l_Money;
+
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(l_MailBox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
+    Mail * l_Mail = m_Player->GetMail(l_MailID);
 
-    Mail* m = player->GetMail(packet.MailID);
-    if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL)) ||
-        (packet.Money > 0 && m->money != uint64(packet.Money)))
+    if ((!l_Mail || l_Mail->state == MAIL_STATE_DELETED || l_Mail->deliver_time > time(NULL)) ||
+        (l_Money > 0 && l_Mail->money != l_Money))
     {
-        player->SendMailResult(packet.MailID, MAIL_MONEY_TAKEN, MAIL_ERR_INTERNAL_ERROR);
+        m_Player->SendMailResult(l_MailID, MAIL_MONEY_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
     }
 
-    if (!player->ModifyMoney(m->money, false))
+    // Don't take money if it exceed the max amount
+    if (m_Player->GetMoney() + l_Money > MAX_MONEY_AMOUNT)
     {
-        player->SendMailResult(packet.MailID, MAIL_MONEY_TAKEN, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_TOO_MUCH_GOLD);
+        m_Player->SendMailResult(l_MailID, MAIL_MONEY_TAKEN, MAIL_ERR_EQUIP_ERROR);
         return;
     }
 
-    m->money = 0;
-    m->state = MAIL_STATE_CHANGED;
-    player->m_mailsUpdated = true;
+    m_Player->SendMailResult(l_MailID, MAIL_MONEY_TAKEN, MAIL_OK);
 
-    player->SendMailResult(packet.MailID, MAIL_MONEY_TAKEN, MAIL_OK);
+    m_Player->ModifyMoney(l_Money);
+    l_Mail->money = 0;
+    l_Mail->state = MAIL_STATE_CHANGED;
+    m_Player->m_mailsUpdated = true;
 
     // save money and mail to prevent cheating
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    player->SaveGoldToDB(trans);
-    player->_SaveMail(trans);
+    m_Player->SaveGoldToDB(trans);
+    m_Player->_SaveMail(trans);
     CharacterDatabase.CommitTransaction(trans);
 }
 
-//called when player lists his received mails
-void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
+// Called when player lists his received mails
+void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
 {
-    if (!CanOpenMailBox(packet.Mailbox))
+    uint64 l_MailBox;
+
+    p_Packet.readPackGUID(l_MailBox);
+
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(l_MailBox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
+    Player* player = m_Player;
 
-    //load players mails, and mailed items
-    if (!player->m_mailsLoaded)
-        player->_LoadMail();
+    // client can't work with packets > max int16 value
+    const uint32 maxPacketSize = 32767;
 
-    WorldPackets::Mail::MailListResult response;
-    time_t curTime = time(nullptr);
+    uint32 mailsCount = 0;                                 // real send to client mails amount
+    uint32 realCount  = 0;                                 // real mails amount
 
-    for (Mail* m : player->GetMails())
+    WorldPacket l_Data(SMSG_MAIL_LIST_RESULT, 35 * 1024);
+    ByteBuffer l_MailsBuffer;
+
+    time_t cur_time = time(NULL);
+    for (PlayerMails::iterator itr = player->GetMailBegin(); itr != player->GetMailEnd(); ++itr)
     {
+        // Only first 50 mails are displayed
+        if (mailsCount >= 50)
+        {
+            realCount += 1;
+            continue;
+        }
+
         // skip deleted or not delivered (deliver delay not expired) mails
-        if (m->state == MAIL_STATE_DELETED || curTime < m->deliver_time)
+        if ((*itr)->state == MAIL_STATE_DELETED || cur_time < (*itr)->deliver_time)
             continue;
 
-        // max. 50 mails can be sent
-        if (response.Mails.size() < 50)
-            response.Mails.emplace_back(m, player);
+        uint8 item_count = (*itr)->items.size();            // max count is MAX_MAIL_ITEMS (12)
 
-        ++response.TotalNumRecords;
+        size_t next_mail_size = 2+4+1+((*itr)->messageType == MAIL_NORMAL ? 8 : 4)+4*8+((*itr)->subject.size()+1)+((*itr)->body.size()+1)+1+item_count*(1+4+4+MAX_INSPECTED_ENCHANTMENT_SLOT*3*4+4+4+4+4+4+4+1);
+
+        if (l_MailsBuffer.wpos() + next_mail_size > maxPacketSize)
+        {
+            realCount += 1;
+            continue;
+        }
+
+        ++realCount;
+        ++mailsCount;
     }
 
-    SendPacket(response.Write());
+    l_Data << uint32(mailsCount);
+
+    mailsCount = 0;
+
+    for (PlayerMails::iterator itr = player->GetMailBegin(); itr != player->GetMailEnd(); ++itr)
+    {
+        // Only first 50 mails are displayed
+        if (mailsCount >= 50)
+            continue;
+
+        // skip deleted or not delivered (deliver delay not expired) mails
+        if ((*itr)->state == MAIL_STATE_DELETED || cur_time < (*itr)->deliver_time)
+            continue;
+
+        uint8 item_count = (*itr)->items.size();                    // max count is MAX_MAIL_ITEMS (12)
+
+        size_t next_mail_size = 2+4+1+((*itr)->messageType == MAIL_NORMAL ? 8 : 4)+4*8+((*itr)->subject.size()+1)+((*itr)->body.size()+1)+1+item_count*(1+4+4+MAX_INSPECTED_ENCHANTMENT_SLOT*3*4+4+4+4+4+4+4+1);
+
+        if (l_MailsBuffer.wpos() + next_mail_size > maxPacketSize)
+            continue;
+
+        l_MailsBuffer << uint32((*itr)->messageID);                         // Message ID
+        l_MailsBuffer << uint8((*itr)->messageType);                        // Message Type
+        l_MailsBuffer << uint64((*itr)->COD);                               // COD
+        l_MailsBuffer << uint32((*itr)->stationery);                        // stationery (Stationery.dbc)
+        l_MailsBuffer << uint64((*itr)->money);                             // Gold
+        l_MailsBuffer << uint32((*itr)->checked);                           // flags
+        l_MailsBuffer << float(((*itr)->expire_time - time(NULL)) / DAY);   // Time
+        l_MailsBuffer << uint32((*itr)->mailTemplateId);                    //
+
+        l_MailsBuffer << uint32(item_count);
+
+        for (uint8 l_I = 0; l_I < item_count; ++l_I)
+        {
+            Item* l_Item = player->GetMItem((*itr)->items[l_I].item_guid);
+
+            l_MailsBuffer << uint8(l_I);
+            l_MailsBuffer << uint32(l_Item ? l_Item->GetGUIDLow() : 0);
+
+            Item::BuildDynamicItemDatas(l_MailsBuffer, l_Item);
+
+            for (uint8 l_J = 0; l_J < MAX_INSPECTED_ENCHANTMENT_SLOT; ++l_J)
+            {
+                l_MailsBuffer << uint32(l_Item ? l_Item->GetEnchantmentId((EnchantmentSlot)l_J) : 0);
+                l_MailsBuffer << uint32(l_Item ? l_Item->GetEnchantmentDuration((EnchantmentSlot)l_J) : 0);
+                l_MailsBuffer << uint32(l_Item ? l_Item->GetEnchantmentCharges((EnchantmentSlot)l_J) : 0);
+            }
+
+            l_MailsBuffer << uint32(l_Item ? l_Item->GetCount() : 0);
+            l_MailsBuffer << uint32(l_Item ? l_Item->GetSpellCharges() : 0);
+            l_MailsBuffer << uint32(l_Item ? l_Item->GetUInt32Value(ITEM_FIELD_MAX_DURABILITY) : 0);
+            l_MailsBuffer << uint32(l_Item ? l_Item->GetUInt32Value(ITEM_FIELD_DURABILITY) : 0);
+
+            l_MailsBuffer.WriteBit(false);
+            l_MailsBuffer.FlushBits();
+        }
+
+        l_MailsBuffer.WriteBit((*itr)->messageType == MAIL_NORMAL);            ///< Has Sender Character
+
+        if ((*itr)->messageType == MAIL_CREATURE || (*itr)->messageType == MAIL_GAMEOBJECT || (*itr)->messageType == MAIL_AUCTION)
+            l_MailsBuffer.WriteBit(1);                                         // hasSenderEntry
+        else
+            l_MailsBuffer.WriteBit(0);
+
+        l_MailsBuffer.WriteBits((*itr)->subject.size(), 8);
+        l_MailsBuffer.WriteBits((*itr)->body.size(), 13);
+        l_MailsBuffer.FlushBits();
+
+        if ((*itr)->messageType == MAIL_NORMAL)
+            l_MailsBuffer.appendPackGUID(MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER));
+
+        if ((*itr)->messageType == MAIL_CREATURE || (*itr)->messageType == MAIL_GAMEOBJECT || (*itr)->messageType == MAIL_AUCTION)
+            l_MailsBuffer << uint32((*itr)->sender);                   // creature/gameobject entry, auction id
+
+        l_MailsBuffer.WriteString((*itr)->subject);
+        l_MailsBuffer.WriteString((*itr)->body);
+
+        ++mailsCount;
+    }
+
+    l_Data << uint32(realCount);
+    l_Data.append(l_MailsBuffer);
+
+    SendPacket(&l_Data);
 
     // recalculate m_nextMailDelivereTime and unReadMails
-    _player->UpdateNextMailTimeAndUnreads();
+    m_Player->UpdateNextMailTimeAndUnreads();
 }
 
-//used when player copies mail body to his inventory
-void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextItem& packet)
+// Used when player copies mail body to his inventory
+void WorldSession::HandleMailCreateTextItem(WorldPacket & p_Packet)
 {
-    if (!CanOpenMailBox(packet.Mailbox))
+    uint64 l_Mailbox;
+    uint32 l_MailID;
+
+    p_Packet.readPackGUID(l_Mailbox);
+    p_Packet >> l_MailID;
+
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(l_Mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
-    Player* player = _player;
-
-    Mail* m = player->GetMail(packet.MailID);
-    if (!m || (m->body.empty() && !m->mailTemplateId) || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr) || (m->checked & MAIL_CHECK_MASK_COPIED))
+    Mail * l_Mail = m_Player->GetMail(l_MailID);
+    if (!l_Mail || (l_Mail->body.empty() && !l_Mail->mailTemplateId) || l_Mail->state == MAIL_STATE_DELETED || l_Mail->deliver_time > time(NULL))
     {
-        player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
+        m_Player->SendMailResult(l_MailID, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
         return;
     }
 
-    Item* bodyItem = new Item;                              // This is not bag and then can be used new Item.
-    if (!bodyItem->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), MAIL_BODY_ITEM_TEMPLATE, player))
+    Item * l_BodyItem = new Item;                              // This is not bag and then can be used new Item.
+    if (!l_BodyItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), MAIL_BODY_ITEM_TEMPLATE, m_Player))
     {
-        delete bodyItem;
+        delete l_BodyItem;
         return;
     }
 
     // in mail template case we need create new item text
-    if (m->mailTemplateId)
+    if (l_Mail->mailTemplateId)
     {
-        MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
+        MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(l_Mail->mailTemplateId);
         if (!mailTemplateEntry)
         {
-            player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
+            m_Player->SendMailResult(l_MailID, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
             return;
         }
 
-        bodyItem->SetText(mailTemplateEntry->Body->Str[GetSessionDbcLocale()]);
+        l_BodyItem->SetText(mailTemplateEntry->content);
     }
     else
-        bodyItem->SetText(m->body);
+        l_BodyItem->SetText(l_Mail->body);
 
-    if (m->messageType == MAIL_NORMAL)
-        bodyItem->SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(m->sender));
+    l_BodyItem->SetGuidValue(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER));
+    l_BodyItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_MAIL_TEXT_MASK);
 
-    bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_MAIL_TEXT_MASK);
+    ItemPosCountVec l_Destinatiopn;
+    uint8 l_Msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, l_Destinatiopn, l_BodyItem, false);
 
-    ItemPosCountVec dest;
-    uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);
-    if (msg == EQUIP_ERR_OK)
+    if (l_Msg == EQUIP_ERR_OK)
     {
-        m->checked = m->checked | MAIL_CHECK_MASK_COPIED;
-        m->state = MAIL_STATE_CHANGED;
-        player->m_mailsUpdated = true;
+        l_Mail->checked = l_Mail->checked | MAIL_CHECK_MASK_COPIED;
+        l_Mail->state = MAIL_STATE_CHANGED;
+        m_Player->m_mailsUpdated = true;
 
-        player->StoreItem(dest, bodyItem, true);
-        player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_OK);
+        m_Player->StoreItem(l_Destinatiopn, l_BodyItem, true);
+        m_Player->SendMailResult(l_MailID, MAIL_MADE_PERMANENT, MAIL_OK);
     }
     else
     {
-        player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_ERR_EQUIP_ERROR, msg);
-        delete bodyItem;
+        m_Player->SendMailResult(l_MailID, MAIL_MADE_PERMANENT, MAIL_ERR_EQUIP_ERROR, l_Msg);
+        delete l_BodyItem;
     }
 }
 
-/// @todo Fix me! ... this void has probably bad condition, but good data are sent
-void WorldSession::HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& /*packet*/)
+// @TODO Fix me! ... this void has probably bad condition, but good data are sent
+void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 {
-    WorldPackets::Mail::MailQueryNextTimeResult result;
+    WorldPacket l_Data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 400);
 
-    if (!_player->m_mailsLoaded)
-        _player->_LoadMail();
-
-    if (_player->unReadMails > 0)
+    if (m_Player->unReadMails > 0)
     {
-        result.NextMailTime = 0.0f;
+        l_Data << float(0);                                                             ///< NextMailTime
+        l_Data << uint32(0);                                                            ///< Next
 
-        time_t now = time(nullptr);
-        std::set<ObjectGuid::LowType> sentSenders;
+        uint32 l_Count = 0;
+        time_t l_NowTime = time(NULL);
+        std::set<uint32> l_SentSenders;
 
-        for (Mail* mail : _player->GetMails())
+        for (PlayerMails::iterator itr = m_Player->GetMailBegin(); itr != m_Player->GetMailEnd(); ++itr)
         {
-            if (mail->checked & MAIL_CHECK_MASK_READ)
+            Mail * l_Mail = (*itr);
+            // must be not checked yet
+            if (l_Mail->checked & MAIL_CHECK_MASK_READ)
                 continue;
 
-            // already delivered
-            if (now < mail->deliver_time)
+            // and already delivered
+            if (l_NowTime < l_Mail->deliver_time)
                 continue;
 
             // only send each mail sender once
-            if (sentSenders.count(mail->sender))
+            if (l_SentSenders.count(l_Mail->sender))
                 continue;
 
-            result.Next.emplace_back(mail);
+            uint64 l_Guid = MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER);
+            l_Data.appendPackGUID(l_Mail->messageType == MAIL_NORMAL ? l_Guid : 0);     ///< SenderGUID
 
-            sentSenders.insert(mail->sender);
+            l_Data << float(l_Mail->deliver_time - l_NowTime);                          ///< TimeLeft
+            l_Data << uint32(l_Mail->messageType != MAIL_NORMAL ? l_Mail->sender : 0);  ///< AltSenderID
+            l_Data << uint8(l_Mail->messageType);                                       ///< AltSenderType
+            l_Data << uint32(l_Mail->stationery);                                       ///< StationeryID
 
-            // do not send more than 2 mails
-            if (sentSenders.size() > 2)
+            l_SentSenders.insert(l_Mail->sender);
+            ++l_Count;
+
+            if (l_Count == 2)                                  // do not display more than 2 mails
                 break;
         }
+
+        l_Data.put<uint32>(4, l_Count);
     }
     else
-        result.NextMailTime = -DAY;
+    {
+        l_Data << float(-DAY);
+        l_Data << uint32(0);
+    }
 
-    SendPacket(result.Write());
+    SendPacket(&l_Data);
 }
+#endif

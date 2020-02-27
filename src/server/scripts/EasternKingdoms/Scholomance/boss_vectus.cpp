@@ -1,41 +1,27 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+/* ScriptData
+SDName: Boss_Vectus
+SD%Complete: 100
+SDComment:
+SDCategory: Scholomance
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Emotes
-{
-    EMOTE_FRENZY                 = 0
-};
-
-enum Spells
+enum eEnums
 {
     SPELL_FLAMESTRIKE            = 18399,
     SPELL_BLAST_WAVE             = 16046,
-    SPELL_FIRE_SHIELD            = 19626,
-    SPELL_FRENZY                 = 8269  // 28371
-};
-
-enum Events
-{
-    EVENT_FIRE_SHIELD = 1,
-    EVENT_BLAST_WAVE,
-    EVENT_FRENZY
+    SPELL_FIRESHIELD             = 19626,
+    SPELL_FRENZY                 = 8269 //28371
 };
 
 class boss_vectus : public CreatureScript
@@ -43,77 +29,72 @@ class boss_vectus : public CreatureScript
 public:
     boss_vectus() : CreatureScript("boss_vectus") { }
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_vectusAI (creature);
+    }
+
     struct boss_vectusAI : public ScriptedAI
     {
-        boss_vectusAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_vectusAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset() override
+        uint32 m_uiFireShield_Timer;
+        uint32 m_uiBlastWave_Timer;
+        uint32 m_uiFrenzy_Timer;
+
+        void Reset()
         {
-            events.Reset();
+            m_uiFireShield_Timer = 2000;
+            m_uiBlastWave_Timer = 14000;
+            m_uiFrenzy_Timer = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) override
-        {
-            events.ScheduleEvent(EVENT_FIRE_SHIELD, 2000);
-            events.ScheduleEvent(EVENT_BLAST_WAVE, 14000);
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (me->HealthBelowPctDamaged(25, damage))
-            {
-                DoCast(me, SPELL_FRENZY);
-                Talk(EMOTE_FRENZY);
-                events.ScheduleEvent(EVENT_FRENZY, 24000);
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
+            //FireShield_Timer
+            if (m_uiFireShield_Timer <= uiDiff)
             {
-                switch (eventId)
+                DoCast(me, SPELL_FIRESHIELD);
+                m_uiFireShield_Timer = 90000;
+            }
+            else
+                m_uiFireShield_Timer -= uiDiff;
+
+            //BlastWave_Timer
+            if (m_uiBlastWave_Timer <= uiDiff)
+            {
+                DoCast(me->getVictim(), SPELL_BLAST_WAVE);
+                m_uiBlastWave_Timer = 12000;
+            }
+            else
+                m_uiBlastWave_Timer -= uiDiff;
+
+            //Frenzy_Timer
+            if (HealthBelowPct(25))
+            {
+                if (m_uiFrenzy_Timer <= uiDiff)
                 {
-                    case EVENT_FIRE_SHIELD:
-                        DoCast(me, SPELL_FIRE_SHIELD);
-                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 90000);
-                        break;
-                    case EVENT_BLAST_WAVE:
-                        DoCast(me, SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST_WAVE, 12000);
-                        break;
-                    case EVENT_FRENZY:
-                        DoCast(me, SPELL_FRENZY);
-                        Talk(EMOTE_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 24000);
-                        break;
-                    default:
-                        break;
+                    DoCast(me, SPELL_FRENZY);
+                    DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
+
+                    m_uiFrenzy_Timer = 24000;
                 }
+                else
+                    m_uiFrenzy_Timer -= uiDiff;
             }
 
             DoMeleeAttackIfReady();
         }
-
-        private:
-            EventMap events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_vectusAI(creature);
-    }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_vectus()
 {
     new boss_vectus();
 }
+#endif

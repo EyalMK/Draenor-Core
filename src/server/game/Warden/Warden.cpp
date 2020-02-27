@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "WorldPacket.h"
@@ -22,20 +12,16 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
+#include <openssl/md5.h>
+#include <openssl/sha.h>
 #include "World.h"
+#include "Player.h"
 #include "Util.h"
 #include "Warden.h"
 #include "AccountMgr.h"
-#include "WardenPackets.h"
 
-#include <openssl/sha.h>
-
-Warden::Warden() : _session(NULL), _inputCrypto(16), _outputCrypto(16), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
-                   _dataSent(false), _previousTimestamp(0), _module(NULL), _initialized(false)
+Warden::Warden() : _inputCrypto(16), _outputCrypto(16), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0), _dataSent(false), _initialized(false)
 {
-    memset(_inputKey, 0, sizeof(_inputKey));
-    memset(_outputKey, 0, sizeof(_outputKey));
-    memset(_seed, 0, sizeof(_seed));
 }
 
 Warden::~Warden()
@@ -48,7 +34,7 @@ Warden::~Warden()
 
 void Warden::SendModuleToClient()
 {
-    TC_LOG_DEBUG("warden", "Send module to client");
+    sLog->outDebug(LOG_FILTER_WARDEN, "Send module to client");
 
     // Create packet structure
     WardenModuleTransfer packet;
@@ -74,7 +60,7 @@ void Warden::SendModuleToClient()
 
 void Warden::RequestModule()
 {
-    TC_LOG_DEBUG("warden", "Request module");
+    sLog->outDebug(LOG_FILTER_WARDEN, "Request module");
 
     // Create packet structure
     WardenModuleUse request;
@@ -109,9 +95,11 @@ void Warden::Update()
                 // Kick player if client response delays more than set in config
                 if (_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
                 {
-                    TC_LOG_WARN("warden", "%s (latency: %u, IP: %s) exceeded Warden module response delay for more than %s - disconnecting client",
-                                   _session->GetPlayerInfo().c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, true).c_str());
+                    sLog->outWarn(LOG_FILTER_WARDEN, "%s (latency: %u, IP: %s) exceeded Warden module response delay for more than %s - disconnecting client",
+                                   _session->GetPlayerName(false).c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, true).c_str());
+#ifndef CROSS
                     _session->KickPlayer();
+#endif /* not CROSS */
                 }
                 else
                     _clientResponseTimer += diff;
@@ -145,38 +133,23 @@ bool Warden::IsValidCheckSum(uint32 checksum, const uint8* data, const uint16 le
 
     if (checksum != newChecksum)
     {
-        TC_LOG_DEBUG("warden", "CHECKSUM IS NOT VALID");
+        sLog->outDebug(LOG_FILTER_WARDEN, "CHECKSUM IS NOT VALID");
         return false;
     }
     else
     {
-        TC_LOG_DEBUG("warden", "CHECKSUM IS VALID");
+        sLog->outDebug(LOG_FILTER_WARDEN, "CHECKSUM IS VALID");
         return true;
     }
 }
 
-struct keyData {
-    union
-    {
-        struct
-        {
-            uint8 bytes[20];
-        } bytes;
-
-        struct
-        {
-            uint32 ints[5];
-        } ints;
-    };
-};
-
 uint32 Warden::BuildChecksum(const uint8* data, uint32 length)
 {
-    keyData hash;
-    SHA1(data, length, hash.bytes.bytes);
+    uint8 hash[20];
+    SHA1(data, length, hash);
     uint32 checkSum = 0;
     for (uint8 i = 0; i < 5; ++i)
-        checkSum = checkSum ^ hash.ints.ints[i];
+        checkSum = checkSum ^ *(uint32*)(&hash[0] + i * 4);
 
     return checkSum;
 }
@@ -192,45 +165,48 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
 
     switch (action)
     {
-        case WARDEN_ACTION_LOG:
-            return "None";
-            break;
-        case WARDEN_ACTION_KICK:
-            _session->KickPlayer();
-            return "Kick";
-            break;
-        case WARDEN_ACTION_BAN:
+    case WARDEN_ACTION_LOG:
+        return "None";
+        break;
+    case WARDEN_ACTION_KICK:
+#ifndef CROSS
+        _session->KickPlayer();
+#endif /* not CROSS */
+        return "Kick";
+        break;
+    case WARDEN_ACTION_BAN:
         {
             std::stringstream duration;
             duration << sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION) << "s";
             std::string accountName;
+#ifndef CROSS
             AccountMgr::GetName(_session->GetAccountId(), accountName);
+#endif /* not CROSS */
             std::stringstream banReason;
             banReason << "Warden Anticheat Violation";
             // Check can be NULL, for example if the client sent a wrong signature in the warden packet (CHECKSUM FAIL)
             if (check)
                 banReason << ": " << check->Comment << " (CheckId: " << check->CheckId << ")";
+#ifndef CROSS
 
             sWorld->BanAccount(BAN_ACCOUNT, accountName, duration.str(), banReason.str(),"Server");
+#endif /* not CROSS */
 
             return "Ban";
         }
-        default:
-            break;
+    default:
+        break;
     }
     return "Undefined";
 }
 
-void WorldSession::HandleWardenData(WorldPackets::Warden::WardenData& packet)
+void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
 {
-    if (!_warden || packet.Data.empty())
-        return;
-
-    _warden->DecryptData(packet.Data.contents(), packet.Data.size());
+    _warden->DecryptData(const_cast<uint8*>(recvData.contents()), recvData.size());
     uint8 opcode;
-    packet.Data >> opcode;
-    TC_LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(packet.Data.size()));
-    packet.Data.hexlike();
+    recvData >> opcode;
+    sLog->outDebug(LOG_FILTER_WARDEN, "Got packet, opcode %02X, size %u", opcode, uint32(recvData.size()));
+    recvData.hexlike();
 
     switch (opcode)
     {
@@ -241,20 +217,20 @@ void WorldSession::HandleWardenData(WorldPackets::Warden::WardenData& packet)
             _warden->RequestHash();
             break;
         case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
-            _warden->HandleData(packet.Data);
+            _warden->HandleData(recvData);
             break;
         case WARDEN_CMSG_MEM_CHECKS_RESULT:
-            TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+            sLog->outDebug(LOG_FILTER_WARDEN, "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
             break;
         case WARDEN_CMSG_HASH_RESULT:
-            _warden->HandleHashResult(packet.Data);
+            _warden->HandleHashResult(recvData);
             _warden->InitializeModule();
             break;
         case WARDEN_CMSG_MODULE_FAILED:
-            TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
+            sLog->outDebug(LOG_FILTER_WARDEN, "NYI WARDEN_CMSG_MODULE_FAILED received!");
             break;
         default:
-            TC_LOG_DEBUG("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(packet.Data.size() - 1));
+            sLog->outDebug(LOG_FILTER_WARDEN, "Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
             break;
     }
 }

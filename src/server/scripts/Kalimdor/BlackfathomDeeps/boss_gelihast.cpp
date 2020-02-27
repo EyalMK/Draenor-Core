@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -21,12 +12,7 @@
 
 enum Spells
 {
-    SPELL_NET         = 6533
-};
-
-enum Events
-{
-    EVENT_THROW_NET   = 1
+    SPELL_NET                                              = 6533
 };
 
 class boss_gelihast : public CreatureScript
@@ -34,43 +20,60 @@ class boss_gelihast : public CreatureScript
 public:
     boss_gelihast() : CreatureScript("boss_gelihast") { }
 
-    struct boss_gelihastAI : public BossAI
+    CreatureAI* GetAI(Creature* creature) const
     {
-        boss_gelihastAI(Creature* creature) : BossAI(creature, DATA_GELIHAST) { }
+        return new boss_gelihastAI (creature);
+    }
 
-        void EnterCombat(Unit* /*who*/) override
+    struct boss_gelihastAI : public ScriptedAI
+    {
+        boss_gelihastAI(Creature* creature) : ScriptedAI(creature)
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_THROW_NET, urand(2000, 4000));
+            instance = creature->GetInstanceScript();
         }
 
-        void UpdateAI(uint32 diff) override
+        uint32 netTimer;
+
+        InstanceScript* instance;
+
+        void Reset()
+        {
+            netTimer = urand(2000, 4000);
+            if (instance)
+                instance->SetData(TYPE_GELIHAST, NOT_STARTED);
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            if (instance)
+                instance->SetData(TYPE_GELIHAST, IN_PROGRESS);
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (instance)
+                instance->SetData(TYPE_GELIHAST, DONE);
+        }
+
+        void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;
 
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            if (netTimer < diff)
             {
-                if (eventId == EVENT_THROW_NET)
-                {
-                    DoCastVictim(SPELL_NET);
-                    events.ScheduleEvent(EVENT_THROW_NET, urand(4000, 7000));
-                }
-            }
+                DoCastVictim(SPELL_NET);
+                netTimer = urand(4000, 7000);
+            } else netTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_gelihastAI>(creature);
-    }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gelihast()
 {
     new boss_gelihast();
 }
+#endif

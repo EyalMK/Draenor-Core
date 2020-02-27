@@ -1,26 +1,15 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_CELLIMPL_H
 #define TRINITY_CELLIMPL_H
 
-#include <cmath>
-
+#include "Common.h"
 #include "Cell.h"
 #include "Map.h"
 #include "Object.h"
@@ -37,7 +26,7 @@ inline Cell::Cell(CellCoord const& p)
 
 inline Cell::Cell(float x, float y)
 {
-    CellCoord p = Trinity::ComputeCellCoord(x, y);
+    CellCoord p = JadeCore::ComputeCellCoord(x, y);
     data.Part.grid_x = p.x_coord / MAX_NUMBER_OF_CELLS;
     data.Part.grid_y = p.y_coord / MAX_NUMBER_OF_CELLS;
     data.Part.cell_x = p.x_coord % MAX_NUMBER_OF_CELLS;
@@ -50,12 +39,12 @@ inline CellArea Cell::CalculateCellArea(float x, float y, float radius)
 {
     if (radius <= 0.0f)
     {
-        CellCoord center = Trinity::ComputeCellCoord(x, y).normalize();
+        CellCoord center = JadeCore::ComputeCellCoord(x, y).normalize();
         return CellArea(center, center);
     }
 
-    CellCoord centerX = Trinity::ComputeCellCoord(x - radius, y - radius).normalize();
-    CellCoord centerY = Trinity::ComputeCellCoord(x + radius, y + radius).normalize();
+    CellCoord centerX = JadeCore::ComputeCellCoord(x - radius, y - radius).normalize();
+    CellCoord centerY = JadeCore::ComputeCellCoord(x + radius, y + radius).normalize();
 
     return CellArea(centerX, centerY);
 }
@@ -100,22 +89,98 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
     //ALWAYS visit standing cell first!!! Since we deal with small radiuses
     //it is very essential to call visitor for standing cell firstly...
     map.Visit(*this, visitor);
+    /*
+    auto l_CurrentCellCoord = JadeCore::ComputeCellCoord(x_off, y_off);
+    float l_VisitorX = l_CurrentCellCoord.x_coord;
+    float l_VisitorY = l_CurrentCellCoord.y_coord;
 
-    // loop the cell range
-    for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
+    #define VISIT_CHECK_CELL(mp_X, mp_Y)    do                                                                \
+                                            {                                                                 \
+                                                CellCoord cellCoord = CellCoord(mp_X, mp_Y);                  \
+                                                if (cellCoord != standing_cell)                               \
+                                                {                                                             \
+                                                    Cell r_zone(cellCoord);                                   \
+                                                    r_zone.data.Part.nocreate = this->data.Part.nocreate;     \
+                                                    map.Visit(r_zone, visitor);                               \
+                                                }                                                             \
+                                            } while (0);
+
+    if (radius <= SIZE_OF_GRID_CELL || radius <= (2 * SIZE_OF_GRID_CELL))
     {
-        for (uint32 y = area.low_bound.y_coord; y <= area.high_bound.y_coord; ++y)
+        /// Y
+        /// ^
+        /// |  |-----------x-----------x-----------|
+        /// |  |           |           |           |
+        /// |  |     1     |     2     |     3     |
+        /// |  |           |           |           |
+        /// |  |-----------x-----------x-----------|
+        /// |  |           |         v |           |
+        /// |  |     4     |     C     |     5     |
+        /// |  |           |           |           |
+        /// |  |-----------x-----------x-----------|
+        /// |  |           |           |           |
+        /// |  |     6     |     7     |     8     |
+        /// |  |           |           |           |
+        /// |  |-----------x-----------x-----------|
+        /// 0 ======================================> X
+
+        VISIT_CHECK_CELL(l_VisitorX - 1,    l_VisitorY + 1);     ///< Cell 1
+        VISIT_CHECK_CELL(l_VisitorX,        l_VisitorY + 1);     ///< Cell 2
+        VISIT_CHECK_CELL(l_VisitorX + 1,    l_VisitorY + 1);     ///< Cell 3
+        VISIT_CHECK_CELL(l_VisitorX - 1,    l_VisitorY);         ///< Cell 4
+        VISIT_CHECK_CELL(l_VisitorX + 1,    l_VisitorY);         ///< Cell 5
+        VISIT_CHECK_CELL(l_VisitorX - 1,    l_VisitorY - 1);     ///< Cell 6
+        VISIT_CHECK_CELL(l_VisitorX,        l_VisitorY - 1);     ///< Cell 7
+        VISIT_CHECK_CELL(l_VisitorX + 1,    l_VisitorY - 1);     ///< Cell 8
+    }
+
+    if (radius > SIZE_OF_GRID_CELL && radius <= (2 * SIZE_OF_GRID_CELL))
+    {
+        /// Up area
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY + 2);
+        VISIT_CHECK_CELL(l_VisitorX - 1,  l_VisitorY + 2);
+        VISIT_CHECK_CELL(l_VisitorX,      l_VisitorY + 2);
+        VISIT_CHECK_CELL(l_VisitorX + 1,  l_VisitorY + 2);
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY + 2);
+
+        /// Left area
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY + 1);
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY);
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY - 1);
+        
+        /// Right area
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY + 1);
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY);
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY - 1);
+
+        /// Down area
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY - 2);
+        VISIT_CHECK_CELL(l_VisitorX - 1,  l_VisitorY - 2);
+        VISIT_CHECK_CELL(l_VisitorX,      l_VisitorY - 2);
+        VISIT_CHECK_CELL(l_VisitorX + 1,  l_VisitorY - 2);
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY - 2);
+    }
+
+    if (radius > (2 * SIZE_OF_GRID_CELL))*/
+    {
+        // loop the cell range
+        for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
         {
-            CellCoord cellCoord(x, y);
-            //lets skip standing cell since we already visited it
-            if (cellCoord != standing_cell)
+            for (uint32 y = area.low_bound.y_coord; y <= area.high_bound.y_coord; ++y)
             {
-                Cell r_zone(cellCoord);
-                r_zone.data.Part.nocreate = this->data.Part.nocreate;
-                map.Visit(r_zone, visitor);
+                CellCoord cellCoord(x, y);
+                //lets skip standing cell since we already visited it
+                if (cellCoord != standing_cell)
+                {
+                    Cell r_zone(cellCoord);
+                    r_zone.data.Part.nocreate = this->data.Part.nocreate;
+                    map.Visit(r_zone, visitor);
+                }
             }
         }
     }
+
+    //#undef VISIT_CHECK_CELL
 }
 
 template<class T, class CONTAINER>
@@ -178,3 +243,4 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
     }
 }
 #endif
+

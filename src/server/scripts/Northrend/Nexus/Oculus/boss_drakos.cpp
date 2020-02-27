@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -26,7 +17,7 @@ enum Spells
     SPELL_UNSTABLE_SPHERE_PASSIVE                 = 50756,
     SPELL_UNSTABLE_SPHERE_PULSE                   = 50757,
     SPELL_UNSTABLE_SPHERE_TIMER                   = 50758,
-    NPC_UNSTABLE_SPHERE                           = 28166,
+    NPC_UNSTABLE_SPHERE                           = 28166
 };
 
 enum Yells
@@ -40,7 +31,7 @@ enum Yells
 
 enum DrakosAchievement
 {
-    ACHIEV_TIMED_START_EVENT                      = 18153,
+    ACHIEV_TIMED_START_EVENT                      = 18153
 };
 
 enum DrakosEvents
@@ -57,17 +48,9 @@ class boss_drakos : public CreatureScript
 
         struct boss_drakosAI : public BossAI
         {
-            boss_drakosAI(Creature* creature) : BossAI(creature, DATA_DRAKOS)
-            {
-                Initialize();
-            }
+            boss_drakosAI(Creature* creature) : BossAI(creature, DATA_DRAKOS) { }
 
-            void Initialize()
-            {
-                postPull = false;
-            }
-
-            void Reset() override
+            void Reset()
             {
                 _Reset();
 
@@ -75,16 +58,16 @@ class boss_drakos : public CreatureScript
                 events.ScheduleEvent(EVENT_STOMP, 17000);
                 events.ScheduleEvent(EVENT_BOMB_SUMMON, 2000);
 
-                Initialize();
+                postPull = false;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -100,9 +83,12 @@ class boss_drakos : public CreatureScript
                     {
                         case EVENT_BOMB_SUMMON:
                             {
+                                Position position;
+                                me->GetPosition(&position);
+
                                 for (uint8 i = 0; i <= (postPull ? 3 : 0); i++)
                                 {
-                                    Position position = me->GetRandomNearPosition(frand(0.0f, 10.0f));
+                                    me->GetRandomNearPosition(position, frand(0.0f, 10.0f));
                                     me->SummonCreature(NPC_UNSTABLE_SPHERE, position);
                                 }
                             }
@@ -126,17 +112,17 @@ class boss_drakos : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
 
                 Talk(SAY_DEATH);
 
                 // start achievement timer (kill Eregos within 20 min)
-                instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
 
-            void KilledUnit(Unit* /*victim*/) override
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -145,9 +131,9 @@ class boss_drakos : public CreatureScript
             bool postPull;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return GetOculusAI<boss_drakosAI>(creature);
+            return new boss_drakosAI (creature);
         }
 };
 
@@ -158,17 +144,9 @@ class npc_unstable_sphere : public CreatureScript
 
         struct npc_unstable_sphereAI : public ScriptedAI
         {
-            npc_unstable_sphereAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
+            npc_unstable_sphereAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Initialize()
-            {
-                pulseTimer = 3000;
-            }
-
-            void Reset() override
+            void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->MoveRandom(40.0f);
@@ -176,12 +154,12 @@ class npc_unstable_sphere : public CreatureScript
                 me->AddAura(SPELL_UNSTABLE_SPHERE_PASSIVE, me);
                 me->AddAura(SPELL_UNSTABLE_SPHERE_TIMER, me);
 
-                Initialize();
+                pulseTimer = 3000;
 
                 me->DespawnOrUnsummon(19000);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 const diff)
             {
                 if (pulseTimer <= diff)
                 {
@@ -196,14 +174,16 @@ class npc_unstable_sphere : public CreatureScript
             uint32 pulseTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_unstable_sphereAI(creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_drakos()
 {
     new boss_drakos();
     new npc_unstable_sphere();
 }
+#endif

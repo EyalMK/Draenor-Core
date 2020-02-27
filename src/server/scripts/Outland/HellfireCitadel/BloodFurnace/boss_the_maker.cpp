@@ -1,114 +1,159 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+/* ScriptData
+SDName: Boss_The_Maker
+SD%Complete: 80
+SDComment: Mind control no support
+SDCategory: Hellfire Citadel, Blood Furnace
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "blood_furnace.h"
 
-enum Yells
+enum eEnums
 {
-    SAY_AGGRO                   = 0,
-    SAY_KILL                    = 1,
-    SAY_DIE                     = 2
-};
+    SAY_AGGRO_1                 = -1542009,
+    SAY_AGGRO_2                 = -1542010,
+    SAY_AGGRO_3                 = -1542011,
+    SAY_KILL_1                  = -1542012,
+    SAY_KILL_2                  = -1542013,
+    SAY_DIE                     = -1542014,
 
-enum Spells
-{
-    SPELL_ACID_SPRAY            = 38153,
+    SPELL_ACID_SPRAY            = 38153,                    // heroic 38973 ??? 38153
     SPELL_EXPLODING_BREAKER     = 30925,
     SPELL_KNOCKDOWN             = 20276,
-    SPELL_DOMINATION            = 25772
+    SPELL_DOMINATION            = 25772                     // ???
 };
 
-enum Events
-{
-    EVENT_ACID_SPRAY            = 1,
-    EVENT_EXPLODING_BREAKER,
-    EVENT_DOMINATION,
-    EVENT_KNOCKDOWN
-};
-
+// 17381
 class boss_the_maker : public CreatureScript
 {
     public:
-        boss_the_maker() : CreatureScript("boss_the_maker") { }
 
-        struct boss_the_makerAI : public BossAI
+        boss_the_maker()
+            : CreatureScript("boss_the_maker")
         {
-            boss_the_makerAI(Creature* creature) : BossAI(creature, DATA_THE_MAKER) { }
+        }
 
-            void EnterCombat(Unit* /*who*/) override
+        struct boss_the_makerAI : public ScriptedAI
+        {
+            boss_the_makerAI(Creature* creature) : ScriptedAI(creature)
             {
-                _EnterCombat();
-                Talk(SAY_AGGRO);
-
-                events.ScheduleEvent(EVENT_ACID_SPRAY, 15000);
-                events.ScheduleEvent(EVENT_EXPLODING_BREAKER, 6000);
-                events.ScheduleEvent(EVENT_DOMINATION, 120000);
-                events.ScheduleEvent(EVENT_KNOCKDOWN, 10000);
+                instance = creature->GetInstanceScript();
             }
 
-            void KilledUnit(Unit* who) override
+            InstanceScript* instance;
+
+            uint32 AcidSpray_Timer;
+            uint32 ExplodingBreaker_Timer;
+            uint32 Domination_Timer;
+            uint32 Knockdown_Timer;
+
+            void Reset()
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_KILL);
+                AcidSpray_Timer = 15000;
+                ExplodingBreaker_Timer = 6000;
+                Domination_Timer = 120000;
+                Knockdown_Timer = 10000;
+
+                if (!instance)
+                    return;
+
+                instance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
+                instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void EnterCombat(Unit* /*who*/)
             {
-                _JustDied();
-                Talk(SAY_DIE);
+                DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+
+                if (!instance)
+                    return;
+
+                instance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
+                instance->HandleGameObject(instance->GetData64(DATA_DOOR2), false);
             }
 
-            void ExecuteEvent(uint32 eventId) override
+            void KilledUnit(Unit* /*victim*/)
             {
-                switch (eventId)
+                DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                DoScriptText(SAY_DIE, me);
+
+                if (!instance)
+                    return;
+
+                instance->SetData(TYPE_THE_MAKER_EVENT, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
+                instance->HandleGameObject(instance->GetData64(DATA_DOOR3), true);
+
+             }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (AcidSpray_Timer <= diff)
                 {
-                    case EVENT_ACID_SPRAY:
-                        DoCastVictim(SPELL_ACID_SPRAY);
-                        events.ScheduleEvent(EVENT_ACID_SPRAY, urand(15000, 23000));
-                        break;
-                    case EVENT_EXPLODING_BREAKER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
-                            DoCast(target, SPELL_EXPLODING_BREAKER);
-                        events.ScheduleEvent(EVENT_EXPLODING_BREAKER, urand(4000, 12000));
-                        break;
-                    case EVENT_DOMINATION:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            DoCast(target, SPELL_DOMINATION);
-                        events.ScheduleEvent(EVENT_DOMINATION, 120000);
-                        break;
-                    case EVENT_KNOCKDOWN:
-                        DoCastVictim(SPELL_KNOCKDOWN);
-                        events.ScheduleEvent(EVENT_KNOCKDOWN, urand(4000, 12000));
-                        break;
-                    default:
-                        break;
+                    DoCast(me->getVictim(), SPELL_ACID_SPRAY);
+                    AcidSpray_Timer = 15000+rand()%8000;
                 }
+                else
+                    AcidSpray_Timer -=diff;
+
+                if (ExplodingBreaker_Timer <= diff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_EXPLODING_BREAKER);
+                    ExplodingBreaker_Timer = 4000+rand()%8000;
+                }
+                else
+                    ExplodingBreaker_Timer -=diff;
+
+                /* // Disabled until Core Support for mind control
+                if (domination_timer_timer <= diff)
+                {
+                Unit* target;
+                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+
+                DoCast(target, SPELL_DOMINATION);
+
+                domination_timer = 120000;
+                } else domination_timer -=diff;
+                */
+
+                if (Knockdown_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), SPELL_KNOCKDOWN);
+                    Knockdown_Timer = 4000+rand()%8000;
+                }
+                else
+                    Knockdown_Timer -=diff;
+
+                DoMeleeAttackIfReady();
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return GetBloodFurnaceAI<boss_the_makerAI>(creature);
+            return new boss_the_makerAI(creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_the_maker()
 {
     new boss_the_maker();
 }
+#endif
