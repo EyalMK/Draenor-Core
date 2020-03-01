@@ -1285,6 +1285,206 @@ class npc_quest_frightened_spirit : public CreatureScript
         }
 };
 
+/// QUEST 35050: Rescue Rangari
+
+enum eData
+{
+
+	// QUEST ID 
+	QUEST_RESCUE_RANGARI = 35050,
+
+	// QUEST NPCS
+	NPC_RANGARI_KOLAAN = 81018,
+	NPC_RANGARI_RAJESS = 81013,
+	NPC_RANGARI_JONAA = 81020,
+
+	// Fallen Rangaris next to Jonaa
+	NPC_GUID_FALLEN_RANGARI_1 = 399423,
+	NPC_GUID_FALLEN_RANGARI_2 = 399424,
+
+};
+
+#define RANGARI_GOSSIP "D'kaan is coming with help."
+
+/// Rangari Kolaan - 81018
+class npc_gorgrond_rangari_kolaan : public CreatureScript
+{
+public:
+	npc_gorgrond_rangari_kolaan() : CreatureScript("npc_gorgrond_rangari_kolaan") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_rangari_kolaanAI(p_Creature);
+	}
+
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI))
+		{
+			if (p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE) {
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+				p_Player->SEND_GOSSIP_MENU(83163, p_Creature->GetGUID());
+				return true;
+			}
+			else
+				p_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
+			return true;
+		}
+
+		return true;
+	}
+
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
+	{
+		if (action == GOSSIP_ACTION_INFO_DEF)
+		{
+			p_Creature->AI()->Talk(0);
+			p_Player->QuestObjectiveSatisfy(NPC_RANGARI_KOLAAN, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
+		}
+
+		p_Player->PlayerTalkClass->ClearMenus();
+		p_Player->PlayerTalkClass->SendCloseGossip();
+		return true;
+	}
+
+
+
+	struct npc_gorgrond_rangari_kolaanAI : public ScriptedAI
+	{
+		npc_gorgrond_rangari_kolaanAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() { }
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Rangari Rajess - 81013
+class npc_gorgrond_rangari_rajess : public CreatureScript
+{
+public:
+	npc_gorgrond_rangari_rajess() : CreatureScript("npc_gorgrond_rangari_rajess") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_rangari_rajessAI(p_Creature);
+	}
+
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI))
+		{
+			if (p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE) {
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+				p_Player->SEND_GOSSIP_MENU(83160, p_Creature->GetGUID());
+				return true;
+			}
+			else
+				p_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
+			return true;
+		}
+
+		return true;
+	}
+
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
+	{
+		if (action == GOSSIP_ACTION_INFO_DEF)
+		{
+			p_Creature->AI()->Talk(0);
+			p_Player->QuestObjectiveSatisfy(NPC_RANGARI_RAJESS, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
+		}
+
+		p_Player->PlayerTalkClass->ClearMenus();
+		p_Player->PlayerTalkClass->SendCloseGossip();
+		return true;
+	}
+
+
+
+	struct npc_gorgrond_rangari_rajessAI : public ScriptedAI
+	{
+		npc_gorgrond_rangari_rajessAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() { }
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Rangari Jonaa - 81020
+class npc_gorgrond_rangari_jonaa : public CreatureScript
+{
+public:
+	npc_gorgrond_rangari_jonaa() : CreatureScript("npc_gorgrond_rangari_jonaa") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_rangari_jonaaAI(p_Creature);
+	}
+
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI))
+		{
+			if (p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE) {
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+				p_Player->SEND_GOSSIP_MENU(83170, p_Creature->GetGUID());
+				return true;
+			}
+			else
+				p_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
+			return true;
+		}
+
+		return true;
+	}
+
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
+	{
+
+		if (action == GOSSIP_ACTION_INFO_DEF)
+		{
+			p_Creature->AI()->Talk(0);
+			p_Player->QuestObjectiveSatisfy(NPC_RANGARI_JONAA, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
+		}
+
+
+		p_Player->PlayerTalkClass->ClearMenus();
+		p_Player->PlayerTalkClass->SendCloseGossip();
+		return true;
+	}
+
+
+
+	struct npc_gorgrond_rangari_jonaaAI : public ScriptedAI
+	{
+		npc_gorgrond_rangari_jonaaAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() { }
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+
+
+
 /// Showing "Mercy" - 170792
 class spell_quest_gorgrond_showing_mercy_peon : public SpellScriptLoader
 {
@@ -1342,6 +1542,9 @@ void AddSC_gorgrond()
     new npc_gorgrond_goren_egg();
     new npc_gorgrond_toxic_slimemold();
     new npc_quest_frightened_spirit();
+	new npc_gorgrond_rangari_rajess();
+	new npc_gorgrond_rangari_kolaan();
+	new npc_gorgrond_rangari_jonaa();
 
     /// Spells
     new spell_drov_call_of_earth();
