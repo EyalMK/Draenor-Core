@@ -889,35 +889,30 @@ class spell_warr_heroic_leap: public SpellScriptLoader
 
             SpellCastResult CheckElevation()
             {
-                Player* l_Player = GetCaster()->ToPlayer();
-                WorldLocation* l_SpellDest = const_cast<WorldLocation*>(GetExplTargetDest());
+				Unit* caster = GetCaster();
+				if (!caster || !caster->ToPlayer())
+					return SPELL_FAILED_DONT_REPORT;
 
-                if (!l_Player || !l_SpellDest)
-                    return SPELL_FAILED_DONT_REPORT;
+				Player* player = caster->ToPlayer();
 
-                else if (l_Player->HasAuraType(SPELL_AURA_MOD_ROOT) || l_Player->HasAuraType(SPELL_AURA_MOD_ROOT_2))
-                    return SPELL_FAILED_ROOTED;
-                else if (l_Player->GetMap()->IsBattlegroundOrArena())
-                {
-                    if (Battleground* l_Bg = l_Player->GetBattleground())
-                    {
-                        if (l_Bg->GetStatus() != STATUS_IN_PROGRESS)
-                            return SPELL_FAILED_NOT_READY;
-                    }
-                }
+				WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
+				if (!dest)
+					return SPELL_FAILED_DONT_REPORT;
 
-                Map* l_Map = l_Player->GetMap();
-                if (l_Map == nullptr)
-                    return SPELL_FAILED_SUCCESS;
+				if (dest->GetPositionZ() > player->GetPositionZ() + 3.0f)
+					return SPELL_FAILED_NOPATH;
+				else if (player->HasAuraType(SPELL_AURA_MOD_ROOT))
+					return SPELL_FAILED_ROOTED;
+				else if (player->GetMap()->IsBattlegroundOrArena())
+				{
+					if (Battleground* bg = player->GetBattleground())
+					{
+						if (bg->GetStatus() != STATUS_IN_PROGRESS)
+							return SPELL_FAILED_NOT_READY;
+					}
+				}
 
-                PathGenerator l_Path(l_Player);
-                l_Path.SetPathLengthLimit(40.0f);
-                bool l_Result = l_Path.CalculatePath(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ());
-
-                if (!l_Result || (l_Path.GetPathType() != PATHFIND_NORMAL))
-                    return SPELL_FAILED_NOPATH;
-
-                return SPELL_CAST_OK;
+				return SPELL_CAST_OK;
             }
 
             void HandleOnCast()
