@@ -6312,16 +6312,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // Check global cooldown
 	if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) && HasGlobalCooldown() && !m_spellInfo->DoesIgnoreGlobalCooldown(m_caster))
-	{
-		
-		uint32 gcdTimer = m_caster->ToPlayer()->GetGlobalCooldownMgr().TimeLeftOnGCD(m_spellInfo);
-		if (gcdTimer < 400)
-		{
-			ChatHandler(m_caster->ToPlayer()).PSendSysMessage("Spell queued up!");
-			QueueSpell(this);
-		}
 		return SPELL_FAILED_NOT_READY;
-	}
 
     // only triggered spells can be processed an ended battleground
     if (!IsTriggered() && m_caster->IsPlayer())
