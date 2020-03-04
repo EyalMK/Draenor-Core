@@ -1,0 +1,14 @@
+DELETE FROM `spell_script_names` WHERE `spell_id`=133 AND `ScriptName`='spell_mastery_ignite';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (133, 'spell_mastery_ignite');
+DELETE FROM `spell_script_names` WHERE `spell_id`=2948 AND `ScriptName`='spell_mastery_ignite';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (2948, 'spell_mastery_ignite');
+DELETE FROM `spell_script_names` WHERE `spell_id`=11366 AND `ScriptName`='spell_mastery_ignite';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (11366, 'spell_mastery_ignite');
+DELETE FROM `spell_script_names` WHERE `spell_id`=12654 AND `ScriptName`='spell_mage_glyph_ignite';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (12654, 'spell_mage_glyph_ignite');
+DELETE FROM `spell_script_names` WHERE `spell_id`=44614 AND `ScriptName`='spell_mastery_ignite';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (44614, 'spell_mastery_ignite');
+DELETE FROM `spell_script_names` WHERE `spell_id`=108853 AND `ScriptName`='spell_mastery_ignite';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (108853, 'spell_mastery_ignite');
+DELETE FROM `spell_script_names` WHERE `spell_id`=153564 AND `ScriptName`='spell_mastery_ignite';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (153564, 'spell_mastery_ignite');

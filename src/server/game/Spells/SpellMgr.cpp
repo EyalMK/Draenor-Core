@@ -5693,6 +5693,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 51699:  ///< Honor Among Thieves (triggered)
             case 57934:  ///< Tricks of the Trade
+			case 115078: ///< Paralysis (Level 100)
             case 138275: ///< Cosmetic Visual (Lei Shen - Throne of Thunder)
             case 138274: ///< Cosmetic Visual (triggered - Lei Shen - Throne of Thunder)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
