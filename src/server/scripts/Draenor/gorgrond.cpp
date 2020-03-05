@@ -1320,26 +1320,19 @@ public:
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
-		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI))
+		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI) && p_Player->GetQuestObjectiveCounter(273398) != 1 && p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE)
 		{
-			if (p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE) {
 				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 				p_Player->SEND_GOSSIP_MENU(83163, p_Creature->GetGUID());
-				return true;
-			}
-			else
-				p_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-			p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
-			return true;
 		}
-
-		return true;
+				p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
+				return true;
 	}
 
 
 	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
 	{
-		if (action == GOSSIP_ACTION_INFO_DEF)
+		if (action == GOSSIP_ACTION_INFO_DEF && p_Player->GetQuestObjectiveCounter(273398) != 1)
 		{
 			p_Creature->AI()->Talk(0);
 			p_Player->QuestObjectiveSatisfy(NPC_RANGARI_KOLAAN, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
@@ -1378,34 +1371,28 @@ public:
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
-		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI))
+		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI) && p_Player->GetQuestObjectiveCounter(273399) != 1 && p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE)
 		{
-			if (p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE) {
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-				p_Player->SEND_GOSSIP_MENU(83160, p_Creature->GetGUID());
-				return true;
-			}
-			else
-				p_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-			p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
-			return true;
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(83160, p_Creature->GetGUID());
 		}
-
+		p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
 		return true;
+
 	}
 
 
 	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
 	{
-		if (action == GOSSIP_ACTION_INFO_DEF)
+		if (action == GOSSIP_ACTION_INFO_DEF && p_Player->GetQuestObjectiveCounter(273399) != 1)
 		{
 			p_Creature->AI()->Talk(0);
 			p_Player->QuestObjectiveSatisfy(NPC_RANGARI_RAJESS, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
 		}
 
-		p_Player->PlayerTalkClass->ClearMenus();
-		p_Player->PlayerTalkClass->SendCloseGossip();
-		return true;
+			p_Player->PlayerTalkClass->ClearMenus();
+			p_Player->PlayerTalkClass->SendCloseGossip();
+			return true;
 	}
 
 
@@ -1436,19 +1423,12 @@ public:
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
-		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI))
+		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI) && p_Player->GetQuestObjectiveCounter(273400) != 1 && p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE)
 		{
-			if (p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE) {
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-				p_Player->SEND_GOSSIP_MENU(83170, p_Creature->GetGUID());
-				return true;
-			}
-			else
-				p_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-			p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
-			return true;
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(83170, p_Creature->GetGUID());
 		}
-
+		p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
 		return true;
 	}
 
@@ -1456,7 +1436,7 @@ public:
 	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
 	{
 
-		if (action == GOSSIP_ACTION_INFO_DEF)
+		if (action == GOSSIP_ACTION_INFO_DEF && p_Player->GetQuestObjectiveCounter(273400) != 1)
 		{
 			p_Creature->AI()->Talk(0);
 			p_Player->QuestObjectiveSatisfy(NPC_RANGARI_JONAA, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
