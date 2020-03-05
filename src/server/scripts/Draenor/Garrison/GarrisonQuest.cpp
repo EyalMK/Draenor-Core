@@ -625,6 +625,9 @@ namespace MS { namespace Garrison
             case Quests::Alliance_AshranAppearance:
                 p_Player->m_taxi.SetTaximaskNode(1420);
                 break;
+			case Quests::Alliance_TheSecretsOfGorgrond:
+				p_Player->m_taxi.SetTaximaskNode(1518); // Wildwood Wash, Gorgrond
+				break;
             case Quests::Horde_AshranAppearance:
                 p_Player->m_taxi.SetTaximaskNode(1408);
                 break;

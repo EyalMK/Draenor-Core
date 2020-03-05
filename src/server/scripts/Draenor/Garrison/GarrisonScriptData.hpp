@@ -137,6 +137,7 @@ namespace MS { namespace Garrison
             Alliance_LostInTransition                   = 37087,
             Alliance_BiggerIsBetter                     = 36592,
             Alliance_AshranAppearance                   = 36624,
+			Alliance_TheSecretsOfGorgrond				= 35556,
             Alliance_QianaMoonshadow                    = 34646,
             Alliance_TheHeadHunterHarverst              = 37119,
 
