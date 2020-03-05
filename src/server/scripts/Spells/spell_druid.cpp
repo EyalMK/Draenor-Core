@@ -268,66 +268,6 @@ class spell_dru_genesis: public SpellScriptLoader
         }
 };
 
-enum DreamOfCenariusRestorationSpells
-{
-    SPELL_DRUID_DREAM_OF_CENARIUS_RESTO_TALENT = 158504,
-    SPELL_DRUID_DREAM_OF_CENARIUS_HEAL         = 145153
-};
-
-/// Wrath - 5176
-class spell_dru_wrath : public SpellScriptLoader
-{
-public:
-    spell_dru_wrath() : SpellScriptLoader("spell_dru_wrath") { }
-
-    class spell_dru_wrath_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_wrath_SpellScript);
-
-        void HandleBeforeHit()
-        {
-            /// Dream of Cenarius - 158504
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (l_Caster->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_RESTO_TALENT))
-                {
-                    std::list<Unit*> l_Party;
-
-                    l_Caster->GetRaidMembers(l_Party);
-
-                    if (l_Party.empty())
-                        return;
-
-                    if (l_Party.size() > 1)
-                    {
-                        l_Party.sort(JadeCore::HealthPctOrderPred());
-                        l_Party.resize(1);
-                    }
-
-                    SpellInfo const* l_DreamOfCenariusSpellInfo = l_Caster->GetAura(SPELL_DRUID_DREAM_OF_CENARIUS_RESTO_TALENT)->GetSpellInfo();
-                    SpellInfo const* l_DreamOfCenariusHealSpellInfo = sSpellMgr->GetSpellInfo(SPELL_DRUID_DREAM_OF_CENARIUS_HEAL);
-
-                    if (l_DreamOfCenariusSpellInfo == nullptr || l_DreamOfCenariusHealSpellInfo == nullptr)
-                        return;
-
-                    int32 l_HealAmount = CalculatePct(GetHitDamage(), l_DreamOfCenariusSpellInfo->Effects[EFFECT_1].BasePoints);
-                    l_Caster->HealBySpell(l_Party.front(), l_DreamOfCenariusHealSpellInfo, l_HealAmount, false, false);
-                }
-            }
-        }
-
-        void Register()
-        {
-            BeforeHit += SpellHitFn(spell_dru_wrath_SpellScript::HandleBeforeHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_wrath_SpellScript();
-    }
-};
-
 enum GlyphOfTheTreantSpells
 {
     SPELL_DRUID_GLYPH_OF_THE_TREANT = 114282
@@ -6586,7 +6526,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_glyph_of_the_shapemender_playerscript();
     new spell_dru_glyph_of_the_shapemender();
     new spell_dru_starsurge();
-    new spell_dru_wrath();
     new spell_dru_wild_mushroom_heal();
     new spell_dru_wild_mushroom_heal_proc();
     new spell_dru_dream_of_cenarius_feral();
