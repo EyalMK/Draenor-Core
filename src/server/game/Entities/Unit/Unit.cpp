@@ -797,7 +797,16 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             if (!spellProto || (spellProto->Id != LIGHT_STAGGER && spellProto->Id != MODERATE_STAGGER && spellProto->Id != HEAVY_STAGGER))
                 damage = victim->CalcStaggerDamage(victim->ToPlayer(), damage, damageSchoolMask, spellProto);
+
         }
+
+		if (spellProto && (spellProto->Id == LIGHT_STAGGER || spellProto->Id == MODERATE_STAGGER || spellProto->Id == HEAVY_STAGGER))
+		{
+			uint32 health = victim->GetHealth();
+
+			if (damage > health - 1)
+				damage = health - 1;
+		}
     }
 
     /// Temporal Shield - 115610
