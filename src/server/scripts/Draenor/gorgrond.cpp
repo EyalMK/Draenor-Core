@@ -6,10 +6,17 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+
+#include "Gorgrond.hpp"
+
 #include "ScriptPCH.h"
+#include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
 #include "GameObjectAI.h"
 #include "Language.h"
+#include "NPCHandler.h"
+#include "PhaseMgr.h"
+#include "Common.h"
 
 /// Tarlna the Ageless - 81535
 class boss_tarlna_the_ageless : public CreatureScript
