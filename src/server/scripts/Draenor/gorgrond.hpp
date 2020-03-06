@@ -40,7 +40,23 @@ enum eCreature
 	NPC_GORGROND_THAELIN_DARKANVIL_2				= 75136, // Thaelin near Naielle's Watch - on the road and Highpass
 	NPC_GORGROND_RANGARI_KAALYA_PHASE_1				= 80922, // Rangari Kaalya at Naielle's Watch
 	NPC_GORGROND_RANGARI_KAALYA_PHASE_2				= 80987, // Rangari Kaalya near Naielle's Watch - on the road
-	NPC_GORGROND_GLIRIN								= 84766  // Glirin at Highpass near the mole machine
+	NPC_GORGROND_GLIRIN								= 84766, // Glirin at Highpass near the mole machine
+
+	// Alliance Quest NPCs
+	NPC_GORGROND_RANGARI_RAJESS						= 81013, // Rangari Rajess - Quest: Rescue Rangari [questId: 35050]
+	NPC_GORGROND_RANGARI_KOLAAN						= 81018, // Rangari Kolaan - Quest: Rescue Rangari [questId: 35050]
+	NPC_GORGROND_RANGARI_JONAA						= 81020, // Rangari Jonaa  - Quest: Rescue Rangari [questId: 35050]
+
+
+
+	// Hostile NPCs
+	NPC_GUID_GORGROND_PODLING_NIBBLER1				= 1440336, // Podling Nibbler near Rangari Rajess
+	NPC_GUID_GORGROND_PODLING_NIBBLER2				= 1440307, // Podling Nibbler near Rangari Rajess
+	NPC_GUID_GORGROND_PODLING_NIBBLER3				= 1440302, // Podling Nibbler near Rangari Rajess
+	NPC_GUID_GORGROND_PODLING_NIBBLER4				= 1440317, // Podling Nibbler near Rangari Rajess
+	NPC_GUID_GORGROND_PODLING_NIBBLER5				= 1440320, // Podling Nibbler near Rangari Rajess
+
+	NPC_GUID_GORGROND_GROMKAR_GRUNT					= 1440316  // Grom'kar Grunt near Rangari Rajess
 
 };
 
