@@ -1298,9 +1298,15 @@ enum eData
 	NPC_RANGARI_RAJESS = 81013,
 	NPC_RANGARI_JONAA = 81020,
 
-	// Fallen Rangaris next to Jonaa
-	NPC_GUID_FALLEN_RANGARI_1 = 399423,
-	NPC_GUID_FALLEN_RANGARI_2 = 399424,
+	// Podling Nibblers next to Rajess
+	NPC_GUID_PODLING_NIBBLER1 = 1440336,
+	NPC_GUID_PODLING_NIBBLER2 = 1440307,
+	NPC_GUID_PODLING_NIBBLER3 = 1440302,
+	NPC_GUID_PODLING_NIBBLER4 = 1440317,
+	NPC_GUID_PODLING_NIBBLER5 = 1440320,
+
+	// Grom'kar Grunt next to Rajess
+	NPC_GUID_GROMKAR_GRUNT	  = 1440316
 
 };
 
@@ -1462,6 +1468,144 @@ public:
 
 };
 
+/// Fallen Rangari - 84663
+class npc_gorgrond_fallen_rangari : public CreatureScript
+{
+public:
+	npc_gorgrond_fallen_rangari() : CreatureScript("npc_gorgrond_fallen_rangari") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_fallen_rangariAI(p_Creature);
+	}
+
+	struct npc_gorgrond_fallen_rangariAI : public ScriptedAI
+	{
+		npc_gorgrond_fallen_rangariAI(Creature* creature) : ScriptedAI(creature) { }
+
+		
+		void Reset() {
+
+			me->setRegeneratingHealth(false);
+			me->SetHealth(me->CountPctFromMaxHealth(0));
+			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		}
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/* Needs to be worked on - the script applies to all NPCs regardless of GUID.
+/// Podling Nibbler - 84549
+class npc_gorgrond_podling_nibbler : public CreatureScript
+{
+public:
+	npc_gorgrond_podling_nibbler() : CreatureScript("npc_gorgrond_podling_nibbler") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_podling_nibblerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_podling_nibblerAI : public ScriptedAI
+	{
+		npc_gorgrond_podling_nibblerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+			if (me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER1 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER2 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER3 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER4 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER5) {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IN_COMBAT);
+			}
+				
+		}
+		
+*/
+		//void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	//};
+
+
+//};
+
+
+
+/// Podling Scavenger - 84402
+class npc_gorgrond_podling_scavenger : public CreatureScript
+{
+public:
+	npc_gorgrond_podling_scavenger() : CreatureScript("npc_gorgrond_podling_scavenger") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_podling_scavengerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_podling_scavengerAI : public ScriptedAI
+	{
+		npc_gorgrond_podling_scavengerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			me->setRegeneratingHealth(false);
+			me->SetHealth(me->CountPctFromMaxHealth(0));
+			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		}
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+
+/* Needs to be worked on - the script applies to all NPCs regardless of GUID.
+/// Grom'kar Grunt Near Rajess - 85266 (GUID: 1440316)
+class npc_gorgrond_gromkar_grunt_rajess : public CreatureScript
+{
+public:
+	npc_gorgrond_gromkar_grunt_rajess() : CreatureScript("npc_gorgrond_gromkar_grunt_rajess") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_gromkar_grunt_rajessAI(p_Creature);
+	}
+
+	struct npc_gorgrond_gromkar_grunt_rajessAI : public ScriptedAI
+	{
+		npc_gorgrond_gromkar_grunt_rajessAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+			if (me->GetGUIDLow() == NPC_GUID_GROMKAR_GRUNT) {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IN_COMBAT);
+			}
+			
+		}
+		*/
+	//	void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	//};
+
+
+//};
 
 
 
@@ -1525,6 +1669,10 @@ void AddSC_gorgrond()
 	new npc_gorgrond_rangari_rajess();
 	new npc_gorgrond_rangari_kolaan();
 	new npc_gorgrond_rangari_jonaa();
+	new npc_gorgrond_fallen_rangari();
+	//new npc_gorgrond_podling_nibbler();
+	new npc_gorgrond_podling_scavenger();
+//	new npc_gorgrond_gromkar_grunt_rajess();
 
 	/// Spells
 	new spell_drov_call_of_earth();
