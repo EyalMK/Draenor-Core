@@ -102,7 +102,7 @@ namespace MS { namespace Garrison
     {
         if (p_Player->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
         {
-            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::GarrisonCreation, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::TimeToGetBackToWork, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_QUEST, p_Creature->GetGUID());
         }
         else
@@ -123,7 +123,7 @@ namespace MS { namespace Garrison
         if (p_Player->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
         {
             p_Player->QuestObjectiveSatisfy(NPCs::NPC_ASSISTANT_BRIGHTSTONE, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Creature->GetGUID());
-
+			p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_BRIGHTSTONE_KEEPING_IT_TOGETHER); // Alright, break time's over fellas.
             // @TODO move peon arround
 
             p_Player->CLOSE_GOSSIP_MENU();

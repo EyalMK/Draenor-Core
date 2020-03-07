@@ -138,8 +138,13 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     bool npc_SergeantGrimjaw::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_SERGENT_GRIMJAW, p_Creature->GetGUID());
-        return true;
+		if (p_Player->HasQuest(Quests::QUEST_NEW_GOODS) && p_Player->GetQuestObjectiveCounter(79774) != 1)
+		{
+			p_Player->QuestObjectiveSatisfy(NPCs::NPC_SERGEANT_GRIMJAW, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Creature->GetGUID());
+			p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_SERGENT_GRIMJAW, p_Creature->GetGUID());
+		}
+			p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_SERGENT_GRIMJAW, p_Creature->GetGUID());
+			return true;
     }
 
     //////////////////////////////////////////////////////////////////////////

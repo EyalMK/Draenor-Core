@@ -63,7 +63,7 @@ namespace MS { namespace Garrison
             MineDefaultOrder              = 16,
             DefaultSomething              = 17,
             GarrisonCreation              = 18,
-            ShellyQuestGossip1            = 19,
+			TimeToGetBackToWork			  = 19,
             ShellyQuestGossip2            = 20,
             GazloweQuestGossip1           = 21,
             FollowerRecruitment           = 22,
@@ -137,6 +137,7 @@ namespace MS { namespace Garrison
             Alliance_LostInTransition                   = 37087,
             Alliance_BiggerIsBetter                     = 36592,
             Alliance_AshranAppearance                   = 36624,
+			Alliance_TheSecretsOfGorgrond				= 35556,
             Alliance_QianaMoonshadow                    = 34646,
             Alliance_TheHeadHunterHarverst              = 37119,
 
@@ -175,6 +176,7 @@ namespace MS { namespace Garrison
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
             QUEST_WHAT_WE_GOT                           = 34824,
+			QUEST_NEW_GOODS								= 38427,
             Horde_BuildYourBarracks                     = 34461,
             Horde_LostInTransition                      = 37060,
             Horde_BiggerIsBetter                        = 36567,
@@ -238,6 +240,7 @@ namespace MS { namespace Garrison
         NPC_GASLOWE                                     = 78466,
         NPC_ASSISTANT_BRIGHTSTONE                       = 84455,
         NPC_SKAGGIT                                     = 80225,
+		NPC_SERGEANT_GRIMJAW							= 79774,
         NPC_ARCHER                                      = 87518,
         Marksman                                        = 88391,
         LunarfallRaccoon                                = 85341,
@@ -1296,7 +1299,8 @@ namespace MS { namespace Garrison
         CREATURE_TEXT_BAROS_SHIP_SALVAGE_END_CHAT                 = 4,
         CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_START_CHAT = 0,
         CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_END_CHAT   = 1,
-        CREATURE_TEXT_SENIOR_PEON_II_WHAT_WE_GOT                  = 0
+        CREATURE_TEXT_SENIOR_PEON_II_WHAT_WE_GOT                  = 0,
+		CREATURE_TEXT_BRIGHTSTONE_KEEPING_IT_TOGETHER			  = 0
     };
 
     /// Items
@@ -1361,7 +1365,7 @@ namespace MS { namespace Garrison
     /// Garrison creation coords
     static const float gGarrisonCreationCoords[][4] =
     {
-        { 1766.761475f,  191.2846830f,  72.115326f, 0.4649370f },   ///< TEAM_ALLIANCE
+		{ 1905.071411f,  315.025665f,  88.967491f, 4.308431f },   ///< TEAM_ALLIANCE -- Blizzlike creation coordinates
         { 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f }    ///< TEAM_HORDE
     };
 

@@ -797,7 +797,16 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             if (!spellProto || (spellProto->Id != LIGHT_STAGGER && spellProto->Id != MODERATE_STAGGER && spellProto->Id != HEAVY_STAGGER))
                 damage = victim->CalcStaggerDamage(victim->ToPlayer(), damage, damageSchoolMask, spellProto);
+
         }
+
+		if (spellProto && (spellProto->Id == LIGHT_STAGGER || spellProto->Id == MODERATE_STAGGER || spellProto->Id == HEAVY_STAGGER))
+		{
+			uint32 health = victim->GetHealth();
+
+			if (damage > health - 1)
+				damage = health - 1;
+		}
     }
 
     /// Temporal Shield - 115610
@@ -7478,6 +7487,32 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                     break;
                 }
+				// Spell - Dream of Cenarius (Resto)
+				case 158504:
+				{
+					std::list<Unit*> l_Party;
+
+					GetRaidMembers(l_Party);
+
+					if (l_Party.empty())
+						return false;
+
+					if (l_Party.size() > 1)
+					{
+						l_Party.sort(JadeCore::HealthPctOrderPred());
+						l_Party.resize(1);
+					}
+
+					SpellInfo const* l_DreamOfCenariusSpellInfo = GetAura(158504)->GetSpellInfo();
+					SpellInfo const* l_DreamOfCenariusHealSpellInfo = sSpellMgr->GetSpellInfo(145153);
+
+					if (l_DreamOfCenariusSpellInfo == nullptr || l_DreamOfCenariusHealSpellInfo == nullptr)
+						return false;
+
+					int32 l_HealAmount = CalculatePct(damage, l_DreamOfCenariusSpellInfo->Effects[EFFECT_1].BasePoints);
+					HealBySpell(l_Party.front(), l_DreamOfCenariusHealSpellInfo, l_HealAmount, false, false);
+					break;
+				}
                 // Item  Druid T12 Restoration 4P Bonus
                 case 99015:
                 {
