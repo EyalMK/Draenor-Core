@@ -16,6 +16,9 @@ enum eQuests
 	// Template: Quest_X_Y_Z		= {questId}
 
 	// Alliance Quests
+	Quest_SecretsOfGorgrond1		= 33533, // Need to fix - Click to complete before interacting with flight master thus breaking it.
+	Quest_SecretsOfGorgrond2		= 35556, // Need to fix - interacting with Dungar Longdrink doesn't satisfy the objective
+	Quest_SecretsOfGorgrond3		= 36632, // Need to fix - Click to complete upon interacting with flight master.
 	Quest_WelcometoGorgrond			= 35033,
 	Quest_AHarvesterHasCome			= 35065,
 	Quest_IDrewAggroCulture			= 35828,
