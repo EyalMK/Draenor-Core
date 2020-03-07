@@ -27,7 +27,7 @@ enum eQuests
 };
 
 
-enum eCreature
+enum eCreatures
 {
 	// Template: NPC_GORGROND_NAME_PHASE			= {entry}
 
@@ -78,9 +78,34 @@ enum eCreatureTexts
 
 enum eNpcTexts
 {
-		// Template: NPC_TEXT_NAME_QUEST_START/END			= {textId}
+		// Template: NPC_TEXT_NAME_X								= {npc_text->Id || gossip_menu->text_Id}
 
 		// Alliance NPCs - NPC Texts
+		RANGARI_KOLAAN_TEXT_RESCUE_RANGARI							= 83163,
+		RANGARI_RAJESS_TEXT_RESCUE_RANGARI							= 83160,
+		RANGARI_JONAA_TEXT_RESCUE_RANGARI							= 83170
+		
+};
+
+enum eGossipMenus
+{
+		// Template: NPC_GossipMenu_X								= {gossip_menu->entry}
+		
+		// Alliance NPCs - Gossip Menus
+		RANGARI_KOLAAN_Menu_RescueRangari							= 16539,
+		RANGARI_RAJESS_Menu_RescueRangari							= 16538,
+		RANGARI_JONAA_Menu_RescueRangari							= 16542
+};
+
+
+enum eGossipOptions
+{
+		// Template: NPC_GossipOption/Quest_X						= {gossip_menu_option->Id}
+		
+		// Alliance NPCs - Gossip Options
+		RANGARI_RAJESS_RescueRangari								= 0, // menu_id - 16538 - D'kaan is coming with help.
+		RANGARI_KOLAAN_RescueRangari								= 0, // menu_id - 16539 - D'kaan is coming with help.
+		RANGARI_JONAA_RescueRangari									= 0  // menu_id - 16542 - D'kaan is coming with help.
 		
 };
 
