@@ -47,44 +47,123 @@ class npc_world_boss_gossip : public CreatureScript
 
         enum eActions
         {
-            SelectRukhmar     = 1001,
-            SelectTarlna      = 1002,
-            SelectDrov        = 1003,
-            SelectBlackrock   = 1004,
-            TpAloneRukhmar    = 1005,
-            TpGroupRukhmar    = 1006,
-            TpAloneTarlna     = 1007,
-            TpGroupTarlna     = 1008,
-            TpAloneDrov       = 1009,
-            TpGroupDrov       = 1010,
-            TpAloneBlackrock  = 1011,
-            TpGroupBlackrock  = 1012,
+			SelectBloodmaulslagmines = 1001,
+			SelectIrondocks = 1002,
+			SelectAuchindoun = 1003,
+			SelectSkyreach = 1004,
+			SelectGrimraildepot = 1005,
+			SelectShadowmoonburialgrounds = 1006,
+			SelectEverbloom = 1007,
+			SelectUpperblackrockspire = 1008,
+			SelectHighmaul = 1009,
+			SelectBlackrock = 1010,
+			SelectHFC      = 1011,
+            SelectRukhmar     = 1012,
+            SelectTarlna      = 1013,
+            SelectDrov        = 1014,
+			SelectKazz        = 1015,
+			TpAloneBloodmaulslagmines = 1016,
+			TpGroupBloodmaulslagmines = 1017,
+			TpAloneIrondocks = 1018,
+			TpGroupIrondocks = 1019,
+			TpAloneAuchindoun = 1020,
+			TpGroupAuchindoun = 1021,
+			TpAloneSkyreach = 1022,
+			TpGroupSkyreach = 1023,
+			TpAloneGrimraildepot = 1024,
+			TpGroupGrimraildepot = 1025,
+			TpAloneShadowmoonburialgrounds = 1026,
+			TpGroupShadowmoonburialgrounds = 1027,
+			TpAloneEverbloom = 1028,
+			TpGroupEverbloom = 1029,
+			TpAloneUpperblackrockspire = 1030,
+			TpGroupUpperblackrockspire = 1031,
+			TpAloneHighmaul = 1032,
+			TpGroupHighmaul = 1033,
+			TpAloneBlackrock = 1034,
+			TpGroupBlackrock = 1035,
+			TpAloneHFC = 1036,
+			TpGroupHFC = 1037,
+            TpAloneRukhmar    = 1038,
+            TpGroupRukhmar    = 1039,
+            TpAloneTarlna     = 1040,
+            TpGroupTarlna     = 1041,
+            TpAloneDrov       = 1042,
+            TpGroupDrov       = 1043,
+			TpAloneKazz       = 1044,
+			TpGroupKazz       = 1045
+
         };
 
         enum Destinations
         {
-            DestinationRukhmar          = 1,
-            DestinationTarlna           = 2,
-            DestinationDrov             = 3,
-            DestinationBlackRockFoundry = 4
+			DestinationBloodmaulslagmines = 1,
+			DestinationIrondocks = 2,
+			DestinationAuchindoun = 3,
+			DestinationSkyreach = 4,
+			DestinationGrimraildepot = 5,
+			DestinationShadowmoonburialgrounds = 6,
+			DestinationEverbloom = 7,
+			DestinationUpperblackrockspire = 8,
+			DestinationHighmaul = 9,
+			DestinationBlackRockFoundry = 10,
+			DestinationHFC = 11,
+            DestinationRukhmar          = 12,
+            DestinationTarlna           = 13,
+            DestinationDrov             = 14,
+			DestinationKazz             = 15
+            
         };
 
         void TeleportPlayer(Player* p_Player, uint8 p_Destination)
         {
             switch (p_Destination)
             {
-                case Destinations::DestinationRukhmar:
-                    p_Player->TeleportTo(1116, 167.2388f, 2655.39f, 68.58f, 4.105f);
+                case Destinations::DestinationBloodmaulslagmines:
+                    p_Player->TeleportTo(1175, 1829.37f, -245.757f, 255.727f, 46.1094f);
                     break;
+				case Destinations::DestinationIrondocks:
+					p_Player->TeleportTo(1195, 6746.09f, -545.04f, 4.89f, 4.8989f);
+					break;
+				case Destinations::DestinationAuchindoun:
+					p_Player->TeleportTo(1182, 167.2388f, 2655.39f, 68.58f, 4.105f);
+					break;
+				case Destinations::DestinationGrimraildepot:
+					p_Player->TeleportTo(1208, 1737.59f, 1681.19f, 7.6742f, 3.082f);
+					break;
+				case Destinations::DestinationSkyreach:
+					p_Player->TeleportTo(1209, 1232.46f, 1743.71f, 177.169f, 331.58f);
+					break;
+				case Destinations::DestinationShadowmoonburialgrounds:
+					p_Player->TeleportTo(1176, 1774.28f, 213.331f, 304.917f, 4.69119f);
+					break;
+				case Destinations::DestinationEverbloom:
+					p_Player->TeleportTo(1279, 454.855f, 1350.13f, 117.067f, 0.966836f);
+					break;
+				case Destinations::DestinationUpperblackrockspire:
+					p_Player->TeleportTo(1358, 120.472f, -319.104f, 70.9541f, 6.2642f);
+					break;
+				case Destinations::DestinationRukhmar:
+					p_Player->TeleportTo(1116, 167.2388f, 2655.39f, 68.58f, 4.105f);
+					break;
                 case Destinations::DestinationTarlna:
                     p_Player->TeleportTo(1116, 4918.54f, 1292.16f, 120.28f, 4.018f);
                     break;
                 case Destinations::DestinationDrov:
                     p_Player->TeleportTo(1116, 7330.3f, 1455.87f, 81.76f, 6.08f);
                     break;
-                case Destinations::DestinationBlackRockFoundry:
-                    p_Player->TeleportTo(1116, 7856.9667f, 555.5454f, 124.1314f, 6.08f);
+				case Destinations::DestinationKazz:
+					p_Player->TeleportTo(1116, 5110.470215f, -840.423340f, 329.370026f, 0.764297f);
+					break;
+                case Destinations::DestinationHighmaul:
+					p_Player->TeleportTo(1228, 3486.48f, 7603.32f, 10.4853f, 4.0252f);
                     break;
+                case Destinations::DestinationBlackRockFoundry:
+					p_Player->TeleportTo(1205, 131.172f, 3429.48f, 319.829f, 0.00135f);
+                    break;
+				case Destinations::DestinationHFC:
+					p_Player->TeleportTo(1205, 131.172f, 3429.48f, 319.829f, 0.00135f);
+					break;
             }
         }
 
@@ -99,6 +178,30 @@ class npc_world_boss_gossip : public CreatureScript
                 {
                     switch (p_Destination)
                     {
+					case Destinations::DestinationBloodmaulslagmines:
+						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationBloodmaulslagmines);
+						break;
+					case Destinations::DestinationIrondocks:
+						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationIrondocks);
+						break;
+					case Destinations::DestinationAuchindoun:
+						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationAuchindoun);
+						break;
+					case Destinations::DestinationGrimraildepot:
+						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationGrimraildepot);
+						break;
+					case Destinations::DestinationSkyreach:
+						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationSkyreach);
+						break;
+					case Destinations::DestinationShadowmoonburialgrounds:
+						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationShadowmoonburialgrounds);
+						break;
+					case Destinations::DestinationEverbloom:
+						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationEverbloom);
+						break;
+					case Destinations::DestinationUpperblackrockspire:
+						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationUpperblackrockspire);
+						break;
                         case Destinations::DestinationRukhmar:
                             TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationRukhmar);
                             break;
@@ -108,9 +211,19 @@ class npc_world_boss_gossip : public CreatureScript
                         case Destinations::DestinationDrov:
                             TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationDrov);
                             break;
-                        case Destinations::DestinationBlackRockFoundry:
-                            p_Player->TeleportTo(1116, 8084.64f, 855.51f, 34.3623f, 6.037f);
+						case Destinations::DestinationKazz:
+							TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationKazz);
+							break;
+                        case Destinations::DestinationHighmaul:
+							TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationHighmaul);
                             break;
+                        case Destinations::DestinationBlackRockFoundry:
+							TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationBlackRockFoundry);
+                            break;
+						case Destinations::DestinationHFC:
+							TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationHFC);
+							break;
+
                     }
                 }
             }
@@ -118,10 +231,21 @@ class npc_world_boss_gossip : public CreatureScript
 
         bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Rukhmar, please.", GOSSIP_SENDER_MAIN, eActions::SelectRukhmar);
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Tarlna, please.", GOSSIP_SENDER_MAIN, eActions::SelectTarlna);
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Drov, please.", GOSSIP_SENDER_MAIN, eActions::SelectDrov);
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go Blackrock Foundry, please.", GOSSIP_SENDER_MAIN, eActions::SelectBlackrock);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Bloodmaul Slag Mines, please.", GOSSIP_SENDER_MAIN, eActions::SelectBloodmaulslagmines);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Iron Docks, please.", GOSSIP_SENDER_MAIN, eActions::SelectIrondocks);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Auchindoun, please.", GOSSIP_SENDER_MAIN, eActions::SelectAuchindoun);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Grimrail Depot, please.", GOSSIP_SENDER_MAIN, eActions::SelectGrimraildepot);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Skyreach, please.", GOSSIP_SENDER_MAIN, eActions::SelectSkyreach);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Shadowmoon Burial Grounds, please.", GOSSIP_SENDER_MAIN, eActions::SelectShadowmoonburialgrounds);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] The Everbloom, please.", GOSSIP_SENDER_MAIN, eActions::SelectEverbloom);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Upper Blackrock Spire, please.", GOSSIP_SENDER_MAIN, eActions::SelectUpperblackrockspire);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Raid] Highmaul, please.", GOSSIP_SENDER_MAIN, eActions::SelectHighmaul);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Raid] Blackrock Foundry, please.", GOSSIP_SENDER_MAIN, eActions::SelectBlackrock);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Raid] Hellfire Citadel, please.", GOSSIP_SENDER_MAIN, eActions::SelectHFC);
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Rukhmar, please.", GOSSIP_SENDER_MAIN, eActions::SelectRukhmar);
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Tarlna, please.", GOSSIP_SENDER_MAIN, eActions::SelectTarlna);
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Drov, please.", GOSSIP_SENDER_MAIN, eActions::SelectDrov);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Lord Kazz, please.", GOSSIP_SENDER_MAIN, eActions::SelectKazz);
             p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 
             return true;
@@ -134,6 +258,46 @@ class npc_world_boss_gossip : public CreatureScript
 
             switch (p_Action)
             {
+			case eActions::SelectBloodmaulslagmines:
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Bloodmaul Slag Mines alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneBloodmaulslagmines);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Bloodmaul Slag Mines with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupBloodmaulslagmines);
+				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+				break;
+			case eActions::SelectIrondocks:
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Iron Docks alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneIrondocks);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Iron Docks with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupIrondocks);
+				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+				break;
+			case eActions::SelectAuchindoun:
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Auchindoun alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneAuchindoun);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Auchindoun with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupAuchindoun);
+				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+				break;
+			case eActions::SelectGrimraildepot:
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Grimrail Depot alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneGrimraildepot);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Grimrail Depot with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupGrimraildepot);
+				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+				break;
+			case eActions::SelectSkyreach:
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Skyreach alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneSkyreach);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Skyreach with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupSkyreach);
+				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+				break;
+			case eActions::SelectShadowmoonburialgrounds:
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Shadowmoon Burial Grounds alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneShadowmoonburialgrounds);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Shadowmoon Burial Grounds with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupShadowmoonburialgrounds);
+				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+				break;
+			case eActions::SelectEverbloom:
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test The Everbloom alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneEverbloom);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight The Everbloom with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupEverbloom);
+				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+				break;
+			case eActions::SelectUpperblackrockspire:
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Upper Blackrock Spire alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneUpperblackrockspire);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Upper Blackrock Spire with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupUpperblackrockspire);
+				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+				break;
                 case eActions::SelectRukhmar:
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Rukhmar alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneRukhmar);
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Rukhmar with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupRukhmar);
@@ -149,11 +313,74 @@ class npc_world_boss_gossip : public CreatureScript
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Drov with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupDrov);
                     p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
                     break;
+				case eActions::SelectKazz:
+					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Lord Kaz alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneKazz);
+					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Lord Kaz with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupKazz);
+					p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+					break;
+                case eActions::SelectHighmaul:
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Highmaul alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneHighmaul);
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Highmaul with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupHighmaul);
+                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+                    break;
                 case eActions::SelectBlackrock:
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Blackrock Foundry alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneBlackrock);
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Blackrock Foundry with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupBlackrock);
                     p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
                     break;
+				case eActions::SelectHFC:
+					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Hellfire Citadel alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneHFC);
+					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Hellfire Citadel with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupHFC);
+					p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+					break;
+				case eActions::TpAloneBloodmaulslagmines:
+					TeleportPlayer(p_Player, Destinations::DestinationBloodmaulslagmines);
+					break;
+				case eActions::TpGroupBloodmaulslagmines:
+					TeleportGroup(p_Player, Destinations::DestinationBloodmaulslagmines);
+					break;
+				case eActions::TpAloneIrondocks:
+					TeleportPlayer(p_Player, Destinations::DestinationIrondocks);
+					break;
+				case eActions::TpGroupIrondocks:
+					TeleportGroup(p_Player, Destinations::DestinationIrondocks);
+					break;
+				case eActions::TpAloneAuchindoun:
+					TeleportPlayer(p_Player, Destinations::DestinationAuchindoun);
+					break;
+				case eActions::TpGroupAuchindoun:
+					TeleportGroup(p_Player, Destinations::DestinationAuchindoun);
+					break;
+				case eActions::TpAloneGrimraildepot:
+					TeleportPlayer(p_Player, Destinations::DestinationGrimraildepot);
+					break;
+				case eActions::TpGroupGrimraildepot:
+					TeleportGroup(p_Player, Destinations::DestinationGrimraildepot);
+					break;
+				case eActions::TpAloneSkyreach:
+					TeleportPlayer(p_Player, Destinations::DestinationSkyreach);
+					break;
+				case eActions::TpGroupSkyreach:
+					TeleportGroup(p_Player, Destinations::DestinationSkyreach);
+					break;
+				case eActions::TpAloneShadowmoonburialgrounds:
+					TeleportPlayer(p_Player, Destinations::DestinationShadowmoonburialgrounds);
+					break;
+				case eActions::TpGroupShadowmoonburialgrounds:
+					TeleportGroup(p_Player, Destinations::DestinationShadowmoonburialgrounds);
+					break;
+				case eActions::TpAloneEverbloom:
+					TeleportPlayer(p_Player, Destinations::DestinationEverbloom);
+					break;
+				case eActions::TpGroupEverbloom:
+					TeleportGroup(p_Player, Destinations::DestinationEverbloom);
+					break;
+				case eActions::TpAloneUpperblackrockspire:
+					TeleportPlayer(p_Player, Destinations::DestinationUpperblackrockspire);
+					break;
+				case eActions::TpGroupUpperblackrockspire:
+					TeleportGroup(p_Player, Destinations::DestinationUpperblackrockspire);
+					break;
                 case eActions::TpAloneRukhmar:
                     TeleportPlayer(p_Player, Destinations::DestinationRukhmar);
                     break;
@@ -172,12 +399,30 @@ class npc_world_boss_gossip : public CreatureScript
                 case eActions::TpGroupDrov:
                     TeleportGroup(p_Player, Destinations::DestinationDrov);
                     break;
+				case eActions::TpAloneKazz:
+					TeleportPlayer(p_Player, Destinations::DestinationDrov);
+					break;
+				case eActions::TpGroupKazz:
+					TeleportGroup(p_Player, Destinations::DestinationDrov);
+					break;
+                case eActions::TpAloneHighmaul:
+                    TeleportPlayer(p_Player, Destinations::DestinationHighmaul);
+                    break;
+                case eActions::TpGroupHighmaul:
+                    TeleportGroup(p_Player, Destinations::DestinationHighmaul);
+                    break;
                 case eActions::TpAloneBlackrock:
                     TeleportPlayer(p_Player, Destinations::DestinationBlackRockFoundry);
                     break;
                 case eActions::TpGroupBlackrock:
                     TeleportGroup(p_Player, Destinations::DestinationBlackRockFoundry);
                     break;
+				case eActions::TpAloneHFC:
+					TeleportPlayer(p_Player, Destinations::DestinationHFC);
+					break;
+				case eActions::TpGroupHFC:
+					TeleportGroup(p_Player, Destinations::DestinationHFC);
+					break;
                 default:
                     break;
             }
@@ -201,7 +446,7 @@ class npc_world_boss_gossip : public CreatureScript
                     if (m_YellTimer <= p_Diff)
                     {
                         /// "Hey $N, come to me in your faction capital, to access fastly our last testable content ! Newest raids, boss, get directly teleported to the destination you are looking for."
-                        me->YellToZone(14097, LANG_UNIVERSAL, 0);
+                        //me->YellToZone(14097, LANG_UNIVERSAL, 0);
                         m_YellTimer = 300 * IN_MILLISECONDS;
                     }
                     else
@@ -504,7 +749,7 @@ class npc_season_2_premade_master : public CreatureScript
         {
             HexweaveBag                     = 114821,
             TomeOfTheClearMind              = 79249,
-            ReinsOfTheIllidariFelstalker    = 128425
+            ReinsOfTheIllidariFelstalker    = 118515
         };
 
         enum eMenuIDs
@@ -531,24 +776,15 @@ class npc_season_2_premade_master : public CreatureScript
         bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
         {
            // if (!p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold) &&
-              //  !p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Item))
-           // {
-          //      p_Player->PlayerTalkClass->ClearMenus();
-           //     p_Player->SEND_GOSSIP_MENU(eMenuIDs::MenuUnable, p_Creature->GetGUID());
-          //      return true;
-         //   }
-
-          //  if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold))
-          //  {
+           //    !p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Item))
+            {
                 p_Player->PlayerTalkClass->ClearMenus();
+                p_Player->SEND_GOSSIP_MENU(eMenuIDs::MenuUnable, p_Creature->GetGUID());
+               
                 p_Player->ADD_GOSSIP_ITEM_DB(eMenuIDs::MenuBaseLevel, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 p_Player->SEND_GOSSIP_MENU(eMenuIDs::MenuBaseLevel, p_Creature->GetGUID());
-          //  }
-         //   else if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Item))
-           // {
-                p_Player->ADD_GOSSIP_ITEM_DB(eMenuIDs::MenuBaseStuff, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                p_Player->SEND_GOSSIP_MENU(eMenuIDs::MenuBaseStuff, p_Creature->GetGUID());
-          //  }
+                
+            }
 
             return true;
         }
@@ -566,8 +802,8 @@ class npc_season_2_premade_master : public CreatureScript
 
             void sGossipSelect(Player* p_Player, uint32 /*p_MenuID*/, uint32 /*p_Action*/) override
             {
-               // if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold))
-               // {
+              //  if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold))
+                {
                     /// Player doesn't have enough space
                     if (p_Player->GetBagsFreeSlots() < 6)
                     {
@@ -577,17 +813,19 @@ class npc_season_2_premade_master : public CreatureScript
                     }
 
                     p_Player->GiveLevel(MAX_LEVEL);
-                    p_Player->ModifyMoney(50000 * MoneyConstants::GOLD);
+                    p_Player->ModifyMoney(100000 * MoneyConstants::GOLD);
+					p_Player->TeleportTo(1, -8452.49f, -4202.24f, -211.992f, 4.38f);
 
                     p_Player->AddItem(eItems::HexweaveBag, 4);
                     p_Player->AddItem(eItems::TomeOfTheClearMind, 200);
                     p_Player->AddItem(eItems::ReinsOfTheIllidariFelstalker, 1);
 
-                    p_Player->GetSession()->UnsetServiceFlags(ServiceFlags::Season2Gold);
+                    //p_Player->GetSession()->UnsetServiceFlags(ServiceFlags::Season2Gold);
                     Talk(eTalks::TalkLevelOK, p_Player->GetGUID());
-             //   }
-              //  else if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Item))
-              //  {
+					Talk(eTalks::TalkStuffOK, p_Player->GetGUID());
+					p_Player->PlayerTalkClass->SendCloseGossip();
+                }
+				{
                     if (!p_Player->GetSpecializationId())
                     {
                         Talk(eTalks::TalkSpec, p_Player->GetGUID());
@@ -601,9 +839,9 @@ class npc_season_2_premade_master : public CreatureScript
                         return;
                     }
 
-                    p_Player->GetSession()->UnsetServiceFlags(ServiceFlags::Season2Item);
-                    Talk(eTalks::TalkStuffOK, p_Player->GetGUID());
-               // }
+                    //p_Player->GetSession()->UnsetServiceFlags(ServiceFlags::Season2Item);
+                    //Talk(eTalks::TalkStuffOK, p_Player->GetGUID());
+                }
 
                 p_Player->PlayerTalkClass->SendCloseGossip();
             }
