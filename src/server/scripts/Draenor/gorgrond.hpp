@@ -33,13 +33,13 @@ enum eCreatures
 
 	// Alliance NPCs
 	NPC_GORGROND_RANGARI_DKAAN_PHASE_1				= 80921, // Rangari D'kaan at Naielle's Watch
-	NPC_GORGROND_YREL_PHASE_1						= 80978, // Yrel at Wildwood Wash, near Naielle's Watch - on the road and Highpass
-	NPC_GORGROND_VINDICATOR_MARAAD_PHASE_1			= 75127, // Maraad at Wildwood Wash, near Naielle's Watch - on the road and Highpass
-	NPC_GORGROND_RANGARI_DKAAN_PHASE_2				= 75146, // Rangari D'kaan near Naielle's Watch - on the road and Highpass
+	NPC_GORGROND_YREL_PHASE_1						= 80978, // Yrel at Wildwood Wash, near Naielle's Watch (on the road) and Highpass
+	NPC_GORGROND_VINDICATOR_MARAAD_PHASE_1			= 75127, // Maraad at Wildwood Wash, near Naielle's Watch (on the road) and Highpass
+	NPC_GORGROND_RANGARI_DKAAN_PHASE_2				= 75146, // Rangari D'kaan near Naielle's Watch (on the road) and Highpass
 	NPC_GORGROND_THAELIN_DARKANVIL_1				= 80874, // Thaelin at Naielle's Watch, starts quest ID 35828
-	NPC_GORGROND_THAELIN_DARKANVIL_2				= 75136, // Thaelin near Naielle's Watch - on the road and Highpass
+	NPC_GORGROND_THAELIN_DARKANVIL_2				= 75136, // Thaelin near Naielle's Watch (on the road) and Highpass
 	NPC_GORGROND_RANGARI_KAALYA_PHASE_1				= 80922, // Rangari Kaalya at Naielle's Watch
-	NPC_GORGROND_RANGARI_KAALYA_PHASE_2				= 80987, // Rangari Kaalya near Naielle's Watch - on the road
+	NPC_GORGROND_RANGARI_KAALYA_PHASE_2				= 80987, // Rangari Kaalya near Naielle's Watch (on the road)
 	NPC_GORGROND_GLIRIN								= 84766, // Glirin at Highpass near the mole machine
 
 	// Alliance Quest NPCs
@@ -68,7 +68,8 @@ enum eCreatureTexts
 	// Alliance NPCs Creature Texts
 	CREATURE_TEXT_YREL_WELCOME_TO_GORGROND_START					= 0,
 	CREATURE_TEXT_YREL_HARVESTER_END								= 1,
-	CREATURE_TEXT_VINDICATOR_MARAAD_WELCOME_TO_GORGROND_START		= 0,
+	CREATURE_TEXT_VINDICATOR_MARAAD_SECRETS_OF_GORGROND				= 0,
+	CREATURE_TEXT_VINDICATOR_MARAAD_WELCOME_TO_GORGROND_START		= 1,
 	CREATURE_TEXT_RANGARI_DKAAN_WELCOME_TO_GORGROND_START			= 0,
 	CREATURE_TEXT_RANGARI_KAALYA_HARVESTER_END						= 0,
 	CREATURE_TEXT_THAELIN_DARKANVIL_AGGROCULTURE_START				= 0,
