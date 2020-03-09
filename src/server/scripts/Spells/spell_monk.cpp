@@ -2907,6 +2907,16 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
                 MonkWoDPvPBrewmasterAura = 165692
             };
 
+			SpellCastResult CheckCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(115008)) /// Already has chi torpedo, don't want to be able to cast it again
+					return SPELL_FAILED_DONT_REPORT;
+
+				return SPELL_CAST_OK;
+			}
+
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -2935,6 +2945,7 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
 
             void Register()
             {
+				OnCheckCast += SpellCheckCastFn(spell_monk_chi_torpedo_SpellScript::CheckCast);
                 AfterCast += SpellCastFn(spell_monk_chi_torpedo_SpellScript::HandleAfterCast);
             }
         };
