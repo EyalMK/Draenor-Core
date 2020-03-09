@@ -1958,8 +1958,16 @@ class spell_monk_enveloping_mist: public SpellScriptLoader
                 {
                     if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == 115175)
                     {
-                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
-                        GetSpell()->setTriggerCastFlags(l_Flags);
+						if (Unit* l_Target = GetExplTargetUnit())
+						{
+							if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget() == l_Target)
+							{
+								TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+								GetSpell()->setTriggerCastFlags(l_Flags);
+							}
+							else
+								l_Player->InterruptSpell(CURRENT_CHANNELED_SPELL);
+						}
                     }
                 }
             }
@@ -2040,11 +2048,19 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 else
                     m_BasePowerConsume = 30.0f;
 
-                if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
-                {
-                    TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
-                    GetSpell()->setTriggerCastFlags(l_Flags);
-                }
+				if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == 115175)
+				{
+					if (Unit* l_Target = GetExplTargetUnit())
+					{
+						if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget() == l_Target)
+						{
+							TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+							GetSpell()->setTriggerCastFlags(l_Flags);
+						}
+						else
+							l_Player->InterruptSpell(CURRENT_CHANNELED_SPELL);
+					}
+				}
 
                 if (AuraEffect* l_VitalMists = l_Player->GetAuraEffect(eSpells::VitalMists, EFFECT_1))
                     m_BasePowerConsume -= CalculatePct(m_BasePowerConsume, l_VitalMists->GetAmount() * -1);
