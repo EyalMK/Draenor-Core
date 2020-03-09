@@ -5346,6 +5346,9 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 			{
 				Player* l_Player = GetCaster()->ToPlayer();
 
+				if (l_Player == nullptr) ///Prevent crash on next if statement due to RSK being used with Storm, Earth, and Fire
+					return;
+
 				if (l_Player->GetSpecializationId(l_Player->GetActiveSpec() == SPEC_MONK_MISTWEAVER))
 				{
 					Unit* l_Caster = GetCaster();
