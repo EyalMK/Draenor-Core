@@ -6,10 +6,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+
+#include "Gorgrond.hpp"
+
 #include "ScriptPCH.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "ObjectMgr.h"
 #include "GameObjectAI.h"
 #include "Language.h"
+#include "NPCHandler.h"
+#include "PhaseMgr.h"
+#include "Common.h"
 
 /// Tarlna the Ageless - 81535
 class boss_tarlna_the_ageless : public CreatureScript
@@ -1286,26 +1294,6 @@ public:
 };
 
 /// QUEST 35050: Rescue Rangari
-
-enum eData
-{
-
-	// QUEST ID 
-	QUEST_RESCUE_RANGARI = 35050,
-
-	// QUEST NPCS
-	NPC_RANGARI_KOLAAN = 81018,
-	NPC_RANGARI_RAJESS = 81013,
-	NPC_RANGARI_JONAA = 81020,
-
-	// Fallen Rangaris next to Jonaa
-	NPC_GUID_FALLEN_RANGARI_1 = 399423,
-	NPC_GUID_FALLEN_RANGARI_2 = 399424,
-
-};
-
-#define RANGARI_GOSSIP "D'kaan is coming with help."
-
 /// Rangari Kolaan - 81018
 class npc_gorgrond_rangari_kolaan : public CreatureScript
 {
@@ -1320,12 +1308,12 @@ public:
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
-		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI) && p_Player->GetQuestObjectiveCounter(273398) != 1 && p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE)
+		if (p_Player->HasQuest(eQuests::Quest_RescueRangari) && p_Player->GetQuestObjectiveCounter(273398) != 1 && p_Player->GetQuestStatus(eQuests::Quest_RescueRangari) == QUEST_STATUS_INCOMPLETE)
 		{
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-				p_Player->SEND_GOSSIP_MENU(83163, p_Creature->GetGUID());
+				p_Player->ADD_GOSSIP_ITEM_DB(eGossipMenus::RANGARI_KOLAAN_Menu_RescueRangari, eGossipOptions::RANGARI_KOLAAN_RescueRangari, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+				p_Player->SEND_GOSSIP_MENU(eNpcTexts::RANGARI_KOLAAN_TEXT_RESCUE_RANGARI, p_Creature->GetGUID());
 		}
-				p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
+				p_Player->SEND_GOSSIP_MENU(eNpcTexts::RANGARI_KOLAAN_TEXT_RESCUE_RANGARI , p_Creature->GetGUID());
 				return true;
 	}
 
@@ -1335,7 +1323,7 @@ public:
 		if (action == GOSSIP_ACTION_INFO_DEF && p_Player->GetQuestObjectiveCounter(273398) != 1)
 		{
 			p_Creature->AI()->Talk(0);
-			p_Player->QuestObjectiveSatisfy(NPC_RANGARI_KOLAAN, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
+			p_Player->QuestObjectiveSatisfy(eCreatures::NPC_GORGROND_RANGARI_KOLAAN, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
 		}
 
 		p_Player->PlayerTalkClass->ClearMenus();
@@ -1371,13 +1359,13 @@ public:
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
-		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI) && p_Player->GetQuestObjectiveCounter(273399) != 1 && p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE)
+		if (p_Player->HasQuest(eQuests::Quest_RescueRangari) && p_Player->GetQuestObjectiveCounter(273399) != 1 && p_Player->GetQuestStatus(eQuests::Quest_RescueRangari) == QUEST_STATUS_INCOMPLETE)
 		{
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-			p_Player->SEND_GOSSIP_MENU(83160, p_Creature->GetGUID());
+			p_Player->ADD_GOSSIP_ITEM_DB(eGossipMenus::RANGARI_RAJESS_Menu_RescueRangari, eGossipOptions::RANGARI_RAJESS_RescueRangari, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::RANGARI_RAJESS_TEXT_RESCUE_RANGARI, p_Creature->GetGUID());
 		}
-		p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
-		return true;
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::RANGARI_RAJESS_TEXT_RESCUE_RANGARI, p_Creature->GetGUID());
+			return true;
 
 	}
 
@@ -1387,9 +1375,8 @@ public:
 		if (action == GOSSIP_ACTION_INFO_DEF && p_Player->GetQuestObjectiveCounter(273399) != 1)
 		{
 			p_Creature->AI()->Talk(0);
-			p_Player->QuestObjectiveSatisfy(NPC_RANGARI_RAJESS, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
+			p_Player->QuestObjectiveSatisfy(eCreatures::NPC_GORGROND_RANGARI_RAJESS, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
 		}
-
 			p_Player->PlayerTalkClass->ClearMenus();
 			p_Player->PlayerTalkClass->SendCloseGossip();
 			return true;
@@ -1423,13 +1410,13 @@ public:
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
-		if (p_Player->HasQuest(QUEST_RESCUE_RANGARI) && p_Player->GetQuestObjectiveCounter(273400) != 1 && p_Player->GetQuestStatus(QUEST_RESCUE_RANGARI) == QUEST_STATUS_INCOMPLETE)
+		if (p_Player->HasQuest(eQuests::Quest_RescueRangari) && p_Player->GetQuestObjectiveCounter(273400) != 1 && p_Player->GetQuestStatus(eQuests::Quest_RescueRangari) == QUEST_STATUS_INCOMPLETE)
 		{
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, RANGARI_GOSSIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-			p_Player->SEND_GOSSIP_MENU(83170, p_Creature->GetGUID());
+			p_Player->ADD_GOSSIP_ITEM_DB(eGossipMenus::RANGARI_JONAA_Menu_RescueRangari, eGossipOptions::RANGARI_JONAA_RescueRangari, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::RANGARI_JONAA_TEXT_RESCUE_RANGARI, p_Creature->GetGUID());
 		}
-		p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
-		return true;
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::RANGARI_JONAA_TEXT_RESCUE_RANGARI, p_Creature->GetGUID());
+			return true;
 	}
 
 
@@ -1439,13 +1426,11 @@ public:
 		if (action == GOSSIP_ACTION_INFO_DEF && p_Player->GetQuestObjectiveCounter(273400) != 1)
 		{
 			p_Creature->AI()->Talk(0);
-			p_Player->QuestObjectiveSatisfy(NPC_RANGARI_JONAA, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
+			p_Player->QuestObjectiveSatisfy(eCreatures::NPC_GORGROND_RANGARI_JONAA, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
 		}
-
-
-		p_Player->PlayerTalkClass->ClearMenus();
-		p_Player->PlayerTalkClass->SendCloseGossip();
-		return true;
+			p_Player->PlayerTalkClass->ClearMenus();
+			p_Player->PlayerTalkClass->SendCloseGossip();
+			return true;
 	}
 
 
@@ -1462,6 +1447,146 @@ public:
 
 };
 
+/// Fallen Rangari - 84663
+class npc_gorgrond_fallen_rangari : public CreatureScript
+{
+public:
+	npc_gorgrond_fallen_rangari() : CreatureScript("npc_gorgrond_fallen_rangari") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_fallen_rangariAI(p_Creature);
+	}
+
+	struct npc_gorgrond_fallen_rangariAI : public ScriptedAI
+	{
+		npc_gorgrond_fallen_rangariAI(Creature* creature) : ScriptedAI(creature) { }
+
+		
+		void Reset() {
+
+			me->setRegeneratingHealth(false);
+			me->SetHealth(me->CountPctFromMaxHealth(0));
+			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		}
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/* Needs to be worked on - the script applies to all NPCs regardless of GUID.
+/// Podling Nibbler - 84549
+class npc_gorgrond_podling_nibbler : public CreatureScript
+{
+public:
+	npc_gorgrond_podling_nibbler() : CreatureScript("npc_gorgrond_podling_nibbler") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_podling_nibblerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_podling_nibblerAI : public ScriptedAI
+	{
+		npc_gorgrond_podling_nibblerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+			if (me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER1 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER2 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER3 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER4 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER5) {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IN_COMBAT);
+			}
+				
+		}
+		
+*/
+		//void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	//};
+
+
+//};
+
+
+
+/// Podling Scavenger - 84402
+/* Needs to be worked on like the two other npc scripts above and below - need to make it target specific GUIDs.
+class npc_gorgrond_podling_scavenger : public CreatureScript
+{
+public:
+	npc_gorgrond_podling_scavenger() : CreatureScript("npc_gorgrond_podling_scavenger") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_podling_scavengerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_podling_scavengerAI : public ScriptedAI
+	{
+		npc_gorgrond_podling_scavengerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			me->setRegeneratingHealth(false);
+			me->SetHealth(me->CountPctFromMaxHealth(0));
+			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		}
+		*/
+	//	void UpdateAI(const uint32 /*p_Diff*/) { }
+
+//	};
+
+
+//};
+
+
+/* Needs to be worked on - the script applies to all NPCs regardless of GUID.
+/// Grom'kar Grunt Near Rajess - 85266 (GUID: 1440316)
+class npc_gorgrond_gromkar_grunt_rajess : public CreatureScript
+{
+public:
+	npc_gorgrond_gromkar_grunt_rajess() : CreatureScript("npc_gorgrond_gromkar_grunt_rajess") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_gromkar_grunt_rajessAI(p_Creature);
+	}
+
+	struct npc_gorgrond_gromkar_grunt_rajessAI : public ScriptedAI
+	{
+		npc_gorgrond_gromkar_grunt_rajessAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+			if (me->GetGUIDLow() == NPC_GUID_GROMKAR_GRUNT) {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IN_COMBAT);
+			}
+			
+		}
+		*/
+	//	void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	//};
+
+
+//};
 
 
 
@@ -1507,6 +1632,113 @@ public:
 	}
 };
 
+
+
+/// Vindicator Maraad @ Wildwood Wash - 75127
+class npc_gorgrond_vindicator_maraad_wildwoodwash : public CreatureScript
+{
+public:
+	npc_gorgrond_vindicator_maraad_wildwoodwash() : CreatureScript("npc_gorgrond_vindicator_maraad_wildwoodwash") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_vindicator_maraad_wildwoodwashAI(p_Creature);
+	}
+
+	enum eData {
+		PreCompletingSecretsOfGorgrond = 0,
+		EventCheckPlayer = 0
+	};
+
+
+	struct npc_gorgrond_vindicator_maraad_wildwoodwashAI : public ScriptedAI
+	{
+		npc_gorgrond_vindicator_maraad_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) {
+			m_PreCompletingSecretsOfGorgrond = false;
+		}
+
+		bool m_PreCompletingSecretsOfGorgrond;
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+
+			m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+
+		}
+
+		void DoAction(int32 const p_Action)
+		{
+			switch (p_Action)
+			{
+			case PreCompletingSecretsOfGorgrond:
+			{
+				if (m_PreCompletingSecretsOfGorgrond)
+					return;
+
+				m_PreCompletingSecretsOfGorgrond = true;
+
+				m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_SECRETS_OF_GORGROND);
+				});
+
+				AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+					m_PreCompletingSecretsOfGorgrond = false;
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+			case EventCheckPlayer:
+			{
+				std::list<Player*> PlayersInRange;
+				me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+				for (Player* p_Player : PlayersInRange)
+
+					if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond1) == QUEST_STATUS_COMPLETE)
+					{
+						DoAction(PreCompletingSecretsOfGorgrond);
+
+					}
+					else if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond2) == QUEST_STATUS_COMPLETE) {
+
+						DoAction(PreCompletingSecretsOfGorgrond);
+
+					}
+					else if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond3) == QUEST_STATUS_COMPLETE) {
+
+						DoAction(PreCompletingSecretsOfGorgrond);
+					}
+			}
+			};
+		};
+	};
+};
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -1525,6 +1757,12 @@ void AddSC_gorgrond()
 	new npc_gorgrond_rangari_rajess();
 	new npc_gorgrond_rangari_kolaan();
 	new npc_gorgrond_rangari_jonaa();
+	new npc_gorgrond_fallen_rangari();
+	//new npc_gorgrond_podling_nibbler();
+	//new npc_gorgrond_podling_scavenger();
+	//new npc_gorgrond_gromkar_grunt_rajess();
+	new npc_gorgrond_vindicator_maraad_wildwoodwash();
+
 
 	/// Spells
 	new spell_drov_call_of_earth();

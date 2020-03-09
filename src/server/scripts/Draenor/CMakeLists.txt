@@ -48,6 +48,7 @@ set(scripts_STAT_SRCS
   Draenor/spires_of_arak.cpp
   Draenor/spires_of_arak.h
   Draenor/gorgrond.cpp
+  Draenor/gorgrond.hpp
   Draenor/item_strongboxes.cpp
   Draenor/talador.cpp
 )
