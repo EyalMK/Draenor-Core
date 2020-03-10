@@ -1891,7 +1891,7 @@ class spell_monk_mana_tea_stacks: public SpellScriptLoader
                     chiConsumed = 0;
                     data = data > 4 ? data - 4: 0;
 
-                    if (GetCaster())
+                    if (GetCaster() && GetCaster()->isInCombat() == true)
                     {
                         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
                         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
@@ -1902,7 +1902,7 @@ class spell_monk_mana_tea_stacks: public SpellScriptLoader
                     crit_chance += GetCaster()->GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
                     if (roll_chance_f(crit_chance))
                     {
-                        if (GetCaster())
+                        if (GetCaster() && GetCaster()->isInCombat())
                         {
                             GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
                             GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
@@ -1958,8 +1958,16 @@ class spell_monk_enveloping_mist: public SpellScriptLoader
                 {
                     if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == 115175)
                     {
-                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
-                        GetSpell()->setTriggerCastFlags(l_Flags);
+						if (Unit* l_Target = GetExplTargetUnit())
+						{
+							if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget() == l_Target)
+							{
+								TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+								GetSpell()->setTriggerCastFlags(l_Flags);
+							}
+							else
+								l_Player->InterruptSpell(CURRENT_CHANNELED_SPELL);
+						}
                     }
                 }
             }
@@ -2040,11 +2048,19 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 else
                     m_BasePowerConsume = 30.0f;
 
-                if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
-                {
-                    TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
-                    GetSpell()->setTriggerCastFlags(l_Flags);
-                }
+				if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == 115175)
+				{
+					if (Unit* l_Target = GetExplTargetUnit())
+					{
+						if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget() == l_Target)
+						{
+							TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+							GetSpell()->setTriggerCastFlags(l_Flags);
+						}
+						else
+							l_Player->InterruptSpell(CURRENT_CHANNELED_SPELL);
+					}
+				}
 
                 if (AuraEffect* l_VitalMists = l_Player->GetAuraEffect(eSpells::VitalMists, EFFECT_1))
                     m_BasePowerConsume -= CalculatePct(m_BasePowerConsume, l_VitalMists->GetAmount() * -1);
@@ -2907,6 +2923,16 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
                 MonkWoDPvPBrewmasterAura = 165692
             };
 
+			SpellCastResult CheckCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(115008)) /// Already has chi torpedo, don't want to be able to cast it again
+					return SPELL_FAILED_DONT_REPORT;
+
+				return SPELL_CAST_OK;
+			}
+
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -2935,6 +2961,7 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
 
             void Register()
             {
+				OnCheckCast += SpellCheckCastFn(spell_monk_chi_torpedo_SpellScript::CheckCast);
                 AfterCast += SpellCastFn(spell_monk_chi_torpedo_SpellScript::HandleAfterCast);
             }
         };
@@ -5334,6 +5361,9 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 			void HandleOnHit()
 			{
 				Player* l_Player = GetCaster()->ToPlayer();
+
+				if (l_Player == nullptr) ///Prevent crash on next if statement due to RSK being used with Storm, Earth, and Fire
+					return;
 
 				if (l_Player->GetSpecializationId(l_Player->GetActiveSpec() == SPEC_MONK_MISTWEAVER))
 				{

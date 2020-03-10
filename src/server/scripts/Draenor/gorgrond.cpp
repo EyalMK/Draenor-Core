@@ -11,6 +11,7 @@
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "ObjectMgr.h"
 #include "GameObjectAI.h"
 #include "Language.h"
@@ -1518,6 +1519,7 @@ public:
 
 
 /// Podling Scavenger - 84402
+/* Needs to be worked on like the two other npc scripts above and below - need to make it target specific GUIDs.
 class npc_gorgrond_podling_scavenger : public CreatureScript
 {
 public:
@@ -1539,12 +1541,13 @@ public:
 			me->SetHealth(me->CountPctFromMaxHealth(0));
 			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 		}
-		void UpdateAI(const uint32 /*p_Diff*/) { }
+		*/
+	//	void UpdateAI(const uint32 /*p_Diff*/) { }
 
-	};
+//	};
 
 
-};
+//};
 
 
 /* Needs to be worked on - the script applies to all NPCs regardless of GUID.
@@ -1629,6 +1632,113 @@ public:
 	}
 };
 
+
+
+/// Vindicator Maraad @ Wildwood Wash - 75127
+class npc_gorgrond_vindicator_maraad_wildwoodwash : public CreatureScript
+{
+public:
+	npc_gorgrond_vindicator_maraad_wildwoodwash() : CreatureScript("npc_gorgrond_vindicator_maraad_wildwoodwash") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_vindicator_maraad_wildwoodwashAI(p_Creature);
+	}
+
+	enum eData {
+		PreCompletingSecretsOfGorgrond = 0,
+		EventCheckPlayer = 0
+	};
+
+
+	struct npc_gorgrond_vindicator_maraad_wildwoodwashAI : public ScriptedAI
+	{
+		npc_gorgrond_vindicator_maraad_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) {
+			m_PreCompletingSecretsOfGorgrond = false;
+		}
+
+		bool m_PreCompletingSecretsOfGorgrond;
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+
+			m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+
+		}
+
+		void DoAction(int32 const p_Action)
+		{
+			switch (p_Action)
+			{
+			case PreCompletingSecretsOfGorgrond:
+			{
+				if (m_PreCompletingSecretsOfGorgrond)
+					return;
+
+				m_PreCompletingSecretsOfGorgrond = true;
+
+				m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_SECRETS_OF_GORGROND);
+				});
+
+				AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+					m_PreCompletingSecretsOfGorgrond = false;
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+			case EventCheckPlayer:
+			{
+				std::list<Player*> PlayersInRange;
+				me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+				for (Player* p_Player : PlayersInRange)
+
+					if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond1) == QUEST_STATUS_COMPLETE)
+					{
+						DoAction(PreCompletingSecretsOfGorgrond);
+
+					}
+					else if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond2) == QUEST_STATUS_COMPLETE) {
+
+						DoAction(PreCompletingSecretsOfGorgrond);
+
+					}
+					else if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond3) == QUEST_STATUS_COMPLETE) {
+
+						DoAction(PreCompletingSecretsOfGorgrond);
+					}
+			}
+			};
+		};
+	};
+};
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -1649,8 +1759,10 @@ void AddSC_gorgrond()
 	new npc_gorgrond_rangari_jonaa();
 	new npc_gorgrond_fallen_rangari();
 	//new npc_gorgrond_podling_nibbler();
-	new npc_gorgrond_podling_scavenger();
-//	new npc_gorgrond_gromkar_grunt_rajess();
+	//new npc_gorgrond_podling_scavenger();
+	//new npc_gorgrond_gromkar_grunt_rajess();
+	new npc_gorgrond_vindicator_maraad_wildwoodwash();
+
 
 	/// Spells
 	new spell_drov_call_of_earth();

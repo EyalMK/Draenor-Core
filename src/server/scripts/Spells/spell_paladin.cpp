@@ -2703,9 +2703,6 @@ class spell_pal_beacon_of_faith: public SpellScriptLoader
 
                 if (l_Target == nullptr)
                     return SPELL_FAILED_DONT_REPORT;
-
-                if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
-                    return SPELL_FAILED_BAD_TARGETS;
                     
                 return SPELL_CAST_OK;
             }
