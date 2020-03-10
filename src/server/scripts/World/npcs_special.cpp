@@ -3125,7 +3125,7 @@ class npc_generic_harpoon_cannon : public CreatureScript
         }
 };
 
-/// Toran <Experience Rate Master> - 159753
+/// Grom Hellscream <XP Rate Changer> - 159753
 class npc_rate_xp_modifier : public CreatureScript
 {
     public:
@@ -3135,9 +3135,6 @@ class npc_rate_xp_modifier : public CreatureScript
         {
             Rate1,
             Rate3,
-            Rate5,
-			Rate7,
-			Rate9,
             OriginalRate
         };
 
@@ -3155,15 +3152,6 @@ class npc_rate_xp_modifier : public CreatureScript
                     case eOptions::Rate3:
                         p_Player->SetPersonnalXpRate(3.0f);
                         break;
-                    case eOptions::Rate5:
-                        p_Player->SetPersonnalXpRate(5.0f);
-                        break;
-					case eOptions::Rate7:
-						p_Player->SetPersonnalXpRate(7.0f);
-						break;
-					case eOptions::Rate9:
-						p_Player->SetPersonnalXpRate(9.0f);
-						break;
                     case eOptions::OriginalRate:
                         p_Player->SetPersonnalXpRate(sWorld->getRate(RATE_XP_KILL));
                         break;
