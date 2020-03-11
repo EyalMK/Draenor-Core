@@ -33,85 +33,89 @@
 #include "Chat.h"
 
 /// ????? - Hellscream Beta Teleporter
-/// No SQL commit with this script, must stay on PTR.
+/// No SQL commit with this script, must stay in Beta.
 /*
-INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_req`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `TrackingQuestID`, `VignetteID`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `BuildVerified`) VALUES('4050924','0','0','18720','0','0','0','Hellscream Teleporter','','Help Test All Content','','0','100','100','6','0','35','1','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','1','518','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','1','0','0','0','npc_world_boss_gossip','1');
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUE ('14097','Visit the Hellscream Teleporter to see the New Content!');
+INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_req`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `TrackingQuestID`, `VignetteID`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `BuildVerified`) VALUES('4050924','0','0','18720','0','0','0','Hellscream Teleporter','','Help Test All Content','','0','100','100','6','0','35','1','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','1','518','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','1','0','0','0','npc_hellscream_teleporter','1');
+INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `content_loc9`, `content_loc10`) VALUES (124097, 'Visit the Hellscream Teleporter to debug the new content!', NULL, 'Visit the Hellscream Teleporter to debug the new content!', 'Visit the Hellscream Teleporter to debug the new content!', NULL, NULL, 'Visit the Hellscream Teleporter to debug the new content!', NULL, 'Visit the Hellscream Teleporter to debug the new content!', NULL, NULL);
 */
-class npc_world_boss_gossip : public CreatureScript
+class npc_hellscream_teleporter : public CreatureScript
 {
     public:
-        npc_world_boss_gossip() : CreatureScript("npc_world_boss_gossip")
+        npc_hellscream_teleporter() : CreatureScript("npc_hellscream_teleporter")
         {
         }
 
         enum eActions
         {
-			SelectBloodmaulslagmines = 1001,
-			SelectIrondocks = 1002,
-			SelectAuchindoun = 1003,
-			SelectSkyreach = 1004,
-			SelectGrimraildepot = 1005,
-			SelectShadowmoonburialgrounds = 1006,
-			SelectEverbloom = 1007,
-			SelectUpperblackrockspire = 1008,
-			SelectHighmaul = 1009,
-			SelectBlackrock = 1010,
-			SelectHFC      = 1011,
-            SelectRukhmar     = 1012,
-            SelectTarlna      = 1013,
-            SelectDrov        = 1014,
-			SelectKazz        = 1015,
-			TpAloneBloodmaulslagmines = 1016,
-			TpGroupBloodmaulslagmines = 1017,
-			TpAloneIrondocks = 1018,
-			TpGroupIrondocks = 1019,
-			TpAloneAuchindoun = 1020,
-			TpGroupAuchindoun = 1021,
-			TpAloneSkyreach = 1022,
-			TpGroupSkyreach = 1023,
-			TpAloneGrimraildepot = 1024,
-			TpGroupGrimraildepot = 1025,
-			TpAloneShadowmoonburialgrounds = 1026,
-			TpGroupShadowmoonburialgrounds = 1027,
-			TpAloneEverbloom = 1028,
-			TpGroupEverbloom = 1029,
-			TpAloneUpperblackrockspire = 1030,
-			TpGroupUpperblackrockspire = 1031,
-			TpAloneHighmaul = 1032,
-			TpGroupHighmaul = 1033,
-			TpAloneBlackrock = 1034,
-			TpGroupBlackrock = 1035,
-			TpAloneHFC = 1036,
-			TpGroupHFC = 1037,
-            TpAloneRukhmar    = 1038,
-            TpGroupRukhmar    = 1039,
-            TpAloneTarlna     = 1040,
-            TpGroupTarlna     = 1041,
-            TpAloneDrov       = 1042,
-            TpGroupDrov       = 1043,
-			TpAloneKazz       = 1044,
-			TpGroupKazz       = 1045
+			SelectWodstart = 1001,
+			SelectBloodmaulslagmines = 1002,
+			SelectIrondocks = 1003,
+			SelectAuchindoun = 1004,
+			SelectSkyreach = 1005,
+			SelectGrimraildepot = 1006,
+			SelectShadowmoonburialgrounds = 1007,
+			SelectEverbloom = 1008,
+			SelectUpperblackrockspire = 1009,
+			SelectHighmaul = 1010,
+			SelectBlackrock = 1011,
+			SelectHFC      = 1012,
+            SelectRukhmar     = 1013,
+            SelectTarlna      = 1014,
+            SelectDrov        = 1015,
+			SelectKazz        = 1016,
+			TpAloneWodstart = 1017,
+			TpGroupWodstart = 1018,
+			TpAloneBloodmaulslagmines = 1019,
+			TpGroupBloodmaulslagmines = 1020,
+			TpAloneIrondocks = 1021,
+			TpGroupIrondocks = 1022,
+			TpAloneAuchindoun = 1023,
+			TpGroupAuchindoun = 1024,
+			TpAloneSkyreach = 1025,
+			TpGroupSkyreach = 1026,
+			TpAloneGrimraildepot = 1027,
+			TpGroupGrimraildepot = 1028,
+			TpAloneShadowmoonburialgrounds = 1029,
+			TpGroupShadowmoonburialgrounds = 1030,
+			TpAloneEverbloom = 1031,
+			TpGroupEverbloom = 1032,
+			TpAloneUpperblackrockspire = 1033,
+			TpGroupUpperblackrockspire = 1034,
+			TpAloneHighmaul = 1035,
+			TpGroupHighmaul = 1036,
+			TpAloneBlackrock = 1037,
+			TpGroupBlackrock = 1038,
+			TpAloneHFC = 1039,
+			TpGroupHFC = 1040,
+            TpAloneRukhmar    = 1041,
+            TpGroupRukhmar    = 1042,
+            TpAloneTarlna     = 1043,
+            TpGroupTarlna     = 1044,
+            TpAloneDrov       = 1045,
+            TpGroupDrov       = 1046,
+			TpAloneKazz       = 1047,
+			TpGroupKazz       = 1048,
 
         };
 
         enum Destinations
         {
-			DestinationBloodmaulslagmines = 1,
-			DestinationIrondocks = 2,
-			DestinationAuchindoun = 3,
-			DestinationSkyreach = 4,
-			DestinationGrimraildepot = 5,
-			DestinationShadowmoonburialgrounds = 6,
-			DestinationEverbloom = 7,
-			DestinationUpperblackrockspire = 8,
-			DestinationHighmaul = 9,
-			DestinationBlackRockFoundry = 10,
-			DestinationHFC = 11,
-            DestinationRukhmar          = 12,
-            DestinationTarlna           = 13,
-            DestinationDrov             = 14,
-			DestinationKazz             = 15
+			DestinationWodstart = 1,
+			DestinationBloodmaulslagmines = 2,
+			DestinationIrondocks = 3,
+			DestinationAuchindoun = 4,
+			DestinationSkyreach = 5,
+			DestinationGrimraildepot = 6,
+			DestinationShadowmoonburialgrounds = 7,
+			DestinationEverbloom = 8,
+			DestinationUpperblackrockspire = 9,
+			DestinationHighmaul = 10,
+			DestinationBlackRockFoundry = 11,
+			DestinationHFC = 12,
+            DestinationRukhmar          = 13,
+            DestinationTarlna           = 14,
+            DestinationDrov             = 15,
+			DestinationKazz             = 16
             
         };
 
@@ -119,6 +123,9 @@ class npc_world_boss_gossip : public CreatureScript
         {
             switch (p_Destination)
             {
+			case Destinations::DestinationWodstart:
+				p_Player->TeleportTo(1, -8452.49f, -4202.24f, -211.992f, 4.38f);
+				break;
                 case Destinations::DestinationBloodmaulslagmines:
                     p_Player->TeleportTo(1175, 1829.37f, -245.757f, 255.727f, 46.1094f);
                     break;
@@ -126,7 +133,7 @@ class npc_world_boss_gossip : public CreatureScript
 					p_Player->TeleportTo(1195, 6746.09f, -545.04f, 4.89f, 4.8989f);
 					break;
 				case Destinations::DestinationAuchindoun:
-					p_Player->TeleportTo(1182, 167.2388f, 2655.39f, 68.58f, 4.105f);
+					p_Player->TeleportTo(1182, 1483.99f, 2953.26f, 35.2387f, 0.0275292f);
 					break;
 				case Destinations::DestinationGrimraildepot:
 					p_Player->TeleportTo(1208, 1737.59f, 1681.19f, 7.6742f, 3.082f);
@@ -153,7 +160,7 @@ class npc_world_boss_gossip : public CreatureScript
                     p_Player->TeleportTo(1116, 7330.3f, 1455.87f, 81.76f, 6.08f);
                     break;
 				case Destinations::DestinationKazz:
-					p_Player->TeleportTo(1116, 5110.470215f, -840.423340f, 329.370026f, 0.764297f);
+					p_Player->TeleportTo(1464, 5122.14f, -814.783f, 329.13f, 0.759337f);
 					break;
                 case Destinations::DestinationHighmaul:
 					p_Player->TeleportTo(1228, 3486.48f, 7603.32f, 10.4853f, 4.0252f);
@@ -162,7 +169,7 @@ class npc_world_boss_gossip : public CreatureScript
 					p_Player->TeleportTo(1205, 131.172f, 3429.48f, 319.829f, 0.00135f);
                     break;
 				case Destinations::DestinationHFC:
-					p_Player->TeleportTo(1205, 131.172f, 3429.48f, 319.829f, 0.00135f);
+					p_Player->TeleportTo(1448, 3980.45f, -782.131f, 36.5177f, 1.74766f);
 					break;
             }
         }
@@ -178,6 +185,9 @@ class npc_world_boss_gossip : public CreatureScript
                 {
                     switch (p_Destination)
                     {
+					case Destinations::DestinationWodstart:
+						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationWodstart);
+						break;
 					case Destinations::DestinationBloodmaulslagmines:
 						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationBloodmaulslagmines);
 						break;
@@ -231,6 +241,7 @@ class npc_world_boss_gossip : public CreatureScript
 
         bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
         {
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Intro] Warlords of Draenor, please.", GOSSIP_SENDER_MAIN, eActions::SelectWodstart);
 			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Bloodmaul Slag Mines, please.", GOSSIP_SENDER_MAIN, eActions::SelectBloodmaulslagmines);
 			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Iron Docks, please.", GOSSIP_SENDER_MAIN, eActions::SelectIrondocks);
 			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Auchindoun, please.", GOSSIP_SENDER_MAIN, eActions::SelectAuchindoun);
@@ -245,7 +256,7 @@ class npc_world_boss_gossip : public CreatureScript
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Rukhmar, please.", GOSSIP_SENDER_MAIN, eActions::SelectRukhmar);
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Tarlna, please.", GOSSIP_SENDER_MAIN, eActions::SelectTarlna);
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Drov, please.", GOSSIP_SENDER_MAIN, eActions::SelectDrov);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Lord Kazz, please.", GOSSIP_SENDER_MAIN, eActions::SelectKazz);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Supreme Lord Kazzak, please.", GOSSIP_SENDER_MAIN, eActions::SelectKazz);
             p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 
             return true;
@@ -258,6 +269,11 @@ class npc_world_boss_gossip : public CreatureScript
 
             switch (p_Action)
             {
+			case eActions::SelectWodstart:
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Tanaris alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneWodstart);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Tanaris with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupWodstart);
+				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+				break;
 			case eActions::SelectBloodmaulslagmines:
 				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Bloodmaul Slag Mines alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneBloodmaulslagmines);
 				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Bloodmaul Slag Mines with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupBloodmaulslagmines);
@@ -314,8 +330,8 @@ class npc_world_boss_gossip : public CreatureScript
                     p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
                     break;
 				case eActions::SelectKazz:
-					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Lord Kaz alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneKazz);
-					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Lord Kaz with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupKazz);
+					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Supreme Lord Kazzak alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneKazz);
+					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Supreme Lord Kazzak with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupKazz);
 					p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 					break;
                 case eActions::SelectHighmaul:
@@ -332,6 +348,9 @@ class npc_world_boss_gossip : public CreatureScript
 					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Hellfire Citadel alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneHFC);
 					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Hellfire Citadel with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupHFC);
 					p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+					break;
+				case eActions::TpAloneWodstart:
+					TeleportPlayer(p_Player, Destinations::DestinationWodstart);
 					break;
 				case eActions::TpAloneBloodmaulslagmines:
 					TeleportPlayer(p_Player, Destinations::DestinationBloodmaulslagmines);
@@ -400,10 +419,10 @@ class npc_world_boss_gossip : public CreatureScript
                     TeleportGroup(p_Player, Destinations::DestinationDrov);
                     break;
 				case eActions::TpAloneKazz:
-					TeleportPlayer(p_Player, Destinations::DestinationDrov);
+					TeleportPlayer(p_Player, Destinations::DestinationKazz);
 					break;
 				case eActions::TpGroupKazz:
-					TeleportGroup(p_Player, Destinations::DestinationDrov);
+					TeleportGroup(p_Player, Destinations::DestinationKazz);
 					break;
                 case eActions::TpAloneHighmaul:
                     TeleportPlayer(p_Player, Destinations::DestinationHighmaul);
@@ -430,9 +449,9 @@ class npc_world_boss_gossip : public CreatureScript
             return true;
         }
 
-        struct npc_world_boss_gossipAI : public ScriptedAI
+        struct npc_hellscream_teleporterAI : public ScriptedAI
         {
-            npc_world_boss_gossipAI(Creature* creature) : ScriptedAI(creature)
+            npc_hellscream_teleporterAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_YellTimer = 300 * IN_MILLISECONDS;
             }
@@ -445,8 +464,8 @@ class npc_world_boss_gossip : public CreatureScript
                 {
                     if (m_YellTimer <= p_Diff)
                     {
-                        /// "Hey $N, come to me in your faction capital, to access fastly our last testable content ! Newest raids, boss, get directly teleported to the destination you are looking for."
-                        //me->YellToZone(14097, LANG_UNIVERSAL, 0);
+                        
+                        me->YellToZone(124097, LANG_UNIVERSAL, 0);
                         m_YellTimer = 300 * IN_MILLISECONDS;
                     }
                     else
@@ -457,7 +476,7 @@ class npc_world_boss_gossip : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_world_boss_gossipAI(creature);
+            return new npc_hellscream_teleporterAI(creature);
         }
 };
 
@@ -733,11 +752,11 @@ class npc_pve_tests_manager : public CreatureScript
         }
 };
 
-/// Boris <Season 2 Premade Master> - 179317
-class npc_season_2_premade_master : public CreatureScript
+/// Warlords of draenor intro? - NPC
+class npc_hellscream_booster : public CreatureScript
 {
     public:
-        npc_season_2_premade_master() : CreatureScript("npc_season_2_premade_master") { }
+        npc_hellscream_booster() : CreatureScript("npc_hellscream_booster") { }
 
         enum eOptions
         {
@@ -789,9 +808,9 @@ class npc_season_2_premade_master : public CreatureScript
             return true;
         }
 
-        struct npc_season_2_premade_masterAI : public ScriptedAI
+        struct npc_hellscream_boosterAI : public ScriptedAI
         {
-            npc_season_2_premade_masterAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_hellscream_boosterAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             void Reset() override
             {
@@ -934,7 +953,7 @@ class npc_season_2_premade_master : public CreatureScript
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new npc_season_2_premade_masterAI(p_Creature);
+            return new npc_hellscream_boosterAI(p_Creature);
         }
 }; 
 
@@ -1343,9 +1362,9 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_npc_custom()
 {
-    new npc_world_boss_gossip();
+    new npc_hellscream_teleporter();
     new npc_pve_tests_manager();
-    new npc_season_2_premade_master();
+    new npc_hellscream_booster();
     new npc_fun_gold_vendor();
     new npc_fun_transmo_vendor();
     new npc_legendary_transmogrificator();
