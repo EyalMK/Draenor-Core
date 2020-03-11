@@ -823,9 +823,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     /// last update : 6.1.2 19802
     /// Stance of the Spirited Crane - 154436
     if (GetSpellModOwner() && GetSpellModOwner()->HasAura(154436) && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
-        if (!spellProto || (spellProto
+        if ((spellProto && damagetype == SPELL_DIRECT_DAMAGE
         && spellProto->Id != 115129 && spellProto->Id != 125033 && spellProto->Id != 124098 && spellProto->Id != 132467
-        && spellProto->Id != 130651 && spellProto->Id != 117993)) ///< Don't triggered by Zen Sphere, Chi Wave, Chi Burst, Chi Torpedo and Expel Harm
+        && spellProto->Id != 130651 && spellProto->Id != 117993 && spellProto->Id != 107270)) ///< Don't triggered by Zen Sphere, Chi Wave, Chi Burst, Chi Torpedo, Expel Harm, and Spinning Crane Kick
     {
         int32 l_Bp = damage / 2;
         std::list<Creature*> l_TempList;
