@@ -405,7 +405,7 @@ public:
                                     l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiDefender, g_PositionGuardsAndWardens[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
                                 }
 
-                                /*
+                                //backup here
                                     uint32 l_EntriesOfSargereiDraeneis[8] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
                                     eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
                                     eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael, eAuchindounBosses::BossNyami };
@@ -426,7 +426,7 @@ public:
                                     l_Itr->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                                     }
                                     }
-                                */
+                               
 
                                 /// Magus
                                 m_Obj->CastSpell(m_Obj, eAuchindounSpells::SpellArcaneChanneling);

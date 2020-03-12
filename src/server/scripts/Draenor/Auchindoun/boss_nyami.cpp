@@ -957,8 +957,8 @@ void AddSC_boss_nyami()
     new auchindoun_nyami_mob_twisted_magus();           ///< 76296
     new auchindoun_nyami_mob_warden_cosmetic();         ///< 76572
     new auchindoun_nyami_mob_bubble();                  ///< 342652
-    new auchindoun_nyami_spell_soul_vessel();           ///< 153994
-    new auchindoun_nyami_spell_torn_spirits();          ///< 154187
+    new auchindoun_nyami_spell_soul_vessel();           ///< 154187
+    new auchindoun_nyami_spell_torn_spirits();          ///< 153994
     new auchindoun_nyami_spell_soul_vessel_dummy();     ///< 155327
     new auchindoun_nyami_at_radiant_star();             ///< 157787
 }
