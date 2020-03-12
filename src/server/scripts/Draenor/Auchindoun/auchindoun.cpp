@@ -116,7 +116,7 @@ class EventTuulaniIntroduction : public BasicEvent
                                 }
                                 case 11:
                                 {
-                                    /*
+                                    
 									std::list<Creature*> l_ListCreatures;
 									uint32 l_Entries[7] = { eAuchindounCreatures::CreatureSoulBinderTuulani ,eAuchindounCreatures::CreatureSoulBinderNyami, eAuchindounBosses::BossKaathar,eAuchindounCreatures::CreatureSargeriZealot, eAuchindounCreatures::CreatureSargeriSoulBinder, eAuchindounCreatures::CreatureSargeriRitualist, eAuchindounCreatures::CreatureSargeiHoplite };
 
@@ -132,10 +132,10 @@ class EventTuulaniIntroduction : public BasicEvent
 											if (!l_Itr)
 												continue;
 
-											l_Itr->SetPhaseMask(4, true);
+											l_Itr->SetPhaseMask(1, true);
 										}
 									}
-                                    */
+                                    
 
 									std::list<Player*> l_ListPlayers;
 									l_Tuulina->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
@@ -166,17 +166,17 @@ class EventTuulaniIntroduction : public BasicEvent
                                 }
                                 case 13:
                                 {                                
-                                    //l_Tuulina->AI()->Talk(eAuchindounTalks::TUULANITALK7);
+                                    l_Tuulina->AI()->Talk(eAuchindounTalks::TUULANITALK7);
                                     l_Tuulina->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                                     l_Tuulina->AddAura(eAuchindounSpells::SpellTuulaniCapturedVoidPrison, l_Tuulina);
                                     l_Tuulina->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                                     l_Tuulina->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                                    //l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                    l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                     break;
                                 }
                                 case 15:
                                 {
-                                    /*
+                                   
 									std::list<Creature*> l_ListCreatures;
 									uint32 l_Entries[7] = { eAuchindounCreatures::CreatureSoulBinderTuulani, eAuchindounCreatures::CreatureSoulBinderNyami, eAuchindounBosses::BossKaathar, eAuchindounCreatures::CreatureSargeriZealot, eAuchindounCreatures::CreatureSargeriSoulBinder, eAuchindounCreatures::CreatureSargeriRitualist, eAuchindounCreatures::CreatureSargeiHoplite };
 
@@ -195,11 +195,11 @@ class EventTuulaniIntroduction : public BasicEvent
 											l_Itr->SetPhaseMask(1, true);
 										}
 									}
-                                    */
+                                   
 
                                     break;
                                 }
-                                /*
+                               
                                 case 16:
                                 {
                                 l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK2);
@@ -230,7 +230,7 @@ class EventTuulaniIntroduction : public BasicEvent
                                 l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 21, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
                                 break;
                                 }
-                                */
+                                
                                 default:
                                     break;
                                 }

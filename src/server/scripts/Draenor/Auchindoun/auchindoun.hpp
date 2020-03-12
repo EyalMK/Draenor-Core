@@ -523,10 +523,10 @@ enum eAuchindounObjects
     GameobjectDemonicPortal      = 543242,
     GameobjectPuddle             = 237542,
     GameobjectAuchindounWindow   = 233009,
-    GameobjectSoulTransportStart = 231736,
-    GameobjectSoulTransport1     = 345366,
-    GameobjectSoulTransport2     = 345367,
-    GameobjectSoulTransport3     = 345368,
+    GameobjectSoulTransportStart = 345368,
+    GameobjectSoulTransport1     = 345367,
+    GameobjectSoulTransport2     = 324234,
+    GameobjectSoulTransport3     = 234789,
     GameobjectHolyBarrierEntra   = 231679,
 	GameObjectAuchindounCrystal	 = 23524
 };

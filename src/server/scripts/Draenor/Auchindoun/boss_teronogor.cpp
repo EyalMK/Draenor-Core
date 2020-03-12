@@ -1518,30 +1518,9 @@ class auchindoun_teronogor_gameobject_soul_transporter_03 : public GameObjectScr
 
 		return false;
 	}
-	/*
-	struct auchindoun_teronogor_gameobject_soul_transporter_02AI : public GameObjectAI
-	{
-	auchindoun_teronogor_gameobject_soul_transporter_02AI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
-
-	void Reset() override
-	{
-	if (InstanceScript* l_Instance = go->GetInstanceScript())
-	{
-	if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-	{
-	go->SetLootState(LootState::GO_READY);
-	go->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, l_Teronogor);
-	}
-	}
-	}
-	};
+	
 
 
-	GameObjectAI* GetAI(GameObject* p_GameObject) const override
-	{
-	return new auchindoun_teronogor_gameobject_soul_transporter_02AI(p_GameObject);
-	}
-	*/
 };
 
 /// Soul Transport Object 04 - 345368
@@ -1578,30 +1557,7 @@ class auchindoun_teronogor_gameobject_soul_transporter_04 : public GameObjectScr
 
         return false;
     }
-	/*
-	struct auchindoun_teronogor_gameobject_soul_transporter_02AI : public GameObjectAI
-	{
-	auchindoun_teronogor_gameobject_soul_transporter_02AI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
 
-	void Reset() override
-	{
-	if (InstanceScript* l_Instance = go->GetInstanceScript())
-	{
-	if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-	{
-	go->SetLootState(LootState::instance);
-	go->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, l_Teronogor);
-	}
-	}
-	}
-	};
-
-
-	GameObjectAI* GetAI(GameObject* p_GameObject) const override
-	{
-	return new auchindoun_teronogor_gameobject_soul_transporter_02AI(p_GameObject);
-	}
-	*/
 };
 
 /// Chaos Wave - 157001 
