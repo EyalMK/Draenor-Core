@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_rangari_dkaan_naielleswatch' WHERE `entry`=80921;
