@@ -1869,6 +1869,145 @@ public:
 };
 
 
+/// Glirin - 84766
+class npc_gorgrond_glirin : public CreatureScript
+{
+public:
+	npc_gorgrond_glirin() : CreatureScript("npc_gorgrond_glirin") { }
+
+
+	enum eData {
+		PreCompletingLostMoleMachines = 0,
+		EventCheckPlayer = 0
+	};
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines) && p_Player->GetQuestObjectiveCounter(274504) != 1)
+		{
+			p_Player->QuestObjectiveSatisfy(eCreatures::NPC_GORGROND_GLIRIN, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
+			p_Player->ADD_GOSSIP_ITEM_DB(eGossipMenus::GLIRIN_Menu_LostMole_Machines, eGossipOptions::GLIRIN_LostMole_Machines, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::GLIRIN_TEXT_LOST_MOLE_MACHINES, p_Creature->GetGUID());
+
+		} else if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines) && p_Player->GetQuestObjectiveCounter(274529) != 1 && p_Player->GetQuestObjectiveCounter(274504) == 1)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(eGossipMenus::GLIRIN_Menu_LostMole_Machines, eGossipOptions::GLIRIN_LostMole_Machines, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::GLIRIN_TEXT_LOST_MOLE_MACHINES, p_Creature->GetGUID());
+		}
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::GLIRIN_TEXT_LOST_MOLE_MACHINES, p_Creature->GetGUID());
+			return true;
+	}
+
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
+	{
+
+		if (action == GOSSIP_ACTION_INFO_DEF && p_Player->GetQuestObjectiveCounter(274529) != 1)
+		{
+			// Doesn't actually do anything. When the first objective is completed upon interacting with the NPC, the tank automatically spawns and gives kill credit upon despawning at waypoint reached.
+		}
+			p_Player->PlayerTalkClass->ClearMenus();
+			p_Player->PlayerTalkClass->SendCloseGossip();
+			return true;
+	}
+
+
+
+
+
+	struct npc_gorgrond_glirinAI : public ScriptedAI
+	{
+		npc_gorgrond_glirinAI(Creature* creature) : ScriptedAI(creature) {
+			m_PreCompletingLostMoleMachines = false;
+		}
+
+		bool m_PreCompletingLostMoleMachines;
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+
+			m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+
+		}
+
+
+		void DoAction(int32 const p_Action)
+		{
+			switch (p_Action)
+			{
+			case PreCompletingLostMoleMachines:
+			{
+				if (m_PreCompletingLostMoleMachines)
+					return;
+
+				m_PreCompletingLostMoleMachines = true;
+
+				m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					Talk(eCreatureTexts::CREATURE_TEXT_GLIRIN_LOST_MOLE_MACHINES);
+					// Todo: implement The Tank and waypoints - the next objective completes as it should
+				});
+
+				AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+					m_PreCompletingLostMoleMachines = false;
+				});
+				break;
+			}
+			default:
+				break;
+			}
+
+
+	
+				
+		}
+
+
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+				case EventCheckPlayer:
+					std::list<Player*> PlayersInRange;
+					me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+					for (Player* p_Player : PlayersInRange)
+						if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines) && p_Player->GetQuestObjectiveCounter(274504) != 1)
+						{
+							DoAction(PreCompletingLostMoleMachines);
+						}
+			}
+					
+		}
+
+	};
+
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_gorgrond_glirinAI(creature);
+	}
+};
+
+
 
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
@@ -1896,6 +2035,7 @@ void AddSC_gorgrond()
 	new npc_gorgrond_vindicator_maraad_wildwoodwash();
 	new npc_gorgrond_yrel_wildwoodwash();
 	new npc_gorgrond_rangari_dkaan_naielleswatch();
+	new npc_gorgrond_glirin();
 
 
 	/// Spells

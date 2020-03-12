@@ -87,7 +87,8 @@ enum eNpcTexts
 		// Alliance NPCs - NPC Texts
 		RANGARI_KOLAAN_TEXT_RESCUE_RANGARI							= 83163,
 		RANGARI_RAJESS_TEXT_RESCUE_RANGARI							= 83160,
-		RANGARI_JONAA_TEXT_RESCUE_RANGARI							= 83170
+		RANGARI_JONAA_TEXT_RESCUE_RANGARI							= 83170,
+		GLIRIN_TEXT_LOST_MOLE_MACHINES								= 86395
 		
 };
 
@@ -98,7 +99,8 @@ enum eGossipMenus
 		// Alliance NPCs - Gossip Menus
 		RANGARI_KOLAAN_Menu_RescueRangari							= 16539,
 		RANGARI_RAJESS_Menu_RescueRangari							= 16538,
-		RANGARI_JONAA_Menu_RescueRangari							= 16542
+		RANGARI_JONAA_Menu_RescueRangari							= 16542,
+		GLIRIN_Menu_LostMole_Machines								= 16895
 };
 
 
@@ -109,7 +111,8 @@ enum eGossipOptions
 		// Alliance NPCs - Gossip Options
 		RANGARI_RAJESS_RescueRangari								= 0, // menu_id - 16538 - D'kaan is coming with help.
 		RANGARI_KOLAAN_RescueRangari								= 0, // menu_id - 16539 - D'kaan is coming with help.
-		RANGARI_JONAA_RescueRangari									= 0  // menu_id - 16542 - D'kaan is coming with help.
+		RANGARI_JONAA_RescueRangari									= 0, // menu_id - 16542 - D'kaan is coming with help.
+		GLIRIN_LostMole_Machines									= 0  // menu_id - 16895	- Thaelin is on his way soon.
 		
 };
 
