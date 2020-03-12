@@ -1519,7 +1519,7 @@ public:
 
 
 /// Podling Scavenger - 84402
-/* Needs to be worked on like the two other npc scripts above and below - need to make it target specific GUIDs.
+/* Needs to be worked on like the npc script above - need to make it target specific GUIDs.
 class npc_gorgrond_podling_scavenger : public CreatureScript
 {
 public:
@@ -1549,8 +1549,36 @@ public:
 
 //};
 
+/// Podling Scavenger @ Naielle's Watch - 88479
+class npc_gorgrond_podling_scavenger_naielleswatch : public CreatureScript
+{
+public:
+	npc_gorgrond_podling_scavenger_naielleswatch() : CreatureScript("npc_gorgrond_podling_scavenger_naielleswatch") { }
 
-/* Needs to be worked on - the script applies to all NPCs regardless of GUID.
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_podling_scavenger_naielleswatchAI(p_Creature);
+	}
+
+	struct npc_gorgrond_podling_scavenger_naielleswatchAI : public ScriptedAI
+	{
+		npc_gorgrond_podling_scavenger_naielleswatchAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			me->setRegeneratingHealth(false);
+			me->SetHealth(me->CountPctFromMaxHealth(0));
+			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		}
+		
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
 /// Grom'kar Grunt Near Rajess - 85266 (GUID: 1440316)
 class npc_gorgrond_gromkar_grunt_rajess : public CreatureScript
 {
@@ -1566,9 +1594,10 @@ public:
 	{
 		npc_gorgrond_gromkar_grunt_rajessAI(Creature* creature) : ScriptedAI(creature) { }
 
+		uint64 m_GromkarGrunt = me->GetGUID();
 
 		void Reset() {
-			if (me->GetGUIDLow() == NPC_GUID_GROMKAR_GRUNT) {
+			if (m_GromkarGrunt == eCreatures::NPC_GUID_GORGROND_GROMKAR_GRUNT) {
 				me->setRegeneratingHealth(false);
 				me->SetHealth(me->CountPctFromMaxHealth(0));
 				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
@@ -1576,17 +1605,15 @@ public:
 				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_15);
 				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_29);
 				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IN_COMBAT);
 			}
-			
 		}
-		*/
-	//	void UpdateAI(const uint32 /*p_Diff*/) { }
+		
+		void UpdateAI(const uint32 /*p_Diff*/) { }
 
-	//};
+	};
 
 
-//};
+};
 
 
 
@@ -1739,6 +1766,110 @@ public:
 	};
 };
 
+/// Yrel @ Wildwood Wash - 80978
+class npc_gorgrond_yrel_wildwoodwash : public CreatureScript
+{
+	public:
+		npc_gorgrond_yrel_wildwoodwash() : CreatureScript("npc_gorgrond_yrel_wildwoodwash") { }
+
+		enum eAction
+		{
+			StartWelcomeToGorgrond = 0
+		};
+
+		bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
+		{
+			if (p_Quest->GetQuestId() == eQuests::Quest_WelcometoGorgrond)
+			{
+				p_Creature->GetAI()->DoAction(eAction::StartWelcomeToGorgrond);
+
+			}
+			return true;
+		}
+
+		struct npc_gorgrond_yrel_wildwoodwashAI : public ScriptedAI
+		{
+			npc_gorgrond_yrel_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+			void Reset() {
+
+				ClearDelayedOperations();
+
+			}
+			void UpdateAI(const uint32 /*p_Diff*/) { }
+
+			void DoAction(int32 const p_Action)
+			{
+				switch (p_Action)
+				{
+					case eAction::StartWelcomeToGorgrond:
+					{
+
+						AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							me->AI()->Talk(eCreatureTexts::CREATURE_TEXT_YREL_WELCOME_TO_GORGROND_START);
+						});
+
+						AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							Creature* Maraad = me->FindNearestCreature(eCreatures::NPC_GORGROND_VINDICATOR_MARAAD_PHASE_1, 5.0f, true);
+							Maraad->AI()->Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_WELCOME_TO_GORGROND_START);
+						});
+
+						break;
+					}
+					default:
+						break;
+				}
+			}
+		};
+
+		CreatureAI* GetAI(Creature* p_Creature) const
+		{
+			return new npc_gorgrond_yrel_wildwoodwashAI(p_Creature);
+		}
+	
+};
+
+
+/// Rangari D'kaan @ Naielle's Watch - 80921
+class npc_gorgrond_rangari_dkaan_naielleswatch : public CreatureScript
+{
+public:
+	npc_gorgrond_rangari_dkaan_naielleswatch() : CreatureScript("npc_gorgrond_rangari_dkaan_naielleswatch") { }
+
+	struct npc_gorgrond_rangari_dkaan_naielleswatchAI : public ScriptedAI
+	{
+		npc_gorgrond_rangari_dkaan_naielleswatchAI(Creature* creature) : ScriptedAI(creature) {}
+
+		void Reset() { }
+
+		void UpdateAI(const uint32 /*uiDiff*/)
+		{
+
+			std::list<Player*> PlayersInRange;
+			me->GetPlayerListInGrid(PlayersInRange, 5.0f);
+
+			for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+			{
+				if ((*itr)->HasQuest(eQuests::Quest_WelcometoGorgrond) && (*itr)->GetQuestObjectiveCounter(273393) != 1) {
+					me->AI()->Talk(eCreatureTexts::CREATURE_TEXT_RANGARI_DKAAN_WELCOME_TO_GORGROND_START);
+					(*itr)->QuestObjectiveSatisfy(eCreatures::NPC_GORGROND_RANGARI_DKAAN_PHASE_1, 1, QUEST_OBJECTIVE_TYPE_NPC, (*itr)->GetGUID());
+				}
+					
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_gorgrond_rangari_dkaan_naielleswatchAI(creature);
+	}
+};
+
+
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -1760,8 +1891,11 @@ void AddSC_gorgrond()
 	new npc_gorgrond_fallen_rangari();
 	//new npc_gorgrond_podling_nibbler();
 	//new npc_gorgrond_podling_scavenger();
-	//new npc_gorgrond_gromkar_grunt_rajess();
+	new npc_gorgrond_podling_scavenger_naielleswatch();
+	new npc_gorgrond_gromkar_grunt_rajess();
 	new npc_gorgrond_vindicator_maraad_wildwoodwash();
+	new npc_gorgrond_yrel_wildwoodwash();
+	new npc_gorgrond_rangari_dkaan_naielleswatch();
 
 
 	/// Spells
