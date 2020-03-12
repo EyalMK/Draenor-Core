@@ -1685,7 +1685,7 @@ class spell_monk_eminence_heal : public SpellScriptLoader
             {
                 if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) ||
                     ((*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() && GetSpellInfo()->Id != SPELL_MONK_EMINENCE_HEAL) ||
-                    l_Caster->IsHostileTo((*l_Itr)->ToUnit()) || (*l_Itr)->ToUnit()->isStatue() || (*l_Itr)->ToUnit()->isTotem())
+                    l_Caster->IsHostileTo((*l_Itr)->ToUnit()) || (*l_Itr)->ToUnit()->isStatue() || (*l_Itr)->ToUnit()->isTotem() || ((*l_Itr)->ToUnit() == l_Caster))
                     l_Itr = p_Targets.erase(l_Itr);
                else
                    l_Itr++;
@@ -1708,6 +1708,49 @@ class spell_monk_eminence_heal : public SpellScriptLoader
     {
         return new spell_monk_eminence_heal_SpellScript();
     }
+};
+
+/// Eminence - 126890 and Eminence (status) - 117895
+class spell_monk_eminence_heal_statue : public SpellScriptLoader
+{
+public:
+	spell_monk_eminence_heal_statue() : SpellScriptLoader("spell_monk_eminence_heal_statue") { }
+
+	class spell_monk_eminence_heal_statue_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_monk_eminence_heal_statue_SpellScript);
+
+		void FilterTargets(std::list<WorldObject*>& p_Targets)
+		{
+			Unit* l_Caster = GetCaster();
+
+			for (std::list<WorldObject*>::iterator l_Itr = p_Targets.begin(); l_Itr != p_Targets.end();)
+			{
+				if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) ||
+					((*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() && GetSpellInfo()->Id != SPELL_MONK_EMINENCE_HEAL) ||
+					l_Caster->IsHostileTo((*l_Itr)->ToUnit()) || (*l_Itr)->ToUnit()->isStatue() || (*l_Itr)->ToUnit()->isTotem() || ((*l_Itr)->ToUnit() == l_Caster))
+					l_Itr = p_Targets.erase(l_Itr);
+				else
+					l_Itr++;
+			}
+
+			if (p_Targets.size() > 1)
+			{
+				p_Targets.sort(JadeCore::HealthPctOrderPred());
+				p_Targets.resize(1);
+			}
+		}
+
+		void Register()
+		{
+			OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_eminence_heal_statue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_monk_eminence_heal_statue_SpellScript();
+	}
 };
 
 // Summon Jade Serpent Statue - 115313
@@ -2194,7 +2237,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
             uint32 update;
             uint8  spreadCount;
-
+			
             enum eSpells
             {
                 GlyphofRenewedTea = 159496,
@@ -2241,14 +2284,13 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 if (l_Caster->HasAura(eSpells::GlyphofRenewingMist))
                     l_Radius = 40.0f;
 				
+				Unit* newTarget;
+
                 /// Get friendly unit on range
                 std::list<Unit*> l_FriendlyUnitList;
                 JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
                 l_Target->VisitNearbyObject(l_Radius, l_Searcher);
-
-                /// Remove friendly unit with already renewing mist apply
-                l_FriendlyUnitList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
 
                 l_FriendlyUnitList.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
                 {
@@ -2260,23 +2302,60 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
                     return false;
                 });
-			   		 	  	  
-                /// Sort friendly unit by pourcentage of health and get the most injured
-                if (l_FriendlyUnitList.size() > 1)
-                {
-                    l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
-                    l_FriendlyUnitList.resize(1);
-                }
+				bool hasAll = false;
+				uint32 value = 0;
+
+				/// Check if every target has the buff already
+				for (auto itr : l_FriendlyUnitList) 
+				{
+					if (itr->HasAura(GetSpellInfo()->Id))
+						value++;
+				}
+
+				if (value == l_FriendlyUnitList.size())
+					hasAll = true;
+
+				if (hasAll == false)
+				{
+					/// Not every player has the buff, so get rid of all the players who have it
+					l_FriendlyUnitList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
+
+					/// Sort friendly unit by pourcentage of health and get the most injured
+					if (l_FriendlyUnitList.size() > 1)
+					{
+						l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+						l_FriendlyUnitList.resize(1);
+					}
+
+					for (auto itr : l_FriendlyUnitList)
+					{
+						newTarget = itr;
+					}
+				}
+				else
+				{
+					/// Every player has the buff, target the person with the lowest duration
+					for (auto itr : l_FriendlyUnitList)
+					{
+						if (newTarget == nullptr)
+							newTarget = itr;
+
+						if (itr->HasAura(GetSpellInfo()->Id))
+							if (itr->GetAura(GetSpellInfo()->Id)->GetDuration() < newTarget->GetAura(GetSpellInfo()->Id)->GetDuration())
+								newTarget = itr;
+					}
+				}
+
+				if (newTarget == l_Target || newTarget == l_Caster)
+					return;
 
                 /// Spread renewing mist on him
-                for (auto l_Itr : l_FriendlyUnitList)
-                {
-					l_Target->CastSpell(l_Itr, 119647, true); // Renewing Mist Jump visual
-                    l_Caster->CastSpell(l_Itr, GetSpellInfo()->Id, true);
-                    if (Aura* l_RenewingMistHot = l_Itr->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
-                        l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(1);
-                    aurEff->GetBase()->GetEffect(EFFECT_1)->SetAmount(aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() - 1);
-                }
+				l_Target->CastSpell(newTarget, 119647, true); // Renewing Mist Jump visual
+                l_Caster->CastSpell(newTarget, GetSpellInfo()->Id, true);
+                if (Aura* l_RenewingMistHot = newTarget->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(1);
+                aurEff->GetBase()->GetEffect(EFFECT_1)->SetAmount(aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() - 1);
+
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -6808,7 +6887,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_vital_mists();
     new spell_monk_item_t17_mistweaver_4p_bonus();
 	new spell_monk_soothing_breeze();
-
+	new spell_monk_eminence_heal_statue();
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
     new spell_monk_vital_mists_power();

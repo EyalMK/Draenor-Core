@@ -825,7 +825,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (GetSpellModOwner() && GetSpellModOwner()->HasAura(154436) && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
         if (!spellProto || (spellProto
         && spellProto->Id != 115129 && spellProto->Id != 125033 && spellProto->Id != 124098 && spellProto->Id != 132467
-        && spellProto->Id != 130651 && spellProto->Id != 117993)) ///< Don't triggered by Zen Sphere, Chi Wave, Chi Burst, Chi Torpedo and Expel Harm
+        && spellProto->Id != 130651 && spellProto->Id != 117993 && spellProto->Id != 107270)) ///< Don't triggered by Zen Sphere, Chi Wave, Chi Burst, Chi Torpedo, Spinning Crane Kick, and Expel Harm
     {
         int32 l_Bp = damage / 2;
         std::list<Creature*> l_TempList;
@@ -846,6 +846,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
 
         /// In addition, you also gain Eminence, causing you to heal the lowest health nearby target within 20 yards for an amount equal to 50% of non-autoattack damage you deal
+
         CastCustomSpell(this, 126890, &l_Bp, NULL, NULL, true, 0, nullptr, GetSpellModOwner()->GetGUID()); ///< Eminence
 
         if (l_StatueList.size() == 1)
