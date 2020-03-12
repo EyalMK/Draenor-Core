@@ -3475,14 +3475,44 @@ class spell_warl_demonic_circle_teleport: public SpellScriptLoader
     public:
         spell_warl_demonic_circle_teleport() : SpellScriptLoader("spell_warl_demonic_circle_teleport") { }
 
+		enum eSpells
+		{
+			MetamorphosisDemonicCircle = 104135
+		};
+
+		class spell_warl_demonic_circle_teleport_SpellScript : public SpellScript
+		{
+			PrepareSpellScript(spell_warl_demonic_circle_teleport_SpellScript);
+
+			SpellCastResult CheckCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				Player* l_Player = l_Caster->ToPlayer();
+
+				if (l_Player == nullptr || l_Caster == nullptr)
+					return SPELL_FAILED_DONT_REPORT;
+
+				GameObject* l_Circle = l_Player->GetGameObject(WARLOCK_DEMONIC_CIRCLE_SUMMON);
+
+				if (!l_Circle)
+					l_Circle = l_Player->GetGameObject(eSpells::MetamorphosisDemonicCircle);
+
+				if (!l_Circle)
+					return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+				return SPELL_CAST_OK;
+			}
+
+			void Register() override
+			{
+				OnCheckCast += SpellCheckCastFn(spell_warl_demonic_circle_teleport_SpellScript::CheckCast);
+			}
+		};
+
         class spell_warl_demonic_circle_teleport_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warl_demonic_circle_teleport_AuraScript);
-
-            enum eSpells
-            {
-                MetamorphosisDemonicCircle = 104135
-            };
 
             void HandleTeleport(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
@@ -3522,6 +3552,11 @@ class spell_warl_demonic_circle_teleport: public SpellScriptLoader
                 OnEffectApply += AuraEffectApplyFn(spell_warl_demonic_circle_teleport_AuraScript::HandleTeleport, EFFECT_0, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+		SpellScript* GetSpellScript() const override
+		{
+			return new spell_warl_demonic_circle_teleport_SpellScript();
+		}
 
         AuraScript* GetAuraScript() const
         {
