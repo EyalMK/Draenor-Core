@@ -44,6 +44,7 @@ enum eCreatures
 	NPC_GORGROND_RANGARI_KAALYA_PHASE_1				= 80922, // Rangari Kaalya at Naielle's Watch
 	NPC_GORGROND_RANGARI_KAALYA_PHASE_2				= 80987, // Rangari Kaalya near Naielle's Watch (on the road)
 	NPC_GORGROND_GLIRIN								= 84766, // Glirin at Highpass near the mole machine
+	NPC_GORGROND_THE_TANK							= 77224, // The Tank at Highpass
 
 	// Alliance Quest NPCs
 	NPC_GORGROND_RANGARI_RAJESS						= 81013, // Rangari Rajess - Quest: Rescue Rangari [questId: 35050]
@@ -61,6 +62,27 @@ enum eCreatures
 
 	NPC_GUID_GORGROND_GROMKAR_GRUNT					= 1440316  // Grom'kar Grunt near Rangari Rajess
 
+};
+
+
+Position const l_TankPos = { 6349.152832f, 547.547607f, 92.671135f, 2.191502f }; // The Tank's position at spawn
+
+enum eMovepointsData
+{
+	TankMoves	= 6
+};
+
+
+static std::array<G3D::Vector3, eMovepointsData::TankMoves> g_TankMoves =
+{
+	{
+		{6314.098633f, 584.162659f, 94.048492f},
+		{6313.224609f, 617.917542f, 97.349167f},
+		{6292.179199f, 657.041321f, 109.406609f},
+		{6290.183594f, 676.543701f, 113.991241f},
+		{6297.629883f, 688.538086f, 116.037689f},
+		{6301.392090f, 691.053528f, 116.589493f}
+	}
 };
 
 

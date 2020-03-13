@@ -1877,7 +1877,8 @@ public:
 
 
 	enum eData {
-		PreCompletingLostMoleMachines = 0,
+		PreCompletingLostMoleMachines = 0, // Talk action
+		LostMoleMachines = 1, // The Tank spawn action
 		EventCheckPlayer = 0
 	};
 
@@ -1888,6 +1889,10 @@ public:
 			p_Player->QuestObjectiveSatisfy(eCreatures::NPC_GORGROND_GLIRIN, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
 			p_Player->ADD_GOSSIP_ITEM_DB(eGossipMenus::GLIRIN_Menu_LostMole_Machines, eGossipOptions::GLIRIN_LostMole_Machines, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 			p_Player->SEND_GOSSIP_MENU(eNpcTexts::GLIRIN_TEXT_LOST_MOLE_MACHINES, p_Creature->GetGUID());
+			if (Creature* l_Tank = p_Player->SummonCreature(eCreatures::NPC_GORGROND_THE_TANK, l_TankPos))
+			{
+				l_Tank->GetAI()->DoAction(eData::LostMoleMachines);
+			}
 
 		} else if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines) && p_Player->GetQuestObjectiveCounter(274529) != 1 && p_Player->GetQuestObjectiveCounter(274504) == 1)
 		{
@@ -1952,7 +1957,6 @@ public:
 				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					Talk(eCreatureTexts::CREATURE_TEXT_GLIRIN_LOST_MOLE_MACHINES);
-					// Todo: implement The Tank and waypoints - the next objective completes as it should
 				});
 
 				AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -2009,6 +2013,107 @@ public:
 
 
 
+class npc_gorgrond_thetank_highpass : public CreatureScript
+{
+public:
+	npc_gorgrond_thetank_highpass() : CreatureScript("npc_gorgrond_thetank_highpass") { }
+
+	enum eAction {
+		LostMoleMachines = 1
+	};
+
+	struct npc_gorgrond_thetank_highpassAI : public ScriptedAI
+	{
+		npc_gorgrond_thetank_highpassAI(Creature* creature) : ScriptedAI(creature)
+		{
+			m_PlayerGUID = 0;
+		}
+
+		uint64 m_PlayerGUID;
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+
+			m_PlayerGUID = 0;
+		}
+
+		void IsSummonedBy(Unit* p_Summoner) override
+		{
+			m_PlayerGUID = p_Summoner->GetGUID();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::LostMoleMachines:
+				{
+					Player* p_Player;
+					Creature* p_Creature;
+
+					me->SetSpeed(UnitMoveType::MOVE_RUN, 3.0f, true);
+					me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+					me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+					me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+					me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+
+
+					AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->GetMotionMaster()->MoveSmoothPath(0, g_TankMoves.data(), g_TankMoves.size(), false);
+						// Not taking off after spawning, need to check why
+					});
+
+					//AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					//{
+						// Need to activate Barrier Stone (ID: 234206) at 3rd waypoint.
+
+					//});
+
+					AddTimedDelayedOperation(7.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->SetOrientation(1.745233);
+						me->GetMotionMaster()->MovePoint(0, 6303.126465f, 704.853699f, 115.673759f, false);
+					});
+
+
+					AddTimedDelayedOperation(8.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (m_PlayerGUID)
+						{
+							if (Player* p_Player = me->GetPlayer(*me, m_PlayerGUID))
+							{
+								if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines))
+									p_Player->CompleteQuest(eQuests::Quest_LostMoleMachines);
+							}
+						}
+					});
+
+					AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->DespawnOrUnsummon();
+
+						// change phasemask of tank, 74959 
+						// change phasemask of npcs near tank
+					});
+
+					break;
+				}
+			default:
+				break;
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_gorgrond_thetank_highpassAI(creature);
+	}
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -2036,6 +2141,7 @@ void AddSC_gorgrond()
 	new npc_gorgrond_yrel_wildwoodwash();
 	new npc_gorgrond_rangari_dkaan_naielleswatch();
 	new npc_gorgrond_glirin();
+	new npc_gorgrond_thetank_highpass();
 
 
 	/// Spells
