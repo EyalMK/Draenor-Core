@@ -1466,6 +1466,9 @@ public:
 		void Reset() {
 
 			me->setRegeneratingHealth(false);
+			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 			me->SetHealth(me->CountPctFromMaxHealth(0));
 			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 		}
@@ -1569,6 +1572,9 @@ public:
 
 			me->setRegeneratingHealth(false);
 			me->SetHealth(me->CountPctFromMaxHealth(0));
+			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 		}
 		
@@ -1661,6 +1667,55 @@ public:
 
 
 
+/// Yrel @ Wildwood Wash - 80978
+class npc_gorgrond_yrel_wildwoodwash : public CreatureScript
+{
+public:
+	npc_gorgrond_yrel_wildwoodwash() : CreatureScript("npc_gorgrond_yrel_wildwoodwash") { }
+
+	enum eAction
+	{
+		StartWelcomeToGorgrond = 1
+	};
+
+
+	bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
+	{
+		if (p_Quest->GetQuestId() == eQuests::Quest_WelcometoGorgrond)
+		{
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_YREL_WELCOME_TO_GORGROND_START);
+
+			if (Creature* Maraad = p_Creature->FindNearestCreature(eCreatures::NPC_GORGROND_VINDICATOR_MARAAD_PHASE_1, 7.5f, true))
+			{
+				Maraad->GetAI()->DoAction(eAction::StartWelcomeToGorgrond);
+			}
+		}
+		return true;
+	}
+
+	struct npc_gorgrond_yrel_wildwoodwashAI : public ScriptedAI
+	{
+		npc_gorgrond_yrel_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			ClearDelayedOperations();
+
+		}
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_yrel_wildwoodwashAI(p_Creature);
+	}
+
+};
+
+
+
 /// Vindicator Maraad @ Wildwood Wash - 75127
 class npc_gorgrond_vindicator_maraad_wildwoodwash : public CreatureScript
 {
@@ -1672,8 +1727,9 @@ public:
 		return new npc_gorgrond_vindicator_maraad_wildwoodwashAI(p_Creature);
 	}
 
-	enum eData {
+	enum eAction {
 		PreCompletingSecretsOfGorgrond = 0,
+		StartWelcomeToGorgrond = 1,
 		EventCheckPlayer = 0
 	};
 
@@ -1703,28 +1759,36 @@ public:
 			switch (p_Action)
 			{
 			case PreCompletingSecretsOfGorgrond:
-			{
-				if (m_PreCompletingSecretsOfGorgrond)
-					return;
-
-				m_PreCompletingSecretsOfGorgrond = true;
-
-				m_CosmeticEvents.CancelEvent(EventCheckPlayer);
-
-				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_SECRETS_OF_GORGROND);
-				});
+					if (m_PreCompletingSecretsOfGorgrond)
+						return;
 
-				AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					m_PreCompletingSecretsOfGorgrond = true;
+
+					m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+					AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_SECRETS_OF_GORGROND);
+					});
+
+					AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+						m_PreCompletingSecretsOfGorgrond = false;
+					});
+					break;
+				}
+			case StartWelcomeToGorgrond:
 				{
-					m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
-					m_PreCompletingSecretsOfGorgrond = false;
-				});
-				break;
-			}
-			default:
-				break;
+
+					AddTimedDelayedOperation(4.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->AI()->Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_WELCOME_TO_GORGROND_START);
+					});
+
+					break;
+				}
 			}
 		}
 
@@ -1741,97 +1805,30 @@ public:
 			switch (m_CosmeticEvents.ExecuteEvent())
 			{
 			case EventCheckPlayer:
-			{
-				std::list<Player*> PlayersInRange;
-				me->GetPlayerListInGrid(PlayersInRange, 10.0f);
-				for (Player* p_Player : PlayersInRange)
+				{
+					std::list<Player*> PlayersInRange;
+					me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+					for (Player* p_Player : PlayersInRange)
 
-					if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond1) == QUEST_STATUS_COMPLETE)
-					{
-						DoAction(PreCompletingSecretsOfGorgrond);
+						if (p_Player->HasQuest(eQuests::Quest_SecretsOfGorgrond1) && p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond1) == QUEST_STATUS_COMPLETE)
+						{
+							DoAction(PreCompletingSecretsOfGorgrond);
 
-					}
-					else if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond2) == QUEST_STATUS_COMPLETE) {
+						}
+						else if (p_Player->HasQuest(eQuests::Quest_SecretsOfGorgrond2) && p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond2) == QUEST_STATUS_COMPLETE ) {
 
-						DoAction(PreCompletingSecretsOfGorgrond);
+							DoAction(PreCompletingSecretsOfGorgrond);
 
-					}
-					else if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond3) == QUEST_STATUS_COMPLETE) {
+						}
+						else if (p_Player->HasQuest(eQuests::Quest_SecretsOfGorgrond3) && p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond3) == QUEST_STATUS_COMPLETE) {
 
-						DoAction(PreCompletingSecretsOfGorgrond);
-					}
-			}
+							DoAction(PreCompletingSecretsOfGorgrond);
+						}
+				}
 			};
 		};
 	};
 };
-
-/// Yrel @ Wildwood Wash - 80978
-class npc_gorgrond_yrel_wildwoodwash : public CreatureScript
-{
-	public:
-		npc_gorgrond_yrel_wildwoodwash() : CreatureScript("npc_gorgrond_yrel_wildwoodwash") { }
-
-		enum eAction
-		{
-			StartWelcomeToGorgrond = 0
-		};
-
-		bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
-		{
-			if (p_Quest->GetQuestId() == eQuests::Quest_WelcometoGorgrond)
-			{
-				p_Creature->GetAI()->DoAction(eAction::StartWelcomeToGorgrond);
-
-			}
-			return true;
-		}
-
-		struct npc_gorgrond_yrel_wildwoodwashAI : public ScriptedAI
-		{
-			npc_gorgrond_yrel_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) { }
-
-
-			void Reset() {
-
-				ClearDelayedOperations();
-
-			}
-			void UpdateAI(const uint32 /*p_Diff*/) { }
-
-			void DoAction(int32 const p_Action)
-			{
-				switch (p_Action)
-				{
-					case eAction::StartWelcomeToGorgrond:
-					{
-
-						AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->AI()->Talk(eCreatureTexts::CREATURE_TEXT_YREL_WELCOME_TO_GORGROND_START);
-						});
-
-						AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							Creature* Maraad = me->FindNearestCreature(eCreatures::NPC_GORGROND_VINDICATOR_MARAAD_PHASE_1, 5.0f, true);
-							Maraad->AI()->Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_WELCOME_TO_GORGROND_START);
-						});
-
-						break;
-					}
-					default:
-						break;
-				}
-			}
-		};
-
-		CreatureAI* GetAI(Creature* p_Creature) const
-		{
-			return new npc_gorgrond_yrel_wildwoodwashAI(p_Creature);
-		}
-	
-};
-
 
 /// Rangari D'kaan @ Naielle's Watch - 80921
 class npc_gorgrond_rangari_dkaan_naielleswatch : public CreatureScript
@@ -1876,7 +1873,7 @@ public:
 	npc_gorgrond_glirin() : CreatureScript("npc_gorgrond_glirin") { }
 
 
-	enum eData {
+	enum eAction {
 		PreCompletingLostMoleMachines = 0, // Talk action
 		LostMoleMachines = 1, // The Tank spawn action
 		EventCheckPlayer = 0
@@ -1891,7 +1888,7 @@ public:
 			p_Player->SEND_GOSSIP_MENU(eNpcTexts::GLIRIN_TEXT_LOST_MOLE_MACHINES, p_Creature->GetGUID());
 			if (Creature* l_Tank = p_Player->SummonCreature(eCreatures::NPC_GORGROND_THE_TANK, l_TankPos))
 			{
-				l_Tank->GetAI()->DoAction(eData::LostMoleMachines);
+				l_Tank->GetAI()->DoAction(eAction::LostMoleMachines);
 			}
 
 		} else if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines) && p_Player->GetQuestObjectiveCounter(274529) != 1 && p_Player->GetQuestObjectiveCounter(274504) == 1)
@@ -2049,18 +2046,10 @@ public:
 			{
 			case eAction::LostMoleMachines:
 				{
-					Player* p_Player;
-					Creature* p_Creature;
 
 					me->SetSpeed(UnitMoveType::MOVE_RUN, 3.0f, true);
-					me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-					me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-					me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-					me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-
-
-					AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->GetMotionMaster()->MoveSmoothPath(0, g_TankMoves.data(), g_TankMoves.size(), false);
 						// Not taking off after spawning, need to check why
@@ -2074,7 +2063,7 @@ public:
 
 					AddTimedDelayedOperation(7.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-						me->SetOrientation(1.745233);
+						me->SetFacingTo(1.745233);
 						me->GetMotionMaster()->MovePoint(0, 6303.126465f, 704.853699f, 115.673759f, false);
 					});
 
@@ -2137,8 +2126,8 @@ void AddSC_gorgrond()
 	//new npc_gorgrond_podling_scavenger();
 	new npc_gorgrond_podling_scavenger_naielleswatch();
 	new npc_gorgrond_gromkar_grunt_rajess();
-	new npc_gorgrond_vindicator_maraad_wildwoodwash();
 	new npc_gorgrond_yrel_wildwoodwash();
+	new npc_gorgrond_vindicator_maraad_wildwoodwash();
 	new npc_gorgrond_rangari_dkaan_naielleswatch();
 	new npc_gorgrond_glirin();
 	new npc_gorgrond_thetank_highpass();
