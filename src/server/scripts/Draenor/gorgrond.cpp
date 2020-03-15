@@ -1752,7 +1752,9 @@ public:
 
 	enum eAction
 	{
-		StartWelcomeToGorgrond = 1
+		StartWelcomeToGorgrond = 1,
+		HarvesterEnd		   = 0,
+		EventCheckPlayer = 0
 	};
 
 
@@ -1774,12 +1776,26 @@ public:
 	{
 		npc_gorgrond_yrel_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) { }
 
+		void UpdateAI(const uint32 /*uiDiff*/)
+		{
 
-		void Reset() {
+			std::list<Player*> PlayersInRange;
+			me->GetPlayerListInGrid(PlayersInRange, 10.0f);
 
-			ClearDelayedOperations();
+			for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+			{
+				if ((*itr)->HasQuest(eQuests::Quest_AHarvesterHasCome) && (*itr)->GetQuestObjectiveCounter(273415) == 1) {
+					me->AI()->Talk(eCreatureTexts::CREATURE_TEXT_YREL_HARVESTER_END);
+					if (Creature* Kaalya = me->FindNearestCreature(eCreatures::NPC_GORGROND_RANGARI_KAALYA_PHASE_2, 10.0f, true))
+					{
+						Kaalya->GetAI()->DoAction(eAction::HarvesterEnd);
+					}
+				}
 
+			}
 		}
+
+		void Reset() { }
 		void UpdateAI(const uint32 /*p_Diff*/) { }
 
 	};
@@ -1789,6 +1805,82 @@ public:
 		return new npc_gorgrond_yrel_wildwoodwashAI(p_Creature);
 	}
 
+};
+
+/// Rangari Kaalya @ Wildwood Wash - 80987
+class npc_gorgrond_rangari_kaalya_wildwoodwash : public CreatureScript
+{
+public:
+	npc_gorgrond_rangari_kaalya_wildwoodwash() : CreatureScript("npc_gorgrond_rangari_kaalya_wildwoodwash") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_rangari_kaalya_wildwoodwashAI(p_Creature);
+	}
+
+	enum eAction {
+		HarvesterEnd	 = 0,
+		EventCheckPlayer = 0
+	};
+
+
+	struct npc_gorgrond_rangari_kaalya_wildwoodwashAI : public ScriptedAI
+	{
+		npc_gorgrond_rangari_kaalya_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) {	}
+
+		void Reset() { }
+
+		void DoAction(int32 const p_Action)
+		{
+			switch (p_Action)
+			{
+				case eAction::HarvesterEnd:
+					{
+						AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							Talk(eCreatureTexts::CREATURE_TEXT_RANGARI_KAALYA_HARVESTER_END);
+						});
+						break;
+					}
+			}
+		}
+
+		void UpdateAI(uint32 const p_Diff)  { }
+	};
+};
+
+/// Harvester Ommru @ Naielle's Watch - 84373
+class npc_gorgrond_harvester_ommru : public CreatureScript
+{
+public:
+	npc_gorgrond_harvester_ommru() : CreatureScript("npc_gorgrond_harvester_ommru") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_harvester_ommruAI(p_Creature);
+	}
+
+	enum eAction {
+		HarvesterEnd = 0,
+		EventCheckPlayer = 0
+	};
+
+
+	struct npc_gorgrond_harvester_ommruAI : public ScriptedAI
+	{
+		npc_gorgrond_harvester_ommruAI(Creature* creature) : ScriptedAI(creature) {	}
+
+		void EnterCombat(Unit* who) override
+		{
+			Talk(eCreatureTexts::CREATURE_TEXT_HARVESTER_OMMRU_AGGRO);
+		}
+
+
+		// Need to implement an if statement on death - if player has 'a harvester has come' quest and if the quest objective is satisfied, phase out Rangari D'kaan, Rangari Kaalya, Yrel and Maraad.
+
+		void Reset() { }
+		void UpdateAI(uint32 const p_Diff) { }
+	};
 };
 
 
@@ -2279,6 +2371,8 @@ void AddSC_gorgrond()
 	new npc_gorgrond_podling_scavenger_naielleswatch();
 	new npc_gorgrond_gromkar_grunt_rajess();
 	new npc_gorgrond_yrel_wildwoodwash();
+	new npc_gorgrond_rangari_kaalya_wildwoodwash();
+	new npc_gorgrond_harvester_ommru();
 	new npc_gorgrond_vindicator_maraad_wildwoodwash();
 	new npc_gorgrond_rangari_dkaan_naielleswatch();
 	new npc_gorgrond_glirin();
