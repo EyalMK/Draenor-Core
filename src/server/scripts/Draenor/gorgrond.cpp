@@ -1753,7 +1753,8 @@ public:
 	enum eAction
 	{
 		StartWelcomeToGorgrond = 1,
-		HarvesterEnd		   = 0
+		DrewAggroCulture = 0,
+		EventCheckPlayer = 0
 	};
 
 
@@ -1773,28 +1774,82 @@ public:
 
 	struct npc_gorgrond_yrel_wildwoodwashAI : public ScriptedAI
 	{
-		npc_gorgrond_yrel_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) { }
-
-		void UpdateAI(const uint32 /*uiDiff*/)
-		{
-
-			std::list<Player*> PlayersInRange;
-			me->GetPlayerListInGrid(PlayersInRange, 10.0f);
-
-			for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
-			{
-				if ((*itr)->HasQuest(eQuests::Quest_AHarvesterHasCome) && (*itr)->GetQuestObjectiveCounter(273415) == 1) {
-					me->AI()->Talk(eCreatureTexts::CREATURE_TEXT_YREL_HARVESTER_END);
-					if (Creature* Kaalya = me->FindNearestCreature(eCreatures::NPC_GORGROND_RANGARI_KAALYA_PHASE_2, 10.0f, true))
-					{
-						Kaalya->GetAI()->DoAction(eAction::HarvesterEnd);
-					}
-				}
-
-			}
+		npc_gorgrond_yrel_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) {
+			m_PreCompletingIDrewAggroCulture = false;
 		}
 
-		void Reset() { }
+		bool m_PreCompletingIDrewAggroCulture;
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+
+			m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+				case EventCheckPlayer:
+					{
+						std::list<Player*> PlayersInRange;
+						me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+
+						for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+						{
+							if ((*itr)->HasQuest(eQuests::Quest_IDrewAggroCulture) && (*itr)->GetQuestStatus(Quest_IDrewAggroCulture) == QUEST_STATUS_COMPLETE) {
+								if (Creature* Kaalya = me->FindNearestCreature(eCreatures::NPC_GORGROND_RANGARI_KAALYA_PHASE_2, 15.0f, true))
+								{
+									me->AI()->DoAction(eAction::DrewAggroCulture);
+									Kaalya->GetAI()->DoAction(eAction::DrewAggroCulture);
+								}
+							}
+						}
+					}
+			};
+		};
+
+		void DoAction(int32 const p_Action)
+		{
+			switch (p_Action)
+			{
+			case eAction::DrewAggroCulture:
+					{
+						if (m_PreCompletingIDrewAggroCulture)
+							return;
+
+						m_PreCompletingIDrewAggroCulture = true;
+
+						m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+						AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							Talk(eCreatureTexts::CREATURE_TEXT_YREL_DREW_AGGROCULTURE);
+						});
+
+						AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+							m_PreCompletingIDrewAggroCulture = false;
+						});
+						break;
+					}
+			}
+		}
 	};
 
 	CreatureAI* GetAI(Creature* p_Creature) const
@@ -1816,7 +1871,7 @@ public:
 	}
 
 	enum eAction {
-		HarvesterEnd	 = 0
+		DrewAggroCulture	 = 0
 	};
 
 
@@ -1830,11 +1885,11 @@ public:
 		{
 			switch (p_Action)
 			{
-				case eAction::HarvesterEnd:
+				case eAction::DrewAggroCulture:
 					{
-						AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 						{
-							Talk(eCreatureTexts::CREATURE_TEXT_RANGARI_KAALYA_HARVESTER_END);
+							Talk(eCreatureTexts::CREATURE_TEXT_RANGARI_KAALYA_DREW_AGGROCULTURE);
 						});
 						break;
 					}
