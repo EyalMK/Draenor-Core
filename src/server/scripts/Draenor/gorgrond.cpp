@@ -1500,6 +1500,319 @@ public:
 
 };
 
+
+/// Dead Rangari - 80809
+class npc_gorgrond_dead_rangari : public CreatureScript
+{
+public:
+	npc_gorgrond_dead_rangari() : CreatureScript("npc_gorgrond_dead_rangari") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_dead_rangariAI(p_Creature);
+	}
+
+	struct npc_gorgrond_dead_rangariAI : public ScriptedAI
+	{
+		npc_gorgrond_dead_rangariAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Rangari Elekk - 84867
+class npc_gorgrond_rangari_elekk : public CreatureScript
+{
+public:
+	npc_gorgrond_rangari_elekk() : CreatureScript("npc_gorgrond_rangari_elekk") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_rangari_elekkAI(p_Creature);
+	}
+
+	struct npc_gorgrond_rangari_elekkAI : public ScriptedAI
+	{
+		npc_gorgrond_rangari_elekkAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+			me->setRegeneratingHealth(false);
+			me->SetHealth(me->CountPctFromMaxHealth(0));
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		}
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Goren Gouger - 82387
+class npc_gorgrond_goren_gouger : public CreatureScript
+{
+public:
+	npc_gorgrond_goren_gouger() : CreatureScript("npc_gorgrond_goren_gouger") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_goren_gougerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_goren_gougerAI : public ScriptedAI
+	{
+		npc_gorgrond_goren_gougerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GOREN_GOUGER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GOREN_GOUGER2 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GOREN_GOUGER3 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GOREN_GOUGER4)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+			
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Infested Vinewarden - 82394
+class npc_gorgrond_infested_vinewarden : public CreatureScript
+{
+public:
+	npc_gorgrond_infested_vinewarden() : CreatureScript("npc_gorgrond_infested_vinewarden") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_infested_vinewardenAI(p_Creature);
+	}
+
+	struct npc_gorgrond_infested_vinewardenAI : public ScriptedAI
+	{
+		npc_gorgrond_infested_vinewardenAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_INFESTED_VINEWARDEN1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_INFESTED_VINEWARDEN2)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Botani Greensworn - 82393
+class npc_gorgrond_botani_greensworn : public CreatureScript
+{
+public:
+	npc_gorgrond_botani_greensworn() : CreatureScript("npc_gorgrond_botani_greensworn") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_botani_greenswornAI(p_Creature);
+	}
+
+	struct npc_gorgrond_botani_greenswornAI : public ScriptedAI
+	{
+		npc_gorgrond_botani_greenswornAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_BOTANI_GREENSWORN1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_BOTANI_GREENSWORN2 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_BOTANI_GREENSWORN3)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Gronn Rockthrower - 82388
+class npc_gorgrond_gronn_rockthrower : public CreatureScript
+{
+public:
+	npc_gorgrond_gronn_rockthrower() : CreatureScript("npc_gorgrond_gronn_rockthrower") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_gronn_rockthrowerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_gronn_rockthrowerAI : public ScriptedAI
+	{
+		npc_gorgrond_gronn_rockthrowerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GRONN_ROCKTHROWER)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Mandragora Lifedrinker - 82396
+class npc_gorgrond_mandragora_lifedrinker : public CreatureScript
+{
+public:
+	npc_gorgrond_mandragora_lifedrinker() : CreatureScript("npc_gorgrond_mandragora_lifedrinker") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_mandragora_lifedrinkerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_mandragora_lifedrinkerAI : public ScriptedAI
+	{
+		npc_gorgrond_mandragora_lifedrinkerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_MANDRAGORA_LIFEDRINKER)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Gronnling Bonebreaker - 82390
+class npc_gorgrond_gronnling_bonebreaker : public CreatureScript
+{
+public:
+	npc_gorgrond_gronnling_bonebreaker() : CreatureScript("npc_gorgrond_gronnling_bonebreaker") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_gronnling_bonebreakerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_gronnling_bonebreakerAI : public ScriptedAI
+	{
+		npc_gorgrond_gronnling_bonebreakerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GRONNLING_BONEBREAKER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GRONNLING_BONEBREAKER2)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+
 /// Podling Nibbler - 84549
 class npc_gorgrond_podling_nibbler : public CreatureScript
 {
@@ -1661,25 +1974,25 @@ public:
 
 };
 
-/// Grom'kar Grunt Near Rajess - 85266 (GUID: 1440316)
-class npc_gorgrond_gromkar_grunt_rajess : public CreatureScript
+/// Grom'kar Grunt Near Rajess and Highpass - 85266
+class npc_gorgrond_gromkar_grunt : public CreatureScript
 {
 public:
-	npc_gorgrond_gromkar_grunt_rajess() : CreatureScript("npc_gorgrond_gromkar_grunt_rajess") { }
+	npc_gorgrond_gromkar_grunt() : CreatureScript("npc_gorgrond_gromkar_grunt_rajess") { }
 
 	CreatureAI* GetAI(Creature* p_Creature) const
 	{
-		return new npc_gorgrond_gromkar_grunt_rajessAI(p_Creature);
+		return new npc_gorgrond_gromkar_gruntAI(p_Creature);
 	}
 
-	struct npc_gorgrond_gromkar_grunt_rajessAI : public ScriptedAI
+	struct npc_gorgrond_gromkar_gruntAI : public ScriptedAI
 	{
-		npc_gorgrond_gromkar_grunt_rajessAI(Creature* creature) : ScriptedAI(creature) { }
+		npc_gorgrond_gromkar_gruntAI(Creature* creature) : ScriptedAI(creature) { }
 
 		
 
 		void Reset() {
-			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_GRUNT) {
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_GRUNT1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_GRUNT2) {
 				me->setRegeneratingHealth(false);
 				me->SetHealth(me->CountPctFromMaxHealth(0));
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
@@ -1696,6 +2009,69 @@ public:
 	};
 
 
+};
+
+/// Grom'kar Shieldbearer Near Highpass - 85267
+class npc_gorgrond_gromkar_shieldbearer : public CreatureScript
+{
+public:
+	npc_gorgrond_gromkar_shieldbearer() : CreatureScript("npc_gorgrond_gromkar_shieldbearer") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_gromkar_shieldbearerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_gromkar_shieldbearerAI : public ScriptedAI
+	{
+		npc_gorgrond_gromkar_shieldbearerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+
+		void Reset() {
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_SHIELDBEARER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_SHIELDBEARER2) {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Fungus Covered Shambler @ Crimson Fen - 80721
+class npc_gorgrond_fungus_covered_shambler : public CreatureScript
+{
+public:
+	npc_gorgrond_fungus_covered_shambler() : CreatureScript("npc_gorgrond_fungus_covered_shambler") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_fungus_covered_shamblerAI(p_Creature);
+	}
+
+
+	struct npc_gorgrond_fungus_covered_shamblerAI : public ScriptedAI
+	{
+		npc_gorgrond_fungus_covered_shamblerAI(Creature* creature) : ScriptedAI(creature) {	}
+
+		void EnterCombat(Unit* who) override
+		{
+			Talk(eCreatureTexts::CREATURE_TEXT_FUNGUS_COVERED_SHAMBLER_AGGRO);
+		}
+
+		void Reset() { }
+		void UpdateAI(uint32 const p_Diff) { }
+	};
 };
 
 
@@ -1804,7 +2180,7 @@ public:
 
 			switch (m_CosmeticEvents.ExecuteEvent())
 			{
-				case EventCheckPlayer:
+					case EventCheckPlayer:
 					{
 						std::list<Player*> PlayersInRange;
 						me->GetPlayerListInGrid(PlayersInRange, 10.0f);
@@ -1812,16 +2188,12 @@ public:
 						for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
 						{
 							if ((*itr)->HasQuest(eQuests::Quest_IDrewAggroCulture) && (*itr)->GetQuestStatus(Quest_IDrewAggroCulture) == QUEST_STATUS_COMPLETE) {
-								if (Creature* Kaalya = me->FindNearestCreature(eCreatures::NPC_GORGROND_RANGARI_KAALYA_PHASE_2, 15.0f, true))
-								{
 									me->AI()->DoAction(eAction::DrewAggroCulture);
-									Kaalya->GetAI()->DoAction(eAction::DrewAggroCulture);
-								}
 							}
 						}
 					}
-			};
-		};
+			}
+		}
 
 		void DoAction(int32 const p_Action)
 		{
@@ -1841,7 +2213,7 @@ public:
 							Talk(eCreatureTexts::CREATURE_TEXT_YREL_DREW_AGGROCULTURE);
 						});
 
-						AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 						{
 							m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
 							m_PreCompletingIDrewAggroCulture = false;
@@ -1871,15 +2243,58 @@ public:
 	}
 
 	enum eAction {
-		DrewAggroCulture	 = 0
+		DrewAggroCulture	 = 0,
+		EventCheckPlayer	 = 0
 	};
 
 
 	struct npc_gorgrond_rangari_kaalya_wildwoodwashAI : public ScriptedAI
 	{
-		npc_gorgrond_rangari_kaalya_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) {	}
+		npc_gorgrond_rangari_kaalya_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) {
+			m_PreCompletingIDrewAggroCulture = false;
+		}
 
-		void Reset() { }
+
+		bool m_PreCompletingIDrewAggroCulture;
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+
+			m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+			case EventCheckPlayer:
+			{
+				std::list<Player*> PlayersInRange;
+				me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+
+				for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+				{
+					if ((*itr)->HasQuest(eQuests::Quest_IDrewAggroCulture) && (*itr)->GetQuestStatus(Quest_IDrewAggroCulture) == QUEST_STATUS_COMPLETE) {
+						me->AI()->DoAction(eAction::DrewAggroCulture);
+					}
+				}
+			}
+			}
+		}
 
 		void DoAction(int32 const p_Action)
 		{
@@ -1887,16 +2302,28 @@ public:
 			{
 				case eAction::DrewAggroCulture:
 					{
-						AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						if (m_PreCompletingIDrewAggroCulture)
+							return;
+
+						m_PreCompletingIDrewAggroCulture = true;
+
+						m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+						AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 						{
 							Talk(eCreatureTexts::CREATURE_TEXT_RANGARI_KAALYA_DREW_AGGROCULTURE);
+						});
+
+
+						AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+							m_PreCompletingIDrewAggroCulture = false;
 						});
 						break;
 					}
 			}
 		}
-
-		void UpdateAI(uint32 const p_Diff)  { }
 	};
 };
 
@@ -1910,10 +2337,6 @@ public:
 	{
 		return new npc_gorgrond_harvester_ommruAI(p_Creature);
 	}
-
-	enum eAction {
-		HarvesterEnd = 0
-	};
 
 
 	struct npc_gorgrond_harvester_ommruAI : public ScriptedAI
@@ -2449,11 +2872,21 @@ void AddSC_gorgrond()
 	new npc_gorgrond_rangari_kolaan();
 	new npc_gorgrond_rangari_jonaa();
 	new npc_gorgrond_fallen_rangari();
+	new npc_gorgrond_dead_rangari();
+	new npc_gorgrond_rangari_elekk();
+	new npc_gorgrond_goren_gouger();
+	new npc_gorgrond_infested_vinewarden();
+	new npc_gorgrond_botani_greensworn();
+	new npc_gorgrond_gronn_rockthrower();
+	new npc_gorgrond_mandragora_lifedrinker();
+	new npc_gorgrond_gronnling_bonebreaker();
 	new npc_gorgrond_podling_nibbler();
 	new npc_gorgrond_stonemaul_guard();
 	new npc_gorgrond_podling_scavenger();
 	new npc_gorgrond_podling_scavenger_naielleswatch();
-	new npc_gorgrond_gromkar_grunt_rajess();
+	new npc_gorgrond_gromkar_grunt();
+	new npc_gorgrond_gromkar_shieldbearer();
+	new npc_gorgrond_fungus_covered_shambler();
 	new npc_gorgrond_yrel_wildwoodwash();
 	new npc_gorgrond_rangari_kaalya_wildwoodwash();
 	new npc_gorgrond_harvester_ommru();

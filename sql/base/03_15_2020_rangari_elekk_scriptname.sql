@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_rangari_elekk' WHERE `entry`=84867;

@@ -78,7 +78,30 @@ enum eCreatures
 	NPC_GUID_GORGROND_PODLING_SCAVENGER9			= 1440246, // Podling Scavenger near tank @ Naielle's Watch
 	NPC_GUID_GORGROND_PODLING_SCAVENGER10			= 1440247, // Podling Scavenger near tank @ Naielle's Watch
 
-	NPC_GUID_GORGROND_GROMKAR_GRUNT					= 1440316  // Grom'kar Grunt near Rangari Rajess
+	NPC_GUID_GORGROND_GOREN_GOUGER1					= 1443391, // Goren Gouger near Highpass
+	NPC_GUID_GORGROND_GOREN_GOUGER2					= 1443397, // Goren Gouger near Highpass
+	NPC_GUID_GORGROND_GOREN_GOUGER3					= 1443401, // Goren Gouger near Highpass
+	NPC_GUID_GORGROND_GOREN_GOUGER4					= 1443410, // Goren Gouger near Highpass
+
+	NPC_GUID_GORGROND_INFESTED_VINEWARDEN1			= 1440783, // Infested Vinewarden near Highpass
+	NPC_GUID_GORGROND_INFESTED_VINEWARDEN2			= 1443399, // Infested Vinewarden near Highpass
+
+	NPC_GUID_GORGROND_BOTANI_GREENSWORN1			= 1440772, // Botani Greensworn near Highpass
+	NPC_GUID_GORGROND_BOTANI_GREENSWORN2			= 1440799, // Botani Greensworn near Highpass
+	NPC_GUID_GORGROND_BOTANI_GREENSWORN3			= 1440793, // Botani Greensworn near Highpass
+
+	NPC_GUID_GORGROND_GRONN_ROCKTHROWER				= 1443388, // Gronn Rockthrower near Highpass
+
+	NPC_GUID_GORGROND_MANDRAGORA_LIFEDRINKER		= 1440773, // Mandragora Lifedrinker near Highpass
+
+	NPC_GUID_GORGROND_GRONNLING_BONEBREAKER1		= 1440776, // Gronnling Bonebreaker near Highpass
+	NPC_GUID_GORGROND_GRONNLING_BONEBREAKER2		= 1440798, // Gronnling Bonebreaker near Highpass
+
+	NPC_GUID_GORGROND_GROMKAR_GRUNT1				= 1440316, // Grom'kar Grunt near Rangari Rajess
+	NPC_GUID_GORGROND_GROMKAR_GRUNT2				= 1443417, // Grom'kar Grunt near Highpass
+
+	NPC_GUID_GORGROND_GROMKAR_SHIELDBEARER1			= 1443411, // Grom'kar Shieldbearer near Highpass
+	NPC_GUID_GORGROND_GROMKAR_SHIELDBEARER2			= 1443413, // Grom'kar Shieldbearer near Highpass
 
 
 };
@@ -121,7 +144,8 @@ enum eCreatureTexts
 
 
 	// Hostile NPCs Creature Texts
-	CREATURE_TEXT_HARVESTER_OMMRU_AGGRO								= 0
+	CREATURE_TEXT_HARVESTER_OMMRU_AGGRO								= 0,
+	CREATURE_TEXT_FUNGUS_COVERED_SHAMBLER_AGGRO						= 0
 };
 
 
