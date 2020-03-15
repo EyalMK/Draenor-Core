@@ -1753,8 +1753,7 @@ public:
 	enum eAction
 	{
 		StartWelcomeToGorgrond = 1,
-		HarvesterEnd		   = 0,
-		EventCheckPlayer = 0
+		HarvesterEnd		   = 0
 	};
 
 
@@ -1817,8 +1816,7 @@ public:
 	}
 
 	enum eAction {
-		HarvesterEnd	 = 0,
-		EventCheckPlayer = 0
+		HarvesterEnd	 = 0
 	};
 
 
@@ -1859,8 +1857,7 @@ public:
 	}
 
 	enum eAction {
-		HarvesterEnd = 0,
-		EventCheckPlayer = 0
+		HarvesterEnd = 0
 	};
 
 
@@ -1871,10 +1868,7 @@ public:
 		void EnterCombat(Unit* who) override
 		{
 			Talk(eCreatureTexts::CREATURE_TEXT_HARVESTER_OMMRU_AGGRO);
-		}
-
-
-		// Need to implement an if statement on death - if player has 'a harvester has come' quest and if the quest objective is satisfied, phase out Rangari D'kaan, Rangari Kaalya, Yrel and Maraad.
+		}	
 
 		void Reset() { }
 		void UpdateAI(uint32 const p_Diff) { }
@@ -2344,6 +2338,43 @@ public:
 };
 
 
+/// Naielle's Watch Cave Entrance Bunny @ Wildwood Wash - 84864
+class npc_gorgrond_naielleswatch_bunny : public CreatureScript
+{
+public:
+	npc_gorgrond_naielleswatch_bunny() : CreatureScript("npc_gorgrond_naielleswatch_bunny") { }
+
+
+	struct npc_gorgrond_naielleswatch_bunnyAI : public ScriptedAI
+	{
+		npc_gorgrond_naielleswatch_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void UpdateAI(const uint32 /*uiDiff*/)
+		{
+
+			std::list<Player*> PlayersInRange;
+			me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+
+			for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+			{
+				if ((*itr)->HasQuest(eQuests::Quest_AHarvesterHasCome) && (*itr)->GetQuestObjectiveCounter(273415) == 1) {
+					// New phase for Maraad, Yrel, D'kaan and Kaalya.
+				}
+
+			}
+		}
+
+		void Reset() { }
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_naielleswatch_bunnyAI(p_Creature);
+	}
+
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -2376,6 +2407,7 @@ void AddSC_gorgrond()
 	new npc_gorgrond_glirin();
 	new npc_gorgrond_thetank_highpass();
 	//new npc_gorgrond_iyu_wildwoodwash();
+	new npc_gorgrond_naielleswatch_bunny();
 
 	/// Spells
 	new spell_drov_call_of_earth();
