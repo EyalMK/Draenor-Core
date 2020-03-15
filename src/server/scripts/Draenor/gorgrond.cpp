@@ -1465,12 +1465,33 @@ public:
 		
 		void Reset() {
 
-			me->setRegeneratingHealth(false);
-			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-			me->SetHealth(me->CountPctFromMaxHealth(0));
-			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_FALLEN_RANGARI)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(45));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->HandleEmoteCommand(EMOTE_STATE_KNEEL);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+			}
+			else {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+			
 		}
 		void UpdateAI(const uint32 /*p_Diff*/) { }
 
@@ -1479,7 +1500,6 @@ public:
 
 };
 
-/* Needs to be worked on - the script applies to all NPCs regardless of GUID.
 /// Podling Nibbler - 84549
 class npc_gorgrond_podling_nibbler : public CreatureScript
 {
@@ -1497,32 +1517,65 @@ public:
 
 
 		void Reset() {
-			if (me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER1 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER2 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER3 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER4 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER5) {
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER2 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER3 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER4 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER5) {
 				me->setRegeneratingHealth(false);
 				me->SetHealth(me->CountPctFromMaxHealth(0));
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_15);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
 				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
-				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IN_COMBAT);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 			}
 				
 		}
 		
-*/
-		//void UpdateAI(const uint32 /*p_Diff*/) { }
 
-	//};
+		void UpdateAI(const uint32 /*p_Diff*/) { }
 
-
-//};
+	};
 
 
+};
+
+
+
+/// Stonemaul Guard - 75819
+class npc_gorgrond_stonemaul_guard : public CreatureScript
+{
+public:
+	npc_gorgrond_stonemaul_guard() : CreatureScript("npc_gorgrond_stonemaul_guard") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_stonemaul_guardAI(p_Creature);
+	}
+
+	struct npc_gorgrond_stonemaul_guardAI : public ScriptedAI
+	{
+		npc_gorgrond_stonemaul_guardAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+		}
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
 
 /// Podling Scavenger - 84402
-/* Needs to be worked on like the npc script above - need to make it target specific GUIDs.
 class npc_gorgrond_podling_scavenger : public CreatureScript
 {
 public:
@@ -1539,18 +1592,39 @@ public:
 
 
 		void Reset() {
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER2 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER3 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER4 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER5 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER6 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER7 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER8 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER9 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER10)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+			}
+			else {
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
-			me->setRegeneratingHealth(false);
-			me->SetHealth(me->CountPctFromMaxHealth(0));
-			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+				// To do - the npcs don't attack the player, need to fix
+			}	
 		}
-		*/
-	//	void UpdateAI(const uint32 /*p_Diff*/) { }
 
-//	};
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
 
 
-//};
+};
 
 /// Podling Scavenger @ Naielle's Watch - 88479
 class npc_gorgrond_podling_scavenger_naielleswatch : public CreatureScript
@@ -1572,10 +1646,12 @@ public:
 
 			me->setRegeneratingHealth(false);
 			me->SetHealth(me->CountPctFromMaxHealth(0));
-			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 		}
 		
 		void UpdateAI(const uint32 /*p_Diff*/) { }
@@ -1600,17 +1676,18 @@ public:
 	{
 		npc_gorgrond_gromkar_grunt_rajessAI(Creature* creature) : ScriptedAI(creature) { }
 
-		uint64 m_GromkarGrunt = me->GetGUID();
+		
 
 		void Reset() {
-			if (m_GromkarGrunt == eCreatures::NPC_GUID_GORGROND_GROMKAR_GRUNT) {
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_GRUNT) {
 				me->setRegeneratingHealth(false);
 				me->SetHealth(me->CountPctFromMaxHealth(0));
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_15);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_29);
-				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 			}
 		}
 		
@@ -2103,6 +2180,80 @@ public:
 };
 
 
+
+class npc_gorgrond_iyu_wildwoodwash : public CreatureScript
+{
+public:
+	npc_gorgrond_iyu_wildwoodwash() : CreatureScript("npc_gorgrond_iyu_wildwoodwash") { }
+
+	enum eAction {
+		WelcomeToGorgrondScout = 0
+	};
+
+	struct npc_gorgrond_iyu_wildwoodwashAI : public ScriptedAI
+	{
+		npc_gorgrond_iyu_wildwoodwashAI(Creature* creature) : ScriptedAI(creature)
+		{
+			m_PlayerGUID = 0;
+		}
+
+		uint64 m_PlayerGUID;
+
+		
+		void Reset() override
+		{
+			ClearDelayedOperations();
+
+			m_PlayerGUID = 0;
+		}
+
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			std::list<Player*> PlayersInRange;
+			me->GetPlayerListInGrid(PlayersInRange, 50.0f);
+
+			for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+			{
+				if ((*itr)->HasQuest(eQuests::Quest_WelcometoGorgrond) && (*itr)->GetQuestObjectiveCounter(273370) != 1) {
+					me->AI()->DoAction(eAction::WelcomeToGorgrondScout);
+				}
+
+			}
+		}
+		void IsSummonedBy(Unit* p_Summoner) override
+		{
+			m_PlayerGUID = p_Summoner->GetGUID();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::WelcomeToGorgrondScout:
+			{
+
+				// Creature* l_Iyu = p_Player->SummonCreature(eCreatures::NPC_GORGROND_, l_TankPos)
+				// Must spawn in the player's phase - players who see the main npcs in a different phase are not supposed to see Iyu during this quest.
+				// throw tank - https://www.wowhead.com/npc=75218/kill-credit-laughing-skull-nuke
+				// turn and start path
+				// despawn
+
+				break;
+			}
+			default:
+				break;
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_gorgrond_iyu_wildwoodwashAI(creature);
+	}
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -2122,8 +2273,9 @@ void AddSC_gorgrond()
 	new npc_gorgrond_rangari_kolaan();
 	new npc_gorgrond_rangari_jonaa();
 	new npc_gorgrond_fallen_rangari();
-	//new npc_gorgrond_podling_nibbler();
-	//new npc_gorgrond_podling_scavenger();
+	new npc_gorgrond_podling_nibbler();
+	new npc_gorgrond_stonemaul_guard();
+	new npc_gorgrond_podling_scavenger();
 	new npc_gorgrond_podling_scavenger_naielleswatch();
 	new npc_gorgrond_gromkar_grunt_rajess();
 	new npc_gorgrond_yrel_wildwoodwash();
@@ -2131,7 +2283,7 @@ void AddSC_gorgrond()
 	new npc_gorgrond_rangari_dkaan_naielleswatch();
 	new npc_gorgrond_glirin();
 	new npc_gorgrond_thetank_highpass();
-
+	//new npc_gorgrond_iyu_wildwoodwash();
 
 	/// Spells
 	new spell_drov_call_of_earth();

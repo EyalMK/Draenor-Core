@@ -54,13 +54,31 @@ enum eCreatures
 
 
 	// Hostile NPCs
+	NPC_GORGROND_IYU_WILDWOODWASH					= 78819,	// Iyu at Wildwood Wash
+	
+	NPC_GUID_GORGROND_FALLEN_RANGARI				= 1440173, // Fallen Rangari at Naielle's Watch inside cave
+
 	NPC_GUID_GORGROND_PODLING_NIBBLER1				= 1440336, // Podling Nibbler near Rangari Rajess
 	NPC_GUID_GORGROND_PODLING_NIBBLER2				= 1440307, // Podling Nibbler near Rangari Rajess
 	NPC_GUID_GORGROND_PODLING_NIBBLER3				= 1440302, // Podling Nibbler near Rangari Rajess
 	NPC_GUID_GORGROND_PODLING_NIBBLER4				= 1440317, // Podling Nibbler near Rangari Rajess
 	NPC_GUID_GORGROND_PODLING_NIBBLER5				= 1440320, // Podling Nibbler near Rangari Rajess
 
+	NPC_GUID_GORGROND_PODLING_SCAVENGER1			= 1440417, // Podling Scavenger near Rangari Jonaa
+	NPC_GUID_GORGROND_PODLING_SCAVENGER2			= 1440420, // Podling Scavenger near Rangari Jonaa
+	NPC_GUID_GORGROND_PODLING_SCAVENGER3			= 1440424, // Podling Scavenger near Rangari Jonaa
+	NPC_GUID_GORGROND_PODLING_SCAVENGER4			= 1440422, // Podling Scavenger near Rangari Jonaa
+
+	NPC_GUID_GORGROND_PODLING_SCAVENGER5			= 1440289, // Podling Scavenger near Rangari Kolaan
+	NPC_GUID_GORGROND_PODLING_SCAVENGER6			= 1440288, // Podling Scavenger near Rangari Kolaan
+	NPC_GUID_GORGROND_PODLING_SCAVENGER7			= 1440287, // Podling Scavenger near Rangari Kolaan
+
+	NPC_GUID_GORGROND_PODLING_SCAVENGER8			= 1440248, // Podling Scavenger near tank @ Naielle's Watch
+	NPC_GUID_GORGROND_PODLING_SCAVENGER9			= 1440246, // Podling Scavenger near tank @ Naielle's Watch
+	NPC_GUID_GORGROND_PODLING_SCAVENGER10			= 1440247, // Podling Scavenger near tank @ Naielle's Watch
+
 	NPC_GUID_GORGROND_GROMKAR_GRUNT					= 1440316  // Grom'kar Grunt near Rangari Rajess
+
 
 };
 
