@@ -1796,8 +1796,6 @@ public:
 		}
 
 		void Reset() { }
-		void UpdateAI(const uint32 /*p_Diff*/) { }
-
 	};
 
 	CreatureAI* GetAI(Creature* p_Creature) const
