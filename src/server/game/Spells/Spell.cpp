@@ -4601,18 +4601,6 @@ void Spell::update(uint32 difftime)
             }
             break;
         }
-		case SPELL_STATE_FINISHED:
-		{
-			if (Player* player = m_caster->ToPlayer())
-			{
-				if (Spell* currentQueued = GetQueuedSpell())
-				{
-					if (Unit* target = GetUnitTarget())
-						player->CastSpell(target, currentQueued->GetSpellInfo()->Id);
-				}
-				
-			}
-		}
         default:
             break;
     }
