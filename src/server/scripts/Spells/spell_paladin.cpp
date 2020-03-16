@@ -3455,6 +3455,30 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
     public:
         spell_pal_beacon_of_light() : SpellScriptLoader("spell_pal_beacon_of_light") { }
 
+		class spell_pal_beacon_of_light_SpellScript : public SpellScript
+		{
+			PrepareSpellScript(spell_pal_beacon_of_light_SpellScript);
+
+			SpellCastResult CheckCast()
+			{
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetExplTargetUnit();
+
+				if (l_Target == nullptr)
+					return SPELL_FAILED_DONT_REPORT;
+
+				if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_FAITH, l_Caster->GetGUID()))
+					return SPELL_FAILED_BAD_TARGETS;
+
+				return SPELL_CAST_OK;
+			}
+
+			void Register()
+			{
+				OnCheckCast += SpellCheckCastFn(spell_pal_beacon_of_light_SpellScript::CheckCast);
+			}
+		};
+
         class spell_pal_beacon_of_light_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pal_beacon_of_light_AuraScript);
@@ -3501,6 +3525,11 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_pal_beacon_of_light_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_HEALING_RECEIVED, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+		SpellScript* GetSpellScript() const override
+		{
+			return new spell_pal_beacon_of_light_SpellScript();
+		}
 
         AuraScript* GetAuraScript() const
         {
