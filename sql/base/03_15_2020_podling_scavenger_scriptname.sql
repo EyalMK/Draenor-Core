@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_podling_scavenger' WHERE `entry`=84402;

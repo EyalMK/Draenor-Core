@@ -112,17 +112,6 @@ public:
 
             LoadScenariosInfos(g_BossScenarios, instance->IsChallengeMode() ? eAuchindounChallengeDatas::ChallengeScenarioID : eAuchindounChallengeDatas::NormalScenarioID);
         }
-        /*
-        void OnPlayerEnter(Player* p_Player) override
-        {
-            InstanceScript::OnPlayerEnter(p_Player);
-
-            if (m_KaatharDied)
-            {
-                p_Player->m_Events.AddEvent(new EventTeleport(p_Player, 1), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
-            }
-        }
-        */
 
         void OnGameObjectCreate(GameObject* p_Go) override
         {
@@ -286,7 +275,6 @@ public:
                         {
                             if (Creature* l_Teronogor = instance->GetCreature(GetData64(eAuchindounDatas::DataBossTeronogor)))
                             {
-                                if (l_Teronogor->IsAIEnabled)
                                 l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove1);
                             }
                         }
@@ -298,8 +286,7 @@ public:
                         {
                             if (Creature* l_Teronogor = instance->GetCreature(GetData64(eAuchindounDatas::DataBossTeronogor)))
                             {
-                                if (l_Teronogor->IsAIEnabled)
-                                    l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove4);
+                                l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove4);
                             }
                         }
                         break;
@@ -308,7 +295,6 @@ public:
                         {
                             if (Creature* l_Teronogor = instance->GetCreature(GetData64(eAuchindounDatas::DataBossTeronogor)))
                             {
-                                if (l_Teronogor->IsAIEnabled)
                                 l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove3);
                             }
                         }
@@ -321,8 +307,7 @@ public:
                             {
                                 if (Creature* l_Teronogor = instance->GetCreature(GetData64(eAuchindounDatas::DataBossTeronogor)))
                                 {
-                                    if (l_Teronogor->IsAIEnabled)
-                                        l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove2);
+                                    l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove2);
                                 }
                             }
                         }

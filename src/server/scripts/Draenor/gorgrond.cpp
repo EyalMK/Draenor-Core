@@ -1465,9 +1465,33 @@ public:
 		
 		void Reset() {
 
-			me->setRegeneratingHealth(false);
-			me->SetHealth(me->CountPctFromMaxHealth(0));
-			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_FALLEN_RANGARI)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(45));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->HandleEmoteCommand(EMOTE_STATE_KNEEL);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+			}
+			else {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+			
 		}
 		void UpdateAI(const uint32 /*p_Diff*/) { }
 
@@ -1476,7 +1500,319 @@ public:
 
 };
 
-/* Needs to be worked on - the script applies to all NPCs regardless of GUID.
+
+/// Dead Rangari - 80809
+class npc_gorgrond_dead_rangari : public CreatureScript
+{
+public:
+	npc_gorgrond_dead_rangari() : CreatureScript("npc_gorgrond_dead_rangari") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_dead_rangariAI(p_Creature);
+	}
+
+	struct npc_gorgrond_dead_rangariAI : public ScriptedAI
+	{
+		npc_gorgrond_dead_rangariAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Rangari Elekk - 84867
+class npc_gorgrond_rangari_elekk : public CreatureScript
+{
+public:
+	npc_gorgrond_rangari_elekk() : CreatureScript("npc_gorgrond_rangari_elekk") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_rangari_elekkAI(p_Creature);
+	}
+
+	struct npc_gorgrond_rangari_elekkAI : public ScriptedAI
+	{
+		npc_gorgrond_rangari_elekkAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+			me->setRegeneratingHealth(false);
+			me->SetHealth(me->CountPctFromMaxHealth(0));
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		}
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Goren Gouger - 82387
+class npc_gorgrond_goren_gouger : public CreatureScript
+{
+public:
+	npc_gorgrond_goren_gouger() : CreatureScript("npc_gorgrond_goren_gouger") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_goren_gougerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_goren_gougerAI : public ScriptedAI
+	{
+		npc_gorgrond_goren_gougerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GOREN_GOUGER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GOREN_GOUGER2 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GOREN_GOUGER3 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GOREN_GOUGER4)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+			
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Infested Vinewarden - 82394
+class npc_gorgrond_infested_vinewarden : public CreatureScript
+{
+public:
+	npc_gorgrond_infested_vinewarden() : CreatureScript("npc_gorgrond_infested_vinewarden") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_infested_vinewardenAI(p_Creature);
+	}
+
+	struct npc_gorgrond_infested_vinewardenAI : public ScriptedAI
+	{
+		npc_gorgrond_infested_vinewardenAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_INFESTED_VINEWARDEN1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_INFESTED_VINEWARDEN2)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Botani Greensworn - 82393
+class npc_gorgrond_botani_greensworn : public CreatureScript
+{
+public:
+	npc_gorgrond_botani_greensworn() : CreatureScript("npc_gorgrond_botani_greensworn") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_botani_greenswornAI(p_Creature);
+	}
+
+	struct npc_gorgrond_botani_greenswornAI : public ScriptedAI
+	{
+		npc_gorgrond_botani_greenswornAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_BOTANI_GREENSWORN1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_BOTANI_GREENSWORN2 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_BOTANI_GREENSWORN3)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Gronn Rockthrower - 82388
+class npc_gorgrond_gronn_rockthrower : public CreatureScript
+{
+public:
+	npc_gorgrond_gronn_rockthrower() : CreatureScript("npc_gorgrond_gronn_rockthrower") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_gronn_rockthrowerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_gronn_rockthrowerAI : public ScriptedAI
+	{
+		npc_gorgrond_gronn_rockthrowerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GRONN_ROCKTHROWER)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Mandragora Lifedrinker - 82396
+class npc_gorgrond_mandragora_lifedrinker : public CreatureScript
+{
+public:
+	npc_gorgrond_mandragora_lifedrinker() : CreatureScript("npc_gorgrond_mandragora_lifedrinker") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_mandragora_lifedrinkerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_mandragora_lifedrinkerAI : public ScriptedAI
+	{
+		npc_gorgrond_mandragora_lifedrinkerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_MANDRAGORA_LIFEDRINKER)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Gronnling Bonebreaker - 82390
+class npc_gorgrond_gronnling_bonebreaker : public CreatureScript
+{
+public:
+	npc_gorgrond_gronnling_bonebreaker() : CreatureScript("npc_gorgrond_gronnling_bonebreaker") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_gronnling_bonebreakerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_gronnling_bonebreakerAI : public ScriptedAI
+	{
+		npc_gorgrond_gronnling_bonebreakerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GRONNLING_BONEBREAKER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GRONNLING_BONEBREAKER2)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+
 /// Podling Nibbler - 84549
 class npc_gorgrond_podling_nibbler : public CreatureScript
 {
@@ -1494,32 +1830,65 @@ public:
 
 
 		void Reset() {
-			if (me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER1 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER2 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER3 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER4 || me->GetGUIDLow() == NPC_GUID_PODLING_NIBBLER5) {
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER2 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER3 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER4 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_NIBBLER5) {
 				me->setRegeneratingHealth(false);
 				me->SetHealth(me->CountPctFromMaxHealth(0));
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_15);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
 				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
-				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IN_COMBAT);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 			}
 				
 		}
 		
-*/
-		//void UpdateAI(const uint32 /*p_Diff*/) { }
 
-	//};
+		void UpdateAI(const uint32 /*p_Diff*/) { }
 
-
-//};
+	};
 
 
+};
+
+
+
+/// Stonemaul Guard - 75819
+class npc_gorgrond_stonemaul_guard : public CreatureScript
+{
+public:
+	npc_gorgrond_stonemaul_guard() : CreatureScript("npc_gorgrond_stonemaul_guard") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_stonemaul_guardAI(p_Creature);
+	}
+
+	struct npc_gorgrond_stonemaul_guardAI : public ScriptedAI
+	{
+		npc_gorgrond_stonemaul_guardAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+		void Reset() {
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+		}
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
 
 /// Podling Scavenger - 84402
-/* Needs to be worked on like the npc script above - need to make it target specific GUIDs.
 class npc_gorgrond_podling_scavenger : public CreatureScript
 {
 public:
@@ -1536,18 +1905,39 @@ public:
 
 
 		void Reset() {
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER2 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER3 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER4 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER5 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER6 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER7 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER8 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER9 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_PODLING_SCAVENGER10)
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+			}
+			else {
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
-			me->setRegeneratingHealth(false);
-			me->SetHealth(me->CountPctFromMaxHealth(0));
-			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+				// To do - the npcs don't attack the player, need to fix
+			}	
 		}
-		*/
-	//	void UpdateAI(const uint32 /*p_Diff*/) { }
 
-//	};
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
 
 
-//};
+};
 
 /// Podling Scavenger @ Naielle's Watch - 88479
 class npc_gorgrond_podling_scavenger_naielleswatch : public CreatureScript
@@ -1569,7 +1959,12 @@ public:
 
 			me->setRegeneratingHealth(false);
 			me->SetHealth(me->CountPctFromMaxHealth(0));
-			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 		}
 		
 		void UpdateAI(const uint32 /*p_Diff*/) { }
@@ -1579,32 +1974,33 @@ public:
 
 };
 
-/// Grom'kar Grunt Near Rajess - 85266 (GUID: 1440316)
-class npc_gorgrond_gromkar_grunt_rajess : public CreatureScript
+/// Grom'kar Grunt Near Rajess and Highpass - 85266
+class npc_gorgrond_gromkar_grunt : public CreatureScript
 {
 public:
-	npc_gorgrond_gromkar_grunt_rajess() : CreatureScript("npc_gorgrond_gromkar_grunt_rajess") { }
+	npc_gorgrond_gromkar_grunt() : CreatureScript("npc_gorgrond_gromkar_grunt_rajess") { }
 
 	CreatureAI* GetAI(Creature* p_Creature) const
 	{
-		return new npc_gorgrond_gromkar_grunt_rajessAI(p_Creature);
+		return new npc_gorgrond_gromkar_gruntAI(p_Creature);
 	}
 
-	struct npc_gorgrond_gromkar_grunt_rajessAI : public ScriptedAI
+	struct npc_gorgrond_gromkar_gruntAI : public ScriptedAI
 	{
-		npc_gorgrond_gromkar_grunt_rajessAI(Creature* creature) : ScriptedAI(creature) { }
+		npc_gorgrond_gromkar_gruntAI(Creature* creature) : ScriptedAI(creature) { }
 
-		uint64 m_GromkarGrunt = me->GetGUID();
+		
 
 		void Reset() {
-			if (m_GromkarGrunt == eCreatures::NPC_GUID_GORGROND_GROMKAR_GRUNT) {
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_GRUNT1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_GRUNT2) {
 				me->setRegeneratingHealth(false);
 				me->SetHealth(me->CountPctFromMaxHealth(0));
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_15);
-				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_UNK_29);
-				me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 			}
 		}
 		
@@ -1613,6 +2009,69 @@ public:
 	};
 
 
+};
+
+/// Grom'kar Shieldbearer Near Highpass - 85267
+class npc_gorgrond_gromkar_shieldbearer : public CreatureScript
+{
+public:
+	npc_gorgrond_gromkar_shieldbearer() : CreatureScript("npc_gorgrond_gromkar_shieldbearer") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_gromkar_shieldbearerAI(p_Creature);
+	}
+
+	struct npc_gorgrond_gromkar_shieldbearerAI : public ScriptedAI
+	{
+		npc_gorgrond_gromkar_shieldbearerAI(Creature* creature) : ScriptedAI(creature) { }
+
+
+
+		void Reset() {
+			if (me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_SHIELDBEARER1 || me->GetGUIDLow() == eCreatures::NPC_GUID_GORGROND_GROMKAR_SHIELDBEARER2) {
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			}
+		}
+
+		void UpdateAI(const uint32 /*p_Diff*/) { }
+
+	};
+
+
+};
+
+/// Fungus Covered Shambler @ Crimson Fen - 80721
+class npc_gorgrond_fungus_covered_shambler : public CreatureScript
+{
+public:
+	npc_gorgrond_fungus_covered_shambler() : CreatureScript("npc_gorgrond_fungus_covered_shambler") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_fungus_covered_shamblerAI(p_Creature);
+	}
+
+
+	struct npc_gorgrond_fungus_covered_shamblerAI : public ScriptedAI
+	{
+		npc_gorgrond_fungus_covered_shamblerAI(Creature* creature) : ScriptedAI(creature) {	}
+
+		void EnterCombat(Unit* who) override
+		{
+			Talk(eCreatureTexts::CREATURE_TEXT_FUNGUS_COVERED_SHAMBLER_AGGRO);
+		}
+
+		void Reset() { }
+		void UpdateAI(uint32 const p_Diff) { }
+	};
 };
 
 
@@ -1661,6 +2120,241 @@ public:
 
 
 
+/// Yrel @ Wildwood Wash - 80978
+class npc_gorgrond_yrel_wildwoodwash : public CreatureScript
+{
+public:
+	npc_gorgrond_yrel_wildwoodwash() : CreatureScript("npc_gorgrond_yrel_wildwoodwash") { }
+
+	enum eAction
+	{
+		StartWelcomeToGorgrond = 1,
+		DrewAggroCulture = 0,
+		EventCheckPlayer = 0
+	};
+
+
+	bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
+	{
+		if (p_Quest->GetQuestId() == eQuests::Quest_WelcometoGorgrond)
+		{
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_YREL_WELCOME_TO_GORGROND_START);
+
+			if (Creature* Maraad = p_Creature->FindNearestCreature(eCreatures::NPC_GORGROND_VINDICATOR_MARAAD_PHASE_1, 7.5f, true))
+			{
+				Maraad->GetAI()->DoAction(eAction::StartWelcomeToGorgrond);
+			}
+		}
+		return true;
+	}
+
+	struct npc_gorgrond_yrel_wildwoodwashAI : public ScriptedAI
+	{
+		npc_gorgrond_yrel_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) {
+			m_PreCompletingIDrewAggroCulture = false;
+		}
+
+		bool m_PreCompletingIDrewAggroCulture;
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+
+			m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+					case EventCheckPlayer:
+					{
+						std::list<Player*> PlayersInRange;
+						me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+
+						for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+						{
+							if ((*itr)->HasQuest(eQuests::Quest_IDrewAggroCulture) && (*itr)->GetQuestStatus(Quest_IDrewAggroCulture) == QUEST_STATUS_COMPLETE) {
+									me->AI()->DoAction(eAction::DrewAggroCulture);
+							}
+						}
+					}
+			}
+		}
+
+		void DoAction(int32 const p_Action)
+		{
+			switch (p_Action)
+			{
+			case eAction::DrewAggroCulture:
+					{
+						if (m_PreCompletingIDrewAggroCulture)
+							return;
+
+						m_PreCompletingIDrewAggroCulture = true;
+
+						m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+						AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							Talk(eCreatureTexts::CREATURE_TEXT_YREL_DREW_AGGROCULTURE);
+						});
+
+						AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+							m_PreCompletingIDrewAggroCulture = false;
+						});
+						break;
+					}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_yrel_wildwoodwashAI(p_Creature);
+	}
+
+};
+
+/// Rangari Kaalya @ Wildwood Wash - 80987
+class npc_gorgrond_rangari_kaalya_wildwoodwash : public CreatureScript
+{
+public:
+	npc_gorgrond_rangari_kaalya_wildwoodwash() : CreatureScript("npc_gorgrond_rangari_kaalya_wildwoodwash") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_rangari_kaalya_wildwoodwashAI(p_Creature);
+	}
+
+	enum eAction {
+		DrewAggroCulture	 = 0,
+		EventCheckPlayer	 = 0
+	};
+
+
+	struct npc_gorgrond_rangari_kaalya_wildwoodwashAI : public ScriptedAI
+	{
+		npc_gorgrond_rangari_kaalya_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) {
+			m_PreCompletingIDrewAggroCulture = false;
+		}
+
+
+		bool m_PreCompletingIDrewAggroCulture;
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+
+			m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+			case EventCheckPlayer:
+			{
+				std::list<Player*> PlayersInRange;
+				me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+
+				for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+				{
+					if ((*itr)->HasQuest(eQuests::Quest_IDrewAggroCulture) && (*itr)->GetQuestStatus(Quest_IDrewAggroCulture) == QUEST_STATUS_COMPLETE) {
+						me->AI()->DoAction(eAction::DrewAggroCulture);
+					}
+				}
+			}
+			}
+		}
+
+		void DoAction(int32 const p_Action)
+		{
+			switch (p_Action)
+			{
+				case eAction::DrewAggroCulture:
+					{
+						if (m_PreCompletingIDrewAggroCulture)
+							return;
+
+						m_PreCompletingIDrewAggroCulture = true;
+
+						m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+						AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							Talk(eCreatureTexts::CREATURE_TEXT_RANGARI_KAALYA_DREW_AGGROCULTURE);
+						});
+
+
+						AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+							m_PreCompletingIDrewAggroCulture = false;
+						});
+						break;
+					}
+			}
+		}
+	};
+};
+
+/// Harvester Ommru @ Naielle's Watch - 84373
+class npc_gorgrond_harvester_ommru : public CreatureScript
+{
+public:
+	npc_gorgrond_harvester_ommru() : CreatureScript("npc_gorgrond_harvester_ommru") { }
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_harvester_ommruAI(p_Creature);
+	}
+
+
+	struct npc_gorgrond_harvester_ommruAI : public ScriptedAI
+	{
+		npc_gorgrond_harvester_ommruAI(Creature* creature) : ScriptedAI(creature) {	}
+
+		void EnterCombat(Unit* who) override
+		{
+			Talk(eCreatureTexts::CREATURE_TEXT_HARVESTER_OMMRU_AGGRO);
+		}	
+
+		void Reset() { }
+		void UpdateAI(uint32 const p_Diff) { }
+	};
+};
+
+
+
 /// Vindicator Maraad @ Wildwood Wash - 75127
 class npc_gorgrond_vindicator_maraad_wildwoodwash : public CreatureScript
 {
@@ -1672,8 +2366,9 @@ public:
 		return new npc_gorgrond_vindicator_maraad_wildwoodwashAI(p_Creature);
 	}
 
-	enum eData {
+	enum eAction {
 		PreCompletingSecretsOfGorgrond = 0,
+		StartWelcomeToGorgrond = 1,
 		EventCheckPlayer = 0
 	};
 
@@ -1703,28 +2398,36 @@ public:
 			switch (p_Action)
 			{
 			case PreCompletingSecretsOfGorgrond:
-			{
-				if (m_PreCompletingSecretsOfGorgrond)
-					return;
-
-				m_PreCompletingSecretsOfGorgrond = true;
-
-				m_CosmeticEvents.CancelEvent(EventCheckPlayer);
-
-				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_SECRETS_OF_GORGROND);
-				});
+					if (m_PreCompletingSecretsOfGorgrond)
+						return;
 
-				AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					m_PreCompletingSecretsOfGorgrond = true;
+
+					m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+					AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_SECRETS_OF_GORGROND);
+					});
+
+					AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+						m_PreCompletingSecretsOfGorgrond = false;
+					});
+					break;
+				}
+			case StartWelcomeToGorgrond:
 				{
-					m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
-					m_PreCompletingSecretsOfGorgrond = false;
-				});
-				break;
-			}
-			default:
-				break;
+
+					AddTimedDelayedOperation(4.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->AI()->Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_WELCOME_TO_GORGROND_START);
+					});
+
+					break;
+				}
 			}
 		}
 
@@ -1741,97 +2444,30 @@ public:
 			switch (m_CosmeticEvents.ExecuteEvent())
 			{
 			case EventCheckPlayer:
-			{
-				std::list<Player*> PlayersInRange;
-				me->GetPlayerListInGrid(PlayersInRange, 10.0f);
-				for (Player* p_Player : PlayersInRange)
+				{
+					std::list<Player*> PlayersInRange;
+					me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+					for (Player* p_Player : PlayersInRange)
 
-					if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond1) == QUEST_STATUS_COMPLETE)
-					{
-						DoAction(PreCompletingSecretsOfGorgrond);
+						if (p_Player->HasQuest(eQuests::Quest_SecretsOfGorgrond1) && p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond1) == QUEST_STATUS_COMPLETE)
+						{
+							DoAction(PreCompletingSecretsOfGorgrond);
 
-					}
-					else if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond2) == QUEST_STATUS_COMPLETE) {
+						}
+						else if (p_Player->HasQuest(eQuests::Quest_SecretsOfGorgrond2) && p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond2) == QUEST_STATUS_COMPLETE ) {
 
-						DoAction(PreCompletingSecretsOfGorgrond);
+							DoAction(PreCompletingSecretsOfGorgrond);
 
-					}
-					else if (p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond3) == QUEST_STATUS_COMPLETE) {
+						}
+						else if (p_Player->HasQuest(eQuests::Quest_SecretsOfGorgrond3) && p_Player->GetQuestStatus(eQuests::Quest_SecretsOfGorgrond3) == QUEST_STATUS_COMPLETE) {
 
-						DoAction(PreCompletingSecretsOfGorgrond);
-					}
-			}
+							DoAction(PreCompletingSecretsOfGorgrond);
+						}
+				}
 			};
 		};
 	};
 };
-
-/// Yrel @ Wildwood Wash - 80978
-class npc_gorgrond_yrel_wildwoodwash : public CreatureScript
-{
-	public:
-		npc_gorgrond_yrel_wildwoodwash() : CreatureScript("npc_gorgrond_yrel_wildwoodwash") { }
-
-		enum eAction
-		{
-			StartWelcomeToGorgrond = 0
-		};
-
-		bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
-		{
-			if (p_Quest->GetQuestId() == eQuests::Quest_WelcometoGorgrond)
-			{
-				p_Creature->GetAI()->DoAction(eAction::StartWelcomeToGorgrond);
-
-			}
-			return true;
-		}
-
-		struct npc_gorgrond_yrel_wildwoodwashAI : public ScriptedAI
-		{
-			npc_gorgrond_yrel_wildwoodwashAI(Creature* creature) : ScriptedAI(creature) { }
-
-
-			void Reset() {
-
-				ClearDelayedOperations();
-
-			}
-			void UpdateAI(const uint32 /*p_Diff*/) { }
-
-			void DoAction(int32 const p_Action)
-			{
-				switch (p_Action)
-				{
-					case eAction::StartWelcomeToGorgrond:
-					{
-
-						AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->AI()->Talk(eCreatureTexts::CREATURE_TEXT_YREL_WELCOME_TO_GORGROND_START);
-						});
-
-						AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							Creature* Maraad = me->FindNearestCreature(eCreatures::NPC_GORGROND_VINDICATOR_MARAAD_PHASE_1, 5.0f, true);
-							Maraad->AI()->Talk(eCreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_WELCOME_TO_GORGROND_START);
-						});
-
-						break;
-					}
-					default:
-						break;
-				}
-			}
-		};
-
-		CreatureAI* GetAI(Creature* p_Creature) const
-		{
-			return new npc_gorgrond_yrel_wildwoodwashAI(p_Creature);
-		}
-	
-};
-
 
 /// Rangari D'kaan @ Naielle's Watch - 80921
 class npc_gorgrond_rangari_dkaan_naielleswatch : public CreatureScript
@@ -1869,6 +2505,353 @@ public:
 };
 
 
+/// Glirin - 84766
+class npc_gorgrond_glirin : public CreatureScript
+{
+public:
+	npc_gorgrond_glirin() : CreatureScript("npc_gorgrond_glirin") { }
+
+
+	enum eAction {
+		PreCompletingLostMoleMachines = 0, // Talk action
+		LostMoleMachines = 1, // The Tank spawn action
+		EventCheckPlayer = 0
+	};
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines) && p_Player->GetQuestObjectiveCounter(274504) != 1)
+		{
+			p_Player->QuestObjectiveSatisfy(eCreatures::NPC_GORGROND_GLIRIN, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
+			p_Player->ADD_GOSSIP_ITEM_DB(eGossipMenus::GLIRIN_Menu_LostMole_Machines, eGossipOptions::GLIRIN_LostMole_Machines, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::GLIRIN_TEXT_LOST_MOLE_MACHINES, p_Creature->GetGUID());
+			if (Creature* l_Tank = p_Player->SummonCreature(eCreatures::NPC_GORGROND_THE_TANK, l_TankPos))
+			{
+				l_Tank->GetAI()->DoAction(eAction::LostMoleMachines);
+			}
+
+		} else if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines) && p_Player->GetQuestObjectiveCounter(274529) != 1 && p_Player->GetQuestObjectiveCounter(274504) == 1)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(eGossipMenus::GLIRIN_Menu_LostMole_Machines, eGossipOptions::GLIRIN_LostMole_Machines, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::GLIRIN_TEXT_LOST_MOLE_MACHINES, p_Creature->GetGUID());
+		}
+			p_Player->SEND_GOSSIP_MENU(eNpcTexts::GLIRIN_TEXT_LOST_MOLE_MACHINES, p_Creature->GetGUID());
+			return true;
+	}
+
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
+	{
+
+		if (action == GOSSIP_ACTION_INFO_DEF && p_Player->GetQuestObjectiveCounter(274529) != 1)
+		{
+			// Doesn't actually do anything. When the first objective is completed upon interacting with the NPC, the tank automatically spawns and gives kill credit upon despawning at waypoint reached.
+		}
+			p_Player->PlayerTalkClass->ClearMenus();
+			p_Player->PlayerTalkClass->SendCloseGossip();
+			return true;
+	}
+
+
+
+
+
+	struct npc_gorgrond_glirinAI : public ScriptedAI
+	{
+		npc_gorgrond_glirinAI(Creature* creature) : ScriptedAI(creature) {
+			m_PreCompletingLostMoleMachines = false;
+		}
+
+		bool m_PreCompletingLostMoleMachines;
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+
+			m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+
+		}
+
+
+		void DoAction(int32 const p_Action)
+		{
+			switch (p_Action)
+			{
+			case PreCompletingLostMoleMachines:
+			{
+				if (m_PreCompletingLostMoleMachines)
+					return;
+
+				m_PreCompletingLostMoleMachines = true;
+
+				m_CosmeticEvents.CancelEvent(EventCheckPlayer);
+
+				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					Talk(eCreatureTexts::CREATURE_TEXT_GLIRIN_LOST_MOLE_MACHINES);
+				});
+
+				AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					m_CosmeticEvents.ScheduleEvent(EventCheckPlayer, 0.5 * TimeConstants::IN_MILLISECONDS);
+					m_PreCompletingLostMoleMachines = false;
+				});
+				break;
+			}
+			default:
+				break;
+			}
+
+
+	
+				
+		}
+
+
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+				case EventCheckPlayer:
+					std::list<Player*> PlayersInRange;
+					me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+					for (Player* p_Player : PlayersInRange)
+						if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines) && p_Player->GetQuestObjectiveCounter(274504) != 1)
+						{
+							DoAction(PreCompletingLostMoleMachines);
+						}
+			}
+					
+		}
+
+	};
+
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_gorgrond_glirinAI(creature);
+	}
+};
+
+
+
+class npc_gorgrond_thetank_highpass : public CreatureScript
+{
+public:
+	npc_gorgrond_thetank_highpass() : CreatureScript("npc_gorgrond_thetank_highpass") { }
+
+	enum eAction {
+		LostMoleMachines = 1
+	};
+
+	struct npc_gorgrond_thetank_highpassAI : public ScriptedAI
+	{
+		npc_gorgrond_thetank_highpassAI(Creature* creature) : ScriptedAI(creature)
+		{
+			m_PlayerGUID = 0;
+		}
+
+		uint64 m_PlayerGUID;
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+
+			m_PlayerGUID = 0;
+		}
+
+		void IsSummonedBy(Unit* p_Summoner) override
+		{
+			m_PlayerGUID = p_Summoner->GetGUID();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::LostMoleMachines:
+				{
+
+					me->SetSpeed(UnitMoveType::MOVE_RUN, 3.0f, true);
+
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->GetMotionMaster()->MoveSmoothPath(0, g_TankMoves.data(), g_TankMoves.size(), false);
+						// Not taking off after spawning, need to check why
+					});
+
+					//AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					//{
+						// Need to activate Barrier Stone (ID: 234206) at 3rd waypoint.
+
+					//});
+
+					AddTimedDelayedOperation(7.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->SetFacingTo(1.745233);
+						me->GetMotionMaster()->MovePoint(0, 6303.126465f, 704.853699f, 115.673759f, false);
+					});
+
+
+					AddTimedDelayedOperation(8.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (m_PlayerGUID)
+						{
+							if (Player* p_Player = me->GetPlayer(*me, m_PlayerGUID))
+							{
+								if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines))
+									p_Player->CompleteQuest(eQuests::Quest_LostMoleMachines);
+							}
+						}
+					});
+
+					AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->DespawnOrUnsummon();
+
+						// change phasemask of tank, 74959 
+						// change phasemask of npcs near tank
+					});
+
+					break;
+				}
+			default:
+				break;
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_gorgrond_thetank_highpassAI(creature);
+	}
+};
+
+
+
+class npc_gorgrond_iyu_wildwoodwash : public CreatureScript
+{
+public:
+	npc_gorgrond_iyu_wildwoodwash() : CreatureScript("npc_gorgrond_iyu_wildwoodwash") { }
+
+	enum eAction {
+		WelcomeToGorgrondScout = 0
+	};
+
+	struct npc_gorgrond_iyu_wildwoodwashAI : public ScriptedAI
+	{
+		npc_gorgrond_iyu_wildwoodwashAI(Creature* creature) : ScriptedAI(creature)
+		{
+			m_PlayerGUID = 0;
+		}
+
+		uint64 m_PlayerGUID;
+
+		
+		void Reset() override
+		{
+			ClearDelayedOperations();
+
+			m_PlayerGUID = 0;
+		}
+
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			std::list<Player*> PlayersInRange;
+			me->GetPlayerListInGrid(PlayersInRange, 50.0f);
+
+			for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+			{
+				if ((*itr)->HasQuest(eQuests::Quest_WelcometoGorgrond) && (*itr)->GetQuestObjectiveCounter(273370) != 1) {
+					me->AI()->DoAction(eAction::WelcomeToGorgrondScout);
+				}
+
+			}
+		}
+		void IsSummonedBy(Unit* p_Summoner) override
+		{
+			m_PlayerGUID = p_Summoner->GetGUID();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::WelcomeToGorgrondScout:
+			{
+
+				// Creature* l_Iyu = p_Player->SummonCreature(eCreatures::NPC_GORGROND_, l_TankPos)
+				// Must spawn in the player's phase - players who see the main npcs in a different phase are not supposed to see Iyu during this quest.
+				// throw tank - https://www.wowhead.com/npc=75218/kill-credit-laughing-skull-nuke
+				// turn and start path
+				// despawn
+
+				break;
+			}
+			default:
+				break;
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_gorgrond_iyu_wildwoodwashAI(creature);
+	}
+};
+
+
+/// Naielle's Watch Cave Entrance Bunny @ Wildwood Wash - 84864
+class npc_gorgrond_naielleswatch_bunny : public CreatureScript
+{
+public:
+	npc_gorgrond_naielleswatch_bunny() : CreatureScript("npc_gorgrond_naielleswatch_bunny") { }
+
+
+	struct npc_gorgrond_naielleswatch_bunnyAI : public ScriptedAI
+	{
+		npc_gorgrond_naielleswatch_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void UpdateAI(const uint32 /*uiDiff*/)
+		{
+
+			std::list<Player*> PlayersInRange;
+			me->GetPlayerListInGrid(PlayersInRange, 10.0f);
+
+			for (std::list<Player*>::const_iterator itr = PlayersInRange.begin(); itr != PlayersInRange.end(); ++itr)
+			{
+				if ((*itr)->HasQuest(eQuests::Quest_AHarvesterHasCome) && (*itr)->GetQuestObjectiveCounter(273415) == 1) {
+					// New phase for Maraad, Yrel, D'kaan and Kaalya.
+				}
+
+			}
+		}
+
+		void Reset() { }
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_gorgrond_naielleswatch_bunnyAI(p_Creature);
+	}
+
+};
+
 
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
@@ -1889,14 +2872,30 @@ void AddSC_gorgrond()
 	new npc_gorgrond_rangari_kolaan();
 	new npc_gorgrond_rangari_jonaa();
 	new npc_gorgrond_fallen_rangari();
-	//new npc_gorgrond_podling_nibbler();
-	//new npc_gorgrond_podling_scavenger();
+	new npc_gorgrond_dead_rangari();
+	new npc_gorgrond_rangari_elekk();
+	new npc_gorgrond_goren_gouger();
+	new npc_gorgrond_infested_vinewarden();
+	new npc_gorgrond_botani_greensworn();
+	new npc_gorgrond_gronn_rockthrower();
+	new npc_gorgrond_mandragora_lifedrinker();
+	new npc_gorgrond_gronnling_bonebreaker();
+	new npc_gorgrond_podling_nibbler();
+	new npc_gorgrond_stonemaul_guard();
+	new npc_gorgrond_podling_scavenger();
 	new npc_gorgrond_podling_scavenger_naielleswatch();
-	new npc_gorgrond_gromkar_grunt_rajess();
-	new npc_gorgrond_vindicator_maraad_wildwoodwash();
+	new npc_gorgrond_gromkar_grunt();
+	new npc_gorgrond_gromkar_shieldbearer();
+	new npc_gorgrond_fungus_covered_shambler();
 	new npc_gorgrond_yrel_wildwoodwash();
+	new npc_gorgrond_rangari_kaalya_wildwoodwash();
+	new npc_gorgrond_harvester_ommru();
+	new npc_gorgrond_vindicator_maraad_wildwoodwash();
 	new npc_gorgrond_rangari_dkaan_naielleswatch();
-
+	new npc_gorgrond_glirin();
+	new npc_gorgrond_thetank_highpass();
+	//new npc_gorgrond_iyu_wildwoodwash();
+	new npc_gorgrond_naielleswatch_bunny();
 
 	/// Spells
 	new spell_drov_call_of_earth();

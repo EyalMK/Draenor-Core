@@ -217,7 +217,7 @@ class auchindoun_azzakel_mob_controller : public CreatureScript
                         if (Creature* l_Azzakael = Creature::GetCreature(*me, m_Azzakel))
                         {
                             l_Azzakael->setFaction(HostileFaction);
-                            l_Azzakael->GetMotionMaster()->MoveCharge(1911.93f, 2754.40f, 30.973f, 42.0f);                     
+                            l_Azzakael->GetMotionMaster()->MoveCharge(1837.930f, 3027.820f, 35.091f, 2.333f);                     
                         }
                         break;
                     }
@@ -476,6 +476,19 @@ class boss_azzakel : public CreatureScript
                         m_Instance->DoCompleteAchievement(eAuchindounAchievements::AchievementDemonSouls);
                 }
             }
+			/// From here Teronogor spawns
+			std::list<Player*> l_ListPlayers;
+			me->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
+			if (!l_ListPlayers.empty())
+			{
+				for (Player* l_Itr : l_ListPlayers)
+				{
+					if (!l_Itr)
+						continue;
+
+					l_Itr->PlayScene(eAuchindounScenes::SpellAuchindounSceneTeronogorSpawn, l_Itr);
+				}
+			}
         }
 
         void UpdateAI(uint32 const p_Diff) override

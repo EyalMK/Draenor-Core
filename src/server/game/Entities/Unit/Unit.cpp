@@ -453,6 +453,16 @@ void Unit::Update(uint32 p_time)
 
     UpdateSplineMovement(p_time);
     i_motionMaster.UpdateMotion(p_time);
+
+
+	// Wait with the aura interrupts until we have updated our movement generators and position
+	if (GetTypeId() == TYPEID_PLAYER)
+		InterruptMovementBasedAuras();
+	else if (!movespline->Finalized())
+		InterruptMovementBasedAuras();
+
+
+
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -542,6 +552,18 @@ void Unit::UpdateSplinePosition()
         }
      }
 }
+
+void Unit::InterruptMovementBasedAuras()
+{
+	// TODO: Check if orientation transport offset changed instead of only global orientation
+	if (_positionUpdateInfo.Turned)
+		RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+
+	if (_positionUpdateInfo.Relocated && !GetVehicle())
+		RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
+}
+
+
 
 void Unit::DisableSpline()
 {
@@ -17704,6 +17726,13 @@ void Unit::StopMoving()
     if (!IsInWorld() || movespline->Finalized())
         return;
 
+	if (!movespline->onTransport)
+	 {
+	    Position& pos = m_movementInfo.pos;
+		Relocate(pos);
+		SetOrientation(pos.GetOrientation());
+		}
+
     // Update position using old spline
     UpdateSplinePosition();
     Movement::MoveSplineInit l_Init(this);
@@ -22113,12 +22142,10 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     bool turn = (GetOrientation() != orientation);
     bool relocated = (teleport || GetPositionX() != x || GetPositionY() != y || GetPositionZ() != z);
 
-    if (turn)
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+
 
     if (relocated)
     {
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
 
         // move and update visible state if need
         if (IsPlayer())
@@ -22132,6 +22159,13 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     }
     else if (turn)
         UpdateOrientation(orientation);
+
+
+
+	_positionUpdateInfo.Relocated = relocated;
+	_positionUpdateInfo.Turned = turn;
+
+
 
     return (relocated || turn);
 }

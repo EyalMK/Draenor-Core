@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_thetank_highpass' WHERE `entry`=77224;
