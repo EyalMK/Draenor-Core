@@ -279,8 +279,8 @@ class auchindoun_mob_tuulani : public CreatureScript
             me->SetSpeed(UnitMoveType::MOVE_RUN, 1.2f, true);
             me->SetSpeed(UnitMoveType::MOVE_WALK, 1.2f, true);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-            AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			//check here
+            AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void
             {
                  me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani01, g_PositionTuulaniMovements[0]);
             });      

@@ -135,8 +135,9 @@ class EventNyamiEscape : public BasicEvent
                                     {
                                         l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK6);
                                         l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellNyamiExplodeCrystal);
+										
                                         if (GameObject* l_Crystal = l_Instance->instance->GetGameObject(l_Instance->GetData64(eAuchindounDatas::DataCrystal)))
-                                            l_Crystal->Delete();
+											l_Crystal->Delete();
 
                                         if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 1000.0f))                                       
                                             l_Nyami->m_Events.AddEvent(new EventNyamiEscape(l_Nyami, 1), l_Caster->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));                                                                            
@@ -404,7 +405,7 @@ public:
                                 {
                                     l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiDefender, g_PositionGuardsAndWardens[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
                                 }
-
+								/*
                                 //backup here
                                     uint32 l_EntriesOfSargereiDraeneis[8] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
                                     eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
@@ -427,7 +428,7 @@ public:
                                     }
                                     }
                                
-
+							   */
                                 /// Magus
                                 m_Obj->CastSpell(m_Obj, eAuchindounSpells::SpellArcaneChanneling);
                                 m_Obj->SummonGameObject(eAuchindounObjects::GameobjectTaladorPortal, g_PositionTuulaniGobjectPortalSpawn.GetPositionX(), g_PositionTuulaniGobjectPortalSpawn.GetPositionY(), g_PositionTuulaniGobjectPortalSpawn.GetPositionZ(), g_PositionTuulaniGobjectPortalSpawn.GetOrientation(), 0, 0, 0, 0, 0);
@@ -686,19 +687,7 @@ class boss_kaathar : public CreatureScript
         {
             _JustDied();
 		
-            /// From here Teronogor spawns
-            std::list<Player*> l_ListPlayers;
-            me->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
-            if (!l_ListPlayers.empty())
-            {
-                for (Player* l_Itr : l_ListPlayers)
-                {
-                    if (!l_Itr)
-                        continue;
-
-                    l_Itr->PlayScene(eAuchindounScenes::SpellAuchindounSceneTeronogorSpawn, l_Itr);
-                }               
-            }
+            
 
 			DespawnAllAucheniDraeneis();
 
