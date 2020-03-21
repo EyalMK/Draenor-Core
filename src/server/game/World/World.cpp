@@ -1700,7 +1700,7 @@ void World::SetInitialWorldSettings()
     sSpellMgr->LoadForbiddenSpells();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Phase Dbc Info...");
-    sObjectMgr->LoadSpellPhaseInfo();
+    sObjectMgr->LoadPhaseInfo();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading NPC Texts...");
     sObjectMgr->LoadGossipText();
@@ -4170,17 +4170,6 @@ void World::ProcessQueryCallbacks()
 
 void World::UpdatePhaseDefinitions()
 {
-#ifdef CROSS
-    PlayerMap::const_iterator itr;
-    for (itr = m_players.begin(); itr != m_players.end(); ++itr)
-        if (itr->second && itr->second && itr->second->IsInWorld())
-            itr->second->GetPhaseMgr().NotifyStoresReloaded();
-#else
-    SessionMap::const_iterator itr;
-    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
-            itr->second->GetPlayer()->GetPhaseMgr().NotifyStoresReloaded();
-#endif
 }
 
 bool World::ModerateMessage(std::string l_Text)

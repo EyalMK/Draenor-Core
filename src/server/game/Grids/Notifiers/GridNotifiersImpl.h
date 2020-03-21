@@ -57,7 +57,7 @@ void JadeCore::WorldObjectSearcher<Check>::Visit(GameObjectMapType &m)
 
     for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -80,7 +80,7 @@ void JadeCore::WorldObjectSearcher<Check>::Visit(PlayerMapType &m)
 
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -103,7 +103,7 @@ void JadeCore::WorldObjectSearcher<Check>::Visit(CreatureMapType &m)
 
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -126,7 +126,7 @@ void JadeCore::WorldObjectSearcher<Check>::Visit(CorpseMapType &m)
 
     for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -149,7 +149,7 @@ void JadeCore::WorldObjectSearcher<Check>::Visit(DynamicObjectMapType &m)
 
     for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -172,7 +172,7 @@ void JadeCore::WorldObjectSearcher<Check>::Visit(AreaTriggerMapType &m)
 
     for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -214,7 +214,7 @@ void JadeCore::WorldObjectLastSearcher<Check>::Visit(GameObjectMapType &m)
 
     for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -230,7 +230,7 @@ void JadeCore::WorldObjectLastSearcher<Check>::Visit(PlayerMapType &m)
 
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -246,7 +246,7 @@ void JadeCore::WorldObjectLastSearcher<Check>::Visit(CreatureMapType &m)
 
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -262,7 +262,7 @@ void JadeCore::WorldObjectLastSearcher<Check>::Visit(CorpseMapType &m)
 
     for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -278,7 +278,7 @@ void JadeCore::WorldObjectLastSearcher<Check>::Visit(DynamicObjectMapType &m)
 
     for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -294,7 +294,7 @@ void JadeCore::WorldObjectLastSearcher<Check>::Visit(AreaTriggerMapType  &m)
 
     for (AreaTriggerMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -420,7 +420,7 @@ void JadeCore::AreaTriggerSearcher<Check>::Visit(AreaTriggerMapType& p_Areatrigg
 
     for (AreaTriggerMapType::iterator itr=p_AreatriggerMap.begin(); itr != p_AreatriggerMap.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -441,7 +441,7 @@ void JadeCore::ConversationSearcher<Check>::Visit(ConversationMapType& p_Convers
 
     for (ConversationMapType::iterator itr = p_ConversationMap.begin(); itr != p_ConversationMap.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -475,7 +475,7 @@ void JadeCore::GameObjectSearcher<Check>::Visit(GameObjectMapType &m)
 
     for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -491,7 +491,7 @@ void JadeCore::GameObjectLastSearcher<Check>::Visit(GameObjectMapType &m)
 {
     for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -519,7 +519,7 @@ void JadeCore::UnitSearcher<Check>::Visit(CreatureMapType &m)
 
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -539,7 +539,7 @@ void JadeCore::UnitSearcher<Check>::Visit(PlayerMapType &m)
 
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -555,7 +555,7 @@ void JadeCore::UnitLastSearcher<Check>::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -568,7 +568,7 @@ void JadeCore::UnitLastSearcher<Check>::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -604,7 +604,7 @@ void JadeCore::CreatureSearcher<Check>::Visit(CreatureMapType &m)
 
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -620,7 +620,7 @@ void JadeCore::CreatureLastSearcher<Check>::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -660,7 +660,7 @@ void JadeCore::PlayerSearcher<Check>::Visit(PlayerMapType &m)
 
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))
@@ -676,7 +676,7 @@ void JadeCore::PlayerLastSearcher<Check>::Visit(PlayerMapType& m)
 {
     for (PlayerMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
     {
-        if (!itr->getSource()->InSamePhase(i_phaseMask))
+        if (!itr->GetSource()->IsInPhase(_searcher))
             continue;
 
         if (i_check(itr->getSource()))

@@ -2383,32 +2383,23 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
     Unit* target = aurApp->GetTarget();
 
 
-    if (Player* player = target->ToPlayer())
+    uint32 newPhase = 0;
+    Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
+    if (!phases.empty())
+        for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+            newPhase |= (*itr)->GetMiscValue();
+
+    if (!newPhase)
     {
-        if (apply)
-            player->GetPhaseMgr().RegisterPhasingAuraEffect(this);
-        else
-            player->GetPhaseMgr().UnRegisterPhasingAuraEffect(this);
+        newPhase = PHASEMASK_NORMAL;
+        if (Creature* creature = target->ToCreature())
+            if (CreatureData const* data = sObjectMgr->GetCreatureData(creature->GetDBTableGUIDLow()))
+                newPhase = data->phaseMask;
     }
-    else
-    {
-        uint32 newPhase = 0;
-        Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
-        if (!phases.empty())
-            for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-                newPhase |= (*itr)->GetMiscValue();
+    target->SetPhaseMask(newPhase, false);
 
-        if (!newPhase)
-        {
-            newPhase = PHASEMASK_NORMAL;
-            if (Creature* creature = target->ToCreature())
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(creature->GetDBTableGUIDLow()))
-                    newPhase = data->phaseMask;
-        }
-
-        target->SetPhaseMask(newPhase, false);
-    }
-
+    target->SetInPhase(GetMiscValueB(), false, apply);
+    
     // call functions which may have additional effects after chainging state of unit
     // phase auras normally not expected at BG but anyway better check
     if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
@@ -2416,6 +2407,9 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
         // drop flag at invisibiliy in bg
         target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
     }
+    
+    if (Player* player = target->ToPlayer())
+        player->UpdatePhasing();
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
     if (target->IsVisible())
@@ -2425,6 +2419,36 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
 
         target->UpdateObjectVisibility();
     }
+}
+
+void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    std::set<uint32> const& phases = GetPhasesForGroup(GetMiscValueB());
+    for (auto phase : phases)
+        target->SetInPhase(phase, false, apply);
+
+    // call functions which may have additional effects after chainging state of unit
+    // phase auras normally not expected at BG but anyway better check
+    if (apply)
+    {
+        // drop flag at invisibiliy in bg
+        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+    }
+
+    if (Player* player = target->ToPlayer())
+        player->UpdatePhasing();
+
+    // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
+    if (target->IsVisible())
+        target->UpdateObjectVisibility();
 }
 
 /**********************/

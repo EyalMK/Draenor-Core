@@ -958,6 +958,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 
     p_Data->WriteBit(p_Ennemy);                  ///< ForEnemy
     p_Data->FlushBits();
+    std::set<uint32> const& phases = player->GetPhases();
     p_Data->appendPackGUID(p_Player->GetGUID());
     *p_Data << uint8(1);                        ///< Unk, maybe "instance" status
     *p_Data << uint8(0);                        ///< MEMBER_STATUS_*
@@ -1118,6 +1119,8 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 
     uint8 byteOrder[8] = { 7, 0, 4, 2, 1, 6, 5, 3 };
     recvData.ReadBytesSeq(Guid, byteOrder);
+    
+    std::set<uint32> const& phases = player->GetPhases();
 
     Player* player = HashMapHolder<Player>::Find(Guid);
     if (player && player->GetGroup() != GetPlayer()->GetGroup())

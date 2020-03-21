@@ -253,7 +253,7 @@ PreparedStatement* PetQueryHolder::GenerateFirstLoadStatement(uint32 p_PetEntry,
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
-Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_reputationMgr(this), phaseMgr(this), m_archaeologyMgr(this), m_VignetteMgr(this)
+Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_reputationMgr(this), m_archaeologyMgr(this), m_VignetteMgr(this)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -1582,6 +1582,8 @@ void Player::Update(uint32 p_time)
 
             Pet* pet = new Pet(this);
             pet->LoadPetFromDB(this, 0, 0, true, PET_SLOT_ACTUAL_PET_SLOT, false, (PetQueryHolder*)param, [param](Pet* p_Pet, bool p_Result) -> void
+            for (auto itr : GetPhases())
+            pet->SetInPhase(itr, false, true);
             {
                 if (!p_Result)
                     delete p_Pet;
@@ -1647,6 +1649,8 @@ void Player::Update(uint32 p_time)
         sLog->outFatal(LOG_FILTER_SPELLS_AURAS, "Player has m_spellModTakingSpell %u during update!", m_spellModTakingSpell->m_spellInfo->Id);
         m_spellModTakingSpell = NULL;
     }
+    
+    
 
     //used to implement delayed far teleports
     SetCanDelayTeleport(true);
@@ -4033,8 +4037,6 @@ void Player::SetGameMaster(bool p_On)
         getHostileRefManager().setOnlineOfflineState(true);
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
 
-        phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_SERVERSIDE_CHANGED);
-        phaseMgr.Update();
     }
 
     UpdateObjectVisibility();
@@ -4337,11 +4339,6 @@ void Player::GiveLevel(uint8 level)
 #endif
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
-
-    PhaseUpdateData phaseUdateData;
-    phaseUdateData.AddConditionType(CONDITION_LEVEL);
-
-    phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     // Refer-A-Friend
 /// Commented due to action bar fix, need more research
@@ -10152,7 +10149,6 @@ void Player::UpdateArea(uint32 newArea)
     // so apply them accordingly
     m_areaUpdateId    = newArea;
 
-    phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
 
     AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
     pvpInfo.inFFAPvPArea = (area && (area->Flags & AREA_FLAG_ARENA)) || InRatedBattleGround() || pvpInfo.forceFFA;
@@ -10190,7 +10186,7 @@ void Player::UpdateArea(uint32 newArea)
         SetRestType(REST_TYPE_NO);
     }
 
-    phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
+
 
     if (l_OldArea != newArea)
     {
@@ -10302,8 +10298,6 @@ void Player::_GarrisonSetIn()
 
     std::swap(l_DungeonDiff, m_dungeonDifficulty);
 
-    phaseMgr.Update();
-    phaseMgr.ForceMapShiftUpdate();
 }
 
 void Player::_GarrisonSetOut()
@@ -10316,8 +10310,6 @@ void Player::_GarrisonSetOut()
 
     SwitchToPhasedMap(MS::Garrison::Globals::BaseMap);
 
-    phaseMgr.Update();
-    phaseMgr.ForceMapShiftUpdate();
 }
 
 void Player::_SetInShipyard()
@@ -10332,8 +10324,6 @@ void Player::_SetInShipyard()
 
     std::swap(l_DungeonDiff, m_dungeonDifficulty);
 
-    phaseMgr.Update();
-    phaseMgr.ForceMapShiftUpdate();
 }
 
 void Player::_SetOutOfShipyard()
@@ -10343,14 +10333,11 @@ void Player::_SetOutOfShipyard()
 
     SwitchToPhasedMap(MS::Garrison::Globals::BaseMap);
 
-    phaseMgr.Update();
-    phaseMgr.ForceMapShiftUpdate();
 }
 
 #endif /* not CROSS */
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
 {
-    phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_ZONE_UPDATE);
 
 	if (m_zoneUpdateId != newZone)
 	{
@@ -10468,7 +10455,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     UpdateZoneDependentAuras(newZone);
 
-    phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_ZONE_UPDATE);
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -18902,10 +18888,6 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     CheckSpellAreaOnQuestStatusChange(quest_id);
 
-    PhaseUpdateData phaseUdateData;
-    phaseUdateData.AddQuestUpdate(quest_id);
-
-    phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     UpdateForQuestWorldObjects();
 
@@ -19252,16 +19234,10 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
     m_RewardedQuests.insert(l_QuestId);
     m_RewardedQuestsSave[l_QuestId] = true;
 
-    PhaseUpdateData phaseUdateData;
-    phaseUdateData.AddQuestUpdate(l_QuestId);
-    phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     // Must come after the insert in m_RewardedQuests because of spell_area check
     RemoveActiveQuest(l_QuestId);
 
-    phaseUdateData.AddQuestUpdate(l_QuestId);
-
-    phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     // StoreNewItem, mail reward, etc. save data directly to the database
     // to prevent exploitable data desynchronisation we save the quest status to the database too
@@ -20047,10 +20023,6 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
 
     CheckSpellAreaOnQuestStatusChange(quest_id);
 
-    PhaseUpdateData phaseUdateData;
-    phaseUdateData.AddQuestUpdate(quest_id);
-
-    phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     UpdateForQuestWorldObjects();
 }
@@ -20102,10 +20074,6 @@ void Player::RemoveActiveQuest(uint32 quest_id, bool p_BonusQuest)
 
         CheckSpellAreaOnQuestStatusChange(quest_id);
 
-        PhaseUpdateData phaseUdateData;
-        phaseUdateData.AddQuestUpdate(quest_id);
-
-        phaseMgr.NotifyConditionChanged(phaseUdateData);
 
 #ifndef CROSS
         if (m_Garrison && IsInGarrison())
@@ -20127,10 +20095,6 @@ void Player::RemoveRewardedQuest(uint32 p_QuestId)
         m_RewardedQuests.erase(rewItr);
         m_RewardedQuestsSave[p_QuestId] = false;
 
-        PhaseUpdateData phaseUdateData;
-        phaseUdateData.AddQuestUpdate(p_QuestId);
-
-        phaseMgr.NotifyConditionChanged(phaseUdateData);
 
         if (uint32 l_QuestBit = GetQuestUniqueBitFlag(p_QuestId))
             SetQuestBit(l_QuestBit, false);
@@ -28236,8 +28200,8 @@ void Player::SendInitialPacketsAfterAddToMap()
     /// Force map shift update
     if ((GetMapId() == MS::Garrison::Globals::BaseMap && m_Garrison) || IsInGarrison())
     {
-        phaseMgr.Update();
-        phaseMgr.ForceMapShiftUpdate();
+        //phaseMgr.Update();
+        //phaseMgr.ForceMapShiftUpdate();
     }
 
     if (IsInGarrison())
@@ -35098,6 +35062,24 @@ void Player::ApplyOnBagsItems(std::function<bool(Player*, Item*, uint8, uint8)>&
             }
         }
     }
+}
+
+void Player::UpdatePhasing()
+{
+    std::set<uint32> phaseIds;
+    std::set<uint32> terrainswaps;
+    std::set<uint32> worldAreaSwaps;
+
+    for (auto phase : GetPhases())
+    {
+        PhaseInfo const* info = sObjectMgr->GetPhaseInfo(phase);
+        if (!info)
+            continue;
+        terrainswaps.insert(info->terrainSwapMap);
+        worldAreaSwaps.insert(info->worldMapAreaSwap);
+    }
+
+    GetSession()->SendSetPhaseShift(GetPhases(), terrainswaps, worldAreaSwaps);
 }
 
 void Player::ApplyOnBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)

@@ -2305,6 +2305,11 @@ class debug_commandscript: public CommandScript
                 delete v;
                 return false;
             }
+            
+            for (auto phase : handler->GetSession()->GetPlayer()->GetPhases())
+            v->SetInPhase(phase, false, true);
+
+
 
             map->AddToMap(v->ToCreature());
 
@@ -2333,14 +2338,14 @@ class debug_commandscript: public CommandScript
 
 			std::set<uint32> terrainswap;
 			std::set<uint32> phaseId;
-			std::set<uint32> inactiveTerrainSwap;
+			std::set<uint32> worldMapSwap;
 
 			terrainswap.insert((uint32)atoi(t));
 
 			if (p)
 				phaseId.insert((uint32)atoi(p));
 
-			handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, inactiveTerrainSwap);
+			handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, worldMapSwap);
 			return true;
 		}
 
@@ -2728,8 +2733,7 @@ class debug_commandscript: public CommandScript
             Player* player = handler->GetSession()->GetPlayer();
             if (unit && unit->IsPlayer())
                 player = unit->ToPlayer();
-
-            player->GetPhaseMgr().SendDebugReportToPlayer(handler->GetSession()->GetPlayer());
+                
             return true;
         }
 
