@@ -1470,33 +1470,32 @@ class auchindoun_teronogor_gameobject_soul_transporter_03 : public GameObjectScr
 		{
 			if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
 			{
-					if (Creature* l_Gulkosh = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataGulkosh)))
+				if (Creature* l_Gulkosh = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataGulkosh)))
+				{
+					if (l_Gulkosh->isAlive())
+						return false;
 					{
-						if (l_Gulkosh->isAlive())
-							return false;
+						if (boss_teronogor::boss_teronogorAI* l_LinkAI = CAST_AI(boss_teronogor::boss_teronogorAI, l_Teronogor->GetAI()))
 						{
-							if (boss_teronogor::boss_teronogorAI* l_LinkAI = CAST_AI(boss_teronogor::boss_teronogorAI, l_Teronogor->GetAI()))
+							if (l_LinkAI->m_SoulTransport03)
 							{
-								if (l_LinkAI->m_SoulTransport03)
-								{
-									p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
-									p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-									p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-									p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-									p_Player->m_Events.AddEvent(new auchindoun_soul_transportation_event(p_Player, 7), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
-									return true;
-								}
+								p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
+								p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+								p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+								p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+								p_Player->m_Events.AddEvent(new auchindoun_soul_transportation_event(p_Player, 7), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+								return true;
 							}
 						}
-
 					}
 
-					return false;
 				}
 
+				return false;
 			}
-	}
 
+		}
+	}
 };
 
 /// Soul Transport Object 04 - 345368
@@ -1512,11 +1511,6 @@ class auchindoun_teronogor_gameobject_soul_transporter_04 : public GameObjectScr
 		{
 			if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
 			{
-				if (Creature* l_Gromtash = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataGromtash)))
-				{
-					if (l_Gromtash->isAlive())
-						return false;
-					{
 						if (boss_teronogor::boss_teronogorAI* l_LinkAI = CAST_AI(boss_teronogor::boss_teronogorAI, l_Teronogor->GetAI()))
 						{
 							if (l_LinkAI->m_SoulTransport04)
@@ -1530,9 +1524,12 @@ class auchindoun_teronogor_gameobject_soul_transporter_04 : public GameObjectScr
 							}
 						}
 					}
-				}
-			}
 		}
+		p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
+		p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+		p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+		p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+		p_Player->m_Events.AddEvent(new auchindoun_soul_transportation_event(p_Player, 10), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
         return false;
     }
 
