@@ -881,9 +881,7 @@ enum GOState
 // from `gameobject`
 struct GameObjectData
 {
-     explicit GameObjectData() : id(0), mapid(0), phaseMask(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f),
-                                rotation0(0.0f), rotation1(0.0f), rotation2(0.0f), rotation3(0.0f), spawntimesecs(0),
-                                animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), phaseid(0), phaseGroup(0), dbData(true) { }
+    explicit GameObjectData() : dbData(true) {}
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
     uint16 zoneId;
@@ -902,8 +900,6 @@ struct GameObjectData
     GOState go_state;
     uint32 spawnMask;
     uint8 artKit;
-    uint32 phaseid;
-    uint32 phaseGroup;
     bool isActive;
     uint32 CustomFlags;
     bool dbData;
@@ -1048,7 +1044,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
 
         void SetPhaseMask(uint32 newPhaseMask, bool update);
-        void SetInPhase(uint32 id, bool update, bool apply);
         void EnableCollision(bool enable);
 
         void Use(Unit* user);

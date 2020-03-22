@@ -1464,9 +1464,14 @@ public:
 
         Unit* target = handler->getSelectedUnit();
         if (target)
-        target->SetPhaseMask(phasemask, true);
+        {
+            if (target->IsPlayer())
+                target->ToPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
+            else
+                target->SetPhaseMask(phasemask, true);
+        }
         else
-            handler->GetSession()->GetPlayer()->SetPhaseMask(phasemask, true);
+            handler->GetSession()->GetPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
 
         return true;
     }

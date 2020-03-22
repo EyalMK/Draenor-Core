@@ -918,13 +918,9 @@ class WorldObject : public Object, public WorldLocation
         uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
-        virtual void SetInPhase(uint32 id, bool update, bool apply);
         uint32 GetPhaseMask() const { return m_phaseMask; }
         bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()); }
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
-        bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
-        bool IsInPhase(WorldObject const* obj) const;
-        std::set<uint32> const& GetPhases() const { return _phases; 
 
         virtual uint32 GetZoneId(bool forceRecalc = false) const;
         virtual uint32 GetAreaId(bool forceRecalc = false) const;
@@ -1202,7 +1198,6 @@ class WorldObject : public Object, public WorldLocation
         //uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
-        std::set<uint32> _phases;
 
         std::list<uint64/* guid*/> _visibilityPlayerList;
 

@@ -129,12 +129,13 @@ namespace JadeCore
     {
         WorldObject* i_source;
         WorldPacket* i_message;
+        uint32 i_phaseMask;
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
         GuidUnorderedSet m_IgnoredGUIDs;
         MessageDistDeliverer(WorldObject* src, WorldPacket* msg, float dist, bool own_team_only = false, Player const* skipped = NULL, GuidUnorderedSet p_IgnoredSet = GuidUnorderedSet())
-			: i_source(src), i_message(msg), i_distSq(dist * dist)
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
             , team((own_team_only && src->IsPlayer()) ? ((Player*)src)->GetTeam() : 0)
             , skipped_receiver(skipped), m_IgnoredGUIDs(p_IgnoredSet)
         {
@@ -166,9 +167,10 @@ namespace JadeCore
     {
         Unit* i_source;
         WorldPacket* i_message;
+        uint32 i_phaseMask;
         float i_distSq;
         UnfriendlyMessageDistDeliverer(Unit* src, WorldPacket* msg, float dist)
-			: i_source(src), i_message(msg), i_distSq(dist * dist)
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist) { }
 
         void Visit(PlayerMapType &m);
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
@@ -216,12 +218,12 @@ namespace JadeCore
     struct WorldObjectSearcher
     {
         uint32 i_mapTypeMask;
-		WorldObject*& i_object;
-		WorldObject const* _searcher;
+        uint32 i_phaseMask;
+        WorldObject* &i_object;
         Check &i_check;
 
         WorldObjectSearcher(WorldObject const* searcher, WorldObject* & result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-			: i_mapTypeMask(mapTypeMask), _searcher(searcher), i_object(result), i_check(check) { }
+            : i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(GameObjectMapType &m);
         void Visit(PlayerMapType &m);
@@ -238,12 +240,12 @@ namespace JadeCore
     struct WorldObjectLastSearcher
     {
         uint32 i_mapTypeMask;
+        uint32 i_phaseMask;
         WorldObject* &i_object;
-		WorldObject const* _searcher;
         Check &i_check;
 
         WorldObjectLastSearcher(WorldObject const* searcher, WorldObject* & result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-			: i_mapTypeMask(mapTypeMask), _searcher(searcher), i_object(result), i_check(check) { }
+            :  i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(GameObjectMapType &m);
         void Visit(PlayerMapType &m);
@@ -260,12 +262,12 @@ namespace JadeCore
     struct WorldObjectListSearcher
     {
         uint32 i_mapTypeMask;
-		WorldObject const* _searcher;
+        uint32 i_phaseMask;
         std::list<WorldObject*> &i_objects;
         Check& i_check;
 
         WorldObjectListSearcher(WorldObject const* searcher, std::list<WorldObject*> &objects, Check & check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-			: i_mapTypeMask(mapTypeMask), _searcher(searcher), i_objects(objects), i_check(check) { }
+            : i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) {}
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -282,18 +284,18 @@ namespace JadeCore
     struct WorldObjectWorker
     {
         uint32 i_mapTypeMask;
-		WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Do const& i_do;
 
         WorldObjectWorker(WorldObject const* searcher, Do const& _do, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-			: i_mapTypeMask(mapTypeMask), _searcher(searcher), i_do(_do) { }
+            : i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_do(_do) {}
 
         void Visit(GameObjectMapType &m)
         {
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_GAMEOBJECT))
                 return;
             for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-				if (itr->GetSource()->IsInPhase(_searcher))
+                if (itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
@@ -302,7 +304,7 @@ namespace JadeCore
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_PLAYER))
                 return;
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->IsInPhase(_searcher))
+                if (itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
         void Visit(CreatureMapType &m)
@@ -310,7 +312,7 @@ namespace JadeCore
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CREATURE))
                 return;
             for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->IsInPhase(_searcher))
+                if (itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
@@ -319,7 +321,7 @@ namespace JadeCore
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CORPSE))
                 return;
             for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->IsInPhase(_searcher))
+                if (itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
@@ -328,7 +330,7 @@ namespace JadeCore
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_DYNAMICOBJECT))
                 return;
             for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->IsInPhase(_searcher))
+                if (itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
@@ -337,7 +339,7 @@ namespace JadeCore
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
                 return;
             for (AreaTriggerMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->IsInPhase(_searcher))
+                if (itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
@@ -348,7 +350,7 @@ namespace JadeCore
 
             for (ConversationMapType::iterator l_Iter = m.begin(); l_Iter != m.end(); ++l_Iter)
             {
-                if (l_Iter->getSource()->IsInPhase(_searcher))
+                if (l_Iter->getSource()->InSamePhase(i_phaseMask))
                     i_do(l_Iter->getSource());
             }
         }
@@ -375,12 +377,12 @@ namespace JadeCore
     template<class Check>
     struct AreaTriggerSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         AreaTrigger* &i_object;
         Check & i_check;
 
         AreaTriggerSearcher(WorldObject const* searcher, AreaTrigger* & result, Check & check)
-            : _searcher(searcher), i_object(result), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(AreaTriggerMapType &m);
 
@@ -391,12 +393,12 @@ namespace JadeCore
     template<class Check>
     struct ConversationSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Conversation* &i_object;
         Check & i_check;
 
         ConversationSearcher(WorldObject const* searcher, Conversation* & result, Check & check)
-            : _searcher(searcher), i_object(result), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
 
         void Visit(ConversationMapType& p_ConversationMap);
 
@@ -422,12 +424,12 @@ namespace JadeCore
     template<class Check>
     struct GameObjectSearcher
     {
-		WorldObject const* _searcher;
+        uint32 i_phaseMask;
         GameObject* &i_object;
         Check &i_check;
 
         GameObjectSearcher(WorldObject const* searcher, GameObject* & result, Check& check)
-			: _searcher(searcher), i_object(result), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(GameObjectMapType &m);
 
@@ -438,12 +440,12 @@ namespace JadeCore
     template<class Check>
     struct GameObjectLastSearcher
     {
-		WorldObject const* _searcher;
+        uint32 i_phaseMask;
         GameObject* &i_object;
         Check& i_check;
 
         GameObjectLastSearcher(WorldObject const* searcher, GameObject* & result, Check& check)
-			: _searcher(searcher), i_object(result), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(GameObjectMapType &m);
 
@@ -453,12 +455,12 @@ namespace JadeCore
     template<class Check>
     struct GameObjectListSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         std::list<GameObject*> &i_objects;
         Check& i_check;
 
         GameObjectListSearcher(WorldObject const* searcher, std::list<GameObject*> &objects, Check & check)
-			: _searcher(searcher), i_objects(objects), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) {}
 
         void Visit(GameObjectMapType &m);
 
@@ -469,12 +471,12 @@ namespace JadeCore
     struct GameObjectWorker
     {
         GameObjectWorker(WorldObject const* searcher, Functor& func)
-			: _func(func), _searcher(searcher) { }
+            : _func(func), _phaseMask(searcher->GetPhaseMask()) {}
 
         void Visit(GameObjectMapType& m)
         {
             for (GameObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-				if (itr->GetSource()->IsInPhase(_searcher))
+                if (itr->getSource()->InSamePhase(_phaseMask))
                     _func(itr->getSource());
         }
 
@@ -482,7 +484,7 @@ namespace JadeCore
 
     private:
         Functor& _func;
-		WorldObject const* _searcher;
+        uint32 _phaseMask;
     };
 
     // Unit searchers
@@ -491,12 +493,12 @@ namespace JadeCore
     template<class Check>
     struct UnitSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Unit* &i_object;
         Check & i_check;
 
         UnitSearcher(WorldObject const* searcher, Unit* & result, Check & check)
-            : _searcher(searcher), i_object(result), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(CreatureMapType &m);
         void Visit(PlayerMapType &m);
@@ -508,12 +510,12 @@ namespace JadeCore
     template<class Check>
     struct UnitLastSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Unit* &i_object;
         Check & i_check;
 
         UnitLastSearcher(WorldObject const* searcher, Unit* & result, Check & check)
-            : _searcher(searcher), i_object(result), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(CreatureMapType &m);
         void Visit(PlayerMapType &m);
@@ -525,12 +527,12 @@ namespace JadeCore
     template<class Check>
     struct UnitListSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         std::list<Unit*> &i_objects;
         Check& i_check;
 
         UnitListSearcher(WorldObject const* searcher, std::list<Unit*> &objects, Check & check)
-            : _searcher(searcher), i_objects(objects), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) {}
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -543,12 +545,12 @@ namespace JadeCore
     template<class Check>
     struct CreatureSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Creature* &i_object;
         Check & i_check;
 
         CreatureSearcher(WorldObject const* searcher, Creature* & result, Check & check)
-            : _searcher(searcher), i_object(result), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(CreatureMapType &m);
 
@@ -559,12 +561,12 @@ namespace JadeCore
     template<class Check>
     struct CreatureLastSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Creature* &i_object;
         Check & i_check;
 
         CreatureLastSearcher(WorldObject const* searcher, Creature* & result, Check & check)
-            : _searcher(searcher), i_object(result), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(CreatureMapType &m);
 
@@ -574,12 +576,12 @@ namespace JadeCore
     template<class Check>
     struct CreatureListSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         std::list<Creature*> &i_objects;
         Check& i_check;
 
         CreatureListSearcher(WorldObject const* searcher, std::list<Creature*> &objects, Check & check)
-            : _searcher(searcher), i_objects(objects), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) {}
 
         void Visit(CreatureMapType &m);
 
@@ -589,16 +591,16 @@ namespace JadeCore
     template<class Do>
     struct CreatureWorker
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Do& i_do;
 
         CreatureWorker(WorldObject const* searcher, Do& _do)
-            : _searcher(searcher), i_do(_do) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_do(_do) {}
 
         void Visit(CreatureMapType &m)
         {
             for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->IsInPhase(_searcher))
+                if (itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
@@ -610,12 +612,12 @@ namespace JadeCore
     template<class Check>
     struct PlayerSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Player* &i_object;
         Check & i_check;
 
         PlayerSearcher(WorldObject const* searcher, Player* & result, Check & check)
-            : _searcher(searcher), i_object(result), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
 
         void Visit(PlayerMapType &m);
 
@@ -625,12 +627,12 @@ namespace JadeCore
     template<class Check>
     struct PlayerListSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         std::list<Player*> &i_objects;
         Check& i_check;
 
         PlayerListSearcher(WorldObject const* searcher, std::list<Player*> &objects, Check & check)
-            : _searcher(searcher), i_objects(objects), i_check(check) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) {}
 
         void Visit(PlayerMapType &m);
 
@@ -640,11 +642,11 @@ namespace JadeCore
     template<class Check>
     struct PlayerLastSearcher
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Player* &i_object;
         Check& i_check;
 
-		PlayerLastSearcher(WorldObject const* searcher, Player*& result, Check& check) : _searcher(searcher), i_object(result), i_check(check)
+        PlayerLastSearcher(WorldObject const* searcher, Player*& result, Check& check) : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check)
         {
         }
 
@@ -656,16 +658,16 @@ namespace JadeCore
     template<class Do>
     struct PlayerWorker
     {
-        WorldObject const* _searcher;
+        uint32 i_phaseMask;
         Do& i_do;
 
         PlayerWorker(WorldObject const* searcher, Do& _do)
-            : _searcher(searcher), i_do(_do) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_do(_do) {}
 
         void Visit(PlayerMapType &m)
         {
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->IsInPhase(_searcher))
+                if (itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
@@ -685,7 +687,7 @@ namespace JadeCore
         void Visit(PlayerMapType &m)
         {
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-				if (itr->GetSource()->IsInPhase(i_searcher) && itr->GetSource()->IsWithinDist(i_searcher, i_dist))
+                if (itr->getSource()->InSamePhase(i_searcher) && itr->getSource()->IsWithinDist(i_searcher, i_dist))
                     i_do(itr->getSource());
         }
 
@@ -1795,7 +1797,7 @@ namespace JadeCore
         AllAreaTriggersInRangeCheck(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) {}
         bool operator() (AreaTrigger* p_AreaTrigger)
         {
-            return m_pObject->IsWithinDist(p_AreaTrigger, m_fRange, false) && m_pObject->IsInPhase(p_AreaTrigger);
+            return m_pObject->IsWithinDist(p_AreaTrigger, m_fRange, false) && m_pObject->InSamePhase(p_AreaTrigger);
         }
     private:
         const WorldObject* m_pObject;
@@ -1808,7 +1810,7 @@ namespace JadeCore
             AllWorldObjectsInRange(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) {}
             bool operator() (WorldObject* go)
             {
-                return m_pObject->IsWithinDist(go, m_fRange, false) && m_pObject->IsInPhase(go);
+                return m_pObject->IsWithinDist(go, m_fRange, false) && m_pObject->InSamePhase(go);
             }
         private:
             const WorldObject* m_pObject;

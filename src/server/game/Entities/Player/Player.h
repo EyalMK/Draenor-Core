@@ -29,6 +29,7 @@
 #include "Unit.h"
 #include "Util.h"                                           // for Tokenizer typedef
 #include "WorldSession.h"
+#include "PhaseMgr.h"
 #include "CinematicPathMgr.h"
 #include "VignetteMgr.hpp"
 #include "BitSet.hpp"
@@ -61,6 +62,7 @@ class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
+class PhaseMgr;
 class SceneObject;
 
 namespace CUF
@@ -1711,6 +1713,8 @@ class Player : public Unit, public GridObject<Player>
         void SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false, std::function<void(Pet*, bool)> p_Callback = [](Pet*, bool){}, bool p_Bypass = false);
         void RemovePet(Pet* pet, PetSlot mode, bool returnreagent = false, bool stampeded = false);
 
+        PhaseMgr& GetPhaseMgr() { return phaseMgr; }
+
         void Say(const std::string& text, const uint32 language);
         void Yell(const std::string& text, const uint32 language);
         void TextEmote(const std::string& text);
@@ -3236,8 +3240,6 @@ class Player : public Unit, public GridObject<Player>
         void UpdateVisibilityForPlayer();
         void UpdateVisibilityOf(WorldObject* target);
         void UpdateTriggerVisibility();
-        
-        void UpdatePhasing();
 
         template<class T>
         void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);
@@ -4244,6 +4246,8 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 _activeCheats;
         uint32 _maxPersonalArenaRate;
+
+        PhaseMgr phaseMgr;
 
         uint32 _lastTargetedGO;
         float m_PersonnalXpRate;

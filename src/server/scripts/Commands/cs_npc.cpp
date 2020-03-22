@@ -239,31 +239,25 @@ public:
                 uint32 l_Guid = p_Result->Fetch()[0].GetUInt32() + 1;
                 CreatureData& l_Data = sObjectMgr->NewOrExistCreatureData(l_Guid);
                 l_Data.id = l_Id;
-                l_Data.phaseMask = l_Character->GetPhaseMask();
+                l_Data.phaseMask = l_Character->GetPhaseMgr().GetPhaseMaskForSpawn();
                 l_Data.posX = l_Character->GetTransOffsetX();
                 l_Data.posY = l_Character->GetTransOffsetY();
                 l_Data.posZ = l_Character->GetTransOffsetZ();
                 l_Data.orientation = l_Character->GetTransOffsetO();
 
                 Creature* l_Creature = l_Transport->CreateNPCPassenger(l_Guid, &l_Data);
-                l_Creature->SaveToDB(l_Transport->GetGOInfo()->moTransport.mapID, 1 << l_Map->GetSpawnMode(), l_Character->GetPhaseMask());
-                
+                l_Creature->SaveToDB(l_Transport->GetGOInfo()->moTransport.mapID, 1 << l_Map->GetSpawnMode(), l_Character->GetPhaseMgr().GetPhaseMaskForSpawn());
                 return;
             }
 
             Creature* l_Creature = new Creature();
-            if (!l_Creature->Create(p_Result->Fetch()[0].GetUInt32() + 1, l_Map, l_Character->GetPhaseMask(), l_Id, 0, (uint32)l_Teamval, x, y, z, o))
+            if (!l_Creature->Create(p_Result->Fetch()[0].GetUInt32() + 1, l_Map, l_Character->GetPhaseMgr().GetPhaseMaskForSpawn(), l_Id, 0, (uint32)l_Teamval, x, y, z, o))
             {
                 delete l_Creature;
                 return;
             }
-            
 
-
-                                                                for (auto phase : l_Character->GetPhases())
-                        l_Creature->SetInPhase(phase, false, true);
-
-            l_Creature->SaveToDB(l_Map->GetId(), (1 << l_Map->GetSpawnMode()), l_Character->GetPhaseMask());
+            l_Creature->SaveToDB(l_Map->GetId(), (1 << l_Map->GetSpawnMode()), l_Character->GetPhaseMgr().GetPhaseMaskForSpawn());
 
             uint32 l_DbGuid = l_Creature->GetDBTableGUIDLow();
 

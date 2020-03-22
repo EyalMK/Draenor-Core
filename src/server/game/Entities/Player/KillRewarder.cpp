@@ -266,8 +266,6 @@ void KillRewarder::Reward()
             _RewardPlayer(_killer, false);
     }
     
-    Player::Player(WorldSession* session): Unit(true)
-    
     
     // 5. Credit instance encounter.
     // 6. Update guild achievements.

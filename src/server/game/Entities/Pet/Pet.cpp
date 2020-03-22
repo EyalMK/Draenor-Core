@@ -221,9 +221,6 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bo
         p_Callback(this, false);
         return;
     }
-    
-    for (auto itr : owner->GetPhases())
-        SetInPhase(itr, false, true);
 
     setPetType(pet_type);
     setFaction(owner->getFaction());
