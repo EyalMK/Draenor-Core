@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_stonemaul_guard' WHERE `entry`=75819;

@@ -1,1 +1,0 @@
-UPDATE `quest_template` SET `RequiredMinRepFaction`=1270, `RequiredMinRepValue`=42000 WHERE `id`=31277;

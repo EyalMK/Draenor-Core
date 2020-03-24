@@ -1,1 +1,0 @@
-UPDATE `creature_text` SET `text`='Gorgrond is no place for armies. This land swallows all who enter. We will be forunate to even lay eyes upon the Iron Horde base.' WHERE `entry`=75127 AND `groupid`=1;

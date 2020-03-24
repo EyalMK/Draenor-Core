@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_harvester_ommru' WHERE `entry`=84373;

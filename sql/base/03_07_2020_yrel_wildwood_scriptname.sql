@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_yrel_wildwoodwash' WHERE `entry`=80978;
