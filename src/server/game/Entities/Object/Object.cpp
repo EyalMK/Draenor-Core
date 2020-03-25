@@ -2966,16 +2966,15 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    uint32 phase = PHASEMASK_NORMAL;
     std::set<uint32> phases;
     uint32 team = 0;
+
     if (summoner)
-    {
-        phase = summoner->GetPhaseMask();
-        phases = summoner->GetPhases();
-        if (summoner->IsPlayer())
-            team = summoner->ToPlayer()->GetTeam();
-    }
+			phases = summoner->GetPhases();
+
+    if (summoner->IsPlayer())
+			team = summoner->ToPlayer()->GetTeam();
+
 
     // Fix Serpent Jade Statue and Sturdy Ox Statue - is Guardian
     if (entry == 60849 || entry == 61146)
@@ -3005,7 +3004,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, vehId, team, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
+    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, 0, entry, vehId, team, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
     {
         delete summon;
         return NULL;

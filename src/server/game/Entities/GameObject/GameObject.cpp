@@ -185,7 +185,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit, uint32 p_GoHealth)
+bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 /*phaseMask*/, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit, uint32 p_GoHealth)
 {
     {
         GameObjectTemplate const* l_GameObjectTemplate = sObjectMgr->GetGameObjectTemplate(name_id);
@@ -209,7 +209,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
         return false;
     }
 
-    SetPhaseMask(phaseMask, false);
+    // SetPhaseMask(phaseMask, false);
 
     SetZoneScript();
     if (m_zoneScript)
@@ -269,7 +269,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     m_model = GameObjectModel::Create(*this);
 
     /// Recall this function to update the model
-    SetPhaseMask(phaseMask, false);
+    // SetPhaseMask(phaseMask, false);
 
     loot.SetSource(GetGUID());
 
@@ -2322,14 +2322,6 @@ void GameObject::SetDisplayId(uint32 displayid)
 void GameObject::SetInPhase(uint32 id, bool update, bool apply)
 {
     WorldObject::SetInPhase(id, update, apply);
-    if (m_model && m_model->isEnabled())
-        EnableCollision(true);
-}
-
-
-void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
-{
-    WorldObject::SetPhaseMask(newPhaseMask, update);
     if (m_model && m_model->isEnabled())
         EnableCollision(true);
 }

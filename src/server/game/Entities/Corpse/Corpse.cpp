@@ -187,12 +187,12 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
     m_time = time_t(fields[11].GetUInt32());
 
     uint32 instanceId  = fields[13].GetUInt32();
-    uint32 phaseMask   = fields[14].GetUInt16();
+    // uint32 phaseMask   = fields[14].GetUInt16();
 
     // place
     SetLocationInstanceId(instanceId);
     SetLocationMapId(mapId);
-    SetPhaseMask(phaseMask, false);
+    // SetPhaseMask(phaseMask, false);
     Relocate(posX, posY, posZ, o);
 
     if (!IsPositionValid())

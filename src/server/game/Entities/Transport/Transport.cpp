@@ -245,6 +245,15 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
         return NULL;
     }
 
+	if (data->phaseid)
+		creature->SetInPhase(data->phaseid, false, true);
+	else if (data->phaseGroup)
+		for (auto phase : GetPhasesForGroup(data->phaseGroup))
+			creature->SetInPhase(phase, false, true);
+	else
+		for (auto phase : GetPhases()) // Set the creature to the transport's phases
+			creature->SetInPhase(phase, false, true);
+
     map->AddToMap(creature);
     _staticPassengers.insert(creature);
 

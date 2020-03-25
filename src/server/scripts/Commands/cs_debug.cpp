@@ -2727,12 +2727,12 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugPhaseCommand(ChatHandler* handler, char const* /*args*/)
+        static bool HandleDebugPhaseCommand(ChatHandler* /*handler*/, char const* /*args*/)
         {
-            Unit* unit = handler->getSelectedUnit();
+            /*Unit* unit = handler->getSelectedUnit();
             Player* player = handler->GetSession()->GetPlayer();
             if (unit && unit->IsPlayer())
-                player = unit->ToPlayer();
+                player = unit->ToPlayer();*/
                 
             return true;
         }
