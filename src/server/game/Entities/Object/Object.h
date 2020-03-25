@@ -859,7 +859,7 @@ class WorldObject : public Object, public WorldLocation
             if (!IsInWorld())
                 return;
 
-           // DestroyForNearbyPlayers();
+            DestroyForNearbyPlayers();
 
             Object::RemoveFromWorld();
         }
