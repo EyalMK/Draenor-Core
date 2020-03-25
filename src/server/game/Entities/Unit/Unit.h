@@ -2134,7 +2134,7 @@ class Unit : public WorldObject
         void RemoveAurasDueToItemSpell(Item* castItem, uint32 spellId);
         void RemoveAurasByType(AuraType auraType, uint64 casterGUID = 0, Aura* aura = nullptr, uint32 exceptAuraId = 0, bool negative = true, bool positive = true);
         void RemoveEffectsByType(AuraType auraType, uint64 casterGUID = 0, Aura* aura = nullptr, uint32 exceptAuraId = 0, bool negative = true, bool positive = true);
-        void RemoveNotOwnSingleTargetAuras(uint32 newPhase = 0x0);
+        void RemoveNotOwnSingleTargetAuras(uint32 newPhase = 0x0, bool phaseid = false);
         void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0);
         void RemoveFlagsAuras();
         void RemoveAurasWithAttribute(uint32 flags);
@@ -2338,6 +2338,7 @@ class Unit : public WorldObject
 
         // common function for visibility checks for player/creatures with detection code
         void SetPhaseMask(uint32 newPhaseMask, bool update);// overwrite WorldObject::SetPhaseMask
+        void SetInPhase(uint32 id, bool update, bool apply);
         void UpdateObjectVisibility(bool forced = true);
 
         SpellImmuneList m_spellImmune[MAX_SPELL_IMMUNITY];

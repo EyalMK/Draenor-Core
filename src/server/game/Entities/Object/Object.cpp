@@ -2967,10 +2967,12 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     }
 
     uint32 phase = PHASEMASK_NORMAL;
+    std::set<uint32> phases;
     uint32 team = 0;
     if (summoner)
     {
         phase = summoner->GetPhaseMask();
+        phases = summoner->GetPhases();
         if (summoner->IsPlayer())
             team = summoner->ToPlayer()->GetTeam();
     }
@@ -3008,6 +3010,11 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         delete summon;
         return NULL;
     }
+    
+    // Set the summon to the summoner's phase
+    for (auto phaseId : phases)
+        summon->SetInPhase(phaseId, false, true);
+
 
     summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spellId);
 
@@ -3351,6 +3358,11 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
         delete go;
         return NULL;
     }
+    
+    for (auto phase : GetPhases())
+        go->SetInPhase(phase, false, true);
+
+
 
     go->SetRespawnTime(respawnTime);
 
@@ -3915,6 +3927,35 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
 
     if (update && IsInWorld())
         UpdateObjectVisibility();
+}
+
+void WorldObject::SetInPhase(uint32 id, bool update, bool apply)
+{
+    if (apply)
+        _phases.insert(id);
+    else
+        _phases.erase(id);
+
+    if (update && IsInWorld())
+        UpdateObjectVisibility();
+}
+
+bool WorldObject::IsInPhase(WorldObject const* obj) const
+{
+    // PhaseId 169 is the default fallback phase
+    if (_phases.empty() && obj->GetPhases().empty())
+        return true;
+
+    if (_phases.empty() && obj->IsInPhase(169))
+        return true;
+
+    if (obj->GetPhases().empty() && IsInPhase(169))
+        return true;
+
+    for (auto phase : _phases)
+        if (obj->IsInPhase(phase))
+            return true;
+    return false;
 }
 
 void WorldObject::PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject /*= NULL*/, float p_SourceX /*= 0.0f*/, float p_SourceY /*= 0.0f*/, float p_SourceZ /*= 0.0f*/)

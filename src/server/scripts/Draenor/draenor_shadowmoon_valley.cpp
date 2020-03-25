@@ -12,7 +12,6 @@
 #include "GameObjectAI.h"
 #include "NPCHandler.h"
 #include "Vehicle.h"
-#include "PhaseMgr.h"
 #include "Common.h"
 
 /* When you first arrive Shadowmoon, the player must be set in phase 3, since the questgiver and actors are in phase 2 and the player 

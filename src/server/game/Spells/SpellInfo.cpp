@@ -8,6 +8,7 @@
 
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "Spell.h"

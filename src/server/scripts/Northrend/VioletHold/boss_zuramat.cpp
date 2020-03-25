@@ -187,7 +187,8 @@ public:
         {
             summon->AI()->AttackStart(me->getVictim());
             summon->AI()->DoCastAOE(SPELL_ZURAMAT_ADD_2);
-            summon->SetPhaseMask(17, true);
+            summon->SetInPhase(169, true, true); // Normal phase
+            summon->SetInPhase(173, true, true); // Void phase
         }
     };
 

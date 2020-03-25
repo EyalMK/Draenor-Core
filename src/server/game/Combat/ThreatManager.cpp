@@ -65,7 +65,7 @@ bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellIn
         return false;
 
     // not in same map or phase
-    if (!hatedUnit->IsInMap(hatingUnit) || !hatedUnit->InSamePhase(hatingUnit))
+    if (!hatedUnit->IsInMap(hatingUnit) || !hatedUnit->IsInPhase(hatingUnit))
         return false;
 
     // spell not causing threat
@@ -172,7 +172,7 @@ void HostileReference::updateOnlineStatus()
         && (getTarget()->GetTypeId() != TYPEID_PLAYER || !getTarget()->ToPlayer()->isGameMaster())
         && !getTarget()->HasUnitState(UNIT_STATE_IN_FLIGHT)
         && getTarget()->IsInMap(getSourceUnit())
-        && getTarget()->InSamePhase(getSourceUnit())
+        && getTarget()->IsInPhase(getSourceUnit())
         )
     {
         Creature* creature = getSourceUnit()->ToCreature();
