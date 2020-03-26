@@ -187,6 +187,11 @@ DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore(GtBatt
 DBCStorage <WorldStateEntry>             sWorldStateStore(WorldStateEntryfmt);
 DBCStorage <WorldStateExpressionEntry>   sWorldStateExpressionStore(WorldStateExpressionEntryfmt);
 
+DBCStorage <PhaseEntry> sPhaseStore(PhaseEntryfmt);
+DBCStorage <PhaseGroupEntry> sPhaseGroupStore(PhaseGroupfmt);
+
+PhaseGroupContainer sPhasesByGroup;
+
 typedef std::list<std::string> StoreProblemList;
 
 uint32 DBCFileCount = 0;
@@ -421,6 +426,15 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMinorTalentStore,            dbcPath, "MinorTalent.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");                                                        // 17399
+	LoadDBC(availableDbcLocales, bad_dbc_files, sPhaseStore, dbcPath, "Phase.dbc"); // 15595
+	LoadDBC(availableDbcLocales, bad_dbc_files, sPhaseGroupStore, dbcPath, "PhaseXPhaseGroup.dbc"); // 15595
+
+	for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
+		if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
+			if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseId))
+				sPhasesByGroup[group->GroupId].insert(phase->ID);
+
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath, "PowerDisplay.dbc");                                                 // 19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sPvPDifficultyStore,          dbcPath, "PvpDifficulty.dbc");                                                // 17399
 
@@ -831,6 +845,11 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
         default:
             return ContentLevels(mapEntry->Expansion());
     }
+}
+
+std::set<uint32> const& GetPhasesForGroup(uint32 group)
+{
+	return sPhasesByGroup[group];
 }
 
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)

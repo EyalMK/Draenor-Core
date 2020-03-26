@@ -941,12 +941,12 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
     if (data->phaseid)
         SetInPhase(data->phaseid, false, true);
 
-   /* if (data->phaseGroup)
+   if (data->phaseGroup)
     {
         // Set the gameobject in all the phases of the phasegroup
         for (auto ph : GetPhasesForGroup(data->phaseGroup))
             SetInPhase(ph, false, true);
-    }*/
+    }
 
 
     if (data->spawntimesecs >= 0)
