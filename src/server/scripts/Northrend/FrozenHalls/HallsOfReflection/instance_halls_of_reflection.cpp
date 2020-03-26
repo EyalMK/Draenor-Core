@@ -138,9 +138,10 @@ public:
                     break;
                 case NPC_FROSTWORN_GENERAL:
                     _frostwornGeneralGUID = creature->GetGUID();
-                    if (GetBossState(DATA_MARWYN_EVENT) == DONE)
-                        if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
-                            general->SetPhaseMask(1, true);
+					if (GetBossState(DATA_MARWYN) != DONE)
+						PhasingHandler::AddPhase(creature, 170, true);
+					else
+						PhasingHandler::RemovePhase(creature, 170, true);
                     break;
                 case NPC_JAINA_PART2:
                     if (_teamInInstance == HORDE)
@@ -310,7 +311,7 @@ public:
                         HandleGameObject(_frostwornDoorGUID, true);
                         DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
                         if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
-                            general->SetPhaseMask(1, true);
+							PhasingHandler::RemovePhase(general, 170, true);
                     }
                     break;
                 default:

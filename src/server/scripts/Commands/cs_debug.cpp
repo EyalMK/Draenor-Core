@@ -2300,7 +2300,7 @@ class debug_commandscript: public CommandScript
 
             Map* map = handler->GetSession()->GetPlayer()->GetMap();
 
-            if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
+            if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
             {
                 delete v;
                 return false;
@@ -2827,7 +2827,7 @@ class debug_commandscript: public CommandScript
 
                     if (map)
                     {
-                        float newPosZ = map->GetHeight(data.phaseMask, data.posX, data.posY, MAX_HEIGHT, true);
+                        float newPosZ = map->GetHeight(data.posX, data.posY, MAX_HEIGHT, true);
 
                         if (newPosZ && newPosZ != -200000.0f)
                             WorldDatabase.PExecute("UPDATE gameobject SET position_z = %f WHERE guid = %u", newPosZ, gameobject.first);

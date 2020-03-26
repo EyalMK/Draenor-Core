@@ -472,7 +472,7 @@ void Creature::UpdateMovementFlags()
         return;
 
     /// Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
-    float l_Ground = GetMap()->GetHeight(GetPhaseMask(), GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    float l_Ground = GetMap()->GetHeight(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
 
     bool l_IsInAir = (G3D::fuzzyGt(GetPositionZMinusOffset(), l_Ground + 0.05f) || G3D::fuzzyLt(GetPositionZMinusOffset(), l_Ground - 0.05f)); // Can be underground too, prevent the falling
 
@@ -880,11 +880,10 @@ void Creature::Motion_Initialize()
         i_motionMaster.Initialize();
 }
 
-bool Creature::Create(uint32 guidlow, Map* map, uint32 /*phaseMask*/, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data)
+bool Creature::Create(uint32 guidlow, Map* map, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, CreatureData const* data /*= nullptr*/)
 {
     ASSERT(map);
     SetMap(map);
-    // SetPhaseMask(phaseMask, false);
     
     if (data && data->phaseid)
         SetInPhase(data->phaseid, false, true);
@@ -1195,10 +1194,10 @@ void Creature::SaveToDB()
     }
 
     uint32 mapId = GetTransport() ? GetTransport()->GetGOInfo()->moTransport.mapID : GetMapId();
-    SaveToDB(mapId, data->spawnMask, GetPhaseMask());
+    SaveToDB(mapId, data->spawnMask);
 }
 
-void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
+void Creature::SaveToDB(uint32 mapid, uint32 spawnMask)
 {
     /// Update in loaded data
     if (!m_DBTableGuid)
@@ -1254,7 +1253,6 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     l_SpawnData.mapid = mapid;
     l_SpawnData.zoneId = zoneId;
     l_SpawnData.areaId = areaId;
-    l_SpawnData.phaseMask = phaseMask;
     l_SpawnData.displayid = l_DisplayID;
     l_SpawnData.equipmentId = GetCurrentEquipmentId();
 
@@ -1311,7 +1309,6 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     stmt->setUInt32(index++, zoneId);
     stmt->setUInt32(index++, areaId);
     stmt->setUInt8(index++,  spawnMask);
-    stmt->setUInt32(index++, uint32(GetPhaseMask()));
 	stmt->setUInt32(index++, phaseid);
 	stmt->setUInt32(index++, phaseGroup);
     stmt->setUInt32(index++, l_DisplayID);
@@ -1615,7 +1612,7 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
         guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
 
     uint16 team = 0;
-    if (!Create(guid, map, data->phaseMask, data->id, 0, team, data->posX, data->posY, data->posZ, data->orientation, data))
+    if (!Create(guid, map, data->id, 0, team, data->posX, data->posY, data->posZ, data->orientation, data))
         return false;
 
     //We should set first home position, because then AI calls home movement
@@ -1633,7 +1630,7 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
         m_deathState = DEAD;
         if (CanFly())
         {
-            float tz = map->GetHeight(GetPhaseMask(), data->posX, data->posY, data->posZ, false);
+            float tz = map->GetHeight(data->posX, data->posY, data->posZ, false);
             if (data->posZ - tz > 0.1f)
                 Relocate(data->posX, data->posY, tz);
         }
@@ -1949,8 +1946,6 @@ void Creature::setDeathState(DeathState s)
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
 
         Motion_Initialize();
-        if (GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
-            SetPhaseMask(GetCreatureData()->phaseMask, false);
 
         Unit::setDeathState(ALIVE);
         LoadCreaturesAddon(); ///< Must be done after setDeathState(ALIVE)

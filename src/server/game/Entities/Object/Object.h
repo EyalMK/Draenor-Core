@@ -852,7 +852,7 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void Update (uint32 /*time_diff*/) { }
 
-        void _Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask);
+        void _Create(uint32 guidlow, HighGuid guidhigh);
 
         virtual void RemoveFromWorld()
         {
@@ -863,7 +863,7 @@ class WorldObject : public Object, public WorldLocation
 
             Object::RemoveFromWorld();
         }
-		uint32 m_phaseMask;                                 // in area phase state
+
 		std::set<uint32> _phases;
 		std::set<uint32> _terrainSwaps;
 		std::set<uint32> _worldMapAreaSwaps;
@@ -921,15 +921,13 @@ class WorldObject : public Object, public WorldLocation
 		uint32 m_InstanceId;
         uint32 GetInstanceId() const { return m_InstanceId; }
 
-        virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         virtual bool SetInPhase(uint32 id, bool update, bool apply);
 		void CopyPhaseFrom(WorldObject* obj, bool update = false);
-		void UpdateAreaPhase();
+		void UpdateAreaAndZonePhase();
 		void ClearPhases(bool update = false);
 		void RebuildTerrainSwaps();
 		void RebuildWorldMapAreaSwaps();
 		bool HasInPhaseList(uint32 phase);
-        uint32 GetPhaseMask() const { return m_phaseMask; }
         bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
         bool IsInPhase(WorldObject const* obj) const;
 		std::set<uint32> const& GetPhases() const { return _phases; };

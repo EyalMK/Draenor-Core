@@ -846,9 +846,6 @@ namespace MS { namespace Garrison
 
         Interfaces::GarrisonSite* l_GarrisonScript = GetGarrisonScript();
 
-        if (l_GarrisonScript)
-            m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
-
         for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
         {
             if (GameObject* l_Gob = HashMapHolder<GameObject>::Find(l_It->second))
@@ -874,8 +871,6 @@ namespace MS { namespace Garrison
             m_CacheGameObjectGUID = 0;
         }
 
-        m_Owner->SetPhaseMask(1, true);
-
         /// Disable AI Client collision manager
         m_Owner->RemoveFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
     }
@@ -889,8 +884,6 @@ namespace MS { namespace Garrison
         {
             /// Broadcast event
             l_GarrisonScript->OnQuestStarted(m_Owner, p_Quest);
-            /// Update phasing
-            m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
         }
     }
 
@@ -903,8 +896,6 @@ namespace MS { namespace Garrison
         {
             /// Broadcast event
             l_GarrisonScript->OnQuestReward(m_Owner, p_Quest);
-            /// Update phasing
-            m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
         }
     }
 
@@ -917,8 +908,6 @@ namespace MS { namespace Garrison
         {
             /// Broadcast event
             l_GarrisonScript->OnQuestAbandon(m_Owner, p_Quest);
-            /// Update phasing
-            m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
         }
     }
 

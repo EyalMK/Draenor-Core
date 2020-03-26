@@ -240,26 +240,25 @@ public:
                 uint32 l_Guid = p_Result->Fetch()[0].GetUInt32() + 1;
                 CreatureData& l_Data = sObjectMgr->NewOrExistCreatureData(l_Guid);
                 l_Data.id = l_Id;
-                l_Data.phaseMask = l_Character->GetPhaseMask();
                 l_Data.posX = l_Character->GetTransOffsetX();
                 l_Data.posY = l_Character->GetTransOffsetY();
                 l_Data.posZ = l_Character->GetTransOffsetZ();
                 l_Data.orientation = l_Character->GetTransOffsetO();
 
                 Creature* l_Creature = l_Transport->CreateNPCPassenger(l_Guid, &l_Data);
-                l_Creature->SaveToDB(l_Transport->GetGOInfo()->moTransport.mapID, 1 << l_Map->GetSpawnMode(), l_Character->GetPhaseMask());
+                l_Creature->SaveToDB(l_Transport->GetGOInfo()->moTransport.mapID, 1 << l_Map->GetSpawnMode());
                 
                 return;
             }
 
             Creature* l_Creature = new Creature();
-            if (!l_Creature->Create(p_Result->Fetch()[0].GetUInt32() + 1, l_Map, l_Character->GetPhaseMask(), l_Id, 0, (uint32)l_Teamval, x, y, z, o))
+            if (!l_Creature->Create(p_Result->Fetch()[0].GetUInt32() + 1, l_Map, l_Id, 0, (uint32)l_Teamval, x, y, z, o))
             {
                 delete l_Creature;
                 return;
             }
 
-            l_Creature->SaveToDB(l_Map->GetId(), (1 << l_Map->GetSpawnMode()), l_Character->GetPhaseMask());
+            l_Creature->SaveToDB(l_Map->GetId(), (1 << l_Map->GetSpawnMode()));
 
             uint32 l_DbGuid = l_Creature->GetDBTableGUIDLow();
 
@@ -754,7 +753,6 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_RESPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
         handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
-        handler->PSendSysMessage(LANG_NPCINFO_PHASEMASK, target->GetPhaseMask());
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());
         handler->PSendSysMessage(LANG_NPCINFO_POSITION, float(target->GetPositionX()), float(target->GetPositionY()), float(target->GetPositionZ()));
         handler->PSendSysMessage(LANG_NPCINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str());
@@ -1078,7 +1076,7 @@ public:
 		creature->ClearPhases();
 
 		for (uint32 id : sDB2Manager.GetPhasesForGroup(phaseGroupId))
-			creature->SetInPhase(id, false, true); // don't send update here for multiple phases, only send it once after adding all phases
+			creature->SetInPhase(phase, false, true); // don't send update here for multiple phases, only send it once after adding all phases
 
 		creature->UpdateObjectVisibility();
 		creature->SetDBPhase(-int(phaseGroupId));
