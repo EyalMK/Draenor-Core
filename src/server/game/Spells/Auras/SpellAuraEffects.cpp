@@ -2409,7 +2409,7 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
     }
     
     if (Player* player = target->ToPlayer())
-        player->UpdatePhasing();
+		player->SendUpdatePhasing();
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
     if (target->IsVisible())
@@ -2444,7 +2444,7 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
     }
 
     if (Player* player = target->ToPlayer())
-        player->UpdatePhasing();
+		player->SendUpdatePhasing();
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
     if (target->IsVisible())

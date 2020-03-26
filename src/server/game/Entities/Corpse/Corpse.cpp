@@ -91,6 +91,8 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
 
     _gridCoord = JadeCore::ComputeGridCoord(GetPositionX(), GetPositionY());
 
+	CopyPhaseFrom(owner);
+
     loot.Context = GetMap()->GetLootItemContext();
 
     return true;
@@ -121,8 +123,19 @@ void Corpse::SaveToDB()
     stmt->setUInt32(index++, uint32(m_time));                                         // time
     stmt->setUInt8 (index++, GetType());                                              // corpseType
     stmt->setUInt32(index++, GetInstanceId());                                        // instanceId
-    stmt->setUInt16(index++, GetPhaseMask());                                         // phaseMask
     trans->Append(stmt);
+
+	for (uint32 phaseId : GetPhases())
+	{
+		index = 0;
+		stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE_PHASES);
+		stmt->setUInt32(index++, GetGUIDLow());                                       // Guid (corpse's)
+		stmt->setUInt32(index++, phaseId);                                            // PhaseId
+		stmt->setUInt32(index++, GUID_LOPART(GetOwnerGUID()));                        // OwnerGuid
+		stmt->setUInt32(index++, uint32(m_time));                                     // Time
+		stmt->setUInt8(index++, GetType());                                           // CorpseType
+		trans->Append(stmt);
+	}
 
     CharacterDatabase.CommitTransaction(trans);
 #endif
@@ -151,21 +164,30 @@ void Corpse::DeleteFromDB(SQLTransaction& trans)
         // Only specific bones
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
         stmt->setUInt32(0, GetGUIDLow());
+		trans->Append(stmt);
+
+		stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
+		stmt->setUInt32(0, GetGUIDLow());
+		trans->Append(stmt);
     }
     else
     {
         // all corpses (not bones)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_CORPSES);
         stmt->setUInt32(0, GUID_LOPART(GetOwnerGUID()));
+		trans->Append(stmt);
+
+		stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_CORPSES_PHASES);
+		stmt->setUInt32(0, GUID_LOPART(GetOwnerGUID()));
+		trans->Append(stmt);
     }
-    trans->Append(stmt);
 #endif
 }
 
 bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 {
-    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15         16
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
+	//        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15
+	// SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, corpseGuid, guid FROM corpse WHERE corpseType <> 0
 
     uint32 ownerGuid = fields[16].GetUInt32();
     float posX   = fields[0].GetFloat();
@@ -182,12 +204,11 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
     SetUInt32Value(CORPSE_FIELD_FACIAL_HAIR_STYLE_ID, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[9].GetUInt8());
     SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[10].GetUInt8());
-    SetGuidValue(CORPSE_FIELD_OWNER, MAKE_NEW_GUID(ownerGuid, 0, HIGHGUID_PLAYER));
+	SetGuidValue(CORPSE_FIELD_OWNER, fields[15].GetUInt64());
 
     m_time = time_t(fields[11].GetUInt32());
 
     uint32 instanceId  = fields[13].GetUInt32();
-    // uint32 phaseMask   = fields[14].GetUInt16();
 
     // place
     SetLocationInstanceId(instanceId);

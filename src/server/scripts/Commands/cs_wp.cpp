@@ -695,6 +695,8 @@ public:
                         return false;
                     }
 
+					wpCreature2->CopyPhaseFrom(chr);
+
                     wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
                     // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                     //TODO: Should we first use "Create" then use "LoadFromDB"?
@@ -918,6 +920,8 @@ public:
                     return false;
                 }
 
+				wpCreature->CopyPhaseFrom(chr);
+
                 // Set "wpguid" column to the visual waypoint
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
 
@@ -982,6 +986,8 @@ public:
                 return false;
             }
 
+			creature->CopyPhaseFrom(chr);
+
             creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
             if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))
             {
@@ -1030,6 +1036,8 @@ public:
                 delete creature;
                 return false;
             }
+
+			creature->CopyPhaseFrom(chr);
 
             creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
             if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))

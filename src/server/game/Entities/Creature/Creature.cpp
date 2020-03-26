@@ -1292,6 +1292,9 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     l_SpawnData.WorldEffectID = l_WorldEffectID;
     l_SpawnData.isActive = isActiveObject();
 
+	l_SpawnData.phaseid = l_SpawnData.phaseid;
+	l_SpawnData.phaseGroup = l_SpawnData.phaseGroup;
+
     // update in DB
     SQLTransaction trans = WorldDatabase.BeginTransaction();
 
@@ -1309,6 +1312,8 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     stmt->setUInt32(index++, areaId);
     stmt->setUInt8(index++,  spawnMask);
     stmt->setUInt32(index++, uint32(GetPhaseMask()));
+	stmt->setUInt32(index++, phaseid);
+	stmt->setUInt32(index++, phaseGroup);
     stmt->setUInt32(index++, l_DisplayID);
     stmt->setInt32(index++,  int32(GetCurrentEquipmentId()));
     stmt->setFloat(index++,  GetPositionX());

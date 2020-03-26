@@ -104,10 +104,10 @@ class Pet : public Guardian
 
         bool IsPermanentPetFor(Player* owner);              // pet have tab in character windows and set UNIT_FIELD_PETNUMBER
 
-        bool Create (uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry);
+        bool Create (uint32 guidlow, Map* map, uint32 Entry);
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
-        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
+        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map);
         void LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false, PetQueryHolder* holder = nullptr, std::function<void(Pet*, bool)> p_Callback = [](Pet*, bool){});
         bool isBeingLoaded() const { return m_loading;}
         void SavePetToDB(PetSlot mode, bool stampeded = false);

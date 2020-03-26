@@ -156,6 +156,8 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
 
     SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
 
+	CopyPhaseFrom(p_Caster);
+
     if (!GetMap()->AddToMap(this))
         return false;
 

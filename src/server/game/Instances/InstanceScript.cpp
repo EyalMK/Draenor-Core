@@ -1818,11 +1818,11 @@ uint32 InstanceScript::GetEncounterIDForBoss(Creature* p_Boss) const
 
 void InstanceScript::UpdatePhasing()
 {
-  /*
-    Map::PlayerList const& players = instance->GetPlayers();
-    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        if (Player* player = itr->getSource())
-*/
+ 
+	Map::PlayerList const& players = instance->GetPlayers();
+	for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+		if (Player* player = itr->getSource())
+			player->SendUpdatePhasing();
 }
 
 void InstanceScript::UpdateCreatureGroupSizeStats()

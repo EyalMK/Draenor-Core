@@ -4447,8 +4447,8 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id, map,
         0, x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
     {
-            for (auto phase : m_caster->GetPhases())
-        pGameObj->SetInPhase(phase, false, true);
+		pGameObj->CopyPhaseFrom(m_caster);
+
         delete pGameObj;
         return;
     }
@@ -4515,10 +4515,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
         if (linkedGO->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), linkedEntry, map,
             0, x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
         {
-        
-        for (auto phase : m_caster->GetPhases())
-                linkedGO->SetInPhase(phase, false, true);
-
+			linkedGO->CopyPhaseFrom(m_caster);
 
             linkedGO->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
             linkedGO->SetSpellId(m_spellInfo->Id);
@@ -5232,10 +5229,7 @@ void Spell::EffectDuel(SpellEffIndex p_EffectIndex)
     l_GameObj->SetRespawnTime(l_Duration > 0 ? l_Duration / IN_MILLISECONDS : 0);
     l_GameObj->SetSpellId(m_spellInfo->Id);
     
-    for (auto phase : m_caster->GetPhases())
-        l_GameObj->SetInPhase(phase, false, true);
-
-
+	l_GameObj->CopyPhaseFrom(m_caster);
 
     ExecuteLogEffectSummonObject(p_EffectIndex, l_GameObj);
 
@@ -6500,10 +6494,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         return;
     }
     
-    for (auto phase : m_caster->GetPhases())
-        pGameObj->SetInPhase(phase, false, true);
-
-
+	pGameObj->CopyPhaseFrom(m_caster);
 
     int32 duration = m_spellInfo->GetDuration();
 
@@ -6585,10 +6576,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         if (linkedGO->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), linkedEntry, cMap,
             0, fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
         {
-        
-                    for (auto phase : m_caster->GetPhases())
-                linkedGO->SetInPhase(phase, false, true);
-
+			linkedGO->CopyPhaseFrom(m_caster);
 
             linkedGO->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
             //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());

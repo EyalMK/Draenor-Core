@@ -865,6 +865,9 @@ class WorldObject : public Object, public WorldLocation
         }
 		uint32 m_phaseMask;                                 // in area phase state
 		std::set<uint32> _phases;
+		std::set<uint32> _terrainSwaps;
+		std::set<uint32> _worldMapAreaSwaps;
+		int32 _dbPhase;
         void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* p_Searcher, float &p_InOutX, float &p_InOutY, float &p_InOutZ, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const;
         void GetNearPoint(Position& p_Pos, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const;
@@ -919,13 +922,23 @@ class WorldObject : public Object, public WorldLocation
         uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
-        virtual void SetInPhase(uint32 id, bool update, bool apply);
+        virtual bool SetInPhase(uint32 id, bool update, bool apply);
+		void CopyPhaseFrom(WorldObject* obj, bool update = false);
+		void UpdateAreaPhase();
+		void ClearPhases(bool update = false);
+		void RebuildTerrainSwaps();
+		void RebuildWorldMapAreaSwaps();
+		bool HasInPhaseList(uint32 phase);
         uint32 GetPhaseMask() const { return m_phaseMask; }
-        bool InSamePhase(WorldObject const* obj) const { return IsInPhase(obj); }
-        bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
         bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
         bool IsInPhase(WorldObject const* obj) const;
 		std::set<uint32> const& GetPhases() const { return _phases; };
+		std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
+		std::set<uint32> const& GetWorldMapAreaSwaps() const { return _worldMapAreaSwaps; }
+		int32 GetDBPhase() { return _dbPhase; }
+
+		// if negative it is used as PhaseGroupId
+		void SetDBPhase(int32 p) { _dbPhase = p; }
 
         virtual uint32 GetZoneId(bool forceRecalc = false) const;
         virtual uint32 GetAreaId(bool forceRecalc = false) const;

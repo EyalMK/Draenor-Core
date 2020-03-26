@@ -147,12 +147,13 @@ public:
             { "entry",          SEC_ADMINISTRATOR,  false, &HandleNpcSetEntryCommand,          "", NULL },
             { "factionid",      SEC_GAMEMASTER,     false, &HandleNpcSetFactionIdCommand,      "", NULL },
             { "flag",           SEC_GAMEMASTER,     false, &HandleNpcSetFlagCommand,           "", NULL },
-            { "flag2",           SEC_GAMEMASTER,     false, &HandleNpcSetFlag2Command,         "", NULL },
+            { "flag2",          SEC_GAMEMASTER,     false, &HandleNpcSetFlag2Command,          "", NULL },
             { "level",          SEC_GAMEMASTER,     false, &HandleNpcSetLevelCommand,          "", NULL },
             { "link",           SEC_GAMEMASTER,     false, &HandleNpcSetLinkCommand,           "", NULL },
             { "model",          SEC_GAMEMASTER,     false, &HandleNpcSetModelCommand,          "", NULL },
             { "movetype",       SEC_GAMEMASTER,     false, &HandleNpcSetMoveTypeCommand,       "", NULL },
             { "phase",          SEC_GAMEMASTER,     false, &HandleNpcSetPhaseCommand,          "", NULL },
+			{ "phasegroup",		SEC_GAMEMASTER,     false, &HandleNpcSetPhaseGroup,            "", NULL },
             { "spawndist",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnDistCommand,      "", NULL },
             { "spawntime",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnTimeCommand,      "", NULL },
             { "data",           SEC_ADMINISTRATOR,  false, &HandleNpcSetDataCommand,           "", NULL },
@@ -257,11 +258,6 @@ public:
                 delete l_Creature;
                 return;
             }
-            
-
-
-                                                                for (auto phase : l_Character->GetPhases())
-                        l_Creature->SetInPhase(phase, false, true);
 
             l_Creature->SaveToDB(l_Map->GetId(), (1 << l_Map->GetSpawnMode()), l_Character->GetPhaseMask());
 
@@ -1062,36 +1058,61 @@ public:
         return true;
     }
 
-    //npc phasemask handling
-    //change phasemask of creature or pet
-    static bool HandleNpcSetPhaseCommand(ChatHandler* handler, const char* args)
-    {
-        if (!*args)
-            return false;
+    //npc phase handling
+	//change phase of creature
+	static bool HandleNpcSetPhaseGroup(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
 
-        uint32 phasemask = (uint32) atoi((char*)args);
-        if (phasemask == 0)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+		uint32 phaseGroupId = (uint32)atoi((char*)args);
 
-        Creature* creature = handler->getSelectedCreature();
-        if (!creature)
-        {
-            handler->SendSysMessage(LANG_SELECT_CREATURE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+		Creature* creature = handler->getSelectedCreature();
+		if (!creature || creature->isPet())
+		{
+			handler->SendSysMessage(LANG_SELECT_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
 
-        creature->SetPhaseMask(phasemask, true);
+		creature->ClearPhases();
 
-        if (!creature->isPet())
-            creature->SaveToDB();
+		for (uint32 id : sDB2Manager.GetPhasesForGroup(phaseGroupId))
+			creature->SetInPhase(id, false, true); // don't send update here for multiple phases, only send it once after adding all phases
 
-        return true;
-    }
+		creature->UpdateObjectVisibility();
+		creature->SetDBPhase(-int(phaseGroupId));
+
+		creature->SaveToDB();
+
+		return true;
+	}
+
+	//npc phase handling
+	//change phase of creature
+	static bool HandleNpcSetPhaseCommand(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+
+		uint32 phase = (uint32)atoi((char*)args);
+
+		Creature* creature = handler->getSelectedCreature();
+		if (!creature || creature->isPet())
+		{
+			handler->SendSysMessage(LANG_SELECT_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+		creature->ClearPhases();
+		creature->SetInPhase(phase, true, true);
+		creature->SetDBPhase(phase);
+
+		creature->SaveToDB();
+
+		return true;
+	}
 
     //set spawn dist of creature
     static bool HandleNpcSetSpawnDistCommand(ChatHandler* handler, const char* args)

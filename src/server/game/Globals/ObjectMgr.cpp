@@ -7517,11 +7517,28 @@ uint64 ObjectMgr::GenerateVoidStorageItemId()
 #ifndef CROSS
 void ObjectMgr::LoadCorpses()
 {
-	//        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15         16
-	// SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
-
 	uint32 oldMSTime = getMSTime();
 
+	std::unordered_map<uint32, std::list<uint32>> phases;
+
+	//        0       1
+	// SELECT Guid, PhaseId FROM corpse_phases
+	PreparedQueryResult phaseResult = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_PHASES));
+	if (phaseResult)
+	{
+		do
+		{
+			Field* fields = phaseResult->Fetch();
+			uint32 guid = fields[0].GetUInt32();
+			uint32 phaseId = fields[1].GetUInt32();
+
+			phases[guid].push_back(phaseId);
+
+		} while (phaseResult->NextRow());
+	}
+
+	//        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15
+	// SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, corpseGuid, guid FROM corpse WHERE corpseType <> 0
 	PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
 	if (!result)
 	{
@@ -7533,7 +7550,7 @@ void ObjectMgr::LoadCorpses()
 	do
 	{
 		Field* fields = result->Fetch();
-		uint32 guid = fields[16].GetUInt32();
+		uint32 guid = fields[14].GetUInt32();
 		CorpseType type = CorpseType(fields[12].GetUInt8());
 		if (type >= MAX_CORPSE_TYPE)
 		{
@@ -7547,6 +7564,9 @@ void ObjectMgr::LoadCorpses()
 			delete corpse;
 			continue;
 		}
+
+		for (auto phaseId : phases[guid])
+			corpse->SetInPhase(phaseId, false, true);
 
 		sObjectAccessor->AddCorpse(corpse);
 		++count;
@@ -9967,18 +9987,18 @@ void ObjectMgr::LoadHotfixTableHashs()
 	} while (l_Result->NextRow());
 }
 
-void ObjectMgr::LoadPhaseDefinitions()
+void ObjectMgr::LoadTerrainSwapDefaults()
 {
-	_PhaseDefinitionStore.clear();
+	_terrainMapDefaultStore.clear();
 
 	uint32 oldMSTime = getMSTime();
 
-	//                                                 0       1       2         3            4           5
-	QueryResult result = WorldDatabase.Query("SELECT zoneId, entry, phasemask, phaseId, terrainswapmap, flags FROM `phase_definitions` ORDER BY `entry` ASC");
+	//                                               0       1
+	QueryResult result = WorldDatabase.Query("SELECT MapId, TerrainSwapMap FROM `terrain_swap_defaults`");
 
 	if (!result)
 	{
-		sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 phasing definitions. DB table `phase_definitions` is empty.");
+		sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 terrain swap defaults. DB table `terrain_swap_defaults` is empty.");
 		return;
 	}
 
@@ -9988,42 +10008,44 @@ void ObjectMgr::LoadPhaseDefinitions()
 	{
 		Field* fields = result->Fetch();
 
-		PhaseDefinition pd;
+		uint32 mapId = fields[0].GetUInt32();
 
-		pd.zoneId = fields[0].GetUInt32();
-		pd.entry = fields[1].GetUInt32();
-		pd.phasemask = fields[2].GetUInt32();
-		pd.phaseId = fields[3].GetUInt32();
-		pd.terrainswapmap = fields[4].GetUInt32();
-		pd.flags = fields[5].GetUInt8();
-
-		// Checks
-		if ((pd.flags & PHASE_FLAG_OVERWRITE_EXISTING) && (pd.flags & PHASE_FLAG_NEGATE_PHASE))
+		MapEntry const* map = sMapStore.LookupEntry(mapId);
+		if (!map)
 		{
-			sLog->outError(LOG_FILTER_SQL, "Flags defined in phase_definitions in zoneId %d and entry %u does contain PHASE_FLAG_OVERWRITE_EXISTING and PHASE_FLAG_NEGATE_PHASE. Setting flags to PHASE_FLAG_OVERWRITE_EXISTING", pd.zoneId, pd.entry);
-			pd.flags &= ~PHASE_FLAG_NEGATE_PHASE;
+			sLog->outError(LOG_FILTER_SQL, "Map %u defined in `terrain_swap_defaults` does not exist, skipped.", mapId);
+			continue;
 		}
 
-		_PhaseDefinitionStore[pd.zoneId].push_back(pd);
+		uint32 terrainSwap = fields[1].GetUInt32();
+
+		map = sMapStore.LookupEntry(terrainSwap);
+		if (!map)
+		{
+			sLog->outError(LOG_FILTER_SERVER_LOADING, "TerrainSwapMap %u defined in `terrain_swap_defaults` does not exist, skipped.", terrainSwap);
+			continue;
+		}
+		
+		_terrainMapDefaultStore[mapId].push_back(terrainSwap);
 
 		++count;
 	} while (result->NextRow());
 
-	sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u phasing definitions in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u terrain swap defaults in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadPhaseInfo()
+void ObjectMgr::LoadTerrainPhaseInfo()
 {
-	_PhaseInfoStore.clear();
+	_terrainPhaseInfoStore.clear();
 
 	uint32 oldMSTime = getMSTime();
 
-	//                                               0       1                   2       
-    QueryResult result = WorldDatabase.Query("SELECT id, worldmapareaswap, terrainswapmap FROM `phase_info`");
+	//                                               0       1
+	QueryResult result = WorldDatabase.Query("SELECT Id, TerrainSwapMap FROM `terrain_phase_info`");
 
 	if (!result)
 	{
-		sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 phase infos. DB table `phase_info` is empty."); 
+		sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 terrain phase infos. DB table `terrain_phase_info` is empty."); 
 		return;
 	}
 
@@ -10042,14 +10064,83 @@ void ObjectMgr::LoadPhaseInfo()
 			continue;
 		}*/
 
-		phaseInfo.worldMapAreaSwap              = fields[1].GetUInt32();
-        phaseInfo.terrainSwapMap         = fields[2].GetUInt32();
+		phaseInfo.worldMapAreaSwap = fields[1].GetUInt32();
+        phaseInfo.terrainSwapMap = fields[2].GetUInt32();
 
 		_PhaseInfoStore[phaseInfo.phaseId] = phaseInfo;
 
 		++count;
 	} while (result->NextRow());
 	sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u phase infos in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadTerrainWorldMaps()
+{
+	_terrainWorldMapStore.clear();
+
+	uint32 oldMSTime = getMSTime();
+
+	//                                               0               1
+	QueryResult result = WorldDatabase.Query("SELECT TerrainSwapMap, WorldMapArea FROM `terrain_worldmap`");
+
+	if (!result)
+	{
+		sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 terrain world maps. DB table `terrain_worldmap` is empty.");
+		return;
+	}
+
+	uint32 count = 0;
+	do
+	{
+		Field* fields = result->Fetch();
+
+		uint32 mapId = fields[0].GetUInt32();
+
+		if (!sMapStore.LookupEntry(mapId))
+		{
+			sLog->outError(LOG_FILTER_SQL, "TerrainSwapMap %u defined in `terrain_worldmap` does not exist, skipped.", mapId);
+			continue;
+		}
+
+		uint32 worldMapArea = fields[1].GetUInt32();
+
+		_terrainWorldMapStore[mapId].push_back(worldMapArea);
+
+		++count;
+	} while (result->NextRow());
+
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u terrain world maps in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadAreaPhases()
+{
+	_phases.clear();
+
+	uint32 oldMSTime = getMSTime();
+
+	//                                               0       1
+	QueryResult result = WorldDatabase.Query("SELECT AreaId, PhaseId FROM `phase_area`");
+
+	if (!result)
+	{
+		sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 phase areas. DB table `phase_area` is empty.");
+		return;
+	}
+
+	uint32 count = 0;
+	do
+	{
+		Field* fields = result->Fetch();
+
+		uint32 area = fields[0].GetUInt32();
+		uint32 phase = fields[1].GetUInt32();
+
+		_phases[area].push_back(phase);
+
+		++count;
+	} while (result->NextRow());
+
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u phase areas in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadBattlePetTemplate()

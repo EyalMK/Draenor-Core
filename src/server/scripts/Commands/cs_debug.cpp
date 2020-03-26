@@ -2306,10 +2306,7 @@ class debug_commandscript: public CommandScript
                 return false;
             }
             
-            for (auto phase : handler->GetSession()->GetPlayer()->GetPhases())
-            v->SetInPhase(phase, false, true);
-
-
+			v->CopyPhaseFrom(handler->GetSession()->GetPlayer());
 
             map->AddToMap(v->ToCreature());
 
@@ -2333,6 +2330,8 @@ class debug_commandscript: public CommandScript
 
 			char* t = strtok((char*)args, " ");
 			char* p = strtok(NULL, " ");
+			char* m = strtok(NULL, " ");
+
 			if (!t)
 				return false;
 
@@ -2340,10 +2339,16 @@ class debug_commandscript: public CommandScript
 			std::set<uint32> phaseId;
 			std::set<uint32> worldMapSwap;
 
-			terrainswap.insert((uint32)atoi(t));
+			if (uint32 ut = (uint32)atoi(t))
+				terrainswap.insert(ut);
 
 			if (p)
-				phaseId.insert((uint32)atoi(p));
+				if (uint32 up = (uint32)atoi(p))
+					phaseId.insert(up);
+
+			if (m)
+				if (uint32 um = (uint32)atoi(m))
+					worldMapSwap.insert(um);
 
 			handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, worldMapSwap);
 			return true;
@@ -2727,14 +2732,29 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugPhaseCommand(ChatHandler* /*handler*/, char const* /*args*/)
+        static bool HandleDebugPhaseCommand(ChatHandler* handler, char const* /*args*/)
         {
-            /*Unit* unit = handler->getSelectedUnit();
-            Player* player = handler->GetSession()->GetPlayer();
-            if (unit && unit->IsPlayer())
-                player = unit->ToPlayer();*/
-                
-            return true;
+			Unit* target = handler->getSelectedUnit();
+
+			if (!target)
+			{
+				handler->SendSysMessage(LANG_SELECT_CREATURE);
+				handler->SetSentErrorMessage(true);
+				return false;
+			}
+
+			std::stringstream phases;
+
+			for (uint32 phase : target->GetPhases())
+			{
+				phases << phase << " ";
+			}
+
+			if (!phases.str().empty())
+				handler->PSendSysMessage("Target's current phases: %s", phases.str().c_str());
+			else
+				handler->SendSysMessage("Target is not phased");
+			return true;
         }
 
         static bool HandleDebugMoveJump(ChatHandler* handler, char const* args)

@@ -4577,7 +4577,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
             else
             {
                 Unit* caster = aura->GetCaster();
-                if (!caster || (newPhase && !caster->InSamePhase(newPhase)) || (!newPhase && !caster->IsInPhase(this)))
+                if (!caster || (newPhase && !caster->IsInPhase(newPhase)) || (!newPhase && !caster->IsInPhase(this)))
                     RemoveAura(iter);
                 else
                     ++iter;
@@ -4592,7 +4592,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
     for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
         Aura* aura = *iter;
-        if (aura->GetUnitOwner() && aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
+        if (aura->GetUnitOwner() && aura->GetUnitOwner() != this && !aura->GetUnitOwner()->IsInPhase(newPhase))
         {
             aura->Remove();
             iter = scAuras.begin();
@@ -16352,6 +16352,8 @@ void Unit::AddToWorld()
     {
         WorldObject::AddToWorld();
     }
+
+	RebuildTerrainSwaps();
 }
 
 void Unit::RemoveFromWorld()
@@ -18420,6 +18422,8 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         return false;
     }
 
+	pet->CopyPhaseFrom(this);
+
 #ifndef CROSS
     pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
 #else /* CROSS */
@@ -20208,12 +20212,12 @@ float Unit::MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell)
     return l_MissChance;
 }
 
-void Unit::SetInPhase(uint32 id, bool update, bool apply)
+bool Unit::SetInPhase(uint32 id, bool update, bool apply)
 {
-    WorldObject::SetInPhase(id, update, apply);
+	bool res = WorldObject::SetInPhase(id, update, apply);
 
     if (!IsInWorld())
-        return;
+        return res;
 
     RemoveNotOwnSingleTargetAuras(0, true);
 
@@ -20256,6 +20260,8 @@ void Unit::SetInPhase(uint32 id, bool update, bool apply)
         if (m_SummonSlot[i])
             if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 summon->SetInPhase(id, true, apply);
+
+	return res;
 }
 
 class Unit::AINotifyTask : public BasicEvent

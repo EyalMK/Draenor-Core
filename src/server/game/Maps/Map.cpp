@@ -488,6 +488,8 @@ bool Map::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
     player->m_clientGUIDs.clear();
     player->UpdateObjectVisibility(false);
 
+	player->SendUpdatePhasing();
+
     sScriptMgr->OnPlayerEnterMap(this, player);
     sOutdoorPvPMgr->HandlePlayerEnterMap(player, GetId());
     return true;
@@ -548,6 +550,8 @@ bool Map::AddToMap(T* obj)
 
     if (obj->isActiveObject())
         AddToActive(obj);
+
+	obj->RebuildTerrainSwaps();
 
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual
