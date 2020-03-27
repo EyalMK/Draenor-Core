@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `disables` (
   PRIMARY KEY (`sourceType`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.disables: 140 rows
+-- Dumping data for table worldlive.disables: 150 rows
 DELETE FROM `disables`;
 /*!40000 ALTER TABLE `disables` DISABLE KEYS */;
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
@@ -165,7 +165,17 @@ INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, 
 	(1, 36623, 0, '', '', 'Garrison Invasion: Ogre Invasion! (H)'),
 	(1, 36653, 0, '', '', 'Garrison Invasion: Botani Invasion! (H)'),
 	(1, 36831, 0, '', '', 'Garrison Invasion: Shadow Council Invasion! (H)'),
-	(0, 73523, 7, '', '', 'rigor disable undead');
+	(0, 73523, 7, '', '', 'rigor disable undead'),
+	(1, 3116, 0, '', '', 'Deprecated quest: Simple Sigil'),
+	(1, 3117, 0, '', '', 'Deprecated quest: Etched Sigil'),
+	(1, 3118, 0, '', '', 'Deprecated quest: Encrypted Sigil'),
+	(1, 3119, 0, '', '', 'Deprecated quest: Hallowed Sigil'),
+	(1, 3120, 0, '', '', 'Deprecated quest: Verdant Sigil'),
+	(1, 26945, 0, '', '', 'Deprecated quest: Learning New Techniques'),
+	(1, 26946, 0, '', '', 'Deprecated quest: A Rogue\'s Advantage'),
+	(1, 26947, 0, '', '', 'Deprecated quest: A Woodsman\'s Training'),
+	(1, 26948, 0, '', '', 'Deprecated quest: Moonfire'),
+	(1, 26949, 0, '', '', 'Deprecated quest: Learning the Word');
 /*!40000 ALTER TABLE `disables` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
