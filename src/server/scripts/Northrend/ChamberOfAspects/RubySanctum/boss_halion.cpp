@@ -496,7 +496,7 @@ class boss_twilight_halion : public CreatureScript
                 me->AddAura(SPELL_DUSK_SHROUD, me);
 
                 me->SetHealth(halion->GetHealth());
-                me->SetPhaseMask(0x20, true);
+				me->SetInPhase(174, false, true);
                 me->SetReactState(REACT_DEFENSIVE);
 
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -606,7 +606,6 @@ class npc_halion_controller : public CreatureScript
             npc_halion_controllerAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript()), _summons(me)
             {
-                me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
             }
 
             void Reset()
@@ -1204,21 +1203,22 @@ class npc_combustion_consumption : public CreatureScript
                     case NPC_COMBUSTION:
                         _explosionSpell = SPELL_FIERY_COMBUSTION_EXPLOSION;
                         _damageSpell = SPELL_COMBUSTION_DAMAGE_AURA;
-                        me->SetPhaseMask(0x01, true);
+						PhasingHandler::AddPhase(creature, DEFAULT_PHASE, false);
+						if (IsHeroic())
+							PhasingHandler::AddPhase(creature, 174, false);
                         break;
                     case NPC_CONSUMPTION:
                         _explosionSpell = SPELL_SOUL_CONSUMPTION_EXPLOSION;
                         _damageSpell = SPELL_CONSUMPTION_DAMAGE_AURA;
-                        me->SetPhaseMask(0x20, true);
+						PhasingHandler::AddPhase(creature, 174, false);
+						if (IsHeroic())
+							PhasingHandler::AddPhase(creature, DEFAULT_PHASE, false);
                         break;
                     default: // Should never happen
                         _explosionSpell = 0;
                         _damageSpell = 0;
                         break;
                 }
-
-                if (IsHeroic())
-                    me->SetPhaseMask(0x01 | 0x20, true);
             }
 
             void IsSummonedBy(Unit* summoner)
@@ -1406,7 +1406,7 @@ class npc_shadow_orb : public CreatureScript
             npc_shadow_orbAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisableGravity(true);
-                me->SetPhaseMask(0x20, true);
+				PhasingHandler::AddPhase(creature, 174, false);
             }
 
             void UpdateAI(uint32 const /*diff*/) { }
@@ -1455,12 +1455,12 @@ class go_twilight_portal : public GameObjectScript
                 switch (gameobject->GetEntry())
                 {
                     case GO_HALION_PORTAL_EXIT:
-                        gameobject->SetPhaseMask(0x20, true);
+						PhasingHandler::AddPhase(gameobject, 174, false);
                         _spellId = gameobject->GetGOInfo()->goober.spell;
                         break;
                     case GO_HALION_PORTAL_1:
                     case GO_HALION_PORTAL_2: // Not used, not seen in sniffs. Just in case.
-                        gameobject->SetPhaseMask(0x1, true);
+						PhasingHandler::AddPhase(gameobject, DEFAULT_PHASE, false);
                         /// Because WDB template has non-existent spell ID, not seen in sniffs either, meh
                         _spellId = SPELL_TWILIGHT_REALM;
                         break;
@@ -1876,7 +1876,7 @@ class spell_halion_twilight_phasing: public SpellScriptLoader
                 }
 
                 if (Creature* rotationFocus = caster->GetMap()->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos))
-                    rotationFocus->SetPhaseMask(0x20, true);
+                    rotationFocus->PhasingHandler::AddPhase(rotationFocus, 174, false);
             }
 
             void Register()

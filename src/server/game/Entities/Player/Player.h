@@ -3237,7 +3237,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateVisibilityOf(WorldObject* target);
         void UpdateTriggerVisibility();
         
-        void UpdatePhasing();
+        void SendUpdatePhasing();
 
         template<class T>
         void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);

@@ -4577,7 +4577,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
             else
             {
                 Unit* caster = aura->GetCaster();
-                if (!caster || (newPhase && !caster->InSamePhase(newPhase)) || (!newPhase && !caster->IsInPhase(this)))
+                if (!caster || (newPhase && !caster->IsInPhase(newPhase)) || (!newPhase && !caster->IsInPhase(this)))
                     RemoveAura(iter);
                 else
                     ++iter;
@@ -4592,7 +4592,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase, bool phaseid)
     for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
         Aura* aura = *iter;
-        if (aura->GetUnitOwner() && aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
+        if (aura->GetUnitOwner() && aura->GetUnitOwner() != this && !aura->GetUnitOwner()->IsInPhase(newPhase))
         {
             aura->Remove();
             iter = scAuras.begin();
@@ -16352,6 +16352,8 @@ void Unit::AddToWorld()
     {
         WorldObject::AddToWorld();
     }
+
+	RebuildTerrainSwaps();
 }
 
 void Unit::RemoveFromWorld()
@@ -18420,6 +18422,8 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         return false;
     }
 
+	pet->CopyPhaseFrom(this);
+
 #ifndef CROSS
     pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
 #else /* CROSS */
@@ -20208,12 +20212,12 @@ float Unit::MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell)
     return l_MissChance;
 }
 
-void Unit::SetInPhase(uint32 id, bool update, bool apply)
+bool Unit::SetInPhase(uint32 id, bool update, bool apply)
 {
-    WorldObject::SetInPhase(id, update, apply);
+	bool res = WorldObject::SetInPhase(id, update, apply);
 
     if (!IsInWorld())
-        return;
+        return res;
 
     RemoveNotOwnSingleTargetAuras(0, true);
 
@@ -20256,65 +20260,8 @@ void Unit::SetInPhase(uint32 id, bool update, bool apply)
         if (m_SummonSlot[i])
             if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 summon->SetInPhase(id, true, apply);
-}
 
-
-
-void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
-{
-    if (newPhaseMask == GetPhaseMask())
-        return;
-
-    if (IsInWorld())
-    {
-        RemoveNotOwnSingleTargetAuras(newPhaseMask);            // we can lost access to caster or target
-
-        // modify hostile references for new phasemask, some special cases deal with hostile references themselves
-        if (GetTypeId() == TYPEID_UNIT || (!ToPlayer()->isGameMaster() && !ToPlayer()->GetSession()->PlayerLogout()))
-        {
-            HostileRefManager& refManager = getHostileRefManager();
-            HostileReference* ref = refManager.getFirst();
-
-            while (ref)
-            {
-                if (Unit* unit = ref->getSource()->getOwner())
-                    if (Creature* creature = unit->ToCreature())
-                        refManager.setOnlineOfflineState(creature, creature->InSamePhase(newPhaseMask));
-
-                ref = ref->next();
-            }
-
-            // modify threat lists for new phasemask
-            if (GetTypeId() != TYPEID_PLAYER)
-            {
-                std::list<HostileReference*> threatList = getThreatManager().getThreatList();
-                std::list<HostileReference*> offlineThreatList = getThreatManager().getOfflineThreatList();
-
-                // merge expects sorted lists
-                threatList.sort();
-                offlineThreatList.sort();
-                threatList.merge(offlineThreatList);
-
-                for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
-                    if (Unit* unit = (*itr)->getTarget())
-                        unit->getHostileRefManager().setOnlineOfflineState(ToCreature(), unit->InSamePhase(newPhaseMask));
-            }
-        }
-    }
-
-    WorldObject::SetPhaseMask(newPhaseMask, update);
-
-    if (!IsInWorld())
-        return;
-
-    for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-        if ((*itr)->GetTypeId() == TYPEID_UNIT)
-            (*itr)->SetPhaseMask(newPhaseMask, true);
-
-    for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
-        if (m_SummonSlot[i])
-            if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
-                summon->SetPhaseMask(newPhaseMask, true);
+	return res;
 }
 
 class Unit::AINotifyTask : public BasicEvent

@@ -301,7 +301,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, 
             uint32 areaId = source->GetAreaId();
             Map::PlayerList const& players = source->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if (itr->getSource()->GetAreaId() == areaId && itr->getSource()->InSamePhase(source) && (!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
+                if (itr->getSource()->GetAreaId() == areaId && itr->getSource()->IsInPhase(source) && (!team || Team(itr->getSource()->GetTeam()) == team) && (!gmOnly || itr->getSource()->isGameMaster()))
                     itr->getSource()->GetSession()->SendPacket(data);
             return;
         }

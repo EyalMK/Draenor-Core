@@ -403,7 +403,7 @@ void JadeCore::AreaTriggerListSearcher<Check>::Visit(AreaTriggerMapType& p_AreaT
 {
     for (AreaTriggerMapType::iterator l_Iterator = p_AreaTriggerMap.begin(); l_Iterator != p_AreaTriggerMap.end(); ++l_Iterator)
     {
-        if (l_Iterator->getSource()->InSamePhase(m_PhaseMask))
+        if (l_Iterator->getSource()->IsInPhase(m_PhaseMask))
         {
             if (m_Check(l_Iterator->getSource()))
                 m_AreaTriggers.push_back(l_Iterator->getSource());

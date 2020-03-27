@@ -1603,8 +1603,9 @@ void Player::Update(uint32 p_time)
 
                 delete param;
             });
-			for (auto itr : GetPhases())
-				pet->SetInPhase(itr, false, true);
+
+			pet->CopyPhaseFrom(this);
+
             _petLoginCallback.cancel();
         }
     }
@@ -10469,6 +10470,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     UpdateZoneDependentAuras(newZone);
 
+	UpdateAreaPhase();
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -18902,7 +18904,6 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     CheckSpellAreaOnQuestStatusChange(quest_id);
 
-
     UpdateForQuestWorldObjects();
 
 #ifndef CROSS
@@ -20781,6 +20782,8 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
             break;
         }
     }
+
+	SendUpdatePhasing();
 }
 
 void Player::SendQuestUpdateAddPlayer(Quest const* p_Quest, const QuestObjective & p_Objective, uint16 p_OldCount, uint16 p_AddCount)
@@ -35077,22 +35080,12 @@ void Player::ApplyOnBagsItems(std::function<bool(Player*, Item*, uint8, uint8)>&
     }
 }
 
-void Player::UpdatePhasing()
+void Player::SendUpdatePhasing()
 {
-    std::set<uint32> phaseIds;
-    std::set<uint32> terrainswaps;
-    std::set<uint32> worldAreaSwaps;
+	if (!IsInWorld())
+		return;
 
-    for (auto phase : GetPhases())
-    {
-        PhaseInfo const* info = sObjectMgr->GetPhaseInfo(phase);
-        if (!info)
-            continue;
-        terrainswaps.insert(info->terrainSwapMap);
-        worldAreaSwaps.insert(info->worldMapAreaSwap);
-    }
-
-    GetSession()->SendSetPhaseShift(GetPhases(), terrainswaps, worldAreaSwaps);
+    GetSession()->SendSetPhaseShift(GetPhases(), GetTerrainSwaps(), GetWorldMapAreaSwaps());
 }
 
 void Player::ApplyOnBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)

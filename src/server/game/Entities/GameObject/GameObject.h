@@ -881,14 +881,13 @@ enum GOState
 // from `gameobject`
 struct GameObjectData
 {
-     explicit GameObjectData() : id(0), mapid(0), phaseMask(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f),
+     explicit GameObjectData() : id(0), mapid(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f),
                                 rotation0(0.0f), rotation1(0.0f), rotation2(0.0f), rotation3(0.0f), spawntimesecs(0),
                                 animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), phaseid(0), phaseGroup(0), dbData(true) { }
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
     uint16 zoneId;
     uint16 areaId;
-    uint32 phaseMask;
     float posX;
     float posY;
     float posZ;
@@ -945,7 +944,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void RemoveFromWorld();
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
-        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0, uint32 p_GoHealth = 0);
+        bool Create(uint32 guidlow, uint32 name_id, Map* map, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0, uint32 p_GoHealth = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
@@ -972,7 +971,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         const char* GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
         void SaveToDB();
-        void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
+        void SaveToDB(uint32 mapid, uint32 spawnMask);
         bool LoadFromDB(uint32 guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
         bool LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap = true);
         void DeleteFromDB();
@@ -1047,8 +1046,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
 
-        void SetPhaseMask(uint32 newPhaseMask, bool update);
-        void SetInPhase(uint32 id, bool update, bool apply);
+        bool SetInPhase(uint32 id, bool update, bool apply);
         void EnableCollision(bool enable);
 
         void Use(Unit* user);

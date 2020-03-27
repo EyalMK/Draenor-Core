@@ -115,6 +115,29 @@ bool InstanceScript::IsEncounterInProgress() const
     return false;
 }
 
+ObjectGuid InstanceScript::GetObjectGuid(uint32 type) const
+{
+	ObjectGuidMap::const_iterator i = _objectGuids.find(type);
+	if (i != _objectGuids.end())
+		return i->second;
+	return ObjectGuid::Empty;
+}
+
+ObjectGuid InstanceScript::GetGuidData(uint32 type) const
+{
+	return GetObjectGuid(type);
+}
+
+Creature* InstanceScript::GetCreature(uint32 type)
+{
+	return instance->GetCreature(GetObjectGuid(type));
+}
+
+GameObject* InstanceScript::GetGameObject(uint32 type)
+{
+	return instance->GetGameObject(GetObjectGuid(type));
+}
+
 void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
@@ -140,6 +163,13 @@ void InstanceScript::OnPlayerExit(Player* p_Player)
         HandleItemSetBonusesOnPlayers(true);
         HandleGemBonusesOnPlayers(true);
     }
+}
+
+void InstanceScript::SetHeaders(std::string const& dataHeaders)
+{
+	for (char header : dataHeaders)
+		if (isalpha(header))
+			headers.push_back(header);
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
@@ -170,6 +200,27 @@ void InstanceScript::LoadDoorData(const DoorData* data)
         ++data;
     }
     sLog->outDebug(LOG_FILTER_TSCR, "InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
+}
+
+void InstanceScript::LoadObjectData(ObjectData const* creatureData, ObjectData const* gameObjectData)
+{
+	if (creatureData)
+		LoadObjectData(creatureData, _creatureInfo);
+
+	if (gameObjectData)
+		LoadObjectData(gameObjectData, _gameObjectInfo);
+
+	sLog->outDebug(LOG_FILTER_TSCR, "InstanceScript::LoadObjectData: " SIZEFMTD " objects loaded.", _creatureInfo.size() + _gameObjectInfo.size());
+}
+
+void InstanceScript::LoadObjectData(ObjectData const* data, ObjectInfoMap& objectInfo)
+{
+	while (data->entry)
+	{
+		ASSERT(objectInfo.find(data->entry) == objectInfo.end());
+		objectInfo[data->entry] = data->type;
+		++data;
+	}
 }
 
 void InstanceScript::LoadScenariosInfos(BossScenarios const* p_Scenarios, uint32 p_ScenarioID)
@@ -486,6 +537,11 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
     }
 
     return false;
+}
+
+bool InstanceScript::_SkipCheckRequiredBosses(Player const* player /*= nullptr*/) const
+{
+	return player && player->GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES);
 }
 
 std::string InstanceScript::LoadBossState(const char * data)
@@ -1818,11 +1874,11 @@ uint32 InstanceScript::GetEncounterIDForBoss(Creature* p_Boss) const
 
 void InstanceScript::UpdatePhasing()
 {
-  /*
-    Map::PlayerList const& players = instance->GetPlayers();
-    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        if (Player* player = itr->getSource())
-*/
+ 
+	Map::PlayerList const& players = instance->GetPlayers();
+	for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+		if (Player* player = itr->getSource())
+			player->SendUpdatePhasing();
 }
 
 void InstanceScript::UpdateCreatureGroupSizeStats()

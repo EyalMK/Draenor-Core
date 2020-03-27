@@ -1700,9 +1700,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading forbidden spells...");
     sSpellMgr->LoadForbiddenSpells();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Phase Dbc Info...");
-    sObjectMgr->LoadPhaseInfo();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading NPC Texts...");
     sObjectMgr->LoadGossipText();
 
@@ -2031,8 +2028,17 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
     LoadWorldStates();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Phase definitions...");
-    sObjectMgr->LoadPhaseDefinitions();
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Terrain Phase definitions...");
+	sObjectMgr->LoadTerrainPhaseInfo();
+
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Terrain Swap Default definitions...");
+	sObjectMgr->LoadTerrainSwapDefaults();
+
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Terrain World Map definitions...");
+	sObjectMgr->LoadTerrainWorldMaps();
+
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Phase Area definitions...");
+	sObjectMgr->LoadAreaPhases();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Conditions...");
     sConditionMgr->LoadConditions();

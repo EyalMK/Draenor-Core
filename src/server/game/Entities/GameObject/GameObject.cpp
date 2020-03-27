@@ -185,7 +185,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit, uint32 p_GoHealth)
+bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit, uint32 p_GoHealth)
 {
     {
         GameObjectTemplate const* l_GameObjectTemplate = sObjectMgr->GetGameObjectTemplate(name_id);
@@ -208,8 +208,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
         sLog->outError(LOG_FILTER_GENERAL, "Gameobject (GUID: %u Entry: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", guidlow, name_id, x, y);
         return false;
     }
-
-    SetPhaseMask(phaseMask, false);
 
     SetZoneScript();
     if (m_zoneScript)
@@ -267,9 +265,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     SetDisplayId(goinfo->displayId);
     m_model = GameObjectModel::Create(*this);
-
-    /// Recall this function to update the model
-    SetPhaseMask(phaseMask, false);
 
     loot.SetSource(GetGUID());
 
@@ -827,10 +822,10 @@ void GameObject::SaveToDB()
         return;
     }
 
-    SaveToDB(GetMapId(), data->spawnMask, data->phaseMask);
+    SaveToDB(GetMapId(), data->spawnMask);
 }
 
-void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
+void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask)
 {
     const GameObjectTemplate* goI = GetGOInfo();
 
@@ -851,7 +846,6 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     data.mapid = mapid;
     data.zoneId = zoneId;
     data.areaId = areaId;
-    data.phaseMask = phaseMask;
     data.posX = GetPositionX();
     data.posY = GetPositionY();
     data.posZ = GetPositionZ();
@@ -884,7 +878,6 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     stmt->setUInt16(index++, zoneId);
     stmt->setUInt16(index++, areaId);
     stmt->setUInt32(index++, spawnMask);
-    stmt->setUInt32(index++, uint32(GetPhaseMask()));
     stmt->setFloat(index++, GetPositionX());
     stmt->setFloat(index++, GetPositionY());
     stmt->setFloat(index++, GetPositionZ());
@@ -914,7 +907,6 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
 
     uint32 entry = data->id;
     //uint32 map_id = data->mapid;                          // already used before call
-    uint32 phaseMask = data->phaseMask;
     float x = data->posX;
     float y = data->posY;
     float z = data->posZ;
@@ -935,18 +927,18 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
     if (map->GetInstanceId() != 0)
         guid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-    if (!Create(guid, entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
+    if (!Create(guid, entry, map, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
         return false;
 
     if (data->phaseid)
         SetInPhase(data->phaseid, false, true);
 
-   /* if (data->phaseGroup)
+   if (data->phaseGroup)
     {
         // Set the gameobject in all the phases of the phasegroup
         for (auto ph : GetPhasesForGroup(data->phaseGroup))
             SetInPhase(ph, false, true);
-    }*/
+    }
 
 
     if (data->spawntimesecs >= 0)
@@ -2319,19 +2311,13 @@ void GameObject::SetDisplayId(uint32 displayid)
     UpdateModel();
 }
 
-void GameObject::SetInPhase(uint32 id, bool update, bool apply)
+bool GameObject::SetInPhase(uint32 id, bool update, bool apply)
 {
-    WorldObject::SetInPhase(id, update, apply);
+	bool res = WorldObject::SetInPhase(id, update, apply);
     if (m_model && m_model->isEnabled())
         EnableCollision(true);
-}
 
-
-void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
-{
-    WorldObject::SetPhaseMask(newPhaseMask, update);
-    if (m_model && m_model->isEnabled())
-        EnableCollision(true);
+	return res;
 }
 
 void GameObject::EnableCollision(bool enable)
@@ -2342,7 +2328,7 @@ void GameObject::EnableCollision(bool enable)
     if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
         GetMap()->InsertGameObjectModel(*m_model);
 
-    m_model->enable(enable ? GetPhaseMask() : 0);
+    m_model->enable(enable);
 }
 
 void GameObject::UpdateModelPosition()

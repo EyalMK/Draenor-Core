@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_questender
+-- Dumping structure for table worldlive.creature_questender
 CREATE TABLE IF NOT EXISTS `creature_questender` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`,`quest`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
 
--- Dumping data for table world.creature_questender: 13,667 rows
+-- Dumping data for table worldlive.creature_questender: 13,657 rows
 DELETE FROM `creature_questender`;
 /*!40000 ALTER TABLE `creature_questender` DISABLE KEYS */;
 INSERT INTO `creature_questender` (`id`, `quest`) VALUES
@@ -770,16 +770,6 @@ INSERT INTO `creature_questender` (`id`, `quest`) VALUES
 	(3567, 2438),
 	(3567, 2459),
 	(3568, 938),
-	(3593, 3116),
-	(3593, 26945),
-	(3594, 3118),
-	(3594, 26946),
-	(3595, 3119),
-	(3595, 26949),
-	(3596, 3117),
-	(3596, 26947),
-	(3597, 3120),
-	(3597, 26948),
 	(3615, 6365),
 	(3685, 7662),
 	(3685, 7663),

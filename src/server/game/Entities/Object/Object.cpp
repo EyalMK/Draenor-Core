@@ -1745,7 +1745,7 @@ void MovementInfo::Normalize()
 WorldObject::WorldObject(bool isWorldObject): WorldLocation(),
  m_zoneScript(NULL), m_name(""), m_isActive(false), m_isWorldObject(isWorldObject),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
-m_phaseMask(PHASEMASK_NORMAL), m_AIAnimKitId(0), m_MovementAnimKitId(0), m_MeleeAnimKitId(0)
+_dbPhase(0), m_AIAnimKitId(0), m_MovementAnimKitId(0), m_MeleeAnimKitId(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
@@ -1812,10 +1812,9 @@ void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
         RemoveFromWorld();
 }
 
-void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
+void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh)
 {
     Object::_Create(guidlow, 0, guidhigh);
-    m_phaseMask = phaseMask;
 }
 
 uint32 WorldObject::GetZoneId(bool /*forceRecalc*/) const
@@ -1922,7 +1921,7 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
     VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
     return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);*/
     if (IsInWorld())
-        return GetMap()->isInLineOfSight(GetPositionX(), GetPositionY(), GetPositionZ()+2.0f, ox, oy, oz+2.0f, GetPhaseMask());
+        return GetMap()->isInLineOfSight(GetPositionX(), GetPositionY(), GetPositionZ()+2.0f, ox, oy, oz+2.0f);
 
     return true;
 }
@@ -2966,16 +2965,10 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    uint32 phase = PHASEMASK_NORMAL;
-    std::set<uint32> phases;
     uint32 team = 0;
-    if (summoner)
-    {
-        phase = summoner->GetPhaseMask();
-        phases = summoner->GetPhases();
-        if (summoner->IsPlayer())
-            team = summoner->ToPlayer()->GetTeam();
-    }
+
+    if (summoner->IsPlayer())
+			team = summoner->ToPlayer()->GetTeam();
 
     // Fix Serpent Jade Statue and Sturdy Ox Statue - is Guardian
     if (entry == 60849 || entry == 61146)
@@ -3005,18 +2998,16 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             break;
     }
 
-    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, vehId, team, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
+    if (!summon->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), this, entry, vehId, team, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
     {
         delete summon;
         return NULL;
     }
     
     // Set the summon to the summoner's phase
-    for (auto phaseId : phases)
-        summon->SetInPhase(phaseId, false, true);
+	summon->CopyPhaseFrom(summoner);
 
-
-    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spellId);
+	summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spellId);
 
     summon->SetHomePosition(pos);
 
@@ -3254,7 +3245,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return;
     }
 
-    if (!l_Pet->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PET), map, GetPhaseMask(), entry))
+    if (!l_Pet->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PET), map, entry))
     {
         delete l_Pet;
         p_Callback(nullptr, false);
@@ -3352,19 +3343,16 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     }
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3,
+    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, x, y, z, ang, rotation0, rotation1, rotation2, rotation3,
         p_AnimProgress, p_Active ? GO_STATE_ACTIVE : GO_STATE_READY, 0, p_GoHealth))
     {
         delete go;
         return NULL;
     }
     
-    for (auto phase : GetPhases())
-        go->SetInPhase(phase, false, true);
+	go->CopyPhaseFrom(this);
 
-
-
-    go->SetRespawnTime(respawnTime);
+	go->SetRespawnTime(respawnTime);
 
     /// ===================== HACK ALERT, THIS IS BAD ================================================ ///
     /// - Blizzard do like that for some garrison special gameobject but the dynamic update field      ///
@@ -3921,41 +3909,139 @@ void WorldObject::MovePositionToCollisionBetween(Position &pos, float distMin, f
     pos.SetOrientation(GetOrientation());
 }
 
-void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
+bool WorldObject::HasInPhaseList(uint32 phase)
 {
-    m_phaseMask = newPhaseMask;
-
-    if (update && IsInWorld())
-        UpdateObjectVisibility();
+	return _phases.find(phase) != _phases.end();
 }
 
-void WorldObject::SetInPhase(uint32 id, bool update, bool apply)
+// Updates Area based phases, does not remove phases from auras
+// Phases from gm commands are not taken into calculations, they can be lost!!
+void WorldObject::UpdateAreaAndZonePhase()
 {
-    if (apply)
-        _phases.insert(id);
-    else
-        _phases.erase(id);
+	bool updateNeeded = false;
+	PhaseInfo const& allAreasPhases = sObjectMgr->GetAreaAndZonePhases();
+	uint32 zoneAndArea[] = { GetZoneId(), GetAreaId() };
+	// We first remove all phases from other areas & zones
+	for (auto itr = allAreasPhases.begin(); itr != allAreasPhases.end(); ++itr)
+		for (PhaseInfoStruct const& phase : itr->second)
+			if (!DB2Manager::IsInArea(GetAreaId(), itr->first))
+				updateNeeded = SetInPhase(phase.Id, false, false) || updateNeeded; // not in area, remove phase, true if there was something removed
+	// Then we add the phases from this area and zone if conditions are met
+	// Zone is done before Area, so if Area does not meet condition, the phase will be removed
+	for (uint32 area : zoneAndArea)
+	{
+		if (std::vector<PhaseInfoStruct> const* currentPhases = sObjectMgr->GetPhasesForArea(area))
+		{
+			for (PhaseInfoStruct const& phaseInfoStruct : *currentPhases)
+			{
+				bool apply = sConditionMgr->IsObjectMeetToConditions(this, phaseInfoStruct.Conditions);
+				// add or remove phase depending of condition
+				updateNeeded = SetInPhase(phaseInfoStruct.Id, false, apply) || updateNeeded;
+			}
+		}
+	}
+	// do not remove a phase if it would be removed by an area but we have the same phase from an aura
+	if (Unit* unit = ToUnit())
+	{
+		Unit::AuraEffectList const& auraPhaseList = unit->GetAuraEffectsByType(SPELL_AURA_PHASE);
+		for (Unit::AuraEffectList::const_iterator itr = auraPhaseList.begin(); itr != auraPhaseList.end(); ++itr)
+		{
+			uint32 phase = uint32((*itr)->GetMiscValueB());
+			updateNeeded = SetInPhase(phase, false, true) || updateNeeded;
+		}
+		Unit::AuraEffectList const& auraPhaseGroupList = unit->GetAuraEffectsByType(SPELL_AURA_PHASE_GROUP);
+		for (Unit::AuraEffectList::const_iterator itr = auraPhaseGroupList.begin(); itr != auraPhaseGroupList.end(); ++itr)
+		{
+			uint32 phaseGroup = uint32((*itr)->GetMiscValueB());
+			std::set<uint32> phaseIDs = sDB2Manager.GetPhasesForGroup(phaseGroup);
+			for (uint32 phase : phaseIDs)
+				updateNeeded = SetInPhase(phase, false, true) || updateNeeded;
+		}
+	}
 
-    if (update && IsInWorld())
-        UpdateObjectVisibility();
+	// only update visibility and send packets if there was a change in the phase list
+	if (updateNeeded && GetTypeId() == TYPEID_PLAYER && IsInWorld())
+		ToPlayer()->GetSession()->SendSetPhaseShift(GetPhases(), GetTerrainSwaps(), GetWorldMapAreaSwaps());
+	// only update visibilty once, to prevent objects appearing for a moment while adding in multiple phases
+	if (updateNeeded && IsInWorld())
+		UpdateObjectVisibility();
+}
+
+bool WorldObject::SetInPhase(uint32 id, bool update, bool apply)
+{
+	if (id)
+	{
+		if (apply)
+		{
+			// do not run the updates if we are already in this phase
+			if (!_phases.insert(id).second)
+				return false;
+		}
+		else
+		{
+			auto phaseItr = _phases.find(id);
+			if (phaseItr == _phases.end())
+				return false;
+
+			// if area phase passes the condition we should not remove it (ie: if remove called from aura remove)
+			// this however breaks the .mod phase command, you wont be able to remove any area based phases with it
+			if (std::vector<PhaseInfoStruct> const* phases = sObjectMgr->GetPhasesForArea(GetAreaId()))
+				for (PhaseInfoStruct const& phase : *phases)
+					if (id == phase.Id)
+						if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
+							return false;
+
+			_phases.erase(phaseItr);
+		}
+	}
+
+	RebuildTerrainSwaps();
+
+	if (update && IsInWorld())
+		UpdateObjectVisibility();
+
+	return true;
+}
+
+void WorldObject::CopyPhaseFrom(WorldObject* obj, bool update)
+{
+	if (!obj)
+		return;
+
+	for (uint32 phase : obj->GetPhases())
+		SetInPhase(phase, false, true);
+
+	if (update && IsInWorld())
+		UpdateObjectVisibility();
+}
+
+void WorldObject::ClearPhases(bool update)
+{
+	_phases.clear();
+
+	RebuildTerrainSwaps();
+
+	if (update && IsInWorld())
+		UpdateObjectVisibility();
+}
+
+bool WorldObject::IsInPhase(std::set<uint32> const& phases) const
+{
+	// PhaseId 169 is the default fallback phase
+	if (_phases.empty() && phases.empty())
+		return true;
+	if (_phases.empty() && phases.count(DEFAULT_PHASE) > 0)
+		return true;
+	if (phases.empty() && _phases.count(DEFAULT_PHASE) > 0)
+		return true;
+	return Jadecore::Containers::Intersects(_phases.begin(), _phases.end(), phases.begin(), phases.end());
 }
 
 bool WorldObject::IsInPhase(WorldObject const* obj) const
 {
-    // PhaseId 169 is the default fallback phase
-    if (_phases.empty() && obj->GetPhases().empty())
-        return true;
-
-    if (_phases.empty() && obj->IsInPhase(169))
-        return true;
-
-    if (obj->GetPhases().empty() && IsInPhase(169))
-        return true;
-
-    for (auto phase : _phases)
-        if (obj->IsInPhase(phase))
-            return true;
-    return false;
+	if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->isGameMaster())
+		return true;
+	return IsInPhase(obj->GetPhases());
 }
 
 void WorldObject::PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject /*= NULL*/, float p_SourceX /*= 0.0f*/, float p_SourceY /*= 0.0f*/, float p_SourceZ /*= 0.0f*/)
@@ -4123,6 +4209,89 @@ uint64 WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return 0;
+}
+
+void WorldObject::RebuildTerrainSwaps()
+{
+	// Clear all terrain swaps, will be rebuilt below
+	// Reason for this is, multiple phases can have the same terrain swap, we should not remove the swap if another phase still use it
+	_terrainSwaps.clear();
+	ConditionList conditions;
+
+	// Check all applied phases for terrain swap and add it only once
+	for (uint32 phaseId : _phases)
+	{
+		std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
+
+		for (uint32 swap : swaps)
+		{
+			// only add terrain swaps for current map
+			MapEntry const* mapEntry = sMapStore.LookupEntry(swap);
+			if (!mapEntry || mapEntry->ParentMapID != GetMapId())
+				continue;
+
+			conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
+			if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+				_terrainSwaps.insert(swap);
+		}
+	}
+
+	// get default terrain swaps, only for current map always
+	std::list<uint32>& mapSwaps = sObjectMgr->GetDefaultTerrainSwaps(GetMapId());
+
+	for (uint32 swap : mapSwaps)
+	{
+		conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
+		if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+			_terrainSwaps.insert(swap);
+	}
+
+	// online players have a game client with world map display
+	if (GetTypeId() == TYPEID_PLAYER)
+		RebuildWorldMapAreaSwaps();
+}
+
+void WorldObject::RebuildWorldMapAreaSwaps()
+{
+	// Clear all world map area swaps, will be rebuilt below
+	_worldMapAreaSwaps.clear();
+
+	// get ALL default terrain swaps, if we are using it (condition is true) 
+	// send the worldmaparea for it, to see swapped worldmaparea in client from other maps too, not just from our current
+	TerrainPhaseInfo defaults = sObjectMgr->GetDefaultTerrainSwapStore();
+	for (TerrainPhaseInfo::const_iterator itr = defaults.begin(); itr != defaults.end(); ++itr)
+	{
+		for (uint32 swap : itr->second)
+		{
+			ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+			if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+			{
+				for (uint32 map : sObjectMgr->GetTerrainWorldMaps(swap))
+					_worldMapAreaSwaps.insert(map);
+			}
+		}
+	}
+
+	// Check all applied phases for world map area swaps
+	for (uint32 phaseId : _phases)
+	{
+		std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
+
+		for (uint32 swap : swaps)
+		{
+			// add world map swaps for ANY map
+
+			ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
+			if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+			{
+				for (uint32 map : sObjectMgr->GetTerrainWorldMaps(swap))
+					_worldMapAreaSwaps.insert(map);
+			}
+		}
+	}
 }
 
 void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID, bool p_Packet /*= true*/)
