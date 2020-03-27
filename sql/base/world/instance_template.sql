@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.instance_template
+-- Dumping structure for table worldlive.instance_template
 CREATE TABLE IF NOT EXISTS `instance_template` (
   `map` smallint(5) unsigned NOT NULL,
   `parent` smallint(5) unsigned NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `instance_template` (
   PRIMARY KEY (`map`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.instance_template: 133 rows
+-- Dumping data for table worldlive.instance_template: 133 rows
 DELETE FROM `instance_template`;
 /*!40000 ALTER TABLE `instance_template` DISABLE KEYS */;
 INSERT INTO `instance_template` (`map`, `parent`, `script`, `allowMount`) VALUES
@@ -45,11 +45,7 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`, `allowMount`) VALUES
 	(329, 0, 'instance_stratholme', 0),
 	(349, 1, '', 0),
 	(389, 1, 'instance_ragefire_chasm', 0),
-	(409, 230, 'instance_molten_core', 0),
 	(429, 1, '', 0),
-	(469, 229, 'instance_blackwing_lair', 0),
-	(509, 1, 'instance_ruins_of_ahnqiraj', 1),
-	(531, 1, 'instance_temple_of_ahnqiraj', 1),
 	(532, 0, 'instance_karazhan', 0),
 	(615, 571, 'instance_obsidian_sanctum', 1),
 	(534, 1, 'instance_hyjal', 1),
