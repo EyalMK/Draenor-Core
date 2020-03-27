@@ -2607,6 +2607,17 @@ CharDelete.KeepDays = 0
 
 ###################################################################################################
 # CUSTOM SERVER OPTIONS
+#	SpellQueueSystem.Enabled
+#		Description: Spells attempted to be cast by a player that's on global cooldown will be
+#					 "queued" such that the spell will be cast the moment the global cooldown
+#                    is finished.
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+#
+
+SpellQueueSystem.Enabled = 1
+
+#
 #
 #    PlayerStart.AllReputation
 #        Description: Players will start with most of the high level reputations that are needed
