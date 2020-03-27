@@ -3353,6 +3353,12 @@ class Player : public Unit, public GridObject<Player>
 
         bool isAllowedToLoot(const Creature* creature);
 
+		// Spell Queue
+		void QueueSpell(Spell* p_Spell);
+		void ResetSpellQueue();
+		static bool QueueSystemEnabled();
+		Spell* GetQueuedSpell() const { return m_QueuedSpell; }
+
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
         uint8 GetRunesState() const { return m_runes.runeState; }
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes.runes[index].BaseRune); }
@@ -4099,6 +4105,8 @@ class Player : public Unit, public GridObject<Player>
         bool   m_MonthlyQuestChanged;
         bool   m_SeasonalQuestChanged;
         time_t m_lastDailyQuestTime;
+
+		Spell* m_QueuedSpell;
 
         uint32 m_drunkTimer;
         uint32 m_weaponChangeTimer;

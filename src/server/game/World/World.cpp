@@ -1498,7 +1498,8 @@ void World::LoadConfigSettings(bool reload)
     // InterRealm settings
     m_bool_configs[CONFIG_INTERREALM_ENABLE] = ConfigMgr::GetBoolDefault("InterRealm.Enabled", false);
 #endif
-
+	///< Spell queue state (on/off)
+	m_bool_configs[CONFIG_SPELL_QUEUE_STATE] = ConfigMgr::GetBoolDefault("SpellQueueSystem.Enabled", false);
     m_int_configs[CONFIG_SPELLOG_FLAGS] = ConfigMgr::GetIntDefault("SpellLog.Flags", SPELLLOG_OUTPUT_FLAG_PLAYER);
 
     if (reload)

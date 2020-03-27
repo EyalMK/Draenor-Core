@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_queststarter
+-- Dumping structure for table worldlive.creature_queststarter
 CREATE TABLE IF NOT EXISTS `creature_queststarter` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`,`quest`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
 
--- Dumping data for table world.creature_queststarter: 12,200 rows
+-- Dumping data for table worldlive.creature_queststarter: 12,178 rows
 DELETE FROM `creature_queststarter`;
 /*!40000 ALTER TABLE `creature_queststarter` DISABLE KEYS */;
 INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
@@ -369,25 +369,14 @@ INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
 	(1992, 14005),
 	(2057, 309),
 	(2057, 454),
-	(2077, 3116),
-	(2077, 3117),
-	(2077, 3118),
-	(2077, 3119),
-	(2077, 3120),
-	(2077, 26841),
 	(2077, 28715),
 	(2077, 31168),
 	(2078, 475),
 	(2078, 483),
 	(2078, 486),
-	(2079, 3116),
-	(2079, 3117),
-	(2079, 3118),
-	(2079, 3119),
-	(2079, 3120),
-	(2079, 26841),
 	(2079, 28713),
 	(2079, 28714),
+	(2079, 28723),
 	(2079, 28734),
 	(2080, 918),
 	(2080, 919),
@@ -704,16 +693,6 @@ INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
 	(3567, 2438),
 	(3567, 2459),
 	(3568, 938),
-	(3593, 26945),
-	(3593, 28723),
-	(3594, 26946),
-	(3594, 28723),
-	(3595, 26949),
-	(3595, 28723),
-	(3596, 26947),
-	(3596, 28723),
-	(3597, 26948),
-	(3597, 28723),
 	(3615, 6384),
 	(3685, 7662),
 	(3685, 7663),
@@ -7228,7 +7207,6 @@ INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
 	(42978, 26539),
 	(42983, 26394),
 	(43000, 26394),
-	(43006, 28723),
 	(43009, 27281),
 	(43009, 28290),
 	(43010, 27091),

@@ -25,6 +25,7 @@ class SpellScript;
 class ByteBuffer;
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
+#define MAX_SPELL_QUEUE_GCD 450
 
 enum SpellCastFlags
 {
@@ -342,7 +343,8 @@ enum SpellState
     SPELL_STATE_CASTING     = 2,
     SPELL_STATE_FINISHED    = 3,
     SPELL_STATE_IDLE        = 4,
-    SPELL_STATE_DELAYED     = 5
+    SPELL_STATE_DELAYED     = 5,
+	SPELL_STATE_QUEUED      = 6
 };
 
 enum SpellEffectHandleMode
@@ -558,7 +560,7 @@ public:
     void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
     void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionContainer* condList, bool isChainHeal);
 
-    void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = nullptr);
+    void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = nullptr, uint32 p_GcdAtCast = 0);
     void cancel();
     void update(uint32 difftime);
     void cast(bool skipCheck = false);
