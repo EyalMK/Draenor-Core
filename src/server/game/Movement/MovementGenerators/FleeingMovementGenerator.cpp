@@ -49,11 +49,11 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
     PathGenerator path(owner);
     path.SetPathLengthLimit(30.0f);
     bool result = path.CalculatePath(x, y, z);
-    if (!result || (path.GetPathType() & PATHFIND_NOPATH))
-    {
-        i_nextCheckTime.Reset(100);
-        return;
-    }
+	if (!result || (path.GetPathType() & (PATHFIND_NOPATH | PATHFIND_SHORT))) ///< PATHFIND_SHORT makes player fall of the platform
+	{
+		i_nextCheckTime.Reset(100);
+		return;
+	}
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(path.GetPath());
