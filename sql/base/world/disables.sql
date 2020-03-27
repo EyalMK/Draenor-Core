@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.disables
+-- Dumping structure for table worldlive.disables
 CREATE TABLE IF NOT EXISTS `disables` (
   `sourceType` int(10) unsigned NOT NULL,
   `entry` int(10) unsigned NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `disables` (
   PRIMARY KEY (`sourceType`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.disables: 140 rows
+-- Dumping data for table worldlive.disables: 140 rows
 DELETE FROM `disables`;
 /*!40000 ALTER TABLE `disables` DISABLE KEYS */;
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
@@ -165,7 +165,7 @@ INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, 
 	(1, 36623, 0, '', '', 'Garrison Invasion: Ogre Invasion! (H)'),
 	(1, 36653, 0, '', '', 'Garrison Invasion: Botani Invasion! (H)'),
 	(1, 36831, 0, '', '', 'Garrison Invasion: Shadow Council Invasion! (H)'),
-	(0, 73523, 8, '', '', 'rigor disable undead');
+	(0, 73523, 7, '', '', 'rigor disable undead');
 /*!40000 ALTER TABLE `disables` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
