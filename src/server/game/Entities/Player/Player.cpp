@@ -1119,6 +1119,21 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
     return true;
 }
+// Spell Queue
+void Player::QueueSpell(Spell* p_Spell)
+{
+	m_QueuedSpell = p_Spell;
+}
+
+void Player::ResetSpellQueue()
+{
+	m_QueuedSpell = nullptr;
+}
+
+bool Player::QueueSystemEnabled()
+{
+	return sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_SPELL_QUEUE_STATE);
+}
 
 bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount, ItemContext p_ItemContext)
 {
@@ -33701,9 +33716,8 @@ uint32 Player::PlayStandaloneScene(uint32 p_ScenePackageID, uint32 p_PlaybackFla
 
     uint64 l_TransportGUID      = 0;
     uint32 l_SceneInstanceID    = sObjectMgr->GetNewStandaloneSceneInstanceID();
-
     WorldPacket l_PlayScenePacket(SMSG_PLAY_SCENE, 4 + 4 + 4 + 4 + 2 + 16 + 4 + 4 + 4 + 4);
-    l_PlayScenePacket << uint32(0);                 ///< SceneID
+    l_PlayScenePacket << uint32(0);  
     l_PlayScenePacket << uint32(p_PlaybackFlags);
     l_PlayScenePacket << uint32(l_SceneInstanceID);
     l_PlayScenePacket << uint32(p_ScenePackageID);
@@ -34129,7 +34143,7 @@ void Player::SetFavoriteToy(bool p_Apply, uint32 p_ItemID)
     l_Data.WriteBit(false);     // IsFullUpdate
 
     l_Data << uint32(1);
-    l_Data << uint32(1);
+    l_Data << uint32(1); 
     l_Data << uint32(p_ItemID);
     l_Data.WriteBit(p_Apply);   // IsFavorite
 
