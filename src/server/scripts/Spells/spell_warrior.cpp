@@ -1699,15 +1699,25 @@ class spell_warr_shield_barrier: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    int8 l_RagetoUse = l_Caster->GetPower(POWER_RAGE) / l_Caster->GetPowerCoeff(POWER_RAGE);
+					int32 usedrage = int32(GetCaster()->GetPower(POWER_RAGE) / 10);
+					if (usedrage > 40)
+						usedrage = 40;
 
-                    if (l_RagetoUse > 40)
-                        l_RagetoUse = 40;
+					int totalrage = usedrage + 20; // + cost
 
-                    p_Amount = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.4;
-                    p_Amount += (p_Amount / 20) * l_RagetoUse;
+					int32 AP = int32(GetCaster()->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
+					int32 Strength = int32(GetCaster()->GetStat(STAT_STRENGTH));
+					int32 Stamina = int32(GetCaster()->GetStat(STAT_STAMINA));
 
-                    l_Caster->ModifyPower(POWER_RAGE, -l_RagetoUse * l_Caster->GetPowerCoeff(POWER_RAGE));
+					int32 add = std::max(int32(2 * (AP - 2 * (Strength - 10))), int32(Stamina * 2.5f));
+					add = (add * totalrage) / 60;
+
+					///< 6.1 Patch Notes - Shield Barrier now absorbs 24.4% more damage
+					add = add + (.244 * add);
+
+					p_Amount += add;
+
+					GetCaster()->SetPower(POWER_RAGE, GetCaster()->GetPower(POWER_RAGE) - usedrage * 10);
                 }
             }
 
