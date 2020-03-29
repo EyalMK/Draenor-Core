@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.areatrigger_teleport
+-- Dumping structure for table worldlive.areatrigger_teleport
 CREATE TABLE IF NOT EXISTS `areatrigger_teleport` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `name` text,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `areatrigger_teleport` (
   FULLTEXT KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
 
--- Dumping data for table world.areatrigger_teleport: 324 rows
+-- Dumping data for table worldlive.areatrigger_teleport: 324 rows
 DELETE FROM `areatrigger_teleport`;
 /*!40000 ALTER TABLE `areatrigger_teleport` DISABLE KEYS */;
 INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
@@ -141,7 +141,6 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(4322, 'Caverns Of Time, Black Morass (Exit)', 1, -8765.66, -4175, -209.863, 5.53463),
 	(4323, 'Caverns Of Time, Battle Of Mount Hyjal (Exit)', 1, -8177.5, -4183, -168, 4.5),
 	(4324, 'Caverns Of Time, Old Hillsbrad Foothills (Exit)', 1, -8334.98, -4055.32, -207.737, 3.27431),
-	(4354, 'Dark Portal To Outland', 530, -248.149, 921.875, 84.3885, 1.58415),
 	(4363, 'The Underbog (Entrance)', 546, 9.71391, -16.2008, -2.75334, 5.57082),
 	(4364, 'The Steamvault (Entrance)', 545, -13.8425, 6.7542, -4.2586, 0),
 	(4365, 'The Slave Pens (Entrance)', 547, 120.101, -131.957, -0.801547, 1.47574),
