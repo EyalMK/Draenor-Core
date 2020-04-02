@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_podling_nibbler' WHERE `entry`=84549;

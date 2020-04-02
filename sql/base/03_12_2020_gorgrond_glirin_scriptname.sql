@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_glirin' WHERE `entry`=84766;

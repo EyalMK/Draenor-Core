@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_rangari_kaalya_wildwoodwash' WHERE `entry`=80987;

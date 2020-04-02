@@ -1,2 +1,0 @@
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
-(84455, 0, 0, "Alright, break time's over fellas.", 12, 0, 100, 1, 0, 0, 'Assistant Brightstone - Keeping It Together');

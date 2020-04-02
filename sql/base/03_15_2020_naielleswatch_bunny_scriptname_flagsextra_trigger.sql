@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_gorgrond_naielleswatch_bunny', `flags_extra`=128 WHERE `entry`=84864;
