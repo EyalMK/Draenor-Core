@@ -245,14 +245,6 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
         return NULL;
     }
 
-	if (data->phaseid)
-		creature->SetInPhase(data->phaseid, false, true);
-	else if (data->phaseGroup)
-		for (auto phase : GetPhasesForGroup(data->phaseGroup))
-			creature->SetInPhase(phase, false, true);
-	else
-		creature->CopyPhaseFrom(this);
-
     map->AddToMap(creature);
     _staticPassengers.insert(creature);
 

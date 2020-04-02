@@ -1463,14 +1463,15 @@ public:
         uint32 phasemask = (uint32)atoi((char*)args);
 
         Unit* target = handler->getSelectedUnit();
-
-		if (!target)
-			target = handler->GetSession()->GetPlayer();
-
-		target->SetInPhase(phase, true, !target->IsInPhase(phase));
-
-		if (target->GetTypeId() == TYPEID_PLAYER)
-			target->ToPlayer()->SendUpdatePhasing();
+        if (target)
+        {
+            if (target->IsPlayer())
+                target->ToPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
+            else
+                target->SetPhaseMask(phasemask, true);
+        }
+        else
+            handler->GetSession()->GetPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
 
         return true;
     }

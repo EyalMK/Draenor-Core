@@ -423,10 +423,6 @@ void MotionMaster::CustomJump(float x, float y, float z, float speedXY, float sp
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
     max_height /= 15.0f;
 
-	/// Leap of Faith
-	if (id == 110726)
-		max_height = 0.5f;
-
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z, false);
     init.SetParabolic(max_height, 0);
@@ -452,10 +448,6 @@ void MotionMaster::CustomJump(Unit* p_Target, float speedXY, float speedZ, uint3
     float moveTimeHalf = speedZ / Movement::gravity;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
     max_height /= 15.0f;
-
-	/// Leap of Faith
-	if (id == 110726)
-		max_height = 0.5f;
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z, false);

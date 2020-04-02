@@ -88,7 +88,7 @@ bool Conversation::StartConversation(Unit* p_Source, uint32 p_ConversationEntry)
         return false;
     }
 
-    WorldObject::_Create(sObjectMgr->GenerateLowGuid(HighGuid::HIGHGUID_CONVERSATION), HighGuid::HIGHGUID_CONVERSATION);
+    WorldObject::_Create(sObjectMgr->GenerateLowGuid(HighGuid::HIGHGUID_CONVERSATION), HighGuid::HIGHGUID_CONVERSATION, p_Source->GetPhaseMask());
 
     SetEntry(p_ConversationEntry);
     SetDuration(l_ConvTemplate->Duration);

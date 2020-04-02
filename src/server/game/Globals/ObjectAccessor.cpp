@@ -428,8 +428,6 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
                 bones->SetUInt32Value(CORPSE_FIELD_ITEMS + i, 0);
         }
 
-		bones->CopyPhaseFrom(corpse);
-
         // add bones in grid store if grid loaded where corpse placed
         map->AddToMap(bones);
     }

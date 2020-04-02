@@ -121,18 +121,8 @@ struct MinionInfo
     BossInfo* bossInfo;
 };
 
-struct ObjectData
-{
-	uint32 entry;
-	uint32 type;
-};
-
 typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
-
-typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
-typedef std::map<uint32 /*type*/, ObjectGuid /*guid*/> ObjectGuidMap;
-typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 
 struct BossScenarios
 {
@@ -278,12 +268,6 @@ class InstanceScript : public ZoneScript
         // Used by the map's CanEnter function.
         // This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
-
-		ObjectGuid GetObjectGuid(uint32 type) const;
-		virtual ObjectGuid GetGuidData(uint32 type) const;
-
-		Creature* GetCreature(uint32 type);
-		GameObject* GetGameObject(uint32 type);
 
         // Called when a player begins to enter the instance.
         virtual void BeforePlayerEnter(Player* /*player*/) {}
@@ -622,12 +606,10 @@ class InstanceScript : public ZoneScript
         //////////////////////////////////////////////////////////////////////////
 
     protected:
-		void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 p_Number);
         void LoadDoorData(DoorData const* data);
         void LoadScenariosInfos(BossScenarios const* p_Scenarios, uint32 p_ScenarioID);
         void LoadMinionData(MinionData const* data);
-		void LoadObjectData(ObjectData const* creatureData, ObjectData const* gameObjectData);
 
         void AddDoor(GameObject* door, bool add);
         void AddMinion(Creature* minion, bool add);
@@ -637,17 +619,8 @@ class InstanceScript : public ZoneScript
 
         std::string LoadBossState(char const* data);
         std::string GetBossSaveData();
-
-		bool _SkipCheckRequiredBosses(Player const* player = nullptr) const;
-
     private:
-		static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
-
-		std::vector<char> headers;
         std::vector<BossInfo> m_Bosses;
-		ObjectInfoMap _creatureInfo;
-		ObjectInfoMap _gameObjectInfo;
-		ObjectGuidMap _objectGuids;
         std::vector<BossScenarios> m_BossesScenarios;
         DoorInfoMap doors;
         MinionInfoMap minions;

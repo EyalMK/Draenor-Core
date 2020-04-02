@@ -21,7 +21,6 @@
 #include "Language.h"
 #include "Log.h"
 #include "Opcodes.h"
-#include "SpellAuras.h"
 #include "Player.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"

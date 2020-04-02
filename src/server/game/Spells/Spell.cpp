@@ -3705,7 +3705,7 @@ bool Spell::UpdateChanneledTargetList()
     return channelTargetEffectMask == 0;
 }
 
-void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura, uint32 p_GcdAtCast)
+void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura)
 {
     if (m_CastItem)
     {
@@ -3756,28 +3756,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         m_castItemLevel = triggeredByAura->GetBase()->GetCastItemLevel();
     }
 
-	// create and add update event for this spell
-	SpellEvent* Event = new SpellEvent(this);
-	if (Player::QueueSystemEnabled() && p_GcdAtCast && p_GcdAtCast <= MAX_SPELL_QUEUE_GCD)
-	{
-		if (Spell* l_Queued = m_caster->ToPlayer()->GetQueuedSpell())
-		{
-			l_Queued->SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
-			l_Queued->finish(false);
-		}
-
-		int32 l_AdditionalTime = 0;
-
-		if (Spell* l_Current = m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-			l_AdditionalTime = std::min(std::max(l_Current->GetTimer() - int32(p_GcdAtCast), 0), 150);
-
-		m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(p_GcdAtCast + l_AdditionalTime));
-		m_spellState = SPELL_STATE_QUEUED;
-		m_caster->ToPlayer()->QueueSpell(this);
-		return;
-	}
-	else
-		m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
+    // create and add update event for this spell
+    SpellEvent* Event = new SpellEvent(this);
+    m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
 
     //Prevent casting at cast another spell (ServerSide check)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count &&
@@ -4521,52 +4502,29 @@ void Spell::SendSpellCooldown()
 
 void Spell::update(uint32 difftime)
 {
-	if (m_spellState != SPELL_STATE_QUEUED)
-	{
-		// update pointers based at it's GUIDs
-		UpdatePointers();
+    // update pointers based at it's GUIDs
+    UpdatePointers();
 
-		if (m_targets.GetUnitTargetGUID() && !m_targets.GetUnitTarget())
-		{
-			cancel();
-			return;
-		}
+    if (m_targets.GetUnitTargetGUID() && !m_targets.GetUnitTarget())
+    {
+        cancel();
+        return;
+    }
 
-		// check if the player caster has moved before the spell finished
-		// with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
-		if ((m_caster->IsPlayer() && m_timer != 0) &&
-			m_caster->IsMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
-			(m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)) &&
-			!m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) && !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
-		{
-			// don't cancel for melee, autorepeat, triggered and instant spells
-			if (!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered())
-				cancel();
-		}
-	}
+    // check if the player caster has moved before the spell finished
+    // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
+    if ((m_caster->IsPlayer() && m_timer != 0) &&
+        m_caster->IsMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
+        (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)) &&
+        !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) && !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
+    {
+        // don't cancel for melee, autorepeat, triggered and instant spells
+        if (!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered())
+            cancel();
+    }
 
     switch (m_spellState)
     {
-		case SPELL_STATE_QUEUED:
-		{
-			if (m_caster->ToPlayer()->GetQueuedSpell() == this)
-			{
-				m_caster->ToPlayer()->GetGlobalCooldownMgr().CancelGlobalCooldown(m_spellInfo);
-				m_caster->ToPlayer()->ResetSpellQueue();
-				SpellCastTargets l_Targets = m_targets;
-				Spell* l_Spell = new Spell(m_caster, m_spellInfo, TRIGGERED_NONE);
-				l_Spell->m_cast_count = m_cast_count;
-				cancel();
-				uint64 l_Guid = l_Targets.GetUnitTargetGUID();
-				if (!l_Guid || ObjectAccessor::GetUnit(*m_caster, l_Guid))
-					l_Spell->prepare(&l_Targets);
-				else
-					delete l_Spell;
-			}
-			else ///< Canceled by /cancelqueuedspell
-				SendCastResult(SpellCastResult::SPELL_FAILED_DONT_REPORT);
-			break;
-		}
         case SPELL_STATE_PREPARING:
         {
             if (m_timer > 0)

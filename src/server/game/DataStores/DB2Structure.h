@@ -1093,16 +1093,6 @@ struct ItemExtendedCostEntry
 };
 
 ////////////////////////////////////////////////////////////////////
-/// Phasing Group DB2
-////////////////////////////////////////////////////////////////////
-struct PhaseGroupEntry
-{
-	uint32 ID;
-	uint32 PhaseId;
-	uint32 GroupId;
-};
-
-////////////////////////////////////////////////////////////////////
 /// Mail DB2
 ////////////////////////////////////////////////////////////////////
 
@@ -1861,5 +1851,5 @@ typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #define TaxiMaskSize 217
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
-typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
+
 #endif

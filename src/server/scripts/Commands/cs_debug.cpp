@@ -2300,13 +2300,11 @@ class debug_commandscript: public CommandScript
 
             Map* map = handler->GetSession()->GetPlayer()->GetMap();
 
-            if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
+            if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
             {
                 delete v;
                 return false;
             }
-            
-			v->CopyPhaseFrom(handler->GetSession()->GetPlayer());
 
             map->AddToMap(v->ToCreature());
 
@@ -2330,27 +2328,19 @@ class debug_commandscript: public CommandScript
 
 			char* t = strtok((char*)args, " ");
 			char* p = strtok(NULL, " ");
-			char* m = strtok(NULL, " ");
-
 			if (!t)
 				return false;
 
 			std::set<uint32> terrainswap;
 			std::set<uint32> phaseId;
-			std::set<uint32> worldMapSwap;
+			std::set<uint32> inactiveTerrainSwap;
 
-			if (uint32 ut = (uint32)atoi(t))
-				terrainswap.insert(ut);
+			terrainswap.insert((uint32)atoi(t));
 
 			if (p)
-				if (uint32 up = (uint32)atoi(p))
-					phaseId.insert(up);
+				phaseId.insert((uint32)atoi(p));
 
-			if (m)
-				if (uint32 um = (uint32)atoi(m))
-					worldMapSwap.insert(um);
-
-			handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, worldMapSwap);
+			handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, inactiveTerrainSwap);
 			return true;
 		}
 
@@ -2734,27 +2724,13 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugPhaseCommand(ChatHandler* handler, char const* /*args*/)
         {
-			Unit* target = handler->getSelectedUnit();
+            Unit* unit = handler->getSelectedUnit();
+            Player* player = handler->GetSession()->GetPlayer();
+            if (unit && unit->IsPlayer())
+                player = unit->ToPlayer();
 
-			if (!target)
-			{
-				handler->SendSysMessage(LANG_SELECT_CREATURE);
-				handler->SetSentErrorMessage(true);
-				return false;
-			}
-
-			std::stringstream phases;
-
-			for (uint32 phase : target->GetPhases())
-			{
-				phases << phase << " ";
-			}
-
-			if (!phases.str().empty())
-				handler->PSendSysMessage("Target's current phases: %s", phases.str().c_str());
-			else
-				handler->SendSysMessage("Target is not phased");
-			return true;
+            player->GetPhaseMgr().SendDebugReportToPlayer(handler->GetSession()->GetPlayer());
+            return true;
         }
 
         static bool HandleDebugMoveJump(ChatHandler* handler, char const* args)
@@ -2827,7 +2803,7 @@ class debug_commandscript: public CommandScript
 
                     if (map)
                     {
-                        float newPosZ = map->GetHeight(data.posX, data.posY, MAX_HEIGHT, true);
+                        float newPosZ = map->GetHeight(data.phaseMask, data.posX, data.posY, MAX_HEIGHT, true);
 
                         if (newPosZ && newPosZ != -200000.0f)
                             WorldDatabase.PExecute("UPDATE gameobject SET position_z = %f WHERE guid = %u", newPosZ, gameobject.first);

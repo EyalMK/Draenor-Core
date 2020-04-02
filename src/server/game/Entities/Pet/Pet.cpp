@@ -204,7 +204,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bo
 
     Map* map = owner->GetMap();
     uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
-    if (!Create(guid, map, petentry))
+    if (!Create(guid, map, owner->GetPhaseMask(), petentry))
     {
         p_Callback(this, false);
         return;
@@ -221,8 +221,6 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bo
         p_Callback(this, false);
         return;
     }
-    
-	CopyPhaseFrom(owner);
 
     setPetType(pet_type);
     setFaction(owner->getFaction());
@@ -839,7 +837,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
 {
     ASSERT(creature);
 
-    if (!CreateBaseAtTamed(creature->GetCreatureTemplate(), creature->GetMap()))
+    if (!CreateBaseAtTamed(creature->GetCreatureTemplate(), creature->GetMap(), creature->GetPhaseMask()))
         return false;
 
     Relocate(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
@@ -870,7 +868,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
 
 bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 {
-    if (!CreateBaseAtTamed(cinfo, owner->GetMap()))
+    if (!CreateBaseAtTamed(cinfo, owner->GetMap(), owner->GetPhaseMask()))
         return false;
 
     if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
@@ -881,11 +879,11 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
     return true;
 }
 
-bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
+bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     sLog->outDebug(LOG_FILTER_PETS, "Pet::CreateBaseForTamed");
     uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
-    if (!Create(guid, map, cinfo->Entry))
+    if (!Create(guid, map, phaseMask, cinfo->Entry))
         return false;
 
     setPowerType(POWER_FOCUS);
@@ -1732,11 +1730,12 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 Entry)
+bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry)
 {
     ASSERT(map);
     SetMap(map);
 
+    SetPhaseMask(phaseMask, false);
     Object::_Create(guidlow, Entry, HIGHGUID_PET);
 
     m_DBTableGuid = guidlow;

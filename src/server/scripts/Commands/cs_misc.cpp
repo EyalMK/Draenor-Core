@@ -499,22 +499,6 @@ class misc_commandscript: public CommandScript
             if (status)
                 handler->PSendSysMessage(LANG_LIQUID_STATUS, liquidStatus.level, liquidStatus.depth_level, liquidStatus.entry, liquidStatus.type_flags, status);
 
-			if (!object->GetTerrainSwaps().empty())
-			{
-				std::stringstream ss;
-				for (uint32 swap : object->GetTerrainSwaps())
-					ss << swap << " ";
-				handler->PSendSysMessage("Target's active terrain swaps: %s", ss.str().c_str());
-			}
-
-			if (!object->GetWorldMapAreaSwaps().empty())
-			{
-				std::stringstream ss;
-				for (uint32 swap : object->GetWorldMapAreaSwaps())
-					ss << swap << " ";
-				handler->PSendSysMessage("Target's active world map area swaps: %s", ss.str().c_str());
-			}
-
             return true;
         }
 
@@ -747,7 +731,7 @@ class misc_commandscript: public CommandScript
                 target->GetContactPoint(_player, x, y, z);
 
                 _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE);
-				_player->CopyPhaseFrom(target, true);
+                _player->SetPhaseMask(target->GetPhaseMask(), true);
             }
             else
             {
@@ -873,7 +857,7 @@ class misc_commandscript: public CommandScript
                 float x, y, z;
                 handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, target->GetObjectSize());
                 target->TeleportTo(handler->GetSession()->GetPlayer()->GetMapId(), x, y, z, target->GetOrientation());
-				target->CopyPhaseFrom(handler->GetSession()->GetPlayer(), true);
+                target->SetPhaseMask(handler->GetSession()->GetPlayer()->GetPhaseMask(), true);
             }
             else
             {

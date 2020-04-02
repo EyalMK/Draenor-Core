@@ -20,7 +20,6 @@
 #include "GuildMgr.h"
 #include "Spell.h"
 #include "ScriptMgr.h"
-#include "SpellAuraEffects.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& p_RecvData)
 {
@@ -2023,9 +2022,9 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
     }
 
     float costModifier = 1.0f;
-	Unit::AuraEffectList const& mModModifyPrice = m_Player->GetAuraEffectsByType(SPELL_AURA_REDUCE_ITEM_MODIFY_COST);
-	for (Unit::AuraEffectList::const_iterator l_I = mModModifyPrice.begin(); l_I != mModModifyPrice.end(); ++l_I)
-		costModifier += float(float((*l_I)->GetAmount()) / 100.0f);
+    Unit::AuraEffectList const& mModModifyPrice = m_Player->GetAuraEffectsByType(SPELL_AURA_REDUCE_ITEM_MODIFY_COST);
+    for (Unit::AuraEffectList::const_iterator l_I = mModModifyPrice.begin(); l_I != mModModifyPrice.end(); ++l_I)
+        costModifier += float(float((*l_I)->GetAmount()) / 100.0f);
 
     cost *= costModifier;
 
