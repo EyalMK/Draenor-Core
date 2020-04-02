@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.game_event_gameobject_quest
+-- Dumping structure for table worldlive.game_event_gameobject_quest
 CREATE TABLE IF NOT EXISTS `game_event_gameobject_quest` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `game_event_gameobject_quest` (
   PRIMARY KEY (`id`,`quest`,`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.game_event_gameobject_quest: 189 rows
+-- Dumping data for table worldlive.game_event_gameobject_quest: 189 rows
 DELETE FROM `game_event_gameobject_quest`;
 /*!40000 ALTER TABLE `game_event_gameobject_quest` DISABLE KEYS */;
 INSERT INTO `game_event_gameobject_quest` (`eventEntry`, `id`, `quest`) VALUES

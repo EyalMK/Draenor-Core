@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_area
+-- Dumping structure for table worldlive.creature_area
 CREATE TABLE IF NOT EXISTS `creature_area` (
   `guid` int(11) unsigned NOT NULL,
   `zone` int(11) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `creature_area` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.creature_area: ~43,472 rows (approximately)
+-- Dumping data for table worldlive.creature_area: ~43,472 rows (approximately)
 DELETE FROM `creature_area`;
 /*!40000 ALTER TABLE `creature_area` DISABLE KEYS */;
 INSERT INTO `creature_area` (`guid`, `zone`, `area`) VALUES

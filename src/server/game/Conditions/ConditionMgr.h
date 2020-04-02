@@ -61,7 +61,6 @@ enum ConditionTypes
     CONDITION_HP_PCT                = 38,                   // hpPct            ComparisonType 0                  true if unit's hp matches given pct
     CONDITION_HAS_BUILDING_TYPE     = 39,                   // BuildingType                                       true if player has this building activated in Garrison
     CONDITION_HAS_GARRISON_LEVEL    = 40,                   // Level
-	CONDITION_TERRAIN_SWAP			= 41,					// terrainSwap      0              0  
     CONDITION_MAX                                           // MAX
 };
 
@@ -118,10 +117,9 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
     CONDITION_SOURCE_TYPE_NPC_VENDOR                     = 23,
-    CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
-	CONDITION_SOURCE_TYPE_TERRAIN_SWAP					 = 25,
-	CONDITION_SOURCE_TYPE_PHASE							 = 26,
-	CONDITION_SOURCE_TYPE_MAX							 = 27  // MAX
+    CONDITION_SOURCE_TYPE_PHASE_DEFINITION               = 24,
+    CONDITION_SOURCE_TYPE_SPELL_PROC                     = 25,
+    CONDITION_SOURCE_TYPE_MAX                            = 26  //MAX
 };
 
 enum ComparisionType
@@ -208,6 +206,7 @@ typedef std::unordered_map<uint32 /*SourceEntry*/, ConditionContainer> Condition
 typedef std::array<ConditionsByEntryMap, CONDITION_SOURCE_TYPE_MAX> ConditionEntriesByTypeArray;
 typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
 typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
+typedef std::unordered_map<int32 /*zoneId*/, ConditionsByEntryMap> PhaseDefinitionConditionContainer;
 
 typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
 
@@ -238,6 +237,7 @@ class ConditionMgr
         bool IsObjectMeetingSmartEventConditions(int32 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
         bool IsObjectMeetPhaseCondition(uint32 zone, uint32 entry, WorldObject* object) const;
+        ConditionContainer const* GetConditionsForPhaseDefinition(uint32 zone, uint32 entry) const;
 
     private:
         bool isSourceTypeValid(Condition* cond) const;
@@ -256,6 +256,7 @@ class ConditionMgr
         ConditionEntriesByCreatureIdMap     SpellClickEventConditionStore;
         ConditionEntriesByCreatureIdMap     NpcVendorConditionContainerStore;
         SmartEventConditionContainer        SmartEventConditionStore;
+        PhaseDefinitionConditionContainer   PhaseDefinitionsConditionStore;
 };
 
 template <class T> bool CompareValues(ComparisionType type,  T val1, T val2)

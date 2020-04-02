@@ -2103,35 +2103,41 @@ void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 
-void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaSwaps)
+///< @todo refactor me with new data stillnot done 22/02/16
+void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap)
 {
-    WorldPacket data(SMSG_SET_PHASE_SHIFT_CHANGE, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-   
-	data << m_Player->GetGUID();                // Client
-	data << uint32(phaseIds.size() ? 0 : 8);    // PhaseShiftFlags
+	uint32 unkValue = 0;
 
-	data << uint32(phaseIds.size());            // PhaseShiftCount
-	data << m_Player->GetGUID();                // PersonalGUID
+	WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
+	l_ShiftPacket.appendPackGUID(m_Player->GetGUID());      ///< CLientGUID
+															// 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
+	l_ShiftPacket << uint32(0x18);                          ///< PhaseShiftFlags
+	l_ShiftPacket << uint32(p_PhaseIds.size());             ///< PhaseShiftCount
+	l_ShiftPacket.appendPackGUID(0);                        ///< PersonalGUID
+															// Active terrain swaps, may switch with inactive terrain
 
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
+	for (std::set<uint32>::const_iterator l_It = p_PhaseIds.begin(); l_It != p_PhaseIds.end(); ++l_It)
 	{
-		data << uint16(1);                      // PhaseFlags
-		data << uint16(*itr);                   // Id
+		l_ShiftPacket << uint16(1);                         ///< PhaseFlags
+		l_ShiftPacket << uint16(*l_It);                     ///< PhaseID
 	}
 
-    data << uint32(terrainswaps.size()) * 2;    // Active terrain swaps
-    for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
-        data << uint16(*itr);
+	/// Inactive terrain swaps, may switch with active terrain
+	l_ShiftPacket << uint32(p_InactiveTerrainSwap.size() * 2);  ///< Active terrain swaps size
+	for (std::set<uint32>::const_iterator l_It = p_InactiveTerrainSwap.begin(); l_It != p_InactiveTerrainSwap.end(); ++l_It)
+		l_ShiftPacket << uint16(*l_It);                         ///< Active terrain swap map id
 
-	data << uint32(0);                          // Inactive terrain swaps
-	//for (uint8 i = 0; i < inactiveSwapsCount; ++i)
-	//    data << uint16(0);
+																// WorldMapAreaId ?
+	l_ShiftPacket << unkValue;                                  ///< Inactive terrain swaps size used for PreloadMapIDs
+																//for (uint32 i = 0; i < unkValue; i++)
+																//data << uint16(0);                                    ///< Inactive terrain swap map id
 
-	data << uint32(worldMapAreaSwaps.size()) * 2;
-	for (auto mapSwap : worldMapAreaSwaps)
-		data << uint16(mapSwap);                // WorldMapArea.dbc id (controls map display)
+																/// Active terrain swaps
+	l_ShiftPacket << uint32(p_TerrainSwaps.size() * 2);         ///< UI map swaps size
+	for (std::set<uint32>::const_iterator l_It = p_TerrainSwaps.begin(); l_It != p_TerrainSwaps.end(); ++l_It)
+		l_ShiftPacket << uint16(*l_It);                         ///< UI map id, WorldMapArea.dbc, controls map display
 
-    SendPacket(&data);
+	SendPacket(&l_ShiftPacket);
 }
 
 // Battlefield and Battleground

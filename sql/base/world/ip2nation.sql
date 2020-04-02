@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.ip2nation
+-- Dumping structure for table worldlive.ip2nation
 CREATE TABLE IF NOT EXISTS `ip2nation` (
   `ip` int(10) unsigned NOT NULL DEFAULT '0',
   `country` char(2) NOT NULL DEFAULT '',
   KEY `ip` (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.ip2nation: ~0 rows (approximately)
+-- Dumping data for table worldlive.ip2nation: ~0 rows (approximately)
 DELETE FROM `ip2nation`;
 /*!40000 ALTER TABLE `ip2nation` DISABLE KEYS */;
 /*!40000 ALTER TABLE `ip2nation` ENABLE KEYS */;

@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.character_garrison_daily_tavern_data
+-- Dumping structure for table worldlive.character_garrison_daily_tavern_data
 CREATE TABLE IF NOT EXISTS `character_garrison_daily_tavern_data` (
   `CharacterGuid` int(10) unsigned NOT NULL DEFAULT '0',
   `NpcEntry` int(8) NOT NULL,
   PRIMARY KEY (`CharacterGuid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.character_garrison_daily_tavern_data: 0 rows
+-- Dumping data for table worldlive.character_garrison_daily_tavern_data: 0 rows
 DELETE FROM `character_garrison_daily_tavern_data`;
 /*!40000 ALTER TABLE `character_garrison_daily_tavern_data` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_garrison_daily_tavern_data` ENABLE KEYS */;

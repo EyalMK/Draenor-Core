@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.instance_encounters
+-- Dumping structure for table worldlive.instance_encounters
 CREATE TABLE IF NOT EXISTS `instance_encounters` (
   `entry` int(10) DEFAULT NULL,
   `creditType` tinyint(3) DEFAULT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `instance_encounters` (
   `comment` varchar(2295) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.instance_encounters: ~299 rows (approximately)
+-- Dumping data for table worldlive.instance_encounters: ~459 rows (approximately)
 DELETE FROM `instance_encounters`;
 /*!40000 ALTER TABLE `instance_encounters` DISABLE KEYS */;
 INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`) VALUES

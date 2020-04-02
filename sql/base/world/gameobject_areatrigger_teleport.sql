@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.gameobject_areatrigger_teleport
+-- Dumping structure for table worldlive.gameobject_areatrigger_teleport
 CREATE TABLE IF NOT EXISTS `gameobject_areatrigger_teleport` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `name` text,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `gameobject_areatrigger_teleport` (
   PRIMARY KEY (`entry`,`target_map`,`source_map`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject Trigger System';
 
--- Dumping data for table world.gameobject_areatrigger_teleport: 2 rows
+-- Dumping data for table worldlive.gameobject_areatrigger_teleport: 2 rows
 DELETE FROM `gameobject_areatrigger_teleport`;
 /*!40000 ALTER TABLE `gameobject_areatrigger_teleport` DISABLE KEYS */;
 INSERT INTO `gameobject_areatrigger_teleport` (`entry`, `name`, `target_map`, `source_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`, `radius`) VALUES

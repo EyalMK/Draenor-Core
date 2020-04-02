@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_template_difficulty
+-- Dumping structure for table worldlive.creature_template_difficulty
 CREATE TABLE IF NOT EXISTS `creature_template_difficulty` (
   `entry` mediumint(8) unsigned NOT NULL,
   `difficulty` enum('NONE_DIFFICULTY','REGULAR_5_DIFFICULTY','HEROIC_5_DIFFICULTY','LEGACY_MAN10_DIFFICULTY','LEGACY_MAN25_DIFFICULTY','LEGACY_MAN10_HEROIC_DIFFICULTY','LEGACY_MAN25_HEROIC_DIFFICULTY','RAID_TOOL_DIFFICULTY','CHALLENGE_MODE_DIFFICULTY','MAN40_DIFFICULTY','DIFFICULTY_ENTRY_10','SCENARIO_HEROIC_DIFFICULTY','SCENARIO_DIFFICULTY','DIFFICULTY_ENTRY_13','NORMAL_DIFFICULTY','HEROIC_DIFFICULTY','MYTHIC_DIFFICULTY','DIFFICULTY_ENTRY_17','EVENT_0_DIFFICULTY','EVENT_1_DIFFICULTY','EVENT_SCENARIO') NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_difficulty` (
   PRIMARY KEY (`entry`,`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.creature_template_difficulty: ~4,664 rows (approximately)
+-- Dumping data for table worldlive.creature_template_difficulty: ~3,936 rows (approximately)
 DELETE FROM `creature_template_difficulty`;
 /*!40000 ALTER TABLE `creature_template_difficulty` DISABLE KEYS */;
 INSERT INTO `creature_template_difficulty` (`entry`, `difficulty`, `difficulty_entry`) VALUES

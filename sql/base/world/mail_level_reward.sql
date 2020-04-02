@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.mail_level_reward
+-- Dumping structure for table worldlive.mail_level_reward
 CREATE TABLE IF NOT EXISTS `mail_level_reward` (
   `level` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `raceMask` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `mail_level_reward` (
   PRIMARY KEY (`level`,`raceMask`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Mail System';
 
--- Dumping data for table world.mail_level_reward: 24 rows
+-- Dumping data for table worldlive.mail_level_reward: 24 rows
 DELETE FROM `mail_level_reward`;
 /*!40000 ALTER TABLE `mail_level_reward` DISABLE KEYS */;
 INSERT INTO `mail_level_reward` (`level`, `raceMask`, `mailTemplateId`, `senderEntry`) VALUES

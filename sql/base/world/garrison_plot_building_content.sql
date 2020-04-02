@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.garrison_plot_building_content
+-- Dumping structure for table worldlive.garrison_plot_building_content
 CREATE TABLE IF NOT EXISTS `garrison_plot_building_content` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `plot_type` int(10) unsigned NOT NULL DEFAULT '0',
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `garrison_plot_building_content` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.garrison_plot_building_content: ~0 rows (approximately)
+-- Dumping data for table worldlive.garrison_plot_building_content: ~0 rows (approximately)
 DELETE FROM `garrison_plot_building_content`;
 /*!40000 ALTER TABLE `garrison_plot_building_content` DISABLE KEYS */;
 /*!40000 ALTER TABLE `garrison_plot_building_content` ENABLE KEYS */;

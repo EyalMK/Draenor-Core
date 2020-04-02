@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_phase
+-- Dumping structure for table worldlive.spell_phase
 CREATE TABLE IF NOT EXISTS `spell_phase` (
   `id` mediumint(7) unsigned NOT NULL DEFAULT '0',
   `phasemask` int(11) unsigned NOT NULL DEFAULT '1',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `spell_phase` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.spell_phase: 4 rows
+-- Dumping data for table worldlive.spell_phase: 4 rows
 DELETE FROM `spell_phase`;
 /*!40000 ALTER TABLE `spell_phase` DISABLE KEYS */;
 INSERT INTO `spell_phase` (`id`, `phasemask`, `terrainswapmap`) VALUES

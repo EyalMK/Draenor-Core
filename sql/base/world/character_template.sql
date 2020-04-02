@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.character_template
+-- Dumping structure for table worldlive.character_template
 CREATE TABLE IF NOT EXISTS `character_template` (
   `id` int(10) unsigned NOT NULL DEFAULT '1',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `character_template` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.character_template: ~11 rows (approximately)
+-- Dumping data for table worldlive.character_template: ~11 rows (approximately)
 DELETE FROM `character_template`;
 /*!40000 ALTER TABLE `character_template` DISABLE KEYS */;
 INSERT INTO `character_template` (`id`, `class`, `name`, `description`, `level`, `money`, `alianceX`, `alianceY`, `alianceZ`, `alianceO`, `alianceMap`, `hordeX`, `hordeY`, `hordeZ`, `hordeO`, `hordeMap`, `disabled`, `allianceDefaultRace`, `hordeDefaultRace`) VALUES

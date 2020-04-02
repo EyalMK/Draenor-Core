@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.custom_texts
+-- Dumping structure for table worldlive.custom_texts
 CREATE TABLE IF NOT EXISTS `custom_texts` (
   `entry` mediumint(8) NOT NULL,
   `content_default` text NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `custom_texts` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Custom Texts';
 
--- Dumping data for table world.custom_texts: 0 rows
+-- Dumping data for table worldlive.custom_texts: 0 rows
 DELETE FROM `custom_texts`;
 /*!40000 ALTER TABLE `custom_texts` DISABLE KEYS */;
 /*!40000 ALTER TABLE `custom_texts` ENABLE KEYS */;

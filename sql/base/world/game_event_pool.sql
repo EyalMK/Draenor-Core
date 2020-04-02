@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.game_event_pool
+-- Dumping structure for table worldlive.game_event_pool
 CREATE TABLE IF NOT EXISTS `game_event_pool` (
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event. Put negative entry to remove during event.',
   `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Id of the pool',
   PRIMARY KEY (`pool_entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.game_event_pool: 8 rows
+-- Dumping data for table worldlive.game_event_pool: 8 rows
 DELETE FROM `game_event_pool`;
 /*!40000 ALTER TABLE `game_event_pool` DISABLE KEYS */;
 INSERT INTO `game_event_pool` (`eventEntry`, `pool_entry`) VALUES

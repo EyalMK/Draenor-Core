@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.transports
+-- Dumping structure for table worldlive.transports
 CREATE TABLE IF NOT EXISTS `transports` (
   `guid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `transports` (
   UNIQUE KEY `idx_entry` (`entry`)
 ) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Transports';
 
--- Dumping data for table world.transports: 27 rows
+-- Dumping data for table worldlive.transports: 27 rows
 DELETE FROM `transports`;
 /*!40000 ALTER TABLE `transports` DISABLE KEYS */;
 INSERT INTO `transports` (`guid`, `entry`, `name`, `ScriptName`) VALUES

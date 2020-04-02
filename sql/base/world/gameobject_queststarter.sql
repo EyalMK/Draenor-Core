@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.gameobject_queststarter
+-- Dumping structure for table worldlive.gameobject_queststarter
 CREATE TABLE IF NOT EXISTS `gameobject_queststarter` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`,`quest`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.gameobject_queststarter: 929 rows
+-- Dumping data for table worldlive.gameobject_queststarter: 929 rows
 DELETE FROM `gameobject_queststarter`;
 /*!40000 ALTER TABLE `gameobject_queststarter` DISABLE KEYS */;
 INSERT INTO `gameobject_queststarter` (`id`, `quest`) VALUES

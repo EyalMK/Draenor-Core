@@ -11,13 +11,13 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.character_template_spell
+-- Dumping structure for table worldlive.character_template_spell
 CREATE TABLE IF NOT EXISTS `character_template_spell` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `spellId` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.character_template_spell: ~124 rows (approximately)
+-- Dumping data for table worldlive.character_template_spell: ~124 rows (approximately)
 DELETE FROM `character_template_spell`;
 /*!40000 ALTER TABLE `character_template_spell` DISABLE KEYS */;
 INSERT INTO `character_template_spell` (`id`, `spellId`) VALUES

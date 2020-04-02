@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.pet_name_generation
+-- Dumping structure for table worldlive.pet_name_generation
 CREATE TABLE IF NOT EXISTS `pet_name_generation` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `word` tinytext NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `pet_name_generation` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=314 DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.pet_name_generation: 313 rows
+-- Dumping data for table worldlive.pet_name_generation: 313 rows
 DELETE FROM `pet_name_generation`;
 /*!40000 ALTER TABLE `pet_name_generation` DISABLE KEYS */;
 INSERT INTO `pet_name_generation` (`id`, `word`, `entry`, `half`) VALUES

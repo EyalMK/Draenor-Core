@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.locales_gossip_menu_option
+-- Dumping structure for table worldlive.locales_gossip_menu_option
 CREATE TABLE IF NOT EXISTS `locales_gossip_menu_option` (
   `menu_id` int(10) unsigned NOT NULL DEFAULT '0',
   `id` smallint(6) unsigned NOT NULL DEFAULT '0',
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `locales_gossip_menu_option` (
   PRIMARY KEY (`menu_id`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.locales_gossip_menu_option: 4,515 rows
+-- Dumping data for table worldlive.locales_gossip_menu_option: 4,515 rows
 DELETE FROM `locales_gossip_menu_option`;
 /*!40000 ALTER TABLE `locales_gossip_menu_option` DISABLE KEYS */;
 INSERT INTO `locales_gossip_menu_option` (`menu_id`, `id`, `option_text_loc1`, `option_text_loc2`, `option_text_loc3`, `option_text_loc4`, `option_text_loc5`, `option_text_loc6`, `option_text_loc7`, `option_text_loc8`, `option_text_loc9`, `option_text_loc10`, `box_text_loc1`, `box_text_loc2`, `box_text_loc3`, `box_text_loc4`, `box_text_loc5`, `box_text_loc6`, `box_text_loc7`, `box_text_loc8`, `box_text_loc9`, `box_text_loc10`) VALUES

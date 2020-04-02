@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.character_template_item
+-- Dumping structure for table worldlive.character_template_item
 CREATE TABLE IF NOT EXISTS `character_template_item` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `faction` int(11) DEFAULT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `character_template_item` (
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.character_template_item: ~1,651 rows (approximately)
+-- Dumping data for table worldlive.character_template_item: ~1,721 rows (approximately)
 DELETE FROM `character_template_item`;
 /*!40000 ALTER TABLE `character_template_item` DISABLE KEYS */;
 INSERT INTO `character_template_item` (`id`, `faction`, `itemID`, `count`, `type`) VALUES

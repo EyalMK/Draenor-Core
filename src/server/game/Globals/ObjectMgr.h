@@ -30,10 +30,12 @@
 #include "Common.h"
 #include "ConditionMgr.h"
 #include <functional>
+#include "PhaseMgr.h"
 #include <ace/Thread_Mutex.h>
 #include <unordered_set>
 
 class Item;
+class PhaseMgr;
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
@@ -668,9 +670,6 @@ struct DungeonEncounter
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
-typedef std::unordered_map<uint32, std::list<uint32>> TerrainPhaseInfo;
-typedef std::unordered_map<uint32, std::list<uint32>> PhaseInfo;
-
 struct GuildChallengeReward
 {
     uint32 Experience;
@@ -1285,11 +1284,8 @@ class ObjectMgr
         void LoadTrainerSpell();
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
-		void LoadTerrainPhaseInfo();
-		void LoadTerrainSwapDefaults();
-		void LoadTerrainWorldMaps();
-		void LoadAreaPhases();
-
+        void LoadPhaseDefinitions();
+        void LoadSpellPhaseInfo();
         void LoadSpellInvalid();
         void LoadSpellStolen();
         void LoadDisabledEncounters();
@@ -1365,6 +1361,8 @@ class ObjectMgr
         ResearchZoneMap const& GetResearchZoneMap() const { return _researchZoneMap; }
         ResearchLootVector const& GetResearchLoot() const { return _researchLoot; }
 
+        PhaseDefinitionStore const* GetPhaseDefinitionStore() { return &_PhaseDefinitionStore; }
+        SpellPhaseStore const* GetSpellPhaseStore() { return &_SpellPhaseStore; }
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -1614,13 +1612,6 @@ class ObjectMgr
         {
             return GossipMenuItemsMapBoundsNonConst(_gossipMenuItemsStore.lower_bound(uiMenuId), _gossipMenuItemsStore.upper_bound(uiMenuId));
         }
-        
-		std::list<uint32>& GetPhaseTerrainSwaps(uint32 phaseid) { return _terrainPhaseInfoStore[phaseid]; }
-		std::list<uint32>& GetDefaultTerrainSwaps(uint32 mapid) { return _terrainMapDefaultStore[mapid]; }
-		std::list<uint32>& GetTerrainWorldMaps(uint32 terrainId) { return _terrainWorldMapStore[terrainId]; }
-		TerrainPhaseInfo& GetDefaultTerrainSwapStore() { return _terrainMapDefaultStore; }
-		std::list<uint32>& GetPhasesForArea(uint32 area) { return _phases[area]; }
-		PhaseInfo& GetAreaPhases() { return _phases; }
 
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
@@ -1928,10 +1919,8 @@ class ObjectMgr
         PageTextContainer _pageTextStore;
         InstanceTemplateContainer _instanceTemplateStore;
 
-		TerrainPhaseInfo _terrainPhaseInfoStore;
-		TerrainPhaseInfo _terrainMapDefaultStore;
-		TerrainPhaseInfo _terrainWorldMapStore;
-		PhaseInfo _phases;
+        PhaseDefinitionStore _PhaseDefinitionStore;
+        SpellPhaseStore _SpellPhaseStore;
 
 		SceneTemplateContainer _sceneTemplateStore;
 

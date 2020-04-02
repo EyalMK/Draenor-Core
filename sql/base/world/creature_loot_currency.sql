@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_loot_currency
+-- Dumping structure for table worldlive.creature_loot_currency
 CREATE TABLE IF NOT EXISTS `creature_loot_currency` (
   `creature_id` mediumint(8) unsigned NOT NULL,
   `CurrencyId1` smallint(5) unsigned DEFAULT '0',
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `creature_loot_currency` (
   PRIMARY KEY (`creature_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.creature_loot_currency: 200 rows
+-- Dumping data for table worldlive.creature_loot_currency: 200 rows
 DELETE FROM `creature_loot_currency`;
 /*!40000 ALTER TABLE `creature_loot_currency` DISABLE KEYS */;
 INSERT INTO `creature_loot_currency` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES

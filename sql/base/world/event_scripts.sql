@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.event_scripts
+-- Dumping structure for table worldlive.event_scripts
 CREATE TABLE IF NOT EXISTS `event_scripts` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `delay` int(10) unsigned NOT NULL DEFAULT '0',
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `event_scripts` (
   `o` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.event_scripts: 740 rows
+-- Dumping data for table worldlive.event_scripts: 742 rows
 DELETE FROM `event_scripts`;
 /*!40000 ALTER TABLE `event_scripts` DISABLE KEYS */;
 INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES
@@ -52,9 +52,9 @@ INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, 
 	(5991, 0, 10, 12138, 180000, 0, 6331.9, 93.3575, 21.4216, 1.1349),
 	(6028, 0, 10, 12138, 180000, 0, -2500.89, -1628.45, 91.7042, 6.01041),
 	(2998, 0, 10, 3257, 180000, 0, -435, -3428, 91.75, 5.323),
-	(2980, 0, 10, 3475, 180000, 0, -19.624, -2377.25, 91.6667, 4.58746),
+	(2980, 0, 10, 3475, 180000, 0, 453.896, -3039.76, 91.7854, 4.58746),
 	(8438, 0, 10, 14500, 180000, 0, 38.62, 161.78, 83.5456, 4.69993),
-	(420, 0, 10, 2755, 3000000, 0, -931.73, -3111.81, 48.517, 3.27404),
+	(420, 0, 10, 2755, 600000, 0, -931.73, -3111.81, 48.517, 3.27404),
 	(14484, 1, 7, 10923, 0, 0, 0, 0, 0, 0),
 	(4975, 1, 7, 5056, 0, 0, 0, 0, 0, 0),
 	(2048, 0, 10, 3456, 3000000, 0, -3592.45, -1872.06, 91.62, 0.19),
@@ -768,7 +768,9 @@ INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, 
 	(204372, 1, 8, 43253, 0, 0, 0, 0, 0, 0),
 	(203148, 1, 8, 41070, 0, 0, 0, 0, 0, 0),
 	(26323, 1, 10, 45447, 300000, 0, -5003.94, -2108.51, 88.1941, 0.977384),
-	(99999, 1, 10, 0, 0, 0, 2307.99, 454.075, 5.92673, 0);
+	(99999, 1, 10, 0, 0, 0, 2307.99, 454.075, 5.92673, 0),
+	(17767, 0, 10, 27002, 300000, 0, 2791.48, 381.745, 77.1908, 2.6067),
+	(18223, 0, 10, 23837, 180000, 0, 2629.2, 8.1333, 26.347, 0.401426);
 /*!40000 ALTER TABLE `event_scripts` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

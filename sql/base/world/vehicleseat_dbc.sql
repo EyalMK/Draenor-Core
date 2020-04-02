@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.vehicleseat_dbc
+-- Dumping structure for table worldlive.vehicleseat_dbc
 CREATE TABLE IF NOT EXISTS `vehicleseat_dbc` (
   `ID` int(11) unsigned NOT NULL,
   `flags` int(11) unsigned NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `vehicleseat_dbc` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.vehicleseat_dbc: ~4 rows (approximately)
+-- Dumping data for table worldlive.vehicleseat_dbc: ~4 rows (approximately)
 DELETE FROM `vehicleseat_dbc`;
 /*!40000 ALTER TABLE `vehicleseat_dbc` DISABLE KEYS */;
 INSERT INTO `vehicleseat_dbc` (`ID`, `flags`, `attachmentID`, `attachmentOffsetX`, `attachmentOffsetY`, `attachmentOffsetZ`, `flagsB`, `comment`) VALUES

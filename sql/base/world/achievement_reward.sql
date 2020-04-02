@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.achievement_reward
+-- Dumping structure for table worldlive.achievement_reward
 CREATE TABLE IF NOT EXISTS `achievement_reward` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `title_A` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `achievement_reward` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
--- Dumping data for table world.achievement_reward: 395 rows
+-- Dumping data for table worldlive.achievement_reward: 395 rows
 DELETE FROM `achievement_reward`;
 /*!40000 ALTER TABLE `achievement_reward` DISABLE KEYS */;
 INSERT INTO `achievement_reward` (`entry`, `title_A`, `title_H`, `item`, `SpellID`, `sender`, `subject`, `text`) VALUES

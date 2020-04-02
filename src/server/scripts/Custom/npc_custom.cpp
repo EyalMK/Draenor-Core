@@ -13,6 +13,7 @@
 #include "GameObjectAI.h"
 #include "NPCHandler.h"
 #include "Vehicle.h"
+#include "PhaseMgr.h"
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "World.h"

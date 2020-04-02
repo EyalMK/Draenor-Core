@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.playercreateinfo_spell_custom
+-- Dumping structure for table worldlive.playercreateinfo_spell_custom
 CREATE TABLE IF NOT EXISTS `playercreateinfo_spell_custom` (
   `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `playercreateinfo_spell_custom` (
   PRIMARY KEY (`race`,`class`,`Spell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.playercreateinfo_spell_custom: 4,223 rows
+-- Dumping data for table worldlive.playercreateinfo_spell_custom: 4,223 rows
 DELETE FROM `playercreateinfo_spell_custom`;
 /*!40000 ALTER TABLE `playercreateinfo_spell_custom` DISABLE KEYS */;
 INSERT INTO `playercreateinfo_spell_custom` (`race`, `class`, `Spell`, `Note`) VALUES

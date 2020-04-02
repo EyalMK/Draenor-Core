@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.game_event_prerequisite
+-- Dumping structure for table worldlive.game_event_prerequisite
 CREATE TABLE IF NOT EXISTS `game_event_prerequisite` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
   `prerequisite_event` mediumint(8) unsigned NOT NULL,
   PRIMARY KEY (`eventEntry`,`prerequisite_event`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.game_event_prerequisite: 15 rows
+-- Dumping data for table worldlive.game_event_prerequisite: 15 rows
 DELETE FROM `game_event_prerequisite`;
 /*!40000 ALTER TABLE `game_event_prerequisite` DISABLE KEYS */;
 INSERT INTO `game_event_prerequisite` (`eventEntry`, `prerequisite_event`) VALUES

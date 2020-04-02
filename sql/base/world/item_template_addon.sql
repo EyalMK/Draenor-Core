@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.item_template_addon
+-- Dumping structure for table worldlive.item_template_addon
 CREATE TABLE IF NOT EXISTS `item_template_addon` (
   `Id` int(10) unsigned NOT NULL,
   `FlagsCu` int(10) unsigned NOT NULL DEFAULT '0',
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `item_template_addon` (
   PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table world.item_template_addon: 735 rows
+-- Dumping data for table worldlive.item_template_addon: 735 rows
 DELETE FROM `item_template_addon`;
 /*!40000 ALTER TABLE `item_template_addon` DISABLE KEYS */;
 INSERT INTO `item_template_addon` (`Id`, `FlagsCu`, `FoodType`, `MinMoneyLoot`, `MaxMoneyLoot`, `SpellPPMChance`) VALUES

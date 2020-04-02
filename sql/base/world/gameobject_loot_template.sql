@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.gameobject_loot_template
+-- Dumping structure for table worldlive.gameobject_loot_template
 CREATE TABLE IF NOT EXISTS `gameobject_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `item` mediumint(8) NOT NULL DEFAULT '0',
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `gameobject_loot_template` (
   PRIMARY KEY (`entry`,`item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Loot System';
 
--- Dumping data for table world.gameobject_loot_template: 22,834 rows
+-- Dumping data for table worldlive.gameobject_loot_template: 22,839 rows
 DELETE FROM `gameobject_loot_template`;
 /*!40000 ALTER TABLE `gameobject_loot_template` DISABLE KEYS */;
 INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `itemBonuses`) VALUES
@@ -19982,10 +19982,10 @@ INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, 
 	(27807, 50288, -99, 1, 0, 1, 1, ''),
 	(28573, 53135, -100, 1, 0, 1, 1, ''),
 	(30936, 59261, 100, 1, 0, 1, 1, ''),
-	(34748, 61959, -100, 1, 0, 1, 1, ''),
-	(34749, 61960, -100, 1, 0, 1, 1, ''),
-	(34750, 61961, -100, 1, 0, 1, 1, ''),
-	(34751, 61962, -100, 1, 0, 1, 1, ''),
+	(205878, 61959, -100, 1, 0, 1, 1, ''),
+	(205879, 61960, -100, 1, 0, 1, 1, ''),
+	(205880, 61961, -100, 1, 0, 1, 1, ''),
+	(205881, 61962, -100, 1, 0, 1, 1, ''),
 	(40419, 57192, 50, 1, 0, 2, 3, ''),
 	(41161, 78471, 0.89, 1, 0, 1, 1, ''),
 	(41159, 77235, 3, 1, 0, 1, 1, ''),
@@ -22861,7 +22861,12 @@ INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, 
 	(211420, 54619, 50, 1, 0, 1, 1, ''),
 	(211420, 4558, 50, 1, 0, 1, 1, ''),
 	(211420, 80817, -15, 1, 0, 1, 1, ''),
-	(231769, 112672, -100, 1, 0, 1, 1, '');
+	(231769, 112672, -100, 1, 0, 1, 1, ''),
+	(2843, 61959, -20.8384, 1, 0, 1, 1, ''),
+	(2843, 61960, -20.8928, 1, 0, 1, 1, ''),
+	(2843, 61961, -20.8942, 1, 0, 1, 1, ''),
+	(2843, 61962, -20.9274, 1, 0, 1, 1, ''),
+	(2042, 3818, 97, 1, 0, 1, 3, '');
 /*!40000 ALTER TABLE `gameobject_loot_template` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

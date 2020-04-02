@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.locales_battlepay_product_group
+-- Dumping structure for table worldlive.locales_battlepay_product_group
 CREATE TABLE IF NOT EXISTS `locales_battlepay_product_group` (
   `GroupID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Name_loc1` text,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `locales_battlepay_product_group` (
   PRIMARY KEY (`GroupID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.locales_battlepay_product_group: 8 rows
+-- Dumping data for table worldlive.locales_battlepay_product_group: 8 rows
 DELETE FROM `locales_battlepay_product_group`;
 /*!40000 ALTER TABLE `locales_battlepay_product_group` DISABLE KEYS */;
 INSERT INTO `locales_battlepay_product_group` (`GroupID`, `Name_loc1`, `Name_loc2`, `Name_loc3`, `Name_loc4`, `Name_loc5`, `Name_loc6`, `Name_loc7`, `Name_loc8`, `Name_loc9`, `Name_loc10`) VALUES

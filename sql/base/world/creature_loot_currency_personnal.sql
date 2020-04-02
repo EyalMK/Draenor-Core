@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_loot_currency_personnal
+-- Dumping structure for table worldlive.creature_loot_currency_personnal
 CREATE TABLE IF NOT EXISTS `creature_loot_currency_personnal` (
   `creature_id` int(10) unsigned NOT NULL DEFAULT '0',
   `CurrencyId1` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `creature_loot_currency_personnal` (
   PRIMARY KEY (`creature_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.creature_loot_currency_personnal: ~67 rows (approximately)
+-- Dumping data for table worldlive.creature_loot_currency_personnal: ~67 rows (approximately)
 DELETE FROM `creature_loot_currency_personnal`;
 /*!40000 ALTER TABLE `creature_loot_currency_personnal` DISABLE KEYS */;
 INSERT INTO `creature_loot_currency_personnal` (`creature_id`, `CurrencyId1`, `CurrencyId2`, `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3`) VALUES

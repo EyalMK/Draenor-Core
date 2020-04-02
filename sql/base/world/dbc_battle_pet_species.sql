@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.dbc_battle_pet_species
+-- Dumping structure for table worldlive.dbc_battle_pet_species
 CREATE TABLE IF NOT EXISTS `dbc_battle_pet_species` (
   `ID` int(11) NOT NULL DEFAULT '0',
   `NpcID` int(11) NOT NULL DEFAULT '0',
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `dbc_battle_pet_species` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Export of BattlePetSpecies.db2';
 
--- Dumping data for table world.dbc_battle_pet_species: 1,053 rows
+-- Dumping data for table worldlive.dbc_battle_pet_species: 1,053 rows
 DELETE FROM `dbc_battle_pet_species`;
 /*!40000 ALTER TABLE `dbc_battle_pet_species` DISABLE KEYS */;
 INSERT INTO `dbc_battle_pet_species` (`ID`, `NpcID`, `field2`, `SpellID`, `Spicies`, `Category`, `Flags`, `Icon`, `Description`) VALUES

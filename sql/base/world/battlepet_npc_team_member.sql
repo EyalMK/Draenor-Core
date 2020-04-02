@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.battlepet_npc_team_member
+-- Dumping structure for table worldlive.battlepet_npc_team_member
 CREATE TABLE IF NOT EXISTS `battlepet_npc_team_member` (
   `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `NpcID` int(10) unsigned NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `battlepet_npc_team_member` (
   PRIMARY KEY (`ID`,`NpcID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.battlepet_npc_team_member: ~0 rows (approximately)
+-- Dumping data for table worldlive.battlepet_npc_team_member: ~0 rows (approximately)
 DELETE FROM `battlepet_npc_team_member`;
 /*!40000 ALTER TABLE `battlepet_npc_team_member` DISABLE KEYS */;
 /*!40000 ALTER TABLE `battlepet_npc_team_member` ENABLE KEYS */;

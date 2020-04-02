@@ -287,11 +287,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
             break;
         }
-		case CONDITION_TERRAIN_SWAP:
-		{
-			condMeets = object->GetPhaseShift().HasVisibleMapId(ConditionValue1);
-			break;
-		}
 #ifndef CROSS
         case CONDITION_HAS_BUILDING_TYPE:
         {
@@ -497,9 +492,6 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
         case CONDITION_SPAWNMASK:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
-		case CONDITION_TERRAIN_SWAP:
-			mask |= GRID_MAP_TYPE_MASK_ALL;
-			break;
         case CONDITION_HAS_BUILDING_TYPE:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
@@ -662,25 +654,26 @@ bool ConditionMgr::IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, Con
 
 bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType) const
 {
-	return (sourceType == CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE ||
-		sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU ||
-		sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION ||
-		sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL ||
-		sourceType == CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET ||
-		sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
-		sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
-		sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR);
+    return (sourceType == CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU ||
+            sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION ||
+            sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL ||
+            sourceType == CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET ||
+            sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
+            sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
+            sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR ||
+            sourceType == CONDITION_SOURCE_TYPE_PHASE_DEFINITION);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType) const
@@ -796,6 +789,38 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
         }
     }
     return true;
+}
+
+bool ConditionMgr::IsObjectMeetPhaseCondition(uint32 zone, uint32 entry, WorldObject* object) const
+{
+    PhaseDefinitionConditionContainer::const_iterator itr = PhaseDefinitionsConditionStore.find(zone);
+    if (itr != PhaseDefinitionsConditionStore.end())
+    {
+        ConditionsByEntryMap::const_iterator i = itr->second.find(entry);
+        if (i != itr->second.end())
+        {
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u", zone, entry);
+            return IsObjectMeetToConditions(object, i->second);
+        }
+    }
+
+    return true;
+}
+
+ConditionContainer  const* ConditionMgr::GetConditionsForPhaseDefinition(uint32 zone, uint32 entry) const
+{
+    PhaseDefinitionConditionContainer::const_iterator itr = PhaseDefinitionsConditionStore.find(zone);
+    if (itr != PhaseDefinitionsConditionStore.end())
+    {
+        ConditionsByEntryMap::const_iterator i = itr->second.find(entry);
+        if (i != itr->second.end())
+        {
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u", zone, entry);
+            return &i->second;
+        }
+    }
+
+    return nullptr;
 }
 
 void ConditionMgr::LoadConditions(bool isReload)
@@ -1007,6 +1032,13 @@ void ConditionMgr::LoadConditions(bool isReload)
                 {
                     NpcVendorConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid =  true;
+                    ++count;
+                    continue;
+                }
+                case CONDITION_SOURCE_TYPE_PHASE_DEFINITION:
+                {
+                    PhaseDefinitionsConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    valid = true;
                     ++count;
                     continue;
                 }
@@ -1529,14 +1561,18 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                     return false;
                 }
             }
+        case CONDITION_SOURCE_TYPE_PHASE_DEFINITION:
+            if (!PhaseMgr::IsConditionTypeSupported(cond->ConditionType))
+            {
+                sLog->outError(LOG_FILTER_SQL, "Condition source type `CONDITION_SOURCE_TYPE_PHASE_DEFINITION` does not support condition type %u, ignoring.", cond->ConditionType);
+                return false;
+            }
             break;
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NONE:
-		case CONDITION_SOURCE_TYPE_TERRAIN_SWAP:
-		case CONDITION_SOURCE_TYPE_PHASE:
-        default: 
+        default:
             break;
     }
 
@@ -2000,14 +2036,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 sLog->outError(LOG_FILTER_SQL, "Phasemask condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
-		case CONDITION_TERRAIN_SWAP:
-		{
-			if (cond->ConditionValue2)
-				sLog->outError(LOG_FILTER_SQL, "Terrain swap condition has useless data in value2 (%u)!", cond->ConditionValue2);
-			if (cond->ConditionValue3)
-				sLog->outError(LOG_FILTER_SQL, "Terrain swap condition has useless data in value3 (%u)!", cond->ConditionValue3);
-			break;
-		}
         case CONDITION_TITLE:
         {
             CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(cond->ConditionValue1);
@@ -2117,6 +2145,17 @@ void ConditionMgr::Clean()
     }
 
     NpcVendorConditionContainerStore.clear();
+
+    for (PhaseDefinitionConditionContainer::iterator itr = PhaseDefinitionsConditionStore.begin(); itr != PhaseDefinitionsConditionStore.end(); ++itr)
+    {
+        for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        {
+            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
+                delete *i;
+        }
+    }
+
+    PhaseDefinitionsConditionStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
     for (std::vector<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)

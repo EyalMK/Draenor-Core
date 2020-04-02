@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.battlepay_product_group
+-- Dumping structure for table worldlive.battlepay_product_group
 CREATE TABLE IF NOT EXISTS `battlepay_product_group` (
   `GroupID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Name` varchar(255) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `battlepay_product_group` (
   PRIMARY KEY (`GroupID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.battlepay_product_group: ~3 rows (approximately)
+-- Dumping data for table worldlive.battlepay_product_group: ~3 rows (approximately)
 DELETE FROM `battlepay_product_group`;
 /*!40000 ALTER TABLE `battlepay_product_group` DISABLE KEYS */;
 INSERT INTO `battlepay_product_group` (`GroupID`, `Name`, `IconFileDataID`, `DisplayType`, `Ordering`) VALUES

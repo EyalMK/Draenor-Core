@@ -11,13 +11,13 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.item_bonus_group_linked
+-- Dumping structure for table worldlive.item_bonus_group_linked
 CREATE TABLE IF NOT EXISTS `item_bonus_group_linked` (
   `itemEntry` int(11) DEFAULT NULL,
   `itemBonusGroup` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.item_bonus_group_linked: ~2,510 rows (approximately)
+-- Dumping data for table worldlive.item_bonus_group_linked: ~2,335 rows (approximately)
 DELETE FROM `item_bonus_group_linked`;
 /*!40000 ALTER TABLE `item_bonus_group_linked` DISABLE KEYS */;
 INSERT INTO `item_bonus_group_linked` (`itemEntry`, `itemBonusGroup`) VALUES

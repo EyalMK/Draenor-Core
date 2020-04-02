@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.skill_extra_item_template
+-- Dumping structure for table worldlive.skill_extra_item_template
 CREATE TABLE IF NOT EXISTS `skill_extra_item_template` (
   `spellId` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'SpellId of the item creation spell',
   `requiredSpecialization` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Specialization spell id',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `skill_extra_item_template` (
   PRIMARY KEY (`spellId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Skill Specialization System';
 
--- Dumping data for table world.skill_extra_item_template: 238 rows
+-- Dumping data for table worldlive.skill_extra_item_template: 238 rows
 DELETE FROM `skill_extra_item_template`;
 /*!40000 ALTER TABLE `skill_extra_item_template` DISABLE KEYS */;
 INSERT INTO `skill_extra_item_template` (`spellId`, `requiredSpecialization`, `additionalCreateChance`, `additionalMaxNum`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_summon_groups
+-- Dumping structure for table worldlive.creature_summon_groups
 CREATE TABLE IF NOT EXISTS `creature_summon_groups` (
   `summonerId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `summonerType` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `creature_summon_groups` (
   `summonTime` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.creature_summon_groups: 17 rows
+-- Dumping data for table worldlive.creature_summon_groups: 22 rows
 DELETE FROM `creature_summon_groups`;
 /*!40000 ALTER TABLE `creature_summon_groups` DISABLE KEYS */;
 INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `summonType`, `summonTime`) VALUES
@@ -45,7 +45,12 @@ INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `
 	(27476, 0, 1, 27224, 3094.56, -1233.28, 9.9865, 5.092, 3, 110000),
 	(27476, 0, 1, 27220, 3085.76, -1224.57, 12.4462, 5.2552, 3, 110000),
 	(27476, 0, 1, 27220, 3083.31, -1238.2, 10.9768, 6.0426, 3, 110000),
-	(27476, 0, 1, 27492, 3088, -1223.33, 11.3495, 6.0426, 3, 40000);
+	(27476, 0, 1, 27492, 3088, -1223.33, 11.3495, 6.0426, 3, 40000),
+	(7363, 0, 1, 7401, -11303.2, -2989.65, 5.53587, 2.83237, 8, 300000),
+	(7363, 0, 1, 7401, -11309.1, -2972.41, 8.33972, 3.24362, 8, 300000),
+	(7363, 0, 1, 7401, -11317, -2978.34, 5.48171, 3.21221, 8, 300000),
+	(7363, 0, 1, 7401, -11328.8, -2979.58, 6.07384, 3.19257, 8, 300000),
+	(7363, 0, 1, 7401, -11321.9, -2974.86, 7.56403, 3.30645, 8, 300000);
 /*!40000 ALTER TABLE `creature_summon_groups` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.blackmarket_template
+-- Dumping structure for table worldlive.blackmarket_template
 CREATE TABLE IF NOT EXISTS `blackmarket_template` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Identifier',
   `itemEntry` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Entry of the item',
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `blackmarket_template` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=289 DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.blackmarket_template: ~288 rows (approximately)
+-- Dumping data for table worldlive.blackmarket_template: ~288 rows (approximately)
 DELETE FROM `blackmarket_template`;
 /*!40000 ALTER TABLE `blackmarket_template` DISABLE KEYS */;
 INSERT INTO `blackmarket_template` (`id`, `itemEntry`, `itemCount`, `seller`, `startBid`, `duration`, `chance`) VALUES

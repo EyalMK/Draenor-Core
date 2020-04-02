@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.guild_challenge_reward
+-- Dumping structure for table worldlive.guild_challenge_reward
 CREATE TABLE IF NOT EXISTS `guild_challenge_reward` (
   `Type` int(10) unsigned DEFAULT NULL,
   `Experience` int(10) unsigned DEFAULT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `guild_challenge_reward` (
   `Count` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.guild_challenge_reward: ~6 rows (approximately)
+-- Dumping data for table worldlive.guild_challenge_reward: ~6 rows (approximately)
 DELETE FROM `guild_challenge_reward`;
 /*!40000 ALTER TABLE `guild_challenge_reward` DISABLE KEYS */;
 INSERT INTO `guild_challenge_reward` (`Type`, `Experience`, `Gold`, `Gold2`, `Count`) VALUES

@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.character_template_reputation
+-- Dumping structure for table worldlive.character_template_reputation
 CREATE TABLE IF NOT EXISTS `character_template_reputation` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `factionID` int(10) unsigned NOT NULL DEFAULT '0',
   `reputation` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.character_template_reputation: ~0 rows (approximately)
+-- Dumping data for table worldlive.character_template_reputation: ~0 rows (approximately)
 DELETE FROM `character_template_reputation`;
 /*!40000 ALTER TABLE `character_template_reputation` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_template_reputation` ENABLE KEYS */;

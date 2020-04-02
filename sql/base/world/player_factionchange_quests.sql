@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.player_factionchange_quests
+-- Dumping structure for table worldlive.player_factionchange_quests
 CREATE TABLE IF NOT EXISTS `player_factionchange_quests` (
   `allianceQuestId` int(10) DEFAULT NULL,
   `hordeQuestId` int(10) DEFAULT NULL,
   `Comments` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.player_factionchange_quests: ~6 rows (approximately)
+-- Dumping data for table worldlive.player_factionchange_quests: ~6 rows (approximately)
 DELETE FROM `player_factionchange_quests`;
 /*!40000 ALTER TABLE `player_factionchange_quests` DISABLE KEYS */;
 INSERT INTO `player_factionchange_quests` (`allianceQuestId`, `hordeQuestId`, `Comments`) VALUES

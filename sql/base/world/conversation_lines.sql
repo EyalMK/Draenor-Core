@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.conversation_lines
+-- Dumping structure for table worldlive.conversation_lines
 CREATE TABLE IF NOT EXISTS `conversation_lines` (
   `Entry` int(10) unsigned NOT NULL,
   `LineID` int(10) unsigned NOT NULL DEFAULT '0',
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `conversation_lines` (
   PRIMARY KEY (`Entry`,`LineID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.conversation_lines: ~12 rows (approximately)
+-- Dumping data for table worldlive.conversation_lines: ~12 rows (approximately)
 DELETE FROM `conversation_lines`;
 /*!40000 ALTER TABLE `conversation_lines` DISABLE KEYS */;
 INSERT INTO `conversation_lines` (`Entry`, `LineID`, `BroadcastTextID`, `UnkValue`, `Timer`, `Type`) VALUES

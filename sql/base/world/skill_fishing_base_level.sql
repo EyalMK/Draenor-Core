@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.skill_fishing_base_level
+-- Dumping structure for table worldlive.skill_fishing_base_level
 CREATE TABLE IF NOT EXISTS `skill_fishing_base_level` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Area identifier',
   `skill` smallint(6) NOT NULL DEFAULT '0' COMMENT 'Base skill level requirement',
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Fishing system';
 
--- Dumping data for table world.skill_fishing_base_level: 219 rows
+-- Dumping data for table worldlive.skill_fishing_base_level: 219 rows
 DELETE FROM `skill_fishing_base_level`;
 /*!40000 ALTER TABLE `skill_fishing_base_level` DISABLE KEYS */;
 INSERT INTO `skill_fishing_base_level` (`entry`, `skill`) VALUES

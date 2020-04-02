@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_formations
+-- Dumping structure for table worldlive.creature_formations
 CREATE TABLE IF NOT EXISTS `creature_formations` (
   `leaderGUID` int(10) unsigned NOT NULL,
   `memberGUID` int(10) unsigned NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `creature_formations` (
   PRIMARY KEY (`memberGUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.creature_formations: 170 rows
+-- Dumping data for table worldlive.creature_formations: 190 rows
 DELETE FROM `creature_formations`;
 /*!40000 ALTER TABLE `creature_formations` DISABLE KEYS */;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
@@ -196,7 +196,27 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 	(999484, 999485, 3, 90, 2, 0, 0),
 	(11619043, 11608707, 0, 0, 0, 0, 0),
 	(11619043, 11619158, 7, 315, 0, 0, 0),
-	(11619043, 11619157, 7, 45, 0, 0, 0);
+	(11619043, 11619157, 7, 45, 0, 0, 0),
+	(105333, 105333, 0, 0, 2, 0, 0),
+	(105333, 105334, 6, 20, 2, 0, 0),
+	(105333, 105307, 6, 60, 2, 0, 0),
+	(105333, 105327, 6, 100, 2, 0, 0),
+	(105333, 105332, 6, 140, 2, 0, 0),
+	(105333, 105330, 6, 180, 2, 0, 0),
+	(105333, 105331, 6, 220, 2, 0, 0),
+	(105333, 105310, 6, 260, 2, 0, 0),
+	(105333, 105325, 6, 290, 2, 0, 0),
+	(105333, 105308, 6, 340, 2, 0, 0),
+	(105349, 105349, 0, 0, 2, 0, 0),
+	(105349, 105304, 6, 20, 2, 0, 0),
+	(105349, 105303, 6, 60, 2, 0, 0),
+	(105349, 105305, 6, 100, 2, 0, 0),
+	(105349, 105301, 6, 140, 2, 0, 0),
+	(105349, 105283, 6, 180, 2, 0, 0),
+	(105349, 105302, 6, 220, 2, 0, 0),
+	(105349, 105350, 6, 260, 2, 0, 0),
+	(105349, 105322, 6, 290, 2, 0, 0),
+	(105349, 105321, 6, 340, 2, 0, 0);
 /*!40000 ALTER TABLE `creature_formations` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

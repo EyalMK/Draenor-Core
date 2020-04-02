@@ -25,6 +25,7 @@
 #include "MapManager.h"
 #include "MotionMaster.h"
 #include "Player.h"
+#include "PhaseMgr.h"
 #include "Unit.h"
 #include "Vehicle.h"
 #include "ZoneScript.h"

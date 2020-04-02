@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.pet_aura_effect
+-- Dumping structure for table worldlive.pet_aura_effect
 CREATE TABLE IF NOT EXISTS `pet_aura_effect` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `pet_aura_effect` (
   PRIMARY KEY (`guid`,`slot`,`effect`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.pet_aura_effect: ~0 rows (approximately)
+-- Dumping data for table worldlive.pet_aura_effect: ~0 rows (approximately)
 DELETE FROM `pet_aura_effect`;
 /*!40000 ALTER TABLE `pet_aura_effect` DISABLE KEYS */;
 /*!40000 ALTER TABLE `pet_aura_effect` ENABLE KEYS */;

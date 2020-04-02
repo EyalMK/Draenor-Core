@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.battlepay_product
+-- Dumping structure for table worldlive.battlepay_product
 CREATE TABLE IF NOT EXISTS `battlepay_product` (
   `ProductID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `NormalPriceFixedPoint` bigint(20) unsigned NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `battlepay_product` (
   PRIMARY KEY (`ProductID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=853 DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.battlepay_product: ~866 rows (approximately)
+-- Dumping data for table worldlive.battlepay_product: ~847 rows (approximately)
 DELETE FROM `battlepay_product`;
 /*!40000 ALTER TABLE `battlepay_product` DISABLE KEYS */;
 INSERT INTO `battlepay_product` (`ProductID`, `NormalPriceFixedPoint`, `CurrentPriceFixedPoint`, `Type`, `ChoiceType`, `Flags`, `DisplayInfoID`, `ScriptName`, `ClassMask`, `WebsiteType`) VALUES

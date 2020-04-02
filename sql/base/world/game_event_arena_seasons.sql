@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.game_event_arena_seasons
+-- Dumping structure for table worldlive.game_event_arena_seasons
 CREATE TABLE IF NOT EXISTS `game_event_arena_seasons` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
   `season` tinyint(3) unsigned NOT NULL COMMENT 'Arena season number',
   UNIQUE KEY `season` (`season`,`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.game_event_arena_seasons: 13 rows
+-- Dumping data for table worldlive.game_event_arena_seasons: 13 rows
 DELETE FROM `game_event_arena_seasons`;
 /*!40000 ALTER TABLE `game_event_arena_seasons` DISABLE KEYS */;
 INSERT INTO `game_event_arena_seasons` (`eventEntry`, `season`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.npc_recipe_condition
+-- Dumping structure for table worldlive.npc_recipe_condition
 CREATE TABLE IF NOT EXISTS `npc_recipe_condition` (
   `NpcEntry` mediumint(10) unsigned NOT NULL DEFAULT '0',
   `RecipeID` mediumint(10) unsigned NOT NULL DEFAULT '0',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `npc_recipe_condition` (
   PRIMARY KEY (`NpcEntry`,`RecipeID`,`PlayerConditionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.npc_recipe_condition: ~316 rows (approximately)
+-- Dumping data for table worldlive.npc_recipe_condition: ~316 rows (approximately)
 DELETE FROM `npc_recipe_condition`;
 /*!40000 ALTER TABLE `npc_recipe_condition` DISABLE KEYS */;
 INSERT INTO `npc_recipe_condition` (`NpcEntry`, `RecipeID`, `PlayerConditionID`) VALUES

@@ -11,13 +11,13 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.zone_skip_update
+-- Dumping structure for table worldlive.zone_skip_update
 CREATE TABLE IF NOT EXISTS `zone_skip_update` (
   `zone` int(11) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`zone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='latin1_swedish_ci';
 
--- Dumping data for table world.zone_skip_update: ~0 rows (approximately)
+-- Dumping data for table worldlive.zone_skip_update: ~0 rows (approximately)
 DELETE FROM `zone_skip_update`;
 /*!40000 ALTER TABLE `zone_skip_update` DISABLE KEYS */;
 /*!40000 ALTER TABLE `zone_skip_update` ENABLE KEYS */;

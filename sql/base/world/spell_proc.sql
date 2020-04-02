@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_proc
+-- Dumping structure for table worldlive.spell_proc
 CREATE TABLE IF NOT EXISTS `spell_proc` (
   `spellId` mediumint(8) NOT NULL DEFAULT '0',
   `schoolMask` tinyint(4) NOT NULL DEFAULT '0',
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `spell_proc` (
   PRIMARY KEY (`spellId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.spell_proc: 0 rows
+-- Dumping data for table worldlive.spell_proc: 0 rows
 DELETE FROM `spell_proc`;
 /*!40000 ALTER TABLE `spell_proc` DISABLE KEYS */;
 /*!40000 ALTER TABLE `spell_proc` ENABLE KEYS */;
