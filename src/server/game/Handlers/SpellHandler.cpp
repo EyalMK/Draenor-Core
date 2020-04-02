@@ -798,12 +798,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         default:
             break;
     }
-
+	uint32 gcd = m_Player->GetGlobalCooldownMgr().GetGlobalCooldown(spellInfo);
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);
     spell->m_cast_count = l_CastCount;                       // set count of casts
     spell->m_Misc[0] = l_Misc[0];
     spell->m_Misc[1] = l_Misc[1];
-    spell->prepare(&targets);
+    spell->prepare(&targets, nullptr, gcd);
 }
 
 void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)

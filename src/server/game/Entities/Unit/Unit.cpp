@@ -333,6 +333,18 @@ uint32 GlobalCooldownMgr::TimeLeftOnGCD(SpellInfo const* spellInfo)
 	return m_GlobalCooldowns[spellInfo->StartRecoveryCategory].duration;
 }
 
+uint32 GlobalCooldownMgr::GetGlobalCooldown(SpellInfo const* p_SpellInfo)
+{
+	if (HasGlobalCooldown(p_SpellInfo))
+	{
+		GlobalCooldownList::const_iterator itr = m_GlobalCooldowns.find(p_SpellInfo->StartRecoveryCategory);
+		return itr->second.duration - getMSTimeDiff(itr->second.cast_time, getMSTime());
+	}
+
+	return 0;
+}
+
+
 void GlobalCooldownMgr::AddGlobalCooldown(SpellInfo const* spellInfo, uint32 gcd)
 {
     m_GlobalCooldowns[spellInfo->StartRecoveryCategory] = GlobalCooldown(gcd, getMSTime());

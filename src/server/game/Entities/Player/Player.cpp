@@ -499,6 +499,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     m_SeasonalQuestChanged = false;
 
+	m_QueuedSpell = nullptr;
+
     SetPendingBind(0, 0);
 
     _activeCheats = CHEAT_NONE;
