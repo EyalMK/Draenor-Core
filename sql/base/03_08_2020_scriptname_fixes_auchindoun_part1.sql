@@ -1,0 +1,17 @@
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_sargerei_soulbinder' WHERE `entry`=77812;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_tuulani' WHERE `entry`=79248;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_sargerei_cleric' WHERE `entry`=77134;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_sargerei_ritualist' WHERE `entry`=77130;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_sargerei_zealot' WHERE `entry`=77132;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_sargerei_spirit_tender' WHERE `entry`=77131;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_sargerei_hopilite' WHERE `entry`=77133;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_sargeri_warden' WHERE `entry`=77935;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_sargerei_defender' WHERE `entry`=77042;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_felborne_abyssal' WHERE `entry`=77905;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_soul_priest' WHERE `entry`=76595;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_felguard' WHERE `entry`=76259;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_cackling_pyromaniac' WHERE `entry`=76260;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_blazing_trickster' WHERE `entry`=79511;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='16', `ScriptName`='auchindoun_mob_warden_hammer' WHERE `entry`=76655;
+UPDATE `creature_template` SET `AIName`='SmartAI', `faction`='14', `ScriptName`='boss_azzakel' WHERE `entry`=75927;
+UPDATE `creature_template` SET `AIName`='SmartAI', `ScriptName`='auchindoun_azzakel_mob_controller' WHERE `entry`=76216;
