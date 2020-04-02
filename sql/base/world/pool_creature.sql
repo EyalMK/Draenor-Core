@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.pool_creature
+-- Dumping structure for table worldlive.pool_creature
 CREATE TABLE IF NOT EXISTS `pool_creature` (
   `guid` int(10) unsigned NOT NULL,
   `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `pool_creature` (
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.pool_creature: 324 rows
+-- Dumping data for table worldlive.pool_creature: 324 rows
 DELETE FROM `pool_creature`;
 /*!40000 ALTER TABLE `pool_creature` DISABLE KEYS */;
 INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES

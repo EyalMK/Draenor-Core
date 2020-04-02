@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.exploration_basexp
+-- Dumping structure for table worldlive.exploration_basexp
 CREATE TABLE IF NOT EXISTS `exploration_basexp` (
   `level` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `basexp` mediumint(8) NOT NULL DEFAULT '0',
   PRIMARY KEY (`level`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Exploration System';
 
--- Dumping data for table world.exploration_basexp: 90 rows
+-- Dumping data for table worldlive.exploration_basexp: 90 rows
 DELETE FROM `exploration_basexp`;
 /*!40000 ALTER TABLE `exploration_basexp` DISABLE KEYS */;
 INSERT INTO `exploration_basexp` (`level`, `basexp`) VALUES

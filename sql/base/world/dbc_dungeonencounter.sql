@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.dbc_dungeonencounter
+-- Dumping structure for table worldlive.dbc_dungeonencounter
 CREATE TABLE IF NOT EXISTS `dbc_dungeonencounter` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `mapId` int(10) unsigned NOT NULL DEFAULT '0',
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `dbc_dungeonencounter` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Export of DungeonEncounter.dbc';
 
--- Dumping data for table world.dbc_dungeonencounter: 699 rows
+-- Dumping data for table worldlive.dbc_dungeonencounter: 699 rows
 DELETE FROM `dbc_dungeonencounter`;
 /*!40000 ALTER TABLE `dbc_dungeonencounter` DISABLE KEYS */;
 INSERT INTO `dbc_dungeonencounter` (`id`, `mapId`, `difficulty`, `Unk_1`, `encounterIndex`, `encounterName`, `nameFlags`, `Unk_2`, `Unk_3`) VALUES

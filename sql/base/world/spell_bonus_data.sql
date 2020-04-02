@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_bonus_data
+-- Dumping structure for table worldlive.spell_bonus_data
 CREATE TABLE IF NOT EXISTS `spell_bonus_data` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `direct_bonus` float NOT NULL DEFAULT '0',
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `spell_bonus_data` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.spell_bonus_data: 318 rows
+-- Dumping data for table worldlive.spell_bonus_data: 318 rows
 DELETE FROM `spell_bonus_data`;
 /*!40000 ALTER TABLE `spell_bonus_data` DISABLE KEYS */;
 INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES

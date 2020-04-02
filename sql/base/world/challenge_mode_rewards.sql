@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.challenge_mode_rewards
+-- Dumping structure for table worldlive.challenge_mode_rewards
 CREATE TABLE IF NOT EXISTS `challenge_mode_rewards` (
   `map_id` int(10) unsigned NOT NULL DEFAULT '0',
   `none_money` int(10) unsigned NOT NULL DEFAULT '0',
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `challenge_mode_rewards` (
   PRIMARY KEY (`map_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.challenge_mode_rewards: ~8 rows (approximately)
+-- Dumping data for table worldlive.challenge_mode_rewards: ~8 rows (approximately)
 DELETE FROM `challenge_mode_rewards`;
 /*!40000 ALTER TABLE `challenge_mode_rewards` DISABLE KEYS */;
 INSERT INTO `challenge_mode_rewards` (`map_id`, `none_money`, `bronze_money`, `silver_money`, `gold_money`, `title`, `gold_achievement`, `comment`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.locales_points_of_interest
+-- Dumping structure for table worldlive.locales_points_of_interest
 CREATE TABLE IF NOT EXISTS `locales_points_of_interest` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `icon_name_loc1` text,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `locales_points_of_interest` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.locales_points_of_interest: 0 rows
+-- Dumping data for table worldlive.locales_points_of_interest: 0 rows
 DELETE FROM `locales_points_of_interest`;
 /*!40000 ALTER TABLE `locales_points_of_interest` DISABLE KEYS */;
 /*!40000 ALTER TABLE `locales_points_of_interest` ENABLE KEYS */;

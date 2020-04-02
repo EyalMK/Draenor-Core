@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.quest_template_objective
+-- Dumping structure for table worldlive.quest_template_objective
 CREATE TABLE IF NOT EXISTS `quest_template_objective` (
   `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `QuestID` int(10) unsigned NOT NULL DEFAULT '0',
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `quest_template_objective` (
   KEY `idx_QuestID` (`QuestID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2787045 DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.quest_template_objective: ~21,597 rows (approximately)
+-- Dumping data for table worldlive.quest_template_objective: ~20,116 rows (approximately)
 DELETE FROM `quest_template_objective`;
 /*!40000 ALTER TABLE `quest_template_objective` DISABLE KEYS */;
 INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES

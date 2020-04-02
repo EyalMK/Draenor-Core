@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.item_enchantment_template
+-- Dumping structure for table worldlive.item_enchantment_template
 CREATE TABLE IF NOT EXISTS `item_enchantment_template` (
   `entry` mediumint(8) DEFAULT NULL,
   `ench` mediumint(8) DEFAULT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `item_enchantment_template` (
   `type` mediumint(8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.item_enchantment_template: ~31,206 rows (approximately)
+-- Dumping data for table worldlive.item_enchantment_template: ~31,206 rows (approximately)
 DELETE FROM `item_enchantment_template`;
 /*!40000 ALTER TABLE `item_enchantment_template` DISABLE KEYS */;
 INSERT INTO `item_enchantment_template` (`entry`, `ench`, `chance`, `type`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.locales_battlepay_display_info
+-- Dumping structure for table worldlive.locales_battlepay_display_info
 CREATE TABLE IF NOT EXISTS `locales_battlepay_display_info` (
   `DisplayInfoId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Name_loc1` varchar(1024) DEFAULT '',
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `locales_battlepay_display_info` (
   PRIMARY KEY (`DisplayInfoId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.locales_battlepay_display_info: 850 rows
+-- Dumping data for table worldlive.locales_battlepay_display_info: 850 rows
 DELETE FROM `locales_battlepay_display_info`;
 /*!40000 ALTER TABLE `locales_battlepay_display_info` DISABLE KEYS */;
 INSERT INTO `locales_battlepay_display_info` (`DisplayInfoId`, `Name_loc1`, `Name_loc2`, `Name_loc3`, `Name_loc4`, `Name_loc5`, `Name_loc6`, `Name_loc7`, `Name_loc8`, `Name_loc9`, `Name_loc10`, `Description_loc1`, `Description_loc2`, `Description_loc3`, `Description_loc4`, `Description_loc5`, `Description_loc6`, `Description_loc7`, `Description_loc8`, `Description_loc9`, `Description_loc10`) VALUES

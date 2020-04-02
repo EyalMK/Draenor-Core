@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.linked_respawn
+-- Dumping structure for table worldlive.linked_respawn
 CREATE TABLE IF NOT EXISTS `linked_respawn` (
   `guid` int(10) unsigned NOT NULL COMMENT 'dependent creature',
   `linkedGuid` int(10) unsigned NOT NULL COMMENT 'master creature',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `linked_respawn` (
   PRIMARY KEY (`guid`,`linkType`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature Respawn Link System';
 
--- Dumping data for table world.linked_respawn: 71 rows
+-- Dumping data for table worldlive.linked_respawn: 71 rows
 DELETE FROM `linked_respawn`;
 /*!40000 ALTER TABLE `linked_respawn` DISABLE KEYS */;
 INSERT INTO `linked_respawn` (`guid`, `linkedGuid`, `linkType`) VALUES

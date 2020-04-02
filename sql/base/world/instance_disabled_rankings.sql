@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.instance_disabled_rankings
+-- Dumping structure for table worldlive.instance_disabled_rankings
 CREATE TABLE IF NOT EXISTS `instance_disabled_rankings` (
   `EncounterID` int(10) unsigned NOT NULL,
   `DifficultyID` int(10) unsigned NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `instance_disabled_rankings` (
   PRIMARY KEY (`EncounterID`,`DifficultyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.instance_disabled_rankings: ~16 rows (approximately)
+-- Dumping data for table worldlive.instance_disabled_rankings: ~16 rows (approximately)
 DELETE FROM `instance_disabled_rankings`;
 /*!40000 ALTER TABLE `instance_disabled_rankings` DISABLE KEYS */;
 INSERT INTO `instance_disabled_rankings` (`EncounterID`, `DifficultyID`, `Comment`) VALUES

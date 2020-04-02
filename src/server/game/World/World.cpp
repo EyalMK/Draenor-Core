@@ -1700,6 +1700,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading forbidden spells...");
     sSpellMgr->LoadForbiddenSpells();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Phase Dbc Info...");
+    sObjectMgr->LoadSpellPhaseInfo();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading NPC Texts...");
     sObjectMgr->LoadGossipText();
 
@@ -2028,17 +2031,8 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
     LoadWorldStates();
 
-	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Terrain Phase definitions...");
-	sObjectMgr->LoadTerrainPhaseInfo();
-
-	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Terrain Swap Default definitions...");
-	sObjectMgr->LoadTerrainSwapDefaults();
-
-	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Terrain World Map definitions...");
-	sObjectMgr->LoadTerrainWorldMaps();
-
-	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Phase Area definitions...");
-	sObjectMgr->LoadAreaPhases();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Phase definitions...");
+    sObjectMgr->LoadPhaseDefinitions();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Conditions...");
     sConditionMgr->LoadConditions();
@@ -4177,6 +4171,17 @@ void World::ProcessQueryCallbacks()
 
 void World::UpdatePhaseDefinitions()
 {
+#ifdef CROSS
+    PlayerMap::const_iterator itr;
+    for (itr = m_players.begin(); itr != m_players.end(); ++itr)
+        if (itr->second && itr->second && itr->second->IsInWorld())
+            itr->second->GetPhaseMgr().NotifyStoresReloaded();
+#else
+    SessionMap::const_iterator itr;
+    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
+            itr->second->GetPlayer()->GetPhaseMgr().NotifyStoresReloaded();
+#endif
 }
 
 bool World::ModerateMessage(std::string l_Text)

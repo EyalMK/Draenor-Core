@@ -164,7 +164,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_PROCRESIST,                                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
         DEFINE_OPCODE_HANDLER(SMSG_CLEAR_TARGET,                                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
         DEFINE_OPCODE_HANDLER(SMSG_WEATHER,                                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_SET_PHASE_SHIFT_CHANGE,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_SET_PHASE_SHIFT,                                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
         DEFINE_OPCODE_HANDLER(SMSG_TRIGGER_CINEMATIC,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
         DEFINE_OPCODE_HANDLER(SMSG_TOTEM_CREATED,                                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
         DEFINE_OPCODE_HANDLER(SMSG_RESPEC_WIPE_CONFIRM,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);

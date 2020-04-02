@@ -12,6 +12,7 @@
 #include "GameObjectAI.h"
 #include "NPCHandler.h"
 #include "Vehicle.h"
+#include "PhaseMgr.h"
 #include "Common.h"
 
 /// 83746 - Rukhmar

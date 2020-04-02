@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.game_weather
+-- Dumping structure for table worldlive.game_weather
 CREATE TABLE IF NOT EXISTS `game_weather` (
   `zone` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `spring_rain_chance` tinyint(3) unsigned NOT NULL DEFAULT '25',
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `game_weather` (
   PRIMARY KEY (`zone`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Weather System';
 
--- Dumping data for table world.game_weather: 55 rows
+-- Dumping data for table worldlive.game_weather: 55 rows
 DELETE FROM `game_weather`;
 /*!40000 ALTER TABLE `game_weather` DISABLE KEYS */;
 INSERT INTO `game_weather` (`zone`, `spring_rain_chance`, `spring_snow_chance`, `spring_storm_chance`, `summer_rain_chance`, `summer_snow_chance`, `summer_storm_chance`, `fall_rain_chance`, `fall_snow_chance`, `fall_storm_chance`, `winter_rain_chance`, `winter_snow_chance`, `winter_storm_chance`, `ScriptName`) VALUES

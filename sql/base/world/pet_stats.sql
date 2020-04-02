@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.pet_stats
+-- Dumping structure for table worldlive.pet_stats
 CREATE TABLE IF NOT EXISTS `pet_stats` (
   `entry` int(11) unsigned NOT NULL COMMENT 'entry of the pet, 1 for hunter pet',
   `speed` float NOT NULL DEFAULT '1.14' COMMENT 'speed of the pet',
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `pet_stats` (
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.pet_stats: ~44 rows (approximately)
+-- Dumping data for table worldlive.pet_stats: ~44 rows (approximately)
 DELETE FROM `pet_stats`;
 /*!40000 ALTER TABLE `pet_stats` DISABLE KEYS */;
 INSERT INTO `pet_stats` (`entry`, `speed`, `powerstatbase`, `armor_coef`, `apsp_coef`, `health_coef`, `damage_coef`, `attackspeed`, `powertype`, `createpower`, `secondarystat_coef`, `comment`) VALUES

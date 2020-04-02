@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.battlepet_template
+-- Dumping structure for table worldlive.battlepet_template
 CREATE TABLE IF NOT EXISTS `battlepet_template` (
   `species` int(10) unsigned NOT NULL,
   `breed` int(10) unsigned NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `battlepet_template` (
   PRIMARY KEY (`species`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.battlepet_template: ~767 rows (approximately)
+-- Dumping data for table worldlive.battlepet_template: ~441 rows (approximately)
 DELETE FROM `battlepet_template`;
 /*!40000 ALTER TABLE `battlepet_template` DISABLE KEYS */;
 INSERT INTO `battlepet_template` (`species`, `breed`, `quality`, `level`) VALUES

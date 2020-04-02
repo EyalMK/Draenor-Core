@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.conditions
+-- Dumping structure for table worldlive.conditions
 CREATE TABLE IF NOT EXISTS `conditions` (
   `SourceTypeOrReferenceId` mediumint(8) NOT NULL DEFAULT '0',
   `SourceGroup` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `conditions` (
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Condition System';
 
--- Dumping data for table world.conditions: 8,405 rows
+-- Dumping data for table worldlive.conditions: 8,411 rows
 DELETE FROM `conditions`;
 /*!40000 ALTER TABLE `conditions` DISABLE KEYS */;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -3377,7 +3377,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(13, 1, 46281, 0, 0, 31, 0, 3, 25882, 0, 0, 0, '', NULL),
 	(13, 1, 46474, 0, 0, 31, 0, 3, 25315, 0, 0, 0, '', NULL),
 	(13, 1, 46475, 0, 0, 31, 0, 3, 25507, 0, 0, 0, '', NULL),
-	(13, 3, 46574, 0, 0, 31, 0, 3, 26161, 0, 0, 0, '', NULL),
 	(13, 1, 46797, 0, 0, 31, 0, 3, 26248, 0, 0, 0, '', NULL),
 	(13, 1, 46797, 0, 1, 31, 0, 3, 26249, 0, 0, 0, '', NULL),
 	(13, 1, 46809, 0, 0, 31, 0, 3, 26239, 0, 0, 0, '', NULL),
@@ -7902,7 +7901,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(13, 7, 115550, 0, 0, 31, 0, 3, 60099, 0, 0, 0, '', 'Quest'),
 	(13, 7, 45606, 0, 0, 31, 0, 3, 60099, 0, 0, 0, '', 'Quest'),
 	(13, 7, 117472, 0, 0, 31, 0, 3, 60694, 0, 0, 0, '', 'Quest'),
-	(13, 7, 46574, 0, 0, 31, 0, 3, 26161, 0, 0, 0, '', 'Quest'),
+	(13, 3, 46574, 0, 0, 31, 0, 3, 26161, 0, 0, 0, '', 'Spell effect on Farshire Grain Credit'),
 	(13, 7, 45414, 0, 0, 31, 0, 3, 25310, 0, 0, 0, '', 'Quest'),
 	(13, 7, 117472, 0, 0, 31, 0, 3, 60757, 0, 0, 0, '', 'Quest'),
 	(13, 7, 62624, 0, 0, 31, 0, 3, 33056, 0, 0, 0, '', 'Quest'),
@@ -8438,7 +8437,14 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(13, 1, 43990, 0, 2, 31, 0, 3, 24647, 0, 0, 0, '', 'Target Quest Trigger'),
 	(13, 1, 50331, 0, 0, 31, 0, 3, 27992, 0, 0, 0, '', 'Target Valkry Harpoon Gun'),
 	(13, 1, 50331, 0, 1, 31, 0, 3, 27993, 0, 0, 0, '', 'Target Valkry Harpoon Gun'),
-	(13, 1, 43997, 0, 0, 31, 0, 3, 24533, 0, 0, 0, '', 'Fiery Lance only targets Dragonflayer Defender');
+	(13, 1, 43997, 0, 0, 31, 0, 3, 24533, 0, 0, 0, '', 'Fiery Lance only targets Dragonflayer Defender'),
+	(17, 0, 48328, 0, 0, 29, 0, 27002, 100, 0, 1, 0, '', 'Do not summon Grom\'thar, if he is already spawned (100 Yards)'),
+	(17, 0, 48328, 0, 0, 28, 0, 12151, 0, 0, 1, 0, '', 'Do not summon Grom\'thar, if player has quest objective completed, but not yet rewarded.'),
+	(14, 752, 1303, 0, 0, 8, 0, 2521, 0, 0, 0, 0, '', 'Show gossip text 1303 if quest \'To Serve Kum\'isha\' is rewarded'),
+	(22, 7, 23837, 0, 0, 23, 1, 4179, 0, 0, 0, 0, '', 'Only run SAI at Emerald Dragonshrine'),
+	(22, 7, 23837, 0, 1, 23, 1, 3979, 0, 0, 0, 0, '', 'Only run SAI at Emerald Dragonshrine'),
+	(17, 0, 12189, 0, 0, 29, 0, 3475, 100, 0, 1, 0, '', 'Do not summon Echeyakee, if he is already spawned (50 Yards)'),
+	(17, 0, 12189, 0, 0, 28, 0, 881, 0, 0, 1, 0, '', 'Do not summon Echeyakee, if player has quest objective completed, but not yet rewarded.');
 /*!40000 ALTER TABLE `conditions` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

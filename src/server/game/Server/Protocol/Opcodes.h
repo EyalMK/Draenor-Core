@@ -114,7 +114,7 @@ enum Opcodes
         SMSG_PROCRESIST                             = 0x1677, ///< 6.2.3 20726
         SMSG_CLEAR_TARGET                           = 0x0E44, ///< 6.2.3 20726
         SMSG_WEATHER                                = 0x12FC, ///< 6.2.3 20726
-		SMSG_SET_PHASE_SHIFT_CHANGE					= 0x137C, ///< 6.2.3 20726
+        SMSG_SET_PHASE_SHIFT                        = 0x137C, ///< 6.2.3 20726
         SMSG_TRIGGER_CINEMATIC                      = 0x16FF, ///< 6.2.3 20726
         SMSG_TOTEM_CREATED                          = 0x0BC7, ///< 6.2.3 20726
         SMSG_RESPEC_WIPE_CONFIRM                    = 0x1BE8, ///< 6.2.3 20726

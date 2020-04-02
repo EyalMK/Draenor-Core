@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.outdoorpvp_template
+-- Dumping structure for table worldlive.outdoorpvp_template
 CREATE TABLE IF NOT EXISTS `outdoorpvp_template` (
   `TypeId` tinyint(3) unsigned NOT NULL,
   `ScriptName` char(64) NOT NULL DEFAULT '',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `outdoorpvp_template` (
   PRIMARY KEY (`TypeId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='OutdoorPvP Templates';
 
--- Dumping data for table world.outdoorpvp_template: 6 rows
+-- Dumping data for table worldlive.outdoorpvp_template: 6 rows
 DELETE FROM `outdoorpvp_template`;
 /*!40000 ALTER TABLE `outdoorpvp_template` DISABLE KEYS */;
 INSERT INTO `outdoorpvp_template` (`TypeId`, `ScriptName`, `comment`) VALUES

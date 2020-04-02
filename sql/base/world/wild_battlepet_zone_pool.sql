@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.wild_battlepet_zone_pool
+-- Dumping structure for table worldlive.wild_battlepet_zone_pool
 CREATE TABLE IF NOT EXISTS `wild_battlepet_zone_pool` (
   `Zone` int(10) unsigned NOT NULL,
   `Species` int(10) unsigned NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `wild_battlepet_zone_pool` (
   `Breed9` int(10) unsigned NOT NULL DEFAULT '3'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.wild_battlepet_zone_pool: ~1,098 rows (approximately)
+-- Dumping data for table worldlive.wild_battlepet_zone_pool: ~1,077 rows (approximately)
 DELETE FROM `wild_battlepet_zone_pool`;
 /*!40000 ALTER TABLE `wild_battlepet_zone_pool` DISABLE KEYS */;
 INSERT INTO `wild_battlepet_zone_pool` (`Zone`, `Species`, `Replace`, `Max`, `RespawnTime`, `MinLevel`, `MaxLevel`, `Breed0`, `Breed1`, `Breed2`, `Breed3`, `Breed4`, `Breed5`, `Breed6`, `Breed7`, `Breed8`, `Breed9`) VALUES

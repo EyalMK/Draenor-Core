@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_learn_spell
+-- Dumping structure for table worldlive.spell_learn_spell
 CREATE TABLE IF NOT EXISTS `spell_learn_spell` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `SpellID` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `spell_learn_spell` (
   PRIMARY KEY (`entry`,`SpellID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item System';
 
--- Dumping data for table world.spell_learn_spell: 5 rows
+-- Dumping data for table worldlive.spell_learn_spell: 5 rows
 DELETE FROM `spell_learn_spell`;
 /*!40000 ALTER TABLE `spell_learn_spell` DISABLE KEYS */;
 INSERT INTO `spell_learn_spell` (`entry`, `SpellID`, `Active`) VALUES

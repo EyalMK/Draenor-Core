@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.player_factionchange_titles
+-- Dumping structure for table worldlive.player_factionchange_titles
 CREATE TABLE IF NOT EXISTS `player_factionchange_titles` (
   `alliance_id` int(8) NOT NULL,
   `horde_id` int(8) NOT NULL,
   PRIMARY KEY (`alliance_id`,`horde_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.player_factionchange_titles: 23 rows
+-- Dumping data for table worldlive.player_factionchange_titles: 23 rows
 DELETE FROM `player_factionchange_titles`;
 /*!40000 ALTER TABLE `player_factionchange_titles` DISABLE KEYS */;
 INSERT INTO `player_factionchange_titles` (`alliance_id`, `horde_id`) VALUES

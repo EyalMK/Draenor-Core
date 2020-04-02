@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.research_site
+-- Dumping structure for table worldlive.research_site
 CREATE TABLE IF NOT EXISTS `research_site` (
   `id` int(7) NOT NULL DEFAULT '0',
   `position_x` int(11) NOT NULL DEFAULT '0',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `research_site` (
   `zone` smallint(5) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Export of QuestPOIPoint.dbc';
 
--- Dumping data for table world.research_site: 2,208 rows
+-- Dumping data for table worldlive.research_site: 2,208 rows
 DELETE FROM `research_site`;
 /*!40000 ALTER TABLE `research_site` DISABLE KEYS */;
 INSERT INTO `research_site` (`id`, `position_x`, `position_y`, `zone`) VALUES

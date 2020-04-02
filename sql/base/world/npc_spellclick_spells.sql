@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.npc_spellclick_spells
+-- Dumping structure for table worldlive.npc_spellclick_spells
 CREATE TABLE IF NOT EXISTS `npc_spellclick_spells` (
   `npc_entry` int(10) unsigned NOT NULL COMMENT 'reference to creature_template',
   `spell_id` int(10) unsigned NOT NULL COMMENT 'spell which should be casted ',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `npc_spellclick_spells` (
   PRIMARY KEY (`npc_entry`,`spell_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.npc_spellclick_spells: 751 rows
+-- Dumping data for table worldlive.npc_spellclick_spells: 751 rows
 DELETE FROM `npc_spellclick_spells`;
 /*!40000 ALTER TABLE `npc_spellclick_spells` DISABLE KEYS */;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES

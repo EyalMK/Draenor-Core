@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.updates
+-- Dumping structure for table worldlive.updates
 CREATE TABLE IF NOT EXISTS `updates` (
   `name` varchar(200) NOT NULL COMMENT 'filename with extension of the update.',
   `hash` char(40) DEFAULT '' COMMENT 'sha1 hash of the sql file.',
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `updates` (
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='List of all applied updates in this database.';
 
--- Dumping data for table world.updates: 0 rows
+-- Dumping data for table worldlive.updates: 0 rows
 DELETE FROM `updates`;
 /*!40000 ALTER TABLE `updates` DISABLE KEYS */;
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;

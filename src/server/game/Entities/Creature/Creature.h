@@ -335,14 +335,12 @@ typedef std::unordered_map<uint32, EquipmentInfoContainerInternal> EquipmentInfo
 // from `creature` table
 struct CreatureData
 {
-    explicit CreatureData() : id(0), mapid(0), displayid(0), equipmentId(0),
-                     posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
-                     spawndist(0.0f), currentwaypoint(0), curhealth(0), curmana(0), movementType(0),
-                     spawnMask(0), npcflag(0), unit_flags(0), dynamicflags(0), phaseid(0), phaseGroup(0), dbData(true) { }
+    explicit CreatureData() : dbData(true) {}
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
     uint16 zoneId;
     uint16 areaId;
+    uint32 phaseMask;
     uint32 displayid;
     int8 equipmentId;
     float posX;
@@ -356,16 +354,12 @@ struct CreatureData
     uint32 curmana;
     uint8 movementType;
     uint32 spawnMask;
-	uint32 npcflag;
-	uint32 unit_flags;
     uint32 NpcFlags1;
     uint32 NpcFlags2;
     uint32 UnitFlags1;                                     // enum UnitFlags mask values
     uint32 UnitFlags2;                                     // enum UnitFlags2 mask values
     uint32 UnitFlags3;                                     // enum UnitFlags3 mask values
     uint32 dynamicflags;
-    uint32 phaseid;
-    uint32 phaseGroup;
     uint32 WorldEffectID;
     bool isActive;
     bool dbData;
@@ -529,7 +523,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         void DisappearAndDie();
 
-        bool Create(uint32 guidlow, Map* map, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
+        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
         bool LoadCreaturesAddon();
         void SelectLevel(const CreatureTemplate* cinfo);
         void UpdateStatsForLevel();
@@ -693,7 +687,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap = true);
         void SaveToDB();
                                                             // overriden in Pet
-        virtual void SaveToDB(uint32 mapid, uint32 spawnMask);
+        virtual void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
         virtual void DeleteFromDB();                        // overriden in Pet
 
         Loot loot;

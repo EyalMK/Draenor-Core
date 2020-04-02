@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_aura_not_saved
+-- Dumping structure for table worldlive.spell_aura_not_saved
 CREATE TABLE IF NOT EXISTS `spell_aura_not_saved` (
   `SpellID` int(10) unsigned NOT NULL,
   `Comment` text NOT NULL,
   PRIMARY KEY (`SpellID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.spell_aura_not_saved: ~18 rows (approximately)
+-- Dumping data for table worldlive.spell_aura_not_saved: ~18 rows (approximately)
 DELETE FROM `spell_aura_not_saved`;
 /*!40000 ALTER TABLE `spell_aura_not_saved` DISABLE KEYS */;
 INSERT INTO `spell_aura_not_saved` (`SpellID`, `Comment`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_groupsizestats
+-- Dumping structure for table worldlive.creature_groupsizestats
 CREATE TABLE IF NOT EXISTS `creature_groupsizestats` (
   `entry` int(11) unsigned NOT NULL,
   `difficulty` int(11) unsigned NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `creature_groupsizestats` (
   PRIMARY KEY (`entry`,`difficulty`,`groupSize`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.creature_groupsizestats: ~2,383 rows (approximately)
+-- Dumping data for table worldlive.creature_groupsizestats: ~2,268 rows (approximately)
 DELETE FROM `creature_groupsizestats`;
 /*!40000 ALTER TABLE `creature_groupsizestats` DISABLE KEYS */;
 INSERT INTO `creature_groupsizestats` (`entry`, `difficulty`, `groupSize`, `health`) VALUES

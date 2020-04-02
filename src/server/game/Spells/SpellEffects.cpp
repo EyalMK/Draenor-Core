@@ -4430,7 +4430,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     uint32 gameobject_id = m_spellInfo->Effects[effIndex].MiscValue;
 
-    GameObject* pGameObj = new GameObject();
+    GameObject* pGameObj = new GameObject;
 
     WorldObject* target = focusObject;
     if (!target)
@@ -4445,10 +4445,8 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     Map* map = target->GetMap();
 
     if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id, map,
-       x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
+        m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
     {
-		pGameObj->CopyPhaseFrom(m_caster);
-
         delete pGameObj;
         return;
     }
@@ -4510,10 +4508,8 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     {
         GameObject* linkedGO = new GameObject;
         if (linkedGO->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), linkedEntry, map,
-            x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
+            m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
         {
-			linkedGO->CopyPhaseFrom(m_caster);
-
             linkedGO->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
             linkedGO->SetSpellId(m_spellInfo->Id);
 
@@ -5210,9 +5206,11 @@ void Spell::EffectDuel(SpellEffIndex p_EffectIndex)
 
     Map* l_CasterMap = m_caster->GetMap();
     if (!l_GameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), l_GameobjectId,
-        l_CasterMap, m_caster->GetPositionX() + (unitTarget->GetPositionX() - m_caster->GetPositionX()) / 2,
+        l_CasterMap, m_caster->GetPhaseMask(),
+        m_caster->GetPositionX() + (unitTarget->GetPositionX() - m_caster->GetPositionX()) / 2,
         m_caster->GetPositionY() + (unitTarget->GetPositionY() - m_caster->GetPositionY()) / 2,
-        m_caster->GetPositionZ(), m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        m_caster->GetPositionZ(),
+        m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
     {
         delete l_GameObj;
         return;
@@ -5223,8 +5221,6 @@ void Spell::EffectDuel(SpellEffIndex p_EffectIndex)
     int32 l_Duration = m_spellInfo->GetDuration();
     l_GameObj->SetRespawnTime(l_Duration > 0 ? l_Duration / IN_MILLISECONDS : 0);
     l_GameObj->SetSpellId(m_spellInfo->Id);
-    
-	l_GameObj->CopyPhaseFrom(m_caster);
 
     ExecuteLogEffectSummonObject(p_EffectIndex, l_GameObj);
 
@@ -5668,7 +5664,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         }
     }
 
-    GameObject* pGameObj = new GameObject();
+    GameObject* pGameObj = new GameObject;
 
     float x, y, z;
     // If dest location if present
@@ -5680,7 +5676,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
 
     Map* map = m_caster->GetMap();
     if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), go_id, map,
-        x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        m_caster->GetPhaseMask(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
     {
         delete pGameObj;
         return;
@@ -6013,7 +6009,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
             Position pos;
             unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
-            unitTarget->GetMap()->getObjectHitPos(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f);
+            unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f);
             m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         }
         else
@@ -6480,16 +6476,14 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         m_caster->GetPosition(fx, fy, fz);
     }
 
-    GameObject* pGameObj = new GameObject();
+    GameObject* pGameObj = new GameObject;
 
     if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), name_id, cMap,
-        fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
+        m_caster->GetPhaseMask(), fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
     {
         delete pGameObj;
         return;
     }
-    
-	pGameObj->CopyPhaseFrom(m_caster);
 
     int32 duration = m_spellInfo->GetDuration();
 
@@ -6567,12 +6561,10 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     if (uint32 linkedEntry = pGameObj->GetGOInfo()->GetLinkedGameObjectEntry())
     {
-        GameObject* linkedGO = new GameObject();
+        GameObject* linkedGO = new GameObject;
         if (linkedGO->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), linkedEntry, cMap,
-            fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
+            m_caster->GetPhaseMask(), fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
         {
-			linkedGO->CopyPhaseFrom(m_caster);
-
             linkedGO->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
             //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
             linkedGO->SetSpellId(m_spellInfo->Id);

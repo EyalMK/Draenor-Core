@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_group_stack_rules
+-- Dumping structure for table worldlive.spell_group_stack_rules
 CREATE TABLE IF NOT EXISTS `spell_group_stack_rules` (
   `group_id` int(11) unsigned NOT NULL DEFAULT '0',
   `stack_rule` tinyint(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`group_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.spell_group_stack_rules: 42 rows
+-- Dumping data for table worldlive.spell_group_stack_rules: 42 rows
 DELETE FROM `spell_group_stack_rules`;
 /*!40000 ALTER TABLE `spell_group_stack_rules` DISABLE KEYS */;
 INSERT INTO `spell_group_stack_rules` (`group_id`, `stack_rule`) VALUES

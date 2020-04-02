@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.pool_template
+-- Dumping structure for table worldlive.pool_template
 CREATE TABLE IF NOT EXISTS `pool_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Pool entry',
   `max_limit` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Max number of objects (0) is no limit',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `pool_template` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.pool_template: 10,264 rows
+-- Dumping data for table worldlive.pool_template: 10,264 rows
 DELETE FROM `pool_template`;
 /*!40000 ALTER TABLE `pool_template` DISABLE KEYS */;
 INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES

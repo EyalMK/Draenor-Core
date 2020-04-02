@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.access_requirement
+-- Dumping structure for table worldlive.access_requirement
 CREATE TABLE IF NOT EXISTS `access_requirement` (
   `mapId` mediumint(8) unsigned NOT NULL,
   `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `access_requirement` (
   PRIMARY KEY (`mapId`,`difficulty`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Access Requirements';
 
--- Dumping data for table world.access_requirement: 235 rows
+-- Dumping data for table worldlive.access_requirement: 235 rows
 DELETE FROM `access_requirement`;
 /*!40000 ALTER TABLE `access_requirement` DISABLE KEYS */;
 INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max`, `item`, `item2`, `quest_done_A`, `quest_done_H`, `completed_achievement`, `leader_achievement`, `itemlevel_min`, `itemlevel_max`, `quest_failed_text`, `comment`) VALUES

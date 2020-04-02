@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.guild_rewards
+-- Dumping structure for table worldlive.guild_rewards
 CREATE TABLE IF NOT EXISTS `guild_rewards` (
   `entry` int(10) unsigned NOT NULL DEFAULT '0',
   `standing` tinyint(3) unsigned DEFAULT '0',
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `guild_rewards` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.guild_rewards: 64 rows
+-- Dumping data for table worldlive.guild_rewards: 64 rows
 DELETE FROM `guild_rewards`;
 /*!40000 ALTER TABLE `guild_rewards` DISABLE KEYS */;
 INSERT INTO `guild_rewards` (`entry`, `standing`, `racemask`, `price`, `achievement`) VALUES

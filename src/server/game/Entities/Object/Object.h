@@ -852,7 +852,7 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void Update (uint32 /*time_diff*/) { }
 
-        void _Create(uint32 guidlow, HighGuid guidhigh);
+        void _Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask);
 
         virtual void RemoveFromWorld()
         {
@@ -864,10 +864,6 @@ class WorldObject : public Object, public WorldLocation
             Object::RemoveFromWorld();
         }
 
-		std::set<uint32> _phases;
-		std::set<uint32> _terrainSwaps;
-		std::set<uint32> _worldMapAreaSwaps;
-		int32 _dbPhase;
         void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* p_Searcher, float &p_InOutX, float &p_InOutY, float &p_InOutZ, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const;
         void GetNearPoint(Position& p_Pos, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const;
@@ -918,25 +914,13 @@ class WorldObject : public Object, public WorldLocation
             GetRandomPoint(srcPos, distance, x, y, z);
             pos.Relocate(x, y, z, GetOrientation());
         }
-		uint32 m_InstanceId;
+
         uint32 GetInstanceId() const { return m_InstanceId; }
 
-        virtual bool SetInPhase(uint32 id, bool update, bool apply);
-		void CopyPhaseFrom(WorldObject* obj, bool update = false);
-		void UpdateAreaAndZonePhase();
-		void ClearPhases(bool update = false);
-		void RebuildTerrainSwaps();
-		void RebuildWorldMapAreaSwaps();
-		bool HasInPhaseList(uint32 phase);
-        bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
-        bool IsInPhase(WorldObject const* obj) const;
-		std::set<uint32> const& GetPhases() const { return _phases; };
-		std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
-		std::set<uint32> const& GetWorldMapAreaSwaps() const { return _worldMapAreaSwaps; }
-		int32 GetDBPhase() { return _dbPhase; }
-
-		// if negative it is used as PhaseGroupId
-		void SetDBPhase(int32 p) { _dbPhase = p; }
+        virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
+        uint32 GetPhaseMask() const { return m_phaseMask; }
+        bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()); }
+        bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
 
         virtual uint32 GetZoneId(bool forceRecalc = false) const;
         virtual uint32 GetAreaId(bool forceRecalc = false) const;
@@ -995,10 +979,10 @@ class WorldObject : public Object, public WorldLocation
                 return IsInWorld() && obj->IsInWorld() && (GetMap() == obj->GetMap());
             return false;
         }
-        /*bool IsInPhase(WorldObject const* p_Object) const
+        bool IsInPhase(WorldObject const* p_Object) const
         {
             return InSamePhase(p_Object->GetPhaseMask());
-        }*/
+        }
         bool IsWithinDist3d(float x, float y, float z, float dist) const
             { return IsInDist(x, y, z, dist + GetObjectSize()); }
         bool IsWithinDist3d(const Position* pos, float dist) const
@@ -1016,12 +1000,10 @@ class WorldObject : public Object, public WorldLocation
         {
             return obj && _IsWithinDist(obj, dist2compare, is3D);
         }
-		bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true) const
-		{
-			return obj && IsInMap(obj) && IsInPhase(obj) && _IsWithinDist(obj, dist2compare, is3D);
-		}
-
-
+        bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true) const
+        {
+            return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D);
+        }
         bool IsWithinLOS(float x, float y, float z) const;
         bool IsWithinLOSInMap(const WorldObject* obj) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
@@ -1209,17 +1191,19 @@ class WorldObject : public Object, public WorldLocation
         virtual bool IsInvisibleDueToDespawn() const { return false; }
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
         virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
+
     private:
         Map* m_currMap;                                    //current object's Map location
 
         //uint32 m_mapId;                                     // object at map with map_id
-        //uint32 m_InstanceId;                                // in map copy with instance id
+        uint32 m_InstanceId;                                // in map copy with instance id
+        uint32 m_phaseMask;                                 // in area phase state
 
         std::list<uint64/* guid*/> _visibilityPlayerList;
 
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
 
-        bool CanNeverSee(WorldObject const* obj) const { return GetMap() != obj->GetMap() || !IsInPhase(obj); }
+        bool CanNeverSee(WorldObject const* obj) const { return GetMap() != obj->GetMap() || !InSamePhase(obj); }
         virtual bool CanAlwaysSee(WorldObject const* /*obj*/) const { return false; }
         bool CanDetect(WorldObject const* obj, bool ignoreStealth) const;
         bool CanDetectInvisibilityOf(WorldObject const* obj) const;

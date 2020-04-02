@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.areatrigger_move_template
+-- Dumping structure for table worldlive.areatrigger_move_template
 CREATE TABLE IF NOT EXISTS `areatrigger_move_template` (
   `move_curve_id` int(11) NOT NULL,
   `path_size` int(11) DEFAULT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `areatrigger_move_template` (
   PRIMARY KEY (`move_curve_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.areatrigger_move_template: ~19 rows (approximately)
+-- Dumping data for table worldlive.areatrigger_move_template: ~19 rows (approximately)
 DELETE FROM `areatrigger_move_template`;
 /*!40000 ALTER TABLE `areatrigger_move_template` DISABLE KEYS */;
 INSERT INTO `areatrigger_move_template` (`move_curve_id`, `path_size`, `duration`) VALUES

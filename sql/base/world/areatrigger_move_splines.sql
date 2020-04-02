@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.areatrigger_move_splines
+-- Dumping structure for table worldlive.areatrigger_move_splines
 CREATE TABLE IF NOT EXISTS `areatrigger_move_splines` (
   `move_curve_id` int(11) NOT NULL,
   `path_id` int(11) NOT NULL DEFAULT '0',
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `areatrigger_move_splines` (
   PRIMARY KEY (`move_curve_id`,`path_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.areatrigger_move_splines: ~306 rows (approximately)
+-- Dumping data for table worldlive.areatrigger_move_splines: ~306 rows (approximately)
 DELETE FROM `areatrigger_move_splines`;
 /*!40000 ALTER TABLE `areatrigger_move_splines` DISABLE KEYS */;
 INSERT INTO `areatrigger_move_splines` (`move_curve_id`, `path_id`, `path_x`, `path_y`, `path_z`) VALUES

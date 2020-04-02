@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.warden_checks
+-- Dumping structure for table worldlive.warden_checks
 CREATE TABLE IF NOT EXISTS `warden_checks` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `type` tinyint(3) unsigned DEFAULT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `warden_checks` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=787 DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.warden_checks: 786 rows
+-- Dumping data for table worldlive.warden_checks: 786 rows
 DELETE FROM `warden_checks`;
 /*!40000 ALTER TABLE `warden_checks` DISABLE KEYS */;
 INSERT INTO `warden_checks` (`id`, `type`, `data`, `str`, `address`, `length`, `result`, `comment`) VALUES

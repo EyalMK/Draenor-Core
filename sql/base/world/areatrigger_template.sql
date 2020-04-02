@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.areatrigger_template
+-- Dumping structure for table worldlive.areatrigger_template
 CREATE TABLE IF NOT EXISTS `areatrigger_template` (
   `spell_id` int(10) unsigned NOT NULL DEFAULT '0',
   `eff_index` int(3) unsigned NOT NULL DEFAULT '0',
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `areatrigger_template` (
   KEY `spell_id_i` (`spell_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.areatrigger_template: ~1,040 rows (approximately)
+-- Dumping data for table worldlive.areatrigger_template: ~1,090 rows (approximately)
 DELETE FROM `areatrigger_template`;
 /*!40000 ALTER TABLE `areatrigger_template` DISABLE KEYS */;
 INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `scale_curve_id`, `morph_curve_id`, `facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`, `creature_visual`) VALUES

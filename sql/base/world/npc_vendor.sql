@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.npc_vendor
+-- Dumping structure for table worldlive.npc_vendor
 CREATE TABLE IF NOT EXISTS `npc_vendor` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `slot` smallint(6) NOT NULL DEFAULT '0',
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `npc_vendor` (
   KEY `slot` (`slot`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Npc System';
 
--- Dumping data for table world.npc_vendor: 75,328 rows
+-- Dumping data for table worldlive.npc_vendor: 75,328 rows
 DELETE FROM `npc_vendor`;
 /*!40000 ALTER TABLE `npc_vendor` DISABLE KEYS */;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES

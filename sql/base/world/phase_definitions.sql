@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.phase_definitions
+-- Dumping structure for table worldlive.phase_definitions
 CREATE TABLE IF NOT EXISTS `phase_definitions` (
   `zoneId` int(11) unsigned NOT NULL DEFAULT '0',
   `entry` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `phase_definitions` (
   PRIMARY KEY (`zoneId`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.phase_definitions: 18 rows
+-- Dumping data for table worldlive.phase_definitions: 18 rows
 DELETE FROM `phase_definitions`;
 /*!40000 ALTER TABLE `phase_definitions` DISABLE KEYS */;
 INSERT INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `terrainswapmap`, `flags`, `comment`) VALUES

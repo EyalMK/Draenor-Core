@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_scripts
+-- Dumping structure for table worldlive.spell_scripts
 CREATE TABLE IF NOT EXISTS `spell_scripts` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `effIndex` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `spell_scripts` (
   `o` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.spell_scripts: 129 rows
+-- Dumping data for table worldlive.spell_scripts: 129 rows
 DELETE FROM `spell_scripts`;
 /*!40000 ALTER TABLE `spell_scripts` DISABLE KEYS */;
 INSERT INTO `spell_scripts` (`id`, `effIndex`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES

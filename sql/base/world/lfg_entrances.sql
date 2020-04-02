@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.lfg_entrances
+-- Dumping structure for table worldlive.lfg_entrances
 CREATE TABLE IF NOT EXISTS `lfg_entrances` (
   `dungeonId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Unique id from LFGDungeons.dbc',
   `name` varchar(255) DEFAULT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `lfg_entrances` (
   PRIMARY KEY (`dungeonId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.lfg_entrances: ~38 rows (approximately)
+-- Dumping data for table worldlive.lfg_entrances: ~38 rows (approximately)
 DELETE FROM `lfg_entrances`;
 /*!40000 ALTER TABLE `lfg_entrances` DISABLE KEYS */;
 INSERT INTO `lfg_entrances` (`dungeonId`, `name`, `position_x`, `position_y`, `position_z`, `orientation`) VALUES

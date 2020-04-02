@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.locales_achievement_reward
+-- Dumping structure for table worldlive.locales_achievement_reward
 CREATE TABLE IF NOT EXISTS `locales_achievement_reward` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `subject_loc1` varchar(100) NOT NULL DEFAULT '',
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `locales_achievement_reward` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.locales_achievement_reward: 65 rows
+-- Dumping data for table worldlive.locales_achievement_reward: 65 rows
 DELETE FROM `locales_achievement_reward`;
 /*!40000 ALTER TABLE `locales_achievement_reward` DISABLE KEYS */;
 INSERT INTO `locales_achievement_reward` (`entry`, `subject_loc1`, `subject_loc2`, `subject_loc3`, `subject_loc4`, `subject_loc5`, `subject_loc6`, `subject_loc7`, `subject_loc8`, `subject_loc9`, `subject_loc10`, `text_loc1`, `text_loc2`, `text_loc3`, `text_loc4`, `text_loc5`, `text_loc6`, `text_loc7`, `text_loc8`, `text_loc9`, `text_loc10`) VALUES

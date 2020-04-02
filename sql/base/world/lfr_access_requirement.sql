@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.lfr_access_requirement
+-- Dumping structure for table worldlive.lfr_access_requirement
 CREATE TABLE IF NOT EXISTS `lfr_access_requirement` (
   `dungeon_id` int(10) unsigned NOT NULL,
   `level_min` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `lfr_access_requirement` (
   PRIMARY KEY (`dungeon_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.lfr_access_requirement: ~37 rows (approximately)
+-- Dumping data for table worldlive.lfr_access_requirement: ~37 rows (approximately)
 DELETE FROM `lfr_access_requirement`;
 /*!40000 ALTER TABLE `lfr_access_requirement` DISABLE KEYS */;
 INSERT INTO `lfr_access_requirement` (`dungeon_id`, `level_min`, `level_max`, `item`, `item2`, `quest_A`, `quest_H`, `achievement`, `leader_achievement`, `ilvl_min`, `ilvl_max`, `quest_failed_text`, `comment`) VALUES

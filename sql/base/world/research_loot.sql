@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.research_loot
+-- Dumping structure for table worldlive.research_loot
 CREATE TABLE IF NOT EXISTS `research_loot` (
   `site_id` mediumint(8) unsigned NOT NULL,
   `x` float NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `research_loot` (
   `race` int(11) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.research_loot: 6,868 rows
+-- Dumping data for table worldlive.research_loot: 6,868 rows
 DELETE FROM `research_loot`;
 /*!40000 ALTER TABLE `research_loot` DISABLE KEYS */;
 INSERT INTO `research_loot` (`site_id`, `x`, `y`, `z`, `race`) VALUES

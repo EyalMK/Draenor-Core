@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.locales_quest_template_objective
+-- Dumping structure for table worldlive.locales_quest_template_objective
 CREATE TABLE IF NOT EXISTS `locales_quest_template_objective` (
   `ID` int(10) unsigned NOT NULL DEFAULT '0',
   `Locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `locales_quest_template_objective` (
   PRIMARY KEY (`ID`,`Locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.locales_quest_template_objective: ~86,887 rows (approximately)
+-- Dumping data for table worldlive.locales_quest_template_objective: ~85,655 rows (approximately)
 DELETE FROM `locales_quest_template_objective`;
 /*!40000 ALTER TABLE `locales_quest_template_objective` DISABLE KEYS */;
 INSERT INTO `locales_quest_template_objective` (`ID`, `Locale`, `Description`) VALUES

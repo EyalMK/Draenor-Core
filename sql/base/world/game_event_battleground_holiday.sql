@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.game_event_battleground_holiday
+-- Dumping structure for table worldlive.game_event_battleground_holiday
 CREATE TABLE IF NOT EXISTS `game_event_battleground_holiday` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
   `bgflag` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.game_event_battleground_holiday: 6 rows
+-- Dumping data for table worldlive.game_event_battleground_holiday: 6 rows
 DELETE FROM `game_event_battleground_holiday`;
 /*!40000 ALTER TABLE `game_event_battleground_holiday` DISABLE KEYS */;
 INSERT INTO `game_event_battleground_holiday` (`eventEntry`, `bgflag`) VALUES

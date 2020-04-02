@@ -11,13 +11,13 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_stolen
+-- Dumping structure for table worldlive.spell_stolen
 CREATE TABLE IF NOT EXISTS `spell_stolen` (
   `spell_id` int(11) DEFAULT NULL,
   `COMMENT` blob
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.spell_stolen: ~45 rows (approximately)
+-- Dumping data for table worldlive.spell_stolen: ~45 rows (approximately)
 DELETE FROM `spell_stolen`;
 /*!40000 ALTER TABLE `spell_stolen` DISABLE KEYS */;
 INSERT INTO `spell_stolen` (`spell_id`, `COMMENT`) VALUES

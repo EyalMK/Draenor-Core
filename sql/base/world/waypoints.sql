@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.waypoints
+-- Dumping structure for table worldlive.waypoints
 CREATE TABLE IF NOT EXISTS `waypoints` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `pointid` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
   PRIMARY KEY (`entry`,`pointid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature waypoints';
 
--- Dumping data for table world.waypoints: 3,659 rows
+-- Dumping data for table worldlive.waypoints: 3,662 rows
 DELETE FROM `waypoints`;
 /*!40000 ALTER TABLE `waypoints` DISABLE KEYS */;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
@@ -3684,7 +3684,10 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 	(30134, 39, 7051.73, -506.097, 984.344, 'Brann flying machine'),
 	(30134, 40, 6928.09, -372.792, 1013.68, 'Brann flying machine'),
 	(30134, 41, 6820.65, -310.364, 1017.54, 'Brann flying machine'),
-	(30134, 42, 6741.97, -291.74, 996.262, 'Brann flying machine');
+	(30134, 42, 6741.97, -291.74, 996.262, 'Brann flying machine'),
+	(27002, 1, 2746.33, 420.078, 67.9821, 'Grom\'thar the Thunderbringer'),
+	(7401, 1, -11336.5, -2981.66, 2.98413, ''),
+	(7401, 2, -11359.4, -2977.5, -0.447796, '');
 /*!40000 ALTER TABLE `waypoints` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

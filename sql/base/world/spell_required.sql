@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_required
+-- Dumping structure for table worldlive.spell_required
 CREATE TABLE IF NOT EXISTS `spell_required` (
   `spell_id` mediumint(8) NOT NULL DEFAULT '0',
   `req_spell` mediumint(8) NOT NULL DEFAULT '0',
   PRIMARY KEY (`spell_id`,`req_spell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Additinal Data';
 
--- Dumping data for table world.spell_required: 21 rows
+-- Dumping data for table worldlive.spell_required: 21 rows
 DELETE FROM `spell_required`;
 /*!40000 ALTER TABLE `spell_required` DISABLE KEYS */;
 INSERT INTO `spell_required` (`spell_id`, `req_spell`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spell_upgrade_item_stage
+-- Dumping structure for table worldlive.spell_upgrade_item_stage
 CREATE TABLE IF NOT EXISTS `spell_upgrade_item_stage` (
   `ItemBonusTreeCategory` int(10) unsigned NOT NULL,
   `ItemClass` int(10) NOT NULL DEFAULT '0',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `spell_upgrade_item_stage` (
   `MaxIlevel` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.spell_upgrade_item_stage: ~14 rows (approximately)
+-- Dumping data for table worldlive.spell_upgrade_item_stage: ~14 rows (approximately)
 DELETE FROM `spell_upgrade_item_stage`;
 /*!40000 ALTER TABLE `spell_upgrade_item_stage` DISABLE KEYS */;
 INSERT INTO `spell_upgrade_item_stage` (`ItemBonusTreeCategory`, `ItemClass`, `ItemSubClassMask`, `InventoryTypeMask`, `MaxIlevel`) VALUES

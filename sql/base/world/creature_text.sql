@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_text
+-- Dumping structure for table worldlive.creature_text
 CREATE TABLE IF NOT EXISTS `creature_text` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.creature_text: 13,020 rows
+-- Dumping data for table worldlive.creature_text: 13,031 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -13051,7 +13051,18 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(80721, 0, 1, 'Join... us...', 12, 0, 25, 0, 0, 0, 'Fungus Covered Shambler - Aggro'),
 	(80721, 0, 2, 'Please help... come to me', 12, 0, 25, 0, 0, 0, 'Fungus Covered Shambler - Aggro'),
 	(84373, 0, 1, 'Your kind will not defy the will of Iyu.', 12, 0, 50, 0, 0, 0, 'Harvester Ommru - Aggro'),
-	(84373, 0, 2, 'I have known weeds that were more threatening than your kind.', 12, 0, 50, 0, 0, 0, 'Harvester Ommru - Aggro');
+	(84373, 0, 2, 'I have known weeds that were more threatening than your kind.', 12, 0, 50, 0, 0, 0, 'Harvester Ommru - Aggro'),
+	(2755, 2, 0, 'No matter.  You were a fool to help me, and now you will pay!', 12, 0, 0, 0, 0, 844, 'Myzrael'),
+	(2755, 1, 0, 'Why have you summoned me so soon?  I haven\'t yet reached my full power!', 12, 0, 0, 0, 0, 843, 'Myzrael'),
+	(2755, 0, 0, 'What?  $n, you served me well, but...', 12, 0, 0, 0, 0, 842, 'Myzrael'),
+	(27002, 0, 0, 'I\'ll consume your flesh and pick my teeth with your bones!', 14, 0, 100, 0, 0, 0, 'Grom\'thar the Thunderbringer'),
+	(27002, 1, 0, 'You\'re no magnataur!  Where... did you... find... such strength?', 14, 0, 100, 0, 0, 0, 'Grom\'thar the Thunderbringer'),
+	(7363, 0, 0, '%s releases the flawless draenethyst sphere, allowing it to hover before him.', 16, 0, 100, 0, 0, 3441, 'Kum\'isha the Collector'),
+	(7363, 1, 0, '%s chants in an unknown tongue.', 16, 0, 100, 0, 0, 3442, 'Kum\'isha the Collector'),
+	(7363, 2, 0, 'Success, the rift is open!! My brethren, rise and return home! The Outland awaits!', 14, 0, 100, 0, 0, 3475, 'Kum\'isha the Collector'),
+	(7363, 3, 0, 'Hurry brothers! You must go now! I do not know how much longer the rift will remain open!', 12, 0, 100, 0, 0, 3476, 'Kum\'isha the Collector'),
+	(7363, 4, 0, 'And now you know why I live in a crater.', 12, 0, 100, 0, 0, 3477, 'Kum\'isha the Collector'),
+	(3338, 0, 0, 'Lok\'tar ogar! This young $r $c has conquered the great Echeyakee. Let his actions show the might of the new Horde!', 14, 1, 100, 2, 0, 1295, 'Sergra Darkthorn - Echeyakee Quest Complete');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

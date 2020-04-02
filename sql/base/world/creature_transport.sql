@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.creature_transport
+-- Dumping structure for table worldlive.creature_transport
 CREATE TABLE IF NOT EXISTS `creature_transport` (
   `guid` int(10) unsigned NOT NULL COMMENT 'GUID of NPC on transport - not the same as creature.guid',
   `transport_entry` int(11) NOT NULL COMMENT 'Transport entry',
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `creature_transport` (
   UNIQUE KEY `entry` (`transport_entry`,`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table world.creature_transport: 288 rows
+-- Dumping data for table worldlive.creature_transport: 288 rows
 DELETE FROM `creature_transport`;
 /*!40000 ALTER TABLE `creature_transport` DISABLE KEYS */;
 INSERT INTO `creature_transport` (`guid`, `transport_entry`, `npc_entry`, `TransOffsetX`, `TransOffsetY`, `TransOffsetZ`, `TransOffsetO`, `emote`) VALUES

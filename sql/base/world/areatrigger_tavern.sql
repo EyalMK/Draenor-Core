@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.areatrigger_tavern
+-- Dumping structure for table worldlive.areatrigger_tavern
 CREATE TABLE IF NOT EXISTS `areatrigger_tavern` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `name` text,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
 
--- Dumping data for table world.areatrigger_tavern: 173 rows
+-- Dumping data for table worldlive.areatrigger_tavern: 173 rows
 DELETE FROM `areatrigger_tavern`;
 /*!40000 ALTER TABLE `areatrigger_tavern` DISABLE KEYS */;
 INSERT INTO `areatrigger_tavern` (`id`, `name`) VALUES

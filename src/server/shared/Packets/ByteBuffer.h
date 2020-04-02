@@ -22,10 +22,6 @@
 struct ObjectGuid
 {
     public:
-		static ObjectGuid const Empty;
-
-		typedef uint64 LowType;
-
         ObjectGuid() { _data.u64 = 0LL; }
         ObjectGuid(uint64 guid) { _data.u64 = guid; }
         ObjectGuid(ObjectGuid const& other) { _data.u64 = other._data.u64; }

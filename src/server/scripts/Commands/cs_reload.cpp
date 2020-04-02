@@ -1329,10 +1329,10 @@ public:
 
     static bool HandleReloadPhaseDefinitionsCommand(ChatHandler* handler, const char* /*args*/)
     {
-		sLog->outInfo(LOG_FILTER_GENERAL, "Reloading terrain_phase_info table...");
-		sObjectMgr->LoadTerrainPhaseInfo();
-		sWorld->UpdatePhaseDefinitions();
-		handler->SendGlobalGMSysMessage("Terrain phase infos reloaded.");
+        sLog->outInfo(LOG_FILTER_GENERAL, "Reloading phase_definitions table...");
+        sObjectMgr->LoadPhaseDefinitions();
+        sWorld->UpdatePhaseDefinitions();
+        handler->SendGlobalGMSysMessage("Phase Definitions reloaded.");
         return true;
     }
 

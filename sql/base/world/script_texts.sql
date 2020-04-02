@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.script_texts
+-- Dumping structure for table worldlive.script_texts
 CREATE TABLE IF NOT EXISTS `script_texts` (
   `npc_entry` mediumint(8) NOT NULL DEFAULT '0' COMMENT 'creature_template entry',
   `entry` mediumint(8) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `script_texts` (
   PRIMARY KEY (`npc_entry`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
 
--- Dumping data for table world.script_texts: 2,651 rows
+-- Dumping data for table worldlive.script_texts: 2,651 rows
 DELETE FROM `script_texts`;
 /*!40000 ALTER TABLE `script_texts` DISABLE KEYS */;
 INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `content_loc9`, `content_loc10`, `sound`, `type`, `language`, `emote`, `comment`) VALUES

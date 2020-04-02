@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.vehicle_accessory
+-- Dumping structure for table worldlive.vehicle_accessory
 CREATE TABLE IF NOT EXISTS `vehicle_accessory` (
   `guid` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `accessory_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `vehicle_accessory` (
   PRIMARY KEY (`guid`,`seat_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
--- Dumping data for table world.vehicle_accessory: 6 rows
+-- Dumping data for table worldlive.vehicle_accessory: 6 rows
 DELETE FROM `vehicle_accessory`;
 /*!40000 ALTER TABLE `vehicle_accessory` DISABLE KEYS */;
 INSERT INTO `vehicle_accessory` (`guid`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
