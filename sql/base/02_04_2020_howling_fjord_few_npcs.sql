@@ -10,6 +10,7 @@ UPDATE `creature_template` SET `flags_extra`=`flags_extra`|128, `unit_flags`=`un
 
 
 -- Missing Journal Page loot fix
+DELETE FROM `gameobject_loot_template` WHERE `entry`=188262;
 UPDATE `gameobject_loot_template` SET `entry`=188263, `ChanceOrQuestChance`=100 WHERE `item`=35737;
 INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `itemBonuses`) VALUES
 (188262, 35737, 100, 1, 0, 1, 1, '');

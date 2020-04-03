@@ -1,5 +1,5 @@
 -- Tombstone Page text
-INSERT INTO `page_text` (`ID`, `Text`, `NextPageID`, `VerifiedBuild`) VALUES
+INSERT INTO `page_text` (`entry`, `Text`, `next_page`, `WDBVerified`) VALUES
 (3743, 'Here lies $n', 0, 21742);
 
 
@@ -22,6 +22,8 @@ UPDATE creature SET spawndist = 5, MovementType = 1 WHERE id = 1501;
 
 -- [Q] The Shadow Grave
 -- Missing gameobject loot
-INSERT INTO `gameobject_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupID`, `MinCount`, `MaxCount`, `Comment`) VALUES
-(207256, 64581, 0, 100, 1, 1, 0, 1, 1, 'Corpse-Stitching Twine - Deathknell'),
-(207255, 64582, 0, 100, 1, 1, 0, 1, 1, 'Thick-Embalming Fluid - Deathknell');
+DELETE FROM `gameobject_loot_template` WHERE `entry`=207256;
+DELETE FROM `gameobject_loot_template` WHERE `entry`=207255;
+INSERT INTO `gameobject_loot_template` (`Entry`, `Item`, `ChanceOrQuestChance`, `LootMode`, `GroupID`, `MinCountOrRef`, `MaxCount`, `itemBonuses`) VALUES
+(207256, 64581, -100, 1, 0, 1, 1, ''),
+(207255, 64582, -100, 1, 0, 1, 1, '');

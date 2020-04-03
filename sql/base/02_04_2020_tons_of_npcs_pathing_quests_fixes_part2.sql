@@ -38,7 +38,7 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=44
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 44550, 0, 31, 3, 24820, 0, 0, '', 'Collect Data target');
 
-UPDATE `creature` SET `id`=24820, `map`=571, `spawnMask`=1, `phaseMask`=1, `position_x`=466.754089, `position_y`=-5921.273926, `position_z`=309.139404, `orientation`=0.751123, `spawntimesecs`=120 WHERE `guid`=@GUID
+UPDATE `creature` SET `id`=24820, `map`=571, `spawnMask`=1, `phaseMask`=1, `position_x`=466.754089, `position_y`=-5921.273926, `position_z`=309.139404, `orientation`=0.751123, `spawntimesecs`=120 WHERE `guid`=@GUID;
 
 
 -- Quest - Iron Rune Constructs and You: The Bluff
@@ -637,8 +637,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@Magni*100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 6694.134766, -297.678925, 989.207092, 4.757878, 'Magni - ActionList - Go to pos'),
 (@Magni*100, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Magni - ActionList - talk'),
 (@Magni*100, 9, 2, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Magni - ActionList - talk'),
-(@Magni*100, 9, 3, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 66, 4.757878, 0, 0, 0, 0, 0, 8, 0, 0, 0, 6694.134766, -297.678925, 989.207092, 4.757878, 'Magni - ActionList - Set orientation'),
-(@MagniSET @CGUID := 144155; -- 80 free guid set by TC
+(@Magni*100, 9, 3, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 66, 4.757878, 0, 0, 0, 0, 0, 8, 0, 0, 0, 6694.134766, -297.678925, 989.207092, 4.757878, 'Magni - ActionList - Set orientation');
 
 DELETE FROM `creature_template_addon` WHERE `entry`=30493;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
