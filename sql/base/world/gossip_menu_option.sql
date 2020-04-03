@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `gossip_menu_option` (
   PRIMARY KEY (`menu_id`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.gossip_menu_option: 6,333 rows
+-- Dumping data for table worldlive.gossip_menu_option: 6,337 rows
 DELETE FROM `gossip_menu_option`;
 /*!40000 ALTER TABLE `gossip_menu_option` DISABLE KEYS */;
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
@@ -6363,7 +6363,11 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(16246, 5, 0, 'Touched by Ice', 1, 0, 0, 0, 0, 0, NULL),
 	(76643, 0, 0, 'FOR AZEROTH!', 0, 2, 0, 0, 0, 0, 'You are about to embark on a dangerous mission, and you may not be able to return immediately. Are you sure?'),
 	(80931, 0, 5, 'Make this inn your home.', 8, 65536, 0, 0, 0, 0, NULL),
-	(80931, 1, 1, 'Let me browse your goods.', 3, 128, 0, 0, 0, 0, NULL);
+	(80931, 1, 1, 'Let me browse your goods.', 3, 128, 0, 0, 0, 0, NULL),
+	(17148, 1, 0, 'Okay, how about "Azure Steel?"', 1, 1, 0, 0, 0, 0, ''),
+	(17148, 2, 0, 'Now show me "Magnuum!"', 2, 1, 0, 0, 0, 0, ''),
+	(12744, 0, 0, 'Im ready. Lets go', 1, 1, 0, 0, 0, 0, ''),
+	(12754, 0, 0, 'Im ready to ride', 1, 1, 0, 0, 0, 0, '');
 /*!40000 ALTER TABLE `gossip_menu_option` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `conditions` (
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Condition System';
 
--- Dumping data for table worldlive.conditions: 8,411 rows
+-- Dumping data for table worldlive.conditions: 8,437 rows
 DELETE FROM `conditions`;
 /*!40000 ALTER TABLE `conditions` DISABLE KEYS */;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -3989,9 +3989,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(13, 1, 40978, 0, 0, 31, 0, 3, 23959, 0, 0, 0, '', NULL),
 	(13, 1, 43403, 0, 0, 31, 0, 3, 24290, 0, 0, 0, '', NULL),
 	(13, 1, 43404, 0, 0, 31, 0, 3, 24290, 0, 0, 0, '', NULL),
-	(13, 1, 43986, 0, 2, 31, 0, 3, 24647, 0, 0, 0, '', 'Target Quest Trigger'),
-	(13, 1, 43986, 0, 1, 31, 0, 3, 24646, 0, 0, 0, '', 'Target Quest Trigger'),
-	(13, 1, 43986, 0, 0, 31, 0, 3, 24538, 0, 0, 0, '', 'Target Quest Trigger'),
+	(13, 1, 43990, 0, 1, 31, 0, 3, 24646, 0, 0, 0, '', 'Target Quest Trigger'),
+	(13, 1, 43990, 0, 0, 31, 0, 3, 24538, 0, 0, 0, '', 'Target Quest Trigger'),
 	(13, 3, 44213, 0, 0, 31, 0, 3, 24538, 0, 0, 0, '', NULL),
 	(13, 3, 44213, 0, 1, 31, 0, 3, 24646, 0, 0, 0, '', NULL),
 	(13, 3, 44213, 0, 2, 31, 0, 3, 24647, 0, 0, 0, '', NULL),
@@ -8422,21 +8421,21 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(17, 0, 39220, 0, 0, 29, 1, 21514, 30, 0, 1, 0, '', 'Sablemane\'s Trap Require Gorgrom the Dragon-Eater not around'),
 	(17, 0, 39264, 0, 0, 28, 0, 10802, 0, 0, 1, 0, '', 'Sablemane\'s Trap RequireGorgrom the Dragon-Eater not Completed'),
 	(17, 0, 39220, 0, 0, 28, 0, 10723, 0, 0, 1, 0, '', 'Sablemane\'s Trap RequireGorgrom the Dragon-Eater not Completed'),
-	(17, 0, 23301, 0, 0, 30, 1, 192180, 1, 0, 1, 0, '', 'Do not cast Ebon Blade Banner if Ebon Blade Banner is planted'),
-	(17, 0, 23301, 0, 1, 30, 1, 192180, 1, 0, 1, 0, '', 'Do not cast Ebon Blade Banner if Ebon Blade Banner is planted'),
-	(17, 0, 23301, 0, 2, 30, 1, 192180, 1, 0, 1, 0, '', 'Do not cast Ebon Blade Banner if Ebon Blade Banner is planted'),
 	(17, 0, 23301, 0, 3, 30, 1, 192180, 1, 0, 1, 0, '', 'Do not cast Ebon Blade Banner if Ebon Blade Banner is planted'),
+	(17, 0, 23301, 0, 2, 30, 1, 192180, 1, 0, 1, 0, '', 'Do not cast Ebon Blade Banner if Ebon Blade Banner is planted'),
+	(17, 0, 23301, 0, 1, 30, 1, 192180, 1, 0, 1, 0, '', 'Do not cast Ebon Blade Banner if Ebon Blade Banner is planted'),
+	(17, 0, 23301, 0, 0, 30, 1, 192180, 1, 0, 1, 0, '', 'Do not cast Ebon Blade Banner if Ebon Blade Banner is planted'),
 	(17, 0, 58563, 0, 0, 31, 1, 3, 30951, 0, 0, 0, '', 'Assassinate Restless Lookout can be used only on Restless lookout'),
 	(22, 1, 30952, 0, 0, 1, 1, 45787, 0, 0, 1, 0, '', 'Only run SAI if unit does not have aura sleeping sleep'),
 	(13, 1, 56621, 0, 0, 31, 0, 3, 30136, 0, 1, 0, '', 'Only the Machine is a target for the spell.'),
 	(13, 1, 56622, 0, 0, 31, 0, 3, 30136, 0, 1, 0, '', 'Only the Machine is a target for the spell.'),
 	(22, 1, 30134, 0, 0, 9, 0, 12973, 0, 0, 0, 0, '', 'Vehicle flying machine require quest 12973'),
 	(13, 1, 55089, 0, 0, 31, 0, 3, 30134, 0, 0, 0, '', 'Only the flying machine is a target for the spell.'),
-	(13, 1, 43990, 0, 0, 31, 0, 3, 24538, 0, 0, 0, '', 'Target Quest Trigger'),
-	(13, 1, 43990, 0, 1, 31, 0, 3, 24646, 0, 0, 0, '', 'Target Quest Trigger'),
-	(13, 1, 43990, 0, 2, 31, 0, 3, 24647, 0, 0, 0, '', 'Target Quest Trigger'),
-	(13, 1, 50331, 0, 0, 31, 0, 3, 27992, 0, 0, 0, '', 'Target Valkry Harpoon Gun'),
+	(13, 1, 43986, 0, 2, 31, 0, 3, 24647, 0, 0, 0, '', 'Target Quest Trigger'),
+	(13, 1, 43986, 0, 1, 31, 0, 3, 24646, 0, 0, 0, '', 'Target Quest Trigger'),
+	(13, 1, 43986, 0, 0, 31, 0, 3, 24538, 0, 0, 0, '', 'Target Quest Trigger'),
 	(13, 1, 50331, 0, 1, 31, 0, 3, 27993, 0, 0, 0, '', 'Target Valkry Harpoon Gun'),
+	(13, 1, 50331, 0, 0, 31, 0, 3, 27992, 0, 0, 0, '', 'Target Valkry Harpoon Gun'),
 	(13, 1, 43997, 0, 0, 31, 0, 3, 24533, 0, 0, 0, '', 'Fiery Lance only targets Dragonflayer Defender'),
 	(17, 0, 48328, 0, 0, 29, 0, 27002, 100, 0, 1, 0, '', 'Do not summon Grom\'thar, if he is already spawned (100 Yards)'),
 	(17, 0, 48328, 0, 0, 28, 0, 12151, 0, 0, 1, 0, '', 'Do not summon Grom\'thar, if player has quest objective completed, but not yet rewarded.'),
@@ -8444,7 +8443,34 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(22, 7, 23837, 0, 0, 23, 1, 4179, 0, 0, 0, 0, '', 'Only run SAI at Emerald Dragonshrine'),
 	(22, 7, 23837, 0, 1, 23, 1, 3979, 0, 0, 0, 0, '', 'Only run SAI at Emerald Dragonshrine'),
 	(17, 0, 12189, 0, 0, 29, 0, 3475, 100, 0, 1, 0, '', 'Do not summon Echeyakee, if he is already spawned (50 Yards)'),
-	(17, 0, 12189, 0, 0, 28, 0, 881, 0, 0, 1, 0, '', 'Do not summon Echeyakee, if player has quest objective completed, but not yet rewarded.');
+	(17, 0, 12189, 0, 0, 28, 0, 881, 0, 0, 1, 0, '', 'Do not summon Echeyakee, if player has quest objective completed, but not yet rewarded.'),
+	(22, 1, 4344, 0, 0, 1, 1, 42454, 0, 0, 0, 0, '', 'Captured Totem Quest Credit only if Crocolisk has Captured Totem Aura at Death'),
+	(22, 1, 4345, 0, 0, 1, 1, 42454, 0, 0, 0, 0, '', 'Captured Totem Quest Credit only if Crocolisk has Captured Totem Aura at Death'),
+	(13, 1, 42454, 0, 0, 31, 0, 3, 4344, 0, 0, 0, '', 'Captive Totem Aura targets only Mottled Drywallow Crocolisk'),
+	(13, 1, 42454, 0, 0, 36, 0, 0, 0, 0, 0, 0, '', 'Captive Totem Aura targets only alive units'),
+	(13, 1, 42454, 0, 1, 31, 0, 3, 4345, 0, 0, 0, '', 'Captive Totem Aura targets only Drywallow Daggermaw'),
+	(13, 1, 42454, 0, 1, 36, 0, 0, 0, 0, 0, 0, '', 'Captive Totem Aura targets only alive units'),
+	(18, 39270, 73705, 0, 1, 8, 0, 25179, 0, 0, 1, 0, '', ''),
+	(18, 39270, 73705, 0, 1, 28, 0, 25179, 0, 0, 1, 0, '', ''),
+	(22, 1, 39270, 0, 0, 1, 1, 57626, 0, 0, 0, 0, '', ''),
+	(22, 2, 39270, 0, 1, 8, 0, 25179, 0, 0, 1, 0, '', ''),
+	(22, 2, 39270, 0, 1, 28, 0, 25179, 0, 0, 1, 0, '', ''),
+	(22, 2, 39270, 0, 1, 9, 0, 25179, 0, 0, 1, 0, '', ''),
+	(22, 1, 36696, 0, 0, 29, 1, 36727, 8, 0, 0, 0, '', 'Script only Runs if Near Food'),
+	(22, 1, 36696, 0, 0, 1, 1, 42345, 0, 0, 1, 0, '', 'Script only Runs if Has Not Auras'),
+	(22, 1, 36696, 0, 1, 29, 1, 37155, 8, 0, 0, 0, '', 'Script only Runs if Near Food'),
+	(22, 1, 36696, 0, 1, 1, 1, 42345, 0, 0, 1, 0, '', 'Script only Runs if Has Not Auras'),
+	(22, 1, 36696, 0, 2, 29, 1, 37156, 8, 0, 0, 0, '', 'Script only Runs if Near Food'),
+	(22, 1, 36696, 0, 2, 1, 1, 42345, 0, 0, 1, 0, '', 'Script only Runs if Has Not Auras'),
+	(22, 2, 36696, 0, 0, 36, 1, 0, 0, 0, 0, 0, '', 'Script only runs if Boar is Alive'),
+	(13, 7, 69228, 0, 0, 31, 0, 3, 36727, 0, 0, 0, '', 'Spell Targets only Food Dummy'),
+	(13, 7, 69228, 0, 1, 31, 0, 3, 37155, 0, 0, 0, '', 'Spell Targets only Food Dummy'),
+	(13, 7, 69228, 0, 2, 31, 0, 3, 37156, 0, 0, 0, '', 'Spell Targets only Food Dummy'),
+	(22, 1, 33266, 0, 0, 29, 1, 33263, 10, 0, 1, 0, '', 'Script Not Run When Near Dinah'),
+	(13, 1, 62792, 0, 0, 31, 0, 3, 33336, 0, 0, 0, '', 'Gorat\'s Bowshoot Only Hit\'s Gorat\'s Target Bunny'),
+	(22, 1, 24718, 0, 0, 31, 0, 3, 24823, 0, 0, 0, '', 'event require npc 24823'),
+	(13, 1, 44562, 0, 0, 31, 0, 3, 24718, 0, 0, 0, '', 'Bluff target'),
+	(13, 1, 43990, 0, 2, 31, 0, 3, 24647, 0, 0, 0, '', 'Target Quest Trigger');
 /*!40000 ALTER TABLE `conditions` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
