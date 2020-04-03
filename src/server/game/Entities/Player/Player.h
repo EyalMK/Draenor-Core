@@ -3356,6 +3356,7 @@ class Player : public Unit, public GridObject<Player>
         bool isAllowedToLoot(const Creature* creature);
 
 		// Spell Queue
+		Spell* m_QueuedSpell;
 		void QueueSpell(Spell* p_Spell);
 		void ResetSpellQueue();
 		static bool QueueSystemEnabled();
@@ -4107,8 +4108,6 @@ class Player : public Unit, public GridObject<Player>
         bool   m_MonthlyQuestChanged;
         bool   m_SeasonalQuestChanged;
         time_t m_lastDailyQuestTime;
-
-		Spell* m_QueuedSpell;
 
         uint32 m_drunkTimer;
         uint32 m_weaponChangeTimer;

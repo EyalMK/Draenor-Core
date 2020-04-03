@@ -3758,7 +3758,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
 	// create and add update event for this spell
 	SpellEvent* Event = new SpellEvent(this);
-	if (Player::QueueSystemEnabled() && p_GcdAtCast && p_GcdAtCast <= MAX_SPELL_QUEUE_GCD)
+	bool val = Player::QueueSystemEnabled();
+
+	if (val == true && p_GcdAtCast && p_GcdAtCast <= MAX_SPELL_QUEUE_GCD)
 	{
 		if (Spell* l_Queued = m_caster->ToPlayer()->GetQueuedSpell())
 		{

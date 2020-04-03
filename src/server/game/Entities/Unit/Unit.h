@@ -1205,6 +1205,7 @@ public:
     GlobalCooldownMgr() {}
 
 public:
+	uint32 GetGlobalCooldown(SpellInfo const* spellInfo);
     bool HasGlobalCooldown(SpellInfo const* spellInfo) const;
     void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 gcd);
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
