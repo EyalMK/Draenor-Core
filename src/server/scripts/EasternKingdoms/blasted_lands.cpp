@@ -131,7 +131,7 @@ public:
 	}
 };
 
-/// Archmage Khadgar - 76643
+/// Archmage Khadgar - 78423
 class npc_archmage_khadgar_gossip : public CreatureScript
 {
 public:
@@ -139,7 +139,7 @@ public:
 
 	enum eGossips
 	{
-		BaseGossip = 76643
+		BaseGossip = 78423
 	};
 
 	enum eActions
@@ -301,6 +301,196 @@ class npc_world_invisible_trigger : public CreatureScript
         }
 };
 
+
+/// Ironmarch Scout - 76886
+class npc_ironmarch_scout : public CreatureScript
+{
+public:
+	npc_ironmarch_scout() : CreatureScript("npc_ironmarch_scout") { }
+
+	enum eData
+	{
+		spellStealth = 86603
+	};
+
+	struct npc_ironmarch_scoutAI : public ScriptedAI
+	{
+		npc_ironmarch_scoutAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+		void EnterCombat(Unit* /*who*/)
+		{
+			me->RemoveAurasDueToSpell(spellStealth, me->GetGUID());
+		}
+		
+		// Rest of functions are made in SmartAI in the DB
+
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ironmarch_scoutAI(p_Creature);
+	}
+};
+
+
+/// Ironmarch Executioner - 82774
+class npc_ironmarch_executioner : public CreatureScript
+{
+public:
+	npc_ironmarch_executioner() : CreatureScript("npc_ironmarch_executioner") { }
+
+	enum eAction
+	{
+		actionSaved	 = 0
+	};
+
+	enum eData
+	{
+		NPC_IRONMARCH_EXECUTIONER = 82774,
+		NPC_NETHERGARDE_PRISONER  = 82504
+	};
+
+	struct npc_ironmarch_executionerAI : public ScriptedAI
+	{
+		npc_ironmarch_executionerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+		void OnDeath(Creature* p_Creature)
+		{
+			if (p_Creature->isDead() && p_Creature->GetEntry() == NPC_IRONMARCH_EXECUTIONER)
+			{
+				if (Creature* prisoner = p_Creature->FindNearestCreature(eData::NPC_NETHERGARDE_PRISONER, 5.0f, true))
+				{
+					prisoner->GetAI()->DoAction(eAction::actionSaved);
+				}
+
+			}
+		}
+				
+	};
+
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ironmarch_executionerAI(p_Creature);
+	}
+};
+
+/// Nethergarde Defender - 82504
+class npc_nethergarde_defender : public CreatureScript
+{
+public:
+	npc_nethergarde_defender() : CreatureScript("npc_nethergarde_defender") { }
+
+	enum eAction
+	{
+		actionSaved = 0
+	};
+
+	enum eData
+	{
+		NPC_IRONMARCH_EXECUTIONER = 82774
+	};
+
+	struct npc_nethergarde_defenderAI : public ScriptedAI
+	{
+		npc_nethergarde_defenderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+		void Reset() { }
+
+		void UpdateAI(const uint32 /*uiDiff*/)
+		{
+			
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::actionSaved:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
+					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				});
+
+
+				AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					Talk(urand(0, 2));
+					me->GetMotionMaster()->MoveRandom(30.0f);
+				});
+
+				AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->DespawnOrUnsummon();
+				});
+
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_nethergarde_defenderAI(p_Creature);
+	}
+};
+
+/// Nethergarde Defender - 41158
+class npc_nethergarde_defender_dead : public CreatureScript
+{
+public:
+	npc_nethergarde_defender_dead() : CreatureScript("npc_nethergarde_defender_dead") { }
+
+	enum eAction
+	{
+		actionSaved = 0
+	};
+
+	enum eData
+	{
+		NewBlastedLandsMapId = 1190,
+		NPC_IRONMARCH_EXECUTIONER = 82774
+	};
+
+	struct npc_nethergarde_defender_deadAI : public ScriptedAI
+	{
+		npc_nethergarde_defender_deadAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+		
+		void Reset(Creature* p_Creature)
+		{
+			
+			// Needs rework - there are Nethergarde defenders in the old blasted lands as well. Need to apply these flags if phasemask matches the one we will set for the new blasted lands.
+				me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_nethergarde_defender_deadAI(p_Creature);
+	}
+};
+
+
+
+
 #ifndef __clang_analyzer__
 void AddSC_blasted_lands()
 {
@@ -308,5 +498,8 @@ void AddSC_blasted_lands()
 	new npc_archmage_khadgar_gossip();
     new npc_world_invisible_trigger();
 	new npc_deathly_usher();
+	new npc_ironmarch_scout();
+	new npc_nethergarde_defender();
+	new npc_nethergarde_defender_dead();
 }
 #endif
