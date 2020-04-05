@@ -132,10 +132,10 @@ public:
 };
 
 /// Archmage Khadgar - 78423
-class npc_archmage_khadgar_gossip : public CreatureScript
+class npc_archmage_khadgar_darkportal : public CreatureScript
 {
 public:
-	npc_archmage_khadgar_gossip() : CreatureScript("npc_archmage_khadgar_gossip") { }
+	npc_archmage_khadgar_darkportal() : CreatureScript("npc_archmage_khadgar_darkportal") { }
 
 	enum eGossips
 	{
@@ -151,7 +151,7 @@ public:
 	{
 		p_Player->PrepareQuestMenu(p_Creature->GetGUID());
 
-		if (p_Player->GetQuestStatus(34398) == QUEST_STATUS_INCOMPLETE)
+		if (p_Player->GetQuestStatus(34398) == QUEST_STATUS_INCOMPLETE || p_Player->GetQuestStatus(36881) == QUEST_STATUS_INCOMPLETE)
 		{
 			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "FOR AZEROTH!", GOSSIP_SENDER_MAIN, eActions::SelectGossip);
 		}
@@ -166,7 +166,7 @@ public:
 		{
 			case eActions::SelectGossip: // FOR AZEROTH!
 			{
-				if (p_Player->GetQuestStatus(34398) != QUEST_STATUS_REWARDED)
+				if (p_Player->GetQuestStatus(34398) != QUEST_STATUS_REWARDED || p_Player->GetQuestStatus(36881) != QUEST_STATUS_REWARDED)
 				{
 					p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
 					p_Player->SendMovieStart(TanaanMovies::MovieEnterPortal);
@@ -183,14 +183,14 @@ public:
 		return true;
 	}
 
-	struct npc_archmage_khadgar_gossipAI : public ScriptedAI
+	struct npc_archmage_khadgar_darkportalAI : public ScriptedAI
 	{
-		npc_archmage_khadgar_gossipAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+		npc_archmage_khadgar_darkportalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 	};
 
 	CreatureAI* GetAI(Creature* p_Creature) const override
 	{
-		return new npc_archmage_khadgar_gossipAI(p_Creature);
+		return new npc_archmage_khadgar_darkportalAI(p_Creature);
 	}
 };
 
@@ -248,7 +248,7 @@ class npc_world_invisible_trigger : public CreatureScript
 
             void Reset()
             {
-                if (me->GetMapId() == 1190)
+                if (me->GetMapId() == 1190) // new blasted lands map id
                     m_CheckPlayerTimer = 1000;
                 else
                     m_CheckPlayerTimer = 0;
@@ -301,6 +301,128 @@ class npc_world_invisible_trigger : public CreatureScript
         }
 };
 
+/// Vindicator Maraad - 82270
+class npc_vindicator_maraad_beachphase : public CreatureScript
+{
+public:
+	npc_vindicator_maraad_beachphase() : CreatureScript("npc_vindicator_maraad_beachphase") { }
+
+	enum eQuests
+	{
+		Quest_AttackoftheIronHorde		= 35460,
+		Quest_UnderSiege				= 35462,
+		Quest_SubversiveScouts			= 35463,
+		Quest_InvestigatingtheInvasion	= 36307
+	};
+
+	enum eCreatureTexts
+	{
+		CREATURE_TEXT_ATTACKIRONHORDE_START	 = 0,
+		CREATURE_TEXT_SUBVERSIVESCOUT_START	 = 1,
+		CREATURE_TEXT_SUBVERSIVESCOUT_END	 = 2,
+		CREATURE_TEXT_UNDERSIEGE_START		 = 3,
+		CREATURE_TEXT_UNDERSIEGE_END		 = 4,
+	};
+
+
+	bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
+	{
+
+		if (p_Quest->GetQuestId() == eQuests::Quest_AttackoftheIronHorde)
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_ATTACKIRONHORDE_START);
+
+		if (p_Quest->GetQuestId() == eQuests::Quest_SubversiveScouts)
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_SUBVERSIVESCOUT_START);
+
+		if (p_Quest->GetQuestId() == eQuests::Quest_UnderSiege)
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_UNDERSIEGE_START);
+		
+		return false;
+	}
+
+	bool OnQuestComplete(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+	{
+		
+		if (p_Quest->GetQuestId() == eQuests::Quest_SubversiveScouts)
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_SUBVERSIVESCOUT_END);
+
+		if (p_Quest->GetQuestId() == eQuests::Quest_UnderSiege)
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_UNDERSIEGE_END);
+
+		return false;
+
+	}
+
+	struct npc_vindicator_maraad_beachphaseAI : public ScriptedAI
+	{
+		npc_vindicator_maraad_beachphaseAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_vindicator_maraad_beachphaseAI(p_Creature);
+	}
+};
+
+
+/// Bodrick Grey - 85213
+class npc_bodrick_grey_beachphase : public CreatureScript
+{
+public:
+	npc_bodrick_grey_beachphase() : CreatureScript("npc_bodrick_grey_beachphase") { }
+
+	enum eQuests
+	{
+		Quest_PeekingIntoThePortal	 = 36379,
+		Quest_EndingExecutions		 = 35464
+	};
+
+	enum eCreatureTexts
+	{
+		CREATURE_TEXT_PEEKINGPORTAL_START	 = 0,
+		CREATURE_TEXT_PEEKINGPORTAL_END		 = 1,
+		CREATURE_TEXT_ENDINGEXECUTIONS_START = 2,
+		CREATURE_TEXT_ENDINGEXECUTIONS_END	 = 3
+	};
+
+
+	bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
+	{
+		if (p_Quest->GetQuestId() == eQuests::Quest_PeekingIntoThePortal)
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_PEEKINGPORTAL_START);
+
+
+		if (p_Quest->GetQuestId() == eQuests::Quest_EndingExecutions)
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_ENDINGEXECUTIONS_START);
+
+		return false;
+	}
+
+	bool OnQuestComplete(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+	{
+
+		if (p_Quest->GetQuestId() == eQuests::Quest_PeekingIntoThePortal)
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_PEEKINGPORTAL_END);
+
+		if (p_Quest->GetQuestId() == eQuests::Quest_EndingExecutions)
+			p_Creature->AI()->Talk(eCreatureTexts::CREATURE_TEXT_ENDINGEXECUTIONS_END);
+
+		return false;
+
+	}
+
+	struct npc_bodrick_grey_beachphaseAI : public ScriptedAI
+	{
+		npc_bodrick_grey_beachphaseAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_bodrick_grey_beachphaseAI(p_Creature);
+	}
+};
 
 /// Ironmarch Scout - 76886
 class npc_ironmarch_scout : public CreatureScript
@@ -319,7 +441,7 @@ public:
 
 		void EnterCombat(Unit* /*who*/)
 		{
-			me->RemoveAurasDueToSpell(spellStealth, me->GetGUID());
+			me->RemoveAura(spellStealth, me->GetGUID());
 		}
 		
 		// Rest of functions are made in SmartAI in the DB
@@ -346,7 +468,6 @@ public:
 
 	enum eData
 	{
-		NPC_IRONMARCH_EXECUTIONER = 82774,
 		NPC_NETHERGARDE_PRISONER  = 82504
 	};
 
@@ -356,7 +477,7 @@ public:
 
 		void OnDeath(Creature* p_Creature)
 		{
-			if (p_Creature->isDead() && p_Creature->GetEntry() == NPC_IRONMARCH_EXECUTIONER)
+			if (p_Creature->isDead() == true)
 			{
 				if (Creature* prisoner = p_Creature->FindNearestCreature(eData::NPC_NETHERGARDE_PRISONER, 5.0f, true))
 				{
@@ -375,11 +496,11 @@ public:
 	}
 };
 
-/// Nethergarde Defender - 82504
-class npc_nethergarde_defender : public CreatureScript
+/// Nethergarde Prisoner - 82504
+class npc_nethergarde_prisoner : public CreatureScript
 {
 public:
-	npc_nethergarde_defender() : CreatureScript("npc_nethergarde_defender") { }
+	npc_nethergarde_prisoner() : CreatureScript("npc_nethergarde_prisoner") { }
 
 	enum eAction
 	{
@@ -391,16 +512,14 @@ public:
 		NPC_IRONMARCH_EXECUTIONER = 82774
 	};
 
-	struct npc_nethergarde_defenderAI : public ScriptedAI
+	struct npc_nethergarde_prisonerAI : public ScriptedAI
 	{
-		npc_nethergarde_defenderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+		npc_nethergarde_prisonerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-		void Reset() { }
-
-		void UpdateAI(const uint32 /*uiDiff*/)
-		{
-			
+		void Reset() {
+			me->CastSpell(me, 153964); // Kneel aura
 		}
+
 
 		void DoAction(int32 const p_Action) override
 		{
@@ -410,20 +529,17 @@ public:
 			{
 				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
-					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
-					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
-				});
-
-
-				AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-				{
 					Talk(urand(0, 2));
-					me->GetMotionMaster()->MoveRandom(30.0f);
+					me->RemoveAura(153964);
 				});
 
-				AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+
+				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveRandom(20.0f);
+				});
+
+				AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					me->DespawnOrUnsummon();
 				});
@@ -439,36 +555,31 @@ public:
 
 	CreatureAI* GetAI(Creature* p_Creature) const override
 	{
-		return new npc_nethergarde_defenderAI(p_Creature);
+		return new npc_nethergarde_prisonerAI(p_Creature);
 	}
 };
 
 /// Nethergarde Defender - 41158
-class npc_nethergarde_defender_dead : public CreatureScript
+class npc_nethergarde_defender : public CreatureScript
 {
 public:
-	npc_nethergarde_defender_dead() : CreatureScript("npc_nethergarde_defender_dead") { }
-
-	enum eAction
-	{
-		actionSaved = 0
-	};
+	npc_nethergarde_defender() : CreatureScript("npc_nethergarde_defender") { }
 
 	enum eData
 	{
-		NewBlastedLandsMapId = 1190,
-		NPC_IRONMARCH_EXECUTIONER = 82774
+		NewBlastedLandsMapId = 1190
 	};
 
-	struct npc_nethergarde_defender_deadAI : public ScriptedAI
+	struct npc_nethergarde_defenderAI : public ScriptedAI
 	{
-		npc_nethergarde_defender_deadAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+		npc_nethergarde_defenderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
 		
 		void Reset(Creature* p_Creature)
 		{
 			
-			// Needs rework - there are Nethergarde defenders in the old blasted lands as well. Need to apply these flags if phasemask matches the one we will set for the new blasted lands.
+			if (me->GetMapId() == eData::NewBlastedLandsMapId)
+			{
 				me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
 				me->SetHealth(me->CountPctFromMaxHealth(0));
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
@@ -477,14 +588,16 @@ public:
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-
+			}
+			else {
+				// empty
+			}
 		}
 	};
 
 	CreatureAI* GetAI(Creature* p_Creature) const override
 	{
-		return new npc_nethergarde_defender_deadAI(p_Creature);
+		return new npc_nethergarde_defenderAI(p_Creature);
 	}
 };
 
@@ -495,11 +608,14 @@ public:
 void AddSC_blasted_lands()
 {
 	new npc_blasted_lands_zidormi();
-	new npc_archmage_khadgar_gossip();
+	new npc_archmage_khadgar_darkportal();
     new npc_world_invisible_trigger();
 	new npc_deathly_usher();
+	new npc_vindicator_maraad_beachphase();
+	new npc_bodrick_grey_beachphase();
 	new npc_ironmarch_scout();
+	new npc_ironmarch_executioner();
+	new npc_nethergarde_prisoner();
 	new npc_nethergarde_defender();
-	new npc_nethergarde_defender_dead();
 }
 #endif

@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_nethergarde_defender' WHERE `entry`=41158;
