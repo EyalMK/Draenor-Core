@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_addon` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla world_hellscream.creature_template_addon: 24.984 rows
+-- Volcando datos para la tabla world_hellscream.creature_template_addon: 24.987 rows
 DELETE FROM `creature_template_addon`;
 /*!40000 ALTER TABLE `creature_template_addon` DISABLE KEYS */;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
@@ -20904,7 +20904,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(77368, 0, 0, 0, 2, 69, NULL, 0),
 	(77369, 0, 0, 0, 2, 0, NULL, 0),
 	(77370, 0, 0, 0, 0, 0, '178343', 0),
-	(77376, 0, 0, 5, 1, 0, '', 0),
+	(77376, 0, 0, 0, 0, 0, '', 0),
 	(77378, 0, 0, 0, 2, 69, NULL, 0),
 	(77387, 0, 0, 0, 1, 69, '', 0),
 	(77393, 0, 0, 0, 1, 0, NULL, 0),
@@ -21881,7 +21881,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(81145, 0, 0, 0, 1, 0, NULL, 0),
 	(81150, 0, 0, 0, 1, 0, NULL, 0),
 	(81151, 0, 0, 0, 1, 0, NULL, 0),
-	(81152, 0, 0, 0, 1, 0, '133464', 0),
+	(81152, 0, 0, 0, 1, 483, '133464', 0),
 	(81154, 0, 0, 0, 1, 0, NULL, 0),
 	(81156, 0, 0, 0, 1, 0, '164129', 0),
 	(81157, 0, 0, 0, 1, 0, '', 0),
@@ -21950,7 +21950,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(81327, 0, 0, 0, 1, 0, NULL, 0),
 	(81330, 0, 58436, 0, 1, 0, '168586 168590 168587 164045', 0),
 	(81331, 0, 58436, 0, 1, 0, '168587 168586 164045 166740', 0),
-	(81346, 0, 0, 0, 2, 0, NULL, 0),
+	(81346, 0, 0, 0, 2, 569, NULL, 0),
 	(81348, 0, 0, 0, 2, 0, NULL, 0),
 	(81350, 0, 0, 0, 2, 0, NULL, 0),
 	(81351, 0, 0, 1, 2, 0, NULL, 0),

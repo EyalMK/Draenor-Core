@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `creature_addon` (
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla world_hellscream.creature_addon: 51.779 rows
+-- Volcando datos para la tabla world_hellscream.creature_addon: 51.815 rows
 DELETE FROM `creature_addon`;
 /*!40000 ALTER TABLE `creature_addon` DISABLE KEYS */;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
@@ -39821,11 +39821,11 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 	(334842, 0, 0, 0, 1, 0, NULL, 0),
 	(334839, 0, 0, 0, 1, 0, NULL, 0),
 	(334838, 0, 0, 0, 1, 569, NULL, 0),
-	(334837, 0, 0, 0, 1, 0, NULL, 0),
+	(334837, 0, 0, 0, 0, 426, NULL, 0),
 	(334836, 0, 0, 0, 1, 569, NULL, 0),
 	(334835, 0, 0, 0, 1, 568, NULL, 0),
 	(334834, 0, 0, 0, 1, 0, NULL, 0),
-	(334833, 0, 0, 0, 1, 0, NULL, 0),
+	(334833, 0, 0, 0, 0, 0, '159549', 0),
 	(335155, 0, 0, 0, 1, 0, NULL, 0),
 	(334784, 0, 0, 0, 257, 0, NULL, 0),
 	(334783, 0, 0, 0, 1, 0, NULL, 0),
@@ -51830,8 +51830,8 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 	(11793466, 0, 0, 1, 0, 0, NULL, 0),
 	(11793480, 0, 0, 0, 0, 482, NULL, 0),
 	(11793481, 0, 0, 0, 0, 482, NULL, 0),
-	(11793484, 0, 0, 0, 0, 461, NULL, 0),
-	(11793485, 0, 0, 0, 0, 461, NULL, 0),
+	(11793484, 0, 0, 5, 0, 0, NULL, 0),
+	(11793485, 0, 0, 5, 0, 0, NULL, 0),
 	(11793486, 0, 0, 0, 0, 461, NULL, 0),
 	(11793487, 0, 0, 0, 0, 461, NULL, 0),
 	(11793497, 0, 0, 0, 0, 569, NULL, 0),
@@ -51840,7 +51840,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 	(11793519, 8203702, 0, 0, 0, 0, NULL, 0),
 	(10184484, 0, 0, 0, 0, 482, NULL, 0),
 	(11793525, 8203703, 0, 0, 0, 0, NULL, 0),
-	(11793535, 0, 0, 0, 0, 461, NULL, 0),
+	(11793535, 0, 0, 5, 0, 0, NULL, 0),
 	(11712642, 0, 0, 0, 0, 0, '79346', 0),
 	(11712655, 0, 0, 0, 2, 384, NULL, 0),
 	(11712656, 0, 0, 0, 2, 376, NULL, 0),
@@ -51849,7 +51849,9 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 	(11712661, 0, 0, 0, 0, 586, NULL, 0),
 	(11712662, 0, 0, 0, 0, 572, NULL, 0),
 	(10184527, 0, 0, 0, 0, 482, NULL, 0),
-	(11793526, 0, 0, 0, 0, 0, '29266', 0);
+	(11793526, 0, 0, 0, 0, 0, '29266', 0),
+	(11793533, 0, 0, 0, 0, 0, NULL, 0),
+	(11793490, 0, 0, 0, 1, 568, NULL, 0);
 /*!40000 ALTER TABLE `creature_addon` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

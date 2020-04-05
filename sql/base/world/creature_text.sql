@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               5.5.9-log - MySQL Community Server (GPL)
--- Server OS:                    Win32
--- HeidiSQL Version:             10.3.0.5771
+-- Host:                         localhost
+-- Versión del servidor:         5.7.27-log - MySQL Community Server (GPL)
+-- SO del servidor:              Win64
+-- HeidiSQL Versión:             11.0.0.5919
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -11,7 +11,12 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table worldlive.creature_text
+
+-- Volcando estructura de base de datos para worldlive
+CREATE DATABASE IF NOT EXISTS `worldlive` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `worldlive`;
+
+-- Volcando estructura para tabla worldlive.creature_text
 CREATE TABLE IF NOT EXISTS `creature_text` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -27,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_text: 13,067 rows
+-- Volcando datos para la tabla world_hellscream.creature_text: 13.067 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -9226,8 +9231,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(79421, 0, 0, 'Light grant us strength!', 14, 0, 100, 0, 0, 0, ''),
 	(79430, 0, 0, 'Forward march. For Auchindoun!', 14, 0, 100, 0, 0, 0, ''),
 	(79449, 0, 0, 'We will stand against the darkness.', 12, 0, 100, 0, 0, 0, ''),
-	(79457, 0, 1, 'We will escort this caravan and meet you in Elodor, commander.', 12, 0, 100, 0, 0, 0, ''),
-	(79457, 0, 0, 'Be careful, commander. If these pale orcs are real, who knows what powers they possess.', 12, 0, 100, 0, 0, 0, ''),
+	(77209, 5, 0, 'The barracks looks fantastic. You should go check in with Maraad. I\'m going to hang out here and admire my handy work.', 12, 0, 100, 1, 0, 43524, ''),
+	(79457, 0, 0, 'Be careful, commander. If these pale orcs are real, who knows what powers they possess.', 12, 0, 100, 1, 0, 44817, ''),
 	(79490, 0, 0, 'Turn away to avoid Roakk\'s |cFFFF0000|Hspell:166139|h[Blinding Light]|h|r', 42, 0, 100, 0, 0, 0, ''),
 	(79490, 0, 1, 'Behold my brilliance!', 12, 0, 100, 0, 0, 0, ''),
 	(79490, 0, 2, 'My light can never go out...', 12, 0, 100, 0, 0, 0, ''),
@@ -10193,12 +10198,11 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(79912, 9, 0, 'Your friends will join you soon!', 14, 0, 100, 0, 0, 45857, 'VO_60_UBRS_THARBEK_SLAY_01'),
 	(86533, 0, 0, 'You saved my life once, it is about time I returned the favor!', 14, 0, 100, 0, 0, 0, 'AWBEE_AGGRO'),
 	(81441, 0, 0, 'Start gathering everybody together, we need to expand our operation. And let me know if you find Pippers... he stole my favorite slippers.', 12, 0, 100, 0, 0, 0, ''),
-	(77209, 0, 0, 'Thanks to you we have a terrific foothold here in Shadowmoon Valley', 12, 0, 100, 0, 0, 0, ''),
-	(77209, 1, 0, 'How am I supposed to do this all myself!? Keep it together, Baros... keep it together.', 12, 0, 100, 0, 0, 0, ''),
-	(77209, 2, 0, 'I feel so relieved. Maybe I can actually do some stargazing tonight. That would be a nice change of pace.', 12, 0, 100, 0, 0, 0, ''),
-	(77209, 3, 0, 'Maybe those orcs have something on that boat we can use ?... besides tooth piercing devices.', 12, 0, 100, 0, 0, 0, ''),
-	(77209, 4, 0, 'Eww, some of these supplies are really water logged and... sticky? These will get the job done, but seriously, this is disgusting.', 12, 0, 100, 0, 0, 0, ''),
-	(79457, 1, 0, 'These pale orcs sound dangerous. Hopefully this is the last we see of them.', 12, 0, 100, 0, 0, 0, ''),
+	(77209, 3, 0, 'Maybe those orcs have something on that boat we can use..? Besides tooth piercing devices.', 12, 0, 100, 1, 0, 43529, ''),
+	(77209, 2, 0, 'I feel so relieved. Maybe I can actually do some stargazing tonight. That would be a nice change of pace.', 12, 0, 100, 1, 0, 43533, ''),
+	(77209, 1, 0, 'How am I supposed to do this all myself!? Keep it together, Baros... keep it together.', 12, 0, 100, 1, 0, 43532, ''),
+	(77209, 4, 0, 'Eww, some of these supplies are really water logged and... sticky? These will get the job done, but truly, this is disgusting.', 12, 0, 100, 1, 0, 43530, ''),
+	(79457, 1, 0, 'These pale orcs sound dangerous. Hopefully this is the last we see of them.', 12, 0, 100, 1, 0, 44818, ''),
 	(86014, 0, 0, 'On se bouge ! Cassez-moi ces pierres !', 12, 0, 100, 0, 0, 0, ''),
 	(86015, 0, 0, 'Ça cest un gentil raptor !', 12, 0, 100, 0, 0, 0, ''),
 	(86472, 0, 1, 'Mais non, pas une hache, demeuré ! On dit que ça fait partie du gros artéfact que lAlliance recherche.', 12, 0, 100, 0, 0, 0, ''),
@@ -13098,7 +13102,12 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(30411, 5, 0, 'He\'s not the boy of your memories anymore, Muradin. He\'s become something else entirely.', 12, 0, 100, 0, 0, 0, 'Magni'),
 	(30411, 6, 0, 'Are you sure Muradin? I just got you back after years of thinking you were dead. I do not want to lose you again.', 12, 0, 100, 0, 0, 0, 'Magni'),
 	(30411, 7, 0, 'So be it then. I have to return to my people, brothers. Come back to me in one piece.', 12, 0, 100, 0, 0, 0, 'Magni'),
-	(30411, 8, 0, '...farewell brother.', 12, 0, 100, 0, 0, 0, 'Magni');
+	(30411, 8, 0, '...farewell brother.', 12, 0, 100, 0, 0, 0, 'Magni'),
+	(79206, 2, 0, 'Here! This location commands the entrance to our valley.', 12, 0, 100, 1, 0, 45392, 'Prophet Velen'),
+	(79206, 1, 0, 'We will deal with one problem at a time. First, we must settle your people.', 12, 0, 100, 1, 0, 45391, 'Prophet Velen'),
+	(79457, 4, 0, 'Qiana just headed out to Moonflower Valley. She is quite eager to explore this new land.', 12, 0, 100, 1, 0, 44816, ''),
+	(79457, 2, 0, 'We will escort this caravan and meet you in Elodor, commander.', 12, 0, 100, 1, 0, 44789, ''),
+	(79457, 3, 0, 'With these barracks complete we can finally shelter all of these troops from this eternal night.', 12, 0, 100, 1, 0, 44815, '');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
