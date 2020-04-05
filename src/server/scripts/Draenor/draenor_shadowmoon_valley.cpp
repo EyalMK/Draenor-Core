@@ -634,6 +634,7 @@ public:
 		if (p_Player->GetQuestStatus(eQuests::QuestForTheAlliance) == QUEST_STATUS_INCOMPLETE)
 		{
 			p_Player->CastSpell(p_Player, 81003, true);
+			p_Player->CastSpell(p_Player, 169457, false);
 
 			if (Creature* khadgar = p_Player->SummonCreature(82125, 1943.91f, 339.194f, 89.015f, 4.354f, TEMPSUMMON_MANUAL_DESPAWN, 0))
 			{
