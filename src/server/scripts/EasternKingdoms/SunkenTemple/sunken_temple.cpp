@@ -32,8 +32,10 @@ public:
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
-        if (player->GetInstanceScript() && !player->FindNearestCreature(15362, 15))
-            player->SummonCreature(15362, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
+		if (player->GetInstanceScript() && !player->FindNearestCreature(15362, 100.0f)) // 100 yards check - should fix issue
+		{
+			player->SummonCreature(15362, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
+		}    
         return false;
     }
 
