@@ -3357,6 +3357,7 @@ class Player : public Unit, public GridObject<Player>
 
 		// Spell Queue
 		Spell* m_QueuedSpell;
+		uint32 m_spellQueueTimer;
 		void QueueSpell(Spell* p_Spell);
 		void ResetSpellQueue();
 		static bool QueueSystemEnabled();

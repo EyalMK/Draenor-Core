@@ -144,6 +144,7 @@ class misc_commandscript: public CommandScript
                 { "wargame",            SEC_GAMEMASTER,     false,  &HandleWargameCommand,          "", NULL },
                 { "chatfilter",         SEC_PLAYER,         false,  &HandleToggleChatFiltering,     "", NULL },
                 { "initlfg",            SEC_ADMINISTRATOR,  false,  &HandleInitializeLFGCommand,    "", NULL },
+				{ "queuetime",          SEC_PLAYER,         false,  &HandleSpellQueueTimeCommand,     "", NULL },
 #ifdef CROSS
                 { "fsccreate",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
                 { "fscupdate",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
@@ -208,6 +209,38 @@ class misc_commandscript: public CommandScript
 
             return true;
         }
+
+		static bool HandleSpellQueueTimeCommand(ChatHandler* p_Handler, char const* p_Args)
+		{
+			WorldSession* l_PlayerSession = p_Handler->GetSession();
+
+			Player* player = l_PlayerSession->GetPlayer();
+
+			if (!*p_Args)
+			{
+				p_Handler->PSendSysMessage("Invalid syntax.");
+				return true;
+			}
+
+			std::string argstr = (char*)p_Args;
+
+			if (argstr == "help")
+			{
+				p_Handler->PSendSysMessage("Adjust Lag Tolerence value for spell queue system. Use: .queuetimer 400");
+				return true;
+			}
+
+			uint32 queueTime = std::stoi(argstr);
+
+			if (queueTime > 0)
+			{
+				player->m_spellQueueTimer = queueTime;
+				if (player->m_spellQueueTimer == queueTime)
+					return true;
+			}
+
+			return true;
+		}
 
         static bool HandleWargameCommand(ChatHandler* p_Handler, char const* p_Args)
         {

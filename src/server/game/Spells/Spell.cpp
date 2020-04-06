@@ -3760,7 +3760,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 	SpellEvent* Event = new SpellEvent(this);
 	bool val = Player::QueueSystemEnabled();
 
-	if (val == true && p_GcdAtCast && p_GcdAtCast <= MAX_SPELL_QUEUE_GCD)
+	if (val == true && p_GcdAtCast && m_caster->GetTypeId() == TYPEID_PLAYER && (p_GcdAtCast <= m_caster->ToPlayer()->m_spellQueueTimer))
 	{
 		if (Spell* l_Queued = m_caster->ToPlayer()->GetQueuedSpell())
 		{
