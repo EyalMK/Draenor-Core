@@ -497,6 +497,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     m_MonthlyQuestChanged = false;
 
+	m_spellQueueTimer = 400;
+
     m_SeasonalQuestChanged = false;
 
 	m_QueuedSpell = nullptr;
