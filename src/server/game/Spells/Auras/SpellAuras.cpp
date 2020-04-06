@@ -379,7 +379,7 @@ uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibl
     return effMask & avalibleEffectMask;
 }
 
-Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, bool* refresh /*= NULL*/, int32 castItemLevel /*= -1*/)
+Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, bool* refresh /*= NULL*/, int32 castItemLevel /*= -1*/, bool resetPeriodicTimer /*= true*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -391,7 +391,7 @@ Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMa
     if (!effMask)
         return nullptr;
 
-    Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID, castItemLevel);
+    Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID, castItemLevel, resetPeriodicTimer);
     if (foundAura != nullptr)
     {
         // we've here aura, which script triggered removal after modding stack amount
@@ -1138,7 +1138,7 @@ void Aura::RefreshDuration(bool withMods)
     }
 }
 
-void Aura::RefreshTimers()
+void Aura::RefreshTimers(bool resetPeriodicTimer)
 {
     m_maxDuration = CalcMaxDuration();
     bool resetPeriodic = true;
@@ -1202,8 +1202,8 @@ void Aura::RefreshTimers()
     RefreshDuration();
     Unit* caster = GetCaster();
     for (uint8 i = 0; i < m_EffectCount; ++i)
-        if (HasEffect(i))
-            GetEffect(i)->CalculatePeriodic(caster, resetPeriodic, false);
+		if (AuraEffect* aurEff = m_effects[i])
+			aurEff->CalculatePeriodic(caster, resetPeriodicTimer, false);
 }
 
 void Aura::SetCharges(uint8 charges)
@@ -1294,7 +1294,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
     SetNeedClientUpdateForTargets();
 }
 
-bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
+bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/)
 {
     int32 stackAmount = m_stackAmount + num;
 
@@ -1329,7 +1329,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
         }
 
         RefreshSpellMods();
-        RefreshTimers();
+		RefreshTimers(resetPeriodicTimer);
         // Fix Backdraft can stack up to 6 charges max
         if (m_spellInfo->Id == 117828)
             SetCharges((GetCharges() + 3) > 6 ? 6 : GetCharges() + 3);
@@ -1490,13 +1490,13 @@ void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint
     m_stackAmount = stackamount;
     Unit* caster = GetCaster();
     for (uint8 i = 0; i < m_EffectCount; ++i)
-        if (m_effects[i])
+		if (AuraEffect* aurEff = m_effects[i])
         {
-            m_effects[i]->SetAmount(amount[i]);
-            m_effects[i]->SetCanBeRecalculated(recalculateMask & (1<<i));
-            m_effects[i]->CalculatePeriodic(caster, false, true);
-            m_effects[i]->CalculateSpellMod();
-            m_effects[i]->RecalculateAmount(caster);
+			aurEff->SetAmount(amount[i]);
+			aurEff->SetCanBeRecalculated((recalculateMask & (1 << i)) != 0);
+			aurEff->CalculatePeriodic(caster, false, true);
+			aurEff->CalculateSpellMod();
+			aurEff->RecalculateAmount(caster);
         }
 }
 

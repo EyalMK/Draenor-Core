@@ -3413,8 +3413,9 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         if (m_originalCaster)
         {
             bool refresh = false;
+			bool const resetPeriodicTimer = !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
             m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
-                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh, m_castItemLevel);
+                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh, m_castItemLevel, resetPeriodicTimer);
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
