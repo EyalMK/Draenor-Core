@@ -52,106 +52,112 @@ enum Northshire
 	EVENT_HEALED_2 = 2,
 };
 
-enum eQuests
-{
-	Quest_Fear_no_Evil_1 = 28806,
-	Quest_Fear_no_Evil_2 = 28808,
-	Quest_Fear_no_Evil_3 = 28809,
-	Quest_Fear_no_Evil_4 = 28810,
-	Quest_Fear_no_Evil_5 = 28811,
-	Quest_Fear_no_Evil_6 = 28812,
-	Quest_Fear_no_Evil_7 = 28813,
-	Quest_Fear_no_Evil_8 = 29082
-};
 
-/*######
-## npc_stormwind_infantry
-######*/
-
-class npc_stormwind_infantry : public CreatureScript 
+class npc_stormwind_infantry : public CreatureScript
 {
 public:
 	npc_stormwind_infantry() : CreatureScript("npc_stormwind_infantry") { }
 
-	CreatureAI* GetAI(Creature* pCreature) const 
+	CreatureAI* GetAI(Creature* creature) const override
 	{
-		return new npc_stormwind_infantryAI(pCreature);
+		return new npc_stormwind_infantryAI(creature);
 	}
 
-	struct npc_stormwind_infantryAI : public ScriptedAI 
+	struct npc_stormwind_infantryAI : public ScriptedAI
 	{
-		npc_stormwind_infantryAI(Creature *c) : ScriptedAI(c) {	}
+		npc_stormwind_infantryAI(Creature* creature) : ScriptedAI(creature) {}
 
 		uint32 uiSayNormalTimer;
 		uint32 uiSayCombatTimer;
 		uint32 uiCombatTimer;
-		uint32 Attack1HTimer;
+		uint32 waitTime;
+		uint64 wolfTarget;
+
 
 		bool Continue;
-
-		void Reset() 
+		 
+		void Reset() override
 		{
+			wolfTarget = 0;
+			me->SetSheath(SHEATH_STATE_MELEE);
+			me->setRegeneratingHealth(true);
+			waitTime = urand(0, 2000);
 			uiSayNormalTimer = urand(40000, 80000);
 			uiSayCombatTimer = urand(30000, 90000);
+			waitTime = urand(10000, 20000);
 			uiCombatTimer = 500;
 		}
 
-		void EnterCombat(Unit * who) 
+		void EnterCombat(Unit * who) override
 		{
 			if (!me->HasUnitState(UNIT_STATE_ROOT))
 				me->AddUnitState(UNIT_STATE_ROOT);
 		}
 
-		void SetData(uint32 type, uint32 data) 
+		void DamageTaken(Unit* doneBy, uint32& damage)
 		{
-			if (Creature* Paxton = me->FindNearestCreature(NPC_BROTHER_PAXTON, 15.0f, true)) 
+			if (doneBy->ToCreature())
+				if (me->GetHealth() <= damage || me->GetHealthPct() <= 80.0f)
+					damage = 0;
+		}
+
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+		{
+			if (target->ToCreature())
+				if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
+					damage = 0;
+		}
+
+		void SetData(uint32 type, uint32 data)
+		{
+			if (Creature* Paxton = me->FindNearestCreature(NPC_BROTHER_PAXTON, 15.0f, true))
 			{
 				Continue = false;
 
-				switch (data) 
+				switch (data)
 				{
-					case 1:
-						if (me->GetDistance2d(-8807.426758f, -163.300751f) <= 4.0f)
-							Continue = true;
-						break;
-					case 2:
-						if (me->GetDistance2d(-8811.654297f, -151.384628f) <= 4.0f)
-							Continue = true;
-						break;
-					case 3:
-						if (me->GetDistance2d(-8820.900391f, -142.061005f) <= 4.0f)
-							Continue = true;
-						break;
-					case 4:
-						if (me->GetDistance2d(-8836.710938f, -143.393066f) <= 4.0f)
-							Continue = true;
-						break;
+				case 1:
+					if (me->GetDistance2d(-8807.426758f, -163.300751f) <= 4.0f)
+						Continue = true;
+					break;
+				case 2:
+					if (me->GetDistance2d(-8811.654297f, -151.384628f) <= 4.0f)
+						Continue = true;
+					break;
+				case 3:
+					if (me->GetDistance2d(-8820.900391f, -142.061005f) <= 4.0f)
+						Continue = true;
+					break;
+				case 4:
+					if (me->GetDistance2d(-8836.710938f, -143.393066f) <= 4.0f)
+						Continue = true;
+					break;
 				}
 
-				if (Continue == true) 
+				if (Continue == true)
 				{
 					Talk(0);
 					Paxton->SetFacingToObject(me);
 					Paxton->UpdateMovementFlags();
 
-					switch (type) 
+					switch (type)
 					{
-						case 1:
-								Paxton->AI()->Talk(0);
-								Paxton->AI()->DoCast(me, SPELL_PRAYER_OF_HEALING);
-							break;
-						case 2:
-								Paxton->AI()->Talk(0);
-								Paxton->AI()->DoCast(me, SPELL_PENANCE);
-							break;
-						case 3:
-								Paxton->AI()->Talk(1);
-								Paxton->AI()->DoCast(me, SPELL_RENEW);
-							break;
-						case 4:
-								Paxton->AI()->Talk(0);
-								Paxton->AI()->DoCast(me, SPELL_FLASH_HEAL);
-							break;
+					case 1:
+						Paxton->AI()->Talk(0);
+						Paxton->AI()->DoCast(me, SPELL_PRAYER_OF_HEALING);
+						break;
+					case 2:
+						Paxton->AI()->Talk(0);
+						Paxton->AI()->DoCast(me, SPELL_PENANCE);
+						break;
+					case 3:
+						Paxton->AI()->Talk(1);
+						Paxton->AI()->DoCast(me, SPELL_RENEW);
+						break;
+					case 4:
+						Paxton->AI()->Talk(0);
+						Paxton->AI()->DoCast(me, SPELL_FLASH_HEAL);
+						break;
 					}
 					Continue = false;
 				}
@@ -160,55 +166,71 @@ public:
 			}
 		}
 
-		void DamageTaken(Unit* attacker, uint32& damage)
+		void UpdateAI(uint32 diff) override
 		{
-			if (me->GetHealthPct() <= 75 && attacker->GetEntry() == NPC_BLACKROCK_BATTLE_WORG)
-				damage = 0;
-		}
-
-		void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
-		{
-			if (target->ToCreature())
-				if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
-					damage = 0;
-		}
-
-		void UpdateAI(const uint32 diff) 
-		{
-			if (me->isAlive())
-				if (!me->isInCombat()) 
-				{
-					if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) <= 1.0f)
-						if (Creature* Worg = me->FindNearestCreature(NPC_BLACKROCK_BATTLE_WORG, 20.0f, true))
-							me->AI()->AttackStart(Worg);
-
-					if (uiSayNormalTimer <= diff) 
-					{
-						Talk(1);
-						uiSayNormalTimer = urand(40000, 80000);
-					}
-					else
-						uiSayNormalTimer -= diff;
-
-					if (me->GetHomePosition().GetPositionX() != me->GetPositionX() && me->GetHomePosition().GetPositionY() != me->GetPositionX()) 
-					{
-						if (me->IsMoving())
-							me->SetSpeed(MOVE_RUN, 2.0f);
-					}
-					else
-						me->SetSpeed(MOVE_WALK, 1.0f);
-				}
-
-			if (!UpdateVictim())
-				return;
-
 			DoMeleeAttackIfReady();
 
-			if (HealthBelowPct(100)) 
+			if (waitTime && waitTime >= diff)
 			{
-				if (uiSayCombatTimer <= diff) 
+				waitTime -= diff;
+				return;
+			}
+
+			waitTime = urand(10000, 20000);
+
+			if (wolfTarget != 0)
+			{
+				if (Creature* wolf = Unit::GetCreature(*me, wolfTarget))
 				{
-					if (Creature* Paxton = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 20.0f, true)) 
+					if (wolf->isAlive())
+					{
+						if (me->getVictim() != wolf)
+						{
+							me->getThreatManager().addThreat(wolf, 1000000.0f);
+							wolf->getThreatManager().addThreat(me, 1000000.0f);
+							me->Attack(wolf, true);
+						}
+					}
+					else
+					{
+						wolf->DespawnOrUnsummon();
+						wolfTarget = 0;
+						
+					}
+				}
+			}
+			else
+			{
+				Position wolfPos;
+				me->GetPosition(&wolfPos);
+				GetPositionWithDistInFront(me, 2.5f, wolfPos);
+
+				float z = me->GetMap()->GetHeight(me->GetPhaseMask(), wolfPos.GetPositionX(), wolfPos.GetPositionY(), wolfPos.GetPositionZ());
+				wolfPos.m_positionZ = z;
+
+				if (Creature* wolf = me->SummonCreature(NPC_BLACKROCK_BATTLE_WORG, wolfPos))
+				{
+					me->getThreatManager().addThreat(wolf, 1000000.0f);
+					wolf->getThreatManager().addThreat(me, 1000000.0f);
+					AttackStart(wolf);
+					wolf->SetFacingToObject(me);
+					wolfTarget = wolf->GetGUID();
+				}
+			}
+
+			if (uiSayNormalTimer <= diff)
+			{
+				Talk(1);
+				uiSayNormalTimer = urand(40000, 80000);
+			}
+			else
+				uiSayNormalTimer -= diff;
+
+			if (HealthBelowPct(100))
+			{
+				if (uiSayCombatTimer <= diff)
+				{
+					if (Creature* Paxton = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 20.0f, true))
 					{
 						uint32 Random = urand(1, 4);
 						uint32 Mob = 0;
@@ -237,7 +259,7 @@ public:
 					uiSayCombatTimer -= diff;
 			}
 
-			if (uiCombatTimer <= diff) 
+			if (uiCombatTimer <= diff)
 			{
 				uiCombatTimer = 500;
 			}
@@ -246,6 +268,7 @@ public:
 		}
 	};
 };
+
 
 /*######
  ## npc_blackrock_battle_worg
@@ -277,12 +300,12 @@ public:
 		void DamageTaken(Unit* pWho, uint32& uiDamage)
 		{
 			if (Creature* npc = pWho->ToCreature())
-				if (npc->GetEntry() == NPC_STORMWIND_INFANTRY && me->GetHealthPct() < m_minHealth)
+				if (npc->GetEntry() == NPC_STORMWIND_INFANTRY)
 					uiDamage = 0;
 
 			if (pWho->GetTypeId() == TYPEID_PLAYER || pWho->isPet())
 			{
-				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 20.0f, true))
+				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 5.0f, true))
 				{
 					guard->getThreatManager().resetAllAggro();
 					guard->CombatStop(true);
@@ -294,17 +317,6 @@ public:
 			}
 		}
 
-		void UpdateAI(const uint32 diff) 
-		{
-			if (!UpdateVictim())
-				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 20.0f, true))
-				{
-					me->SetReactState(REACT_AGGRESSIVE);
-					me->AI()->AttackStart(guard);
-				}
-
-			DoMeleeAttackIfReady();
-		}
 	};
 
 	CreatureAI* GetAI(Creature* pCreature) const
@@ -312,7 +324,6 @@ public:
 		return new npc_blackrock_battle_worgAI(pCreature);
 	}
 };
-
 /*######
  ## npc_brother_paxton
  ######*/
@@ -370,6 +381,20 @@ public:
 		ActionHeal = 0
 	};
 
+	/* enum eQuests
+	{
+		Quest_Fear_no_Evil_1 = 28806,
+		Quest_Fear_no_Evil_2 = 28808,
+		Quest_Fear_no_Evil_3 = 28809,
+		Quest_Fear_no_Evil_4 = 28810,
+		Quest_Fear_no_Evil_5 = 28811,
+		Quest_Fear_no_Evil_6 = 28812,
+		Quest_Fear_no_Evil_7 = 28813,
+		Quest_Fear_no_Evil_8 = 29082
+	}; */
+
+
+
 	struct npc_injured_stormwind_soldierAI : public ScriptedAI
 	{
 		npc_injured_stormwind_soldierAI(Creature* creature) : ScriptedAI(creature) 
@@ -380,26 +405,30 @@ public:
 		EventMap m_CosmeticEvents;
 		EventMap m_Events;
 		uint64 m_PlayerGuid;
+		
 
 		void Reset()
 		{
 			ClearDelayedOperations();
 			m_Events.Reset();
-
 			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 			me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
 			me->SetHealth(me->CountPctFromMaxHealth(5));
+			me->setRegeneratingHealth(false);
 		}
 
 		void OnSpellClick(Unit* clicker) override
 		{
+
+			// Need to rework this - currently any player can trigger the DoAction even if said player doesn't have quest.
+			// Tested with OR statements inside an if statement as well as a for loop - both don't work
+			// Suspected issue is clicker Unit and the functions it has.
 			m_PlayerGuid = clicker->GetGUID();
 
 			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-
 			me->CastSpell(me, SPELL_RENEWEDLIFE, true);
-
 			DoAction(eActions::ActionHeal);
+
 		}
 
 		void DoAction(int32 const p_Action) override
@@ -475,7 +504,10 @@ public:
 ## npc_blackrock_spy
 ######*/
 
-class npc_blackrock_spy : public CreatureScript
+
+/// Replaced by SmartAI in DB.
+
+/*class npc_blackrock_spy : public CreatureScript
 {
 public:
 	npc_blackrock_spy() : CreatureScript("npc_blackrock_spy") { }
@@ -542,9 +574,9 @@ public:
 			Talk(urand(0, 2));
 			me->RemoveAllAuras();
 		}
-
-		void UpdateAI(const uint32 /*diff*/)
-		{
+		*/
+	//	void UpdateAI(const uint32 /*diff*/)
+		 /* {
 			CastSpyglass();
 
 			if (!UpdateVictim())
@@ -553,7 +585,7 @@ public:
 			DoMeleeAttackIfReady();
 		}
 	};
-};
+};*/
 
 /*######
  ## npc_blackrock_invader
@@ -1340,6 +1372,9 @@ class spell_quest_extincteur: public SpellScriptLoader
         }
 };
 
+
+
+
 enum eHenzeFaulkData
 {
 	SAY_HEAL = -1000187,
@@ -1416,7 +1451,8 @@ void AddSC_elwyn_forest()
 	new npc_brother_paxton();
     new npc_injured_stormwind_soldier();
     new npc_training_dummy_start_zones();
-	new npc_blackrock_spy();
+	/// Replaced by SmartAI
+	//new npc_blackrock_spy();
 	new npc_blackrock_invader();
 	new npc_goblin_assassin();
 	new spell_quest_extincteur();
