@@ -335,7 +335,6 @@ void AuraApplication::ClientUpdate(bool p_Remove)
     _target->SendLossOfControlAuraUpdate(this, l_Mechanic, l_EffectIndex, l_Type);
 }
 
-<<<<<<< HEAD
 void AuraApplication::SendFakeAuraUpdate(uint32 p_AuraId, bool p_Remove)
 {
     WorldPacket l_Data(SMSG_AURA_UPDATE);
@@ -351,9 +350,6 @@ void AuraApplication::SendFakeAuraUpdate(uint32 p_AuraId, bool p_Remove)
  }
 
 uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibleEffectMask, WorldObject* owner)
-=======
-uint8 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 availableEffectMask, WorldObject* owner)
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 {
     ASSERT(spellProto);
     ASSERT(owner);
@@ -362,22 +358,14 @@ uint8 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 available
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-<<<<<<< HEAD
             for (uint8 i = 0; i< spellProto->EffectCount; ++i)
-=======
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
             {
                 if (spellProto->Effects[i].IsUnitOwnedAuraEffect())
                     effMask |= 1 << i;
             }
             break;
         case TYPEID_DYNAMICOBJECT:
-<<<<<<< HEAD
             for (uint8 i = 0; i< spellProto->EffectCount; ++i)
-=======
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
             {
                 if (spellProto->Effects[i].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA || spellProto->Effects[i].IsPeriodicEffect())
                     effMask |= 1 << i;
@@ -386,18 +374,12 @@ uint8 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 available
             }
             break;
         default:
-            ABORT();
             break;
     }
-
-    return effMask & availableEffectMask;
+    return effMask & avalibleEffectMask;
 }
 
-<<<<<<< HEAD
 Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, bool* refresh /*= NULL*/, int32 castItemLevel /*= -1*/)
-=======
-Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint8 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool* refresh /*= nullptr*/, bool resetPeriodicTimer /*= true*/)
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -405,48 +387,31 @@ Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint8 tryEffMas
     ASSERT(tryEffMask <= MAX_EFFECT_MASK);
     if (refresh)
         *refresh = false;
-<<<<<<< HEAD
     uint32 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
     if (!effMask)
         return nullptr;
 
     Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID, castItemLevel);
     if (foundAura != nullptr)
-=======
-
-    uint8 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
-    if (!effMask)
-        return nullptr;
-
-    if (Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID, resetPeriodicTimer))
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
     {
         // we've here aura, which script triggered removal after modding stack amount
         // check the state here, so we won't create new Aura object
         if (foundAura->IsRemoved())
             return nullptr;
-<<<<<<< HEAD
 
         // Earthgrab Totem : Don't refresh root
         if (foundAura->GetId() == 64695)
             return nullptr;
-=======
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 
         if (refresh)
             *refresh = true;
-
         return foundAura;
     }
     else
         return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
 }
 
-<<<<<<< HEAD
 Aura* Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, int32 castItemLevel /*= -1*/)
-=======
-Aura* Aura::TryCreate(SpellInfo const* spellproto, uint8 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/)
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -455,12 +420,7 @@ Aura* Aura::TryCreate(SpellInfo const* spellproto, uint8 tryEffMask, WorldObject
     uint32 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
     if (!effMask)
         return nullptr;
-<<<<<<< HEAD
     return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
-=======
-
-    return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 }
 
 Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID, int32 castItemLevel)
@@ -509,14 +469,9 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
             ASSERT(aura->GetDynobjOwner()->GetMap() == aura->GetCaster()->GetMap());
             break;
         default:
-<<<<<<< HEAD
             ASSERT(false);
-=======
-            ABORT();
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
             return nullptr;
     }
-
     // aura can be removed in Unit::_AddAura call
     if (aura->IsRemoved())
         return nullptr;
@@ -1183,7 +1138,7 @@ void Aura::RefreshDuration(bool withMods)
     }
 }
 
-void Aura::RefreshTimers(bool resetPeriodicTimer)
+void Aura::RefreshTimers()
 {
     m_maxDuration = CalcMaxDuration();
     bool resetPeriodic = true;
@@ -1245,17 +1200,10 @@ void Aura::RefreshTimers(bool resetPeriodicTimer)
         resetPeriodic = false;
 
     RefreshDuration();
-
     Unit* caster = GetCaster();
-<<<<<<< HEAD
     for (uint8 i = 0; i < m_EffectCount; ++i)
         if (HasEffect(i))
             GetEffect(i)->CalculatePeriodic(caster, resetPeriodic, false);
-=======
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (AuraEffect* aurEff = m_effects[i])
-            aurEff->CalculatePeriodic(caster, resetPeriodicTimer, false);
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 }
 
 void Aura::SetCharges(uint8 charges)
@@ -1346,7 +1294,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
     SetNeedClientUpdateForTargets();
 }
 
-bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/)
+bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 {
     int32 stackAmount = m_stackAmount + num;
 
@@ -1381,7 +1329,6 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_B
         }
 
         RefreshSpellMods();
-<<<<<<< HEAD
         RefreshTimers();
         // Fix Backdraft can stack up to 6 charges max
         if (m_spellInfo->Id == 117828)
@@ -1389,10 +1336,6 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_B
         // Molten Core - Just apply one charge by one charge
         else if (m_spellInfo->Id == 122355)
            SetCharges(GetCharges() + 1);
-=======
-        RefreshTimers(resetPeriodicTimer);
-
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
         // reset charges
         else
             SetCharges(CalcMaxCharges());
@@ -1546,7 +1489,6 @@ void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint
     m_isUsingCharges = m_procCharges != 0;
     m_stackAmount = stackamount;
     Unit* caster = GetCaster();
-<<<<<<< HEAD
     for (uint8 i = 0; i < m_EffectCount; ++i)
         if (m_effects[i])
         {
@@ -1555,19 +1497,7 @@ void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint
             m_effects[i]->CalculatePeriodic(caster, false, true);
             m_effects[i]->CalculateSpellMod();
             m_effects[i]->RecalculateAmount(caster);
-=======
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (AuraEffect* aurEff = m_effects[i])
-        {
-            aurEff->SetAmount(amount[i]);
-            aurEff->SetCanBeRecalculated((recalculateMask & (1 << i)) != 0);
-            aurEff->CalculatePeriodic(caster, false, true);
-            aurEff->CalculateSpellMod();
-            aurEff->RecalculateAmount(caster);
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
         }
-    }
 }
 
 bool Aura::HasEffectType(AuraType type) const

@@ -19,13 +19,8 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 
 class AuraEffect
 {
-<<<<<<< HEAD
     friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID, int32 castItemLevel);
-=======
-    friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32* baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer);
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
     friend Aura::~Aura();
     private:
         explicit AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster);
@@ -69,13 +64,9 @@ class AuraEffect
         void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }
 
         int32 CalculateAmount(Unit* caster);
-<<<<<<< HEAD
         uint32 AbsorbBonusDone(Unit* p_Caster, int32 p_Amount);
         uint32 AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount);
         void CalculatePeriodic(Unit* p_Caster, bool p_ResetPeriodicTimer = true, bool p_Load = false, bool p_Recalculation = false);
-=======
-        void CalculatePeriodic(Unit* caster, bool resetPeriodicTimer = true, bool load = false);
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
         void CalculateSpellMod();
         void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false);
         void RecalculateAmount(bool reapplyingEffects = false) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(GetCaster()), false, reapplyingEffects); }

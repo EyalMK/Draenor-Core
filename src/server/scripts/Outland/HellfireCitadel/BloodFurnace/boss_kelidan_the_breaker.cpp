@@ -247,16 +247,12 @@ class boss_kelidan_the_breaker : public CreatureScript
 
                     DoScriptText(SAY_NOVA, me);
 
-<<<<<<< HEAD
                     if (SpellInfo const* nova = sSpellMgr->GetSpellInfo(SPELL_BURNING_NOVA))
                     {
                         Aura* aura = Aura::TryRefreshStackOrCreate(nova, MAX_EFFECT_MASK, me, me);
                         if (aura != nullptr)
                             aura->ApplyForTargets();
                     }
-=======
-                    me->AddAura(SPELL_BURNING_NOVA, me);
->>>>>>> b5e8e0a5db... Core/Auras: reset periodic aura timers by default. Except when aura comes from triggered spell
 
                     if (IsHeroic())
                         DoTeleportAll(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
