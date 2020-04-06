@@ -475,15 +475,14 @@ public:
 	{
 		npc_ironmarch_executionerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-		void OnDeath(Creature* p_Creature)
+		void JustDied()
 		{
-			if (p_Creature->isDead() == true)
-			{
-				if (Creature* prisoner = p_Creature->FindNearestCreature(eData::NPC_NETHERGARDE_PRISONER, 5.0f, true))
-				{
-					prisoner->GetAI()->DoAction(eAction::actionSaved);
-				}
 
+			std::list<Creature*> prisoners;
+			me->GetCreatureListWithEntryInGrid(prisoners, eData::NPC_NETHERGARDE_PRISONER, 5.0f);
+			for (std::list<Creature*>::const_iterator itr = prisoners.begin(); itr != prisoners.end(); ++itr)
+			{
+				(*itr)->GetAI()->DoAction(eAction::actionSaved);
 			}
 		}
 				
@@ -516,7 +515,8 @@ public:
 	{
 		npc_nethergarde_prisonerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-		void Reset() {
+		void Reset() override
+		{
 			me->CastSpell(me, 153964); // Kneel aura
 		}
 
@@ -575,12 +575,12 @@ public:
 		npc_nethergarde_defenderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
 		
-		void Reset(Creature* p_Creature)
+		void Reset() override
 		{
 			
 			if (me->GetMapId() == eData::NewBlastedLandsMapId)
 			{
-				me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
+				me->setRegeneratingHealth(false);
 				me->SetHealth(me->CountPctFromMaxHealth(0));
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -588,9 +588,6 @@ public:
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-			}
-			else {
-				// empty
 			}
 		}
 	};
