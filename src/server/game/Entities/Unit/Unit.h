@@ -1395,13 +1395,6 @@ enum ReactiveType
     REACTIVE_OVERPOWER    = 2
 };
 
-
-struct PositionUpdateInfo
-{
-	bool Relocated = false;
-	bool Turned = false;
-};
-
 #define MAX_REACTIVE 3
 #define SUMMON_SLOT_PET     0
 #define SUMMON_SLOT_TOTEM   1
@@ -2924,7 +2917,6 @@ class Unit : public WorldObject
     public:
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
-		void InterruptMovementBasedAuras();
 
     protected:
         void SendMoveRoot(uint32 value);
@@ -2979,7 +2971,6 @@ class Unit : public WorldObject
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
-		PositionUpdateInfo _positionUpdateInfo;
 
         time_t _lastDamagedTime;
 #ifdef CROSS
