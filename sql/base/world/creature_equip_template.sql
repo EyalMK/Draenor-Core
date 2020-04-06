@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               5.5.9-log - MySQL Community Server (GPL)
--- Server OS:                    Win32
--- HeidiSQL Version:             10.3.0.5771
+-- Host:                         localhost
+-- Versión del servidor:         5.7.27-log - MySQL Community Server (GPL)
+-- SO del servidor:              Win64
+-- HeidiSQL Versión:             11.0.0.5919
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -11,7 +11,12 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table worldlive.creature_equip_template
+
+-- Volcando estructura de base de datos para worldlive
+CREATE DATABASE IF NOT EXISTS `worldlive` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `worldlive`;
+
+-- Volcando estructura para tabla worldlive.creature_equip_template
 CREATE TABLE IF NOT EXISTS `creature_equip_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `id` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -21,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `creature_equip_template` (
   PRIMARY KEY (`entry`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_equip_template: 16,562 rows
+-- Volcando datos para la tabla world_hellscream.creature_equip_template: 16.562 rows
 DELETE FROM `creature_equip_template`;
 /*!40000 ALTER TABLE `creature_equip_template` DISABLE KEYS */;
 INSERT INTO `creature_equip_template` (`entry`, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES
@@ -16586,7 +16591,9 @@ INSERT INTO `creature_equip_template` (`entry`, `id`, `itemEntry1`, `itemEntry2`
 	(90238, 1, 29433, 0, 0),
 	(89822, 1, 10612, 0, 0),
 	(79392, 1, 76363, 0, 0),
-	(79393, 1, 76364, 0, 0);
+	(79393, 1, 76364, 0, 0),
+	(82154, 1, 25230, 0, 13021),
+	(821540, 1, 25230, 0, 13021);
 /*!40000 ALTER TABLE `creature_equip_template` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

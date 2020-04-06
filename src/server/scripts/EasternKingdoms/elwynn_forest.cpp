@@ -52,6 +52,18 @@ enum Northshire
 	EVENT_HEALED_2 = 2,
 };
 
+enum eQuests
+{
+	Quest_Fear_no_Evil_1 = 28806,
+	Quest_Fear_no_Evil_2 = 28808,
+	Quest_Fear_no_Evil_3 = 28809,
+	Quest_Fear_no_Evil_4 = 28810,
+	Quest_Fear_no_Evil_5 = 28811,
+	Quest_Fear_no_Evil_6 = 28812,
+	Quest_Fear_no_Evil_7 = 28813,
+	Quest_Fear_no_Evil_8 = 29082
+};
+
 /*######
 ## npc_stormwind_infantry
 ######*/
@@ -167,7 +179,7 @@ public:
 				if (!me->isInCombat()) 
 				{
 					if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) <= 1.0f)
-						if (Creature* Worg = me->FindNearestCreature(NPC_BLACKROCK_BATTLE_WORG, 5.0f, true))
+						if (Creature* Worg = me->FindNearestCreature(NPC_BLACKROCK_BATTLE_WORG, 20.0f, true))
 							me->AI()->AttackStart(Worg);
 
 					if (uiSayNormalTimer <= diff) 
@@ -270,7 +282,7 @@ public:
 
 			if (pWho->GetTypeId() == TYPEID_PLAYER || pWho->isPet())
 			{
-				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 6.0f, true))
+				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 20.0f, true))
 				{
 					guard->getThreatManager().resetAllAggro();
 					guard->CombatStop(true);
@@ -285,7 +297,7 @@ public:
 		void UpdateAI(const uint32 diff) 
 		{
 			if (!UpdateVictim())
-				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 6.0f, true))
+				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 20.0f, true))
 				{
 					me->SetReactState(REACT_AGGRESSIVE);
 					me->AI()->AttackStart(guard);
@@ -314,7 +326,7 @@ public:
 	{
 		npc_brother_paxtonAI(Creature* creature) : ScriptedAI(creature) 
 		{
-			me->GetMotionMaster()->MovePath(951, true);
+			me->GetMotionMaster()->MovePath(951, true); // Need to script 951 path id
 		}
 
 		void Reset()
@@ -376,7 +388,7 @@ public:
 
 			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 			me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
-			me->SetHealth(5);
+			me->SetHealth(me->CountPctFromMaxHealth(5));
 		}
 
 		void OnSpellClick(Unit* clicker) override
@@ -460,32 +472,27 @@ public:
 };
 
 /*######
- ## npc_blackrock_spy
- ######*/
+## npc_blackrock_spy
+######*/
 
 class npc_blackrock_spy : public CreatureScript
 {
 public:
 	npc_blackrock_spy() : CreatureScript("npc_blackrock_spy") { }
 
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_blackrock_spyAI(creature);
+	}
+
 	struct npc_blackrock_spyAI : public ScriptedAI
 	{
-		npc_blackrock_spyAI(Creature *c) : ScriptedAI(c) 
-		{ 
+		npc_blackrock_spyAI(Creature* creature) : ScriptedAI(creature)
+		{
 			CastSpying();
 		}
 
-		void Reset() override
-		{
-		}
-
-		void EnterCombat(Unit* who) override
-		{
-			Talk(0);
-			me->RemoveAllAuras();
-		}
-
-		void CastSpying() 
+		void CastSpying()
 		{
 			GetCreature(-8868.88f, -99.1016f);
 			GetCreature(-8936.5f, -246.743f);
@@ -498,44 +505,45 @@ public:
 			GetCreature(-8983.12f, -202.827f);
 		}
 
-		void GetCreature(float X, float Y) 
+		void GetCreature(float X, float Y)
 		{
 			if (me->GetHomePosition().GetPositionX() == X, me->GetHomePosition().GetPositionY() == Y)
 				if (!me->isInCombat() && !me->HasAura(SPELL_SPYING))
 					DoCast(me, SPELL_SPYING);
 
-			if (me->GetHomePosition().GetPositionX() == X, me->GetHomePosition().GetPositionY() == Y)
-				if (!me->isInCombat() && !me->HasAura(SPELL_SPYING))
-					me->GetMotionMaster()->MoveRandom(5.0f);
-
 			CastSpyglass();
 		}
 
-		void CastSpyglass() 
+		void CastSpyglass()
 		{
-			Spyglass(-8868.88f, -99.1016f, -8936.5f, -246.743f, -8922.44f,
-				-73.9883f, -8909.68f, -40.0247f, -8834.85f, -119.701f,
-				-9022.08f, -163.965f, -8776.55f, -79.158f, -8960.08f,
-				-63.767f, -8983.12f, -202.827f);
+			Spyglass(-8868.88f, -99.1016f, -8936.5f, -246.743f, -8922.44f, -73.9883f, -8909.68f, -40.0247f, -8834.85f,
+				-119.701f, -9022.08f, -163.965f, -8776.55f, -79.158f, -8960.08f, -63.767f, -8983.12f, -202.827f);
 		}
 
-		void Spyglass(float X1, float Y1, float X2, float Y2, float X3, float Y3, float X4, float Y4, float X5, float Y5, float X6, float Y6, float X7, float Y7, float X8, float Y8, float X9, float Y9) 
+		void Spyglass(float X1, float Y1, float X2, float Y2, float X3, float Y3, float X4, float Y4, float X5, float Y5,
+			float X6, float Y6, float X7, float Y7, float X8, float Y8, float X9, float Y9)
 		{
 			if (me->GetHomePosition().GetPositionX() != X1, me->GetHomePosition().GetPositionY() != Y1)
-			if (me->GetHomePosition().GetPositionX() != X2, me->GetHomePosition().GetPositionY() != Y2)
-			if (me->GetHomePosition().GetPositionX() != X3, me->GetHomePosition().GetPositionY() != Y3)
-			if (me->GetHomePosition().GetPositionX() != X4, me->GetHomePosition().GetPositionY() != Y4)
-			if (me->GetHomePosition().GetPositionX() != X5, me->GetHomePosition().GetPositionY() != Y5)
-			if (me->GetHomePosition().GetPositionX() != X6, me->GetHomePosition().GetPositionY() != Y6)
-			if (me->GetHomePosition().GetPositionX() != X7, me->GetHomePosition().GetPositionY() != Y7)
-			if (me->GetHomePosition().GetPositionX() != X8, me->GetHomePosition().GetPositionY() != Y8)
-			if (me->GetHomePosition().GetPositionX() != X9, me->GetHomePosition().GetPositionY() != Y9)
-			if (me->GetHomePosition().GetPositionX() == me->GetPositionX(), me->GetHomePosition().GetPositionY() == me->GetPositionY())
-			if (!me->isInCombat() && !me->HasAura(SPELL_SPYGLASS))
-			DoCast(me, SPELL_SPYGLASS);
+				if (me->GetHomePosition().GetPositionX() != X2, me->GetHomePosition().GetPositionY() != Y2)
+					if (me->GetHomePosition().GetPositionX() != X3, me->GetHomePosition().GetPositionY() != Y3)
+						if (me->GetHomePosition().GetPositionX() != X4, me->GetHomePosition().GetPositionY() != Y4)
+							if (me->GetHomePosition().GetPositionX() != X5, me->GetHomePosition().GetPositionY() != Y5)
+								if (me->GetHomePosition().GetPositionX() != X6, me->GetHomePosition().GetPositionY() != Y6)
+									if (me->GetHomePosition().GetPositionX() != X7, me->GetHomePosition().GetPositionY() != Y7)
+										if (me->GetHomePosition().GetPositionX() != X8, me->GetHomePosition().GetPositionY() != Y8)
+											if (me->GetHomePosition().GetPositionX() != X9, me->GetHomePosition().GetPositionY() != Y9)
+												if (me->GetHomePosition().GetPositionX() == me->GetPositionX(), me->GetHomePosition().GetPositionY() == me->GetPositionY())
+													if (!me->isInCombat() && !me->HasAura(SPELL_SPYGLASS))
+														DoCast(me, SPELL_SPYGLASS);
 		}
 
-		void UpdateAI(const uint32 diff) 
+		void EnterCombat(Unit* who)
+		{
+			Talk(urand(0, 2));
+			me->RemoveAllAuras();
+		}
+
+		void UpdateAI(const uint32 /*diff*/)
 		{
 			CastSpyglass();
 
@@ -545,11 +553,6 @@ public:
 			DoMeleeAttackIfReady();
 		}
 	};
-
-	CreatureAI* GetAI(Creature* pCreature) const
-	{
-		return new npc_blackrock_spyAI(pCreature);
-	}
 };
 
 /*######
@@ -606,7 +609,7 @@ public:
 
 		void EnterCombat(Unit * who) 
 		{
-			Talk(0);
+			Talk(urand(0,1 ));
 		}
 
 		void UpdateAI(const uint32 diff) 

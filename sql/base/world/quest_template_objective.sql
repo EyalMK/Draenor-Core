@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               5.5.9-log - MySQL Community Server (GPL)
--- Server OS:                    Win32
--- HeidiSQL Version:             10.3.0.5771
+-- Host:                         localhost
+-- Versión del servidor:         5.7.27-log - MySQL Community Server (GPL)
+-- SO del servidor:              Win64
+-- HeidiSQL Versión:             11.0.0.5919
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -11,7 +11,12 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table worldlive.quest_template_objective
+
+-- Volcando estructura de base de datos para worldlive
+CREATE DATABASE IF NOT EXISTS `worldlive` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `worldlive`;
+
+-- Volcando estructura para tabla worldlive.quest_template_objective
 CREATE TABLE IF NOT EXISTS `quest_template_objective` (
   `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `QuestID` int(10) unsigned NOT NULL DEFAULT '0',
@@ -28,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `quest_template_objective` (
   KEY `idx_QuestID` (`QuestID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2787045 DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.quest_template_objective: ~20,116 rows (approximately)
+-- Volcando datos para la tabla world_hellscream.quest_template_objective: ~20.358 rows (aproximadamente)
 DELETE FROM `quest_template_objective`;
 /*!40000 ALTER TABLE `quest_template_objective` DISABLE KEYS */;
 INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
@@ -15450,6 +15455,10 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(272613, 34381, 2, 1, 229026, 1, 0, 0, 'Enter the Shadow Gate', '', 19865),
 	(272614, 34381, 0, 2, 78290, 1, 28, 0, '', '', 19865),
 	(272621, 34392, 0, 0, 82606, 1, 0, 0, 'Northern Fel Spire disabled', '2455', 1),
+	(272622, 34587, 14, 0, 39422, 1, 0, 0, 'Find Blueprints', '', 1),
+	(272623, 34587, 14, 1, 36163, 1, 2, 0, 'Learn Blueprints', '2792', 1),
+	(272624, 34587, 14, 2, 36175, 1, 2, 0, 'Use the Architect Table', '2344', 1),
+	(272625, 34587, 14, 3, 36173, 1, 2, 0, 'Finalize your Plot', '2905', 1),
 	(272626, 34078, 0, 0, 77928, 1, 0, 0, 'Gazlowe brought to roof', '3081', 19865),
 	(272627, 34289, 0, 3, 78129, 1, 28, 0, '', '', 19865),
 	(272633, 34288, 1, 3, 110378, 5, 0, 0, 'Borgal\'s Totems', '', 19865),
@@ -15556,11 +15565,11 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(272858, 34589, 1, 0, 111043, 3, 0, 0, '', '', 1),
 	(272860, 34591, 0, 0, 79274, 1, 0, 0, '', '569', 1),
 	(272861, 34592, 0, 0, 79529, 8, 0, 0, '', '', 1),
-	(272862, 34593, 1, 0, 111065, 1, 0, 0, 'Thulgork\'s Orders found', '2759', 1),
+	(272862, 34593, 1, 0, 111065, 1, 0, 0, 'Thulgork\'s Orders found', '2759', 1);
+INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
 	(272863, 34593, 1, 1, 111066, 1, 0, 0, 'Crulgorosh\'s Orders found', '2758', 1),
 	(272866, 34596, 0, 0, 79927, 1, 1, 0, 'Reglakk stopped', '2727', 1),
-	(272867, 34597, 2, 0, 230650, 8, 0, 0, 'Boxes of Ogre Research destroyed', '', 1);
-INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
+	(272867, 34597, 2, 0, 230650, 8, 0, 0, 'Boxes of Ogre Research destroyed', '', 1),
 	(272869, 34427, 0, 0, 78996, 1, 0, 0, 'Farseer Drek\'Thar freed', '', 1),
 	(272870, 33080, 0, 0, 79325, 1, 0, 0, 'Explosives planted at the training pit', '1831 2020', 1),
 	(272871, 34602, 0, 0, 79326, 1, 1, 0, '', '', 1),
@@ -15574,7 +15583,6 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(272891, 34635, 0, 0, 79330, 3, 0, 0, 'Slumbering Protectors pruned', '', 1),
 	(272892, 34636, 0, 0, 79389, 3, 0, 0, 'Energy harvested', '2931 2932', 1),
 	(272897, 34639, 0, 0, 79432, 7, 0, 0, 'Young Prowlers calmed', '2100 2910', 1),
-	(272901, 34587, 14, 0, 36175, 1, 2, 0, 'Use the Architect Table', '2344', 1),
 	(272904, 34660, 0, 1, 79520, 4, 0, 0, 'Zorka\'s Void Gates Sealed', '', 1),
 	(272908, 34662, 0, 1, 76702, 1, 2, 0, '', '2101', 1),
 	(272909, 34663, 0, 1, 82670, 1, 2, 0, '', '2101', 1),
@@ -15957,7 +15965,6 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(273543, 34786, 1, 0, 112738, 20, 0, 0, '', '', 1),
 	(273544, 35070, 0, 0, 81506, 1, 0, 0, 'Crystal Disabled', '2340', 1),
 	(273545, 35188, 1, 0, 103994, 8, 0, 0, '', '', 1),
-	(273548, 34587, 14, 1, 36173, 1, 2, 0, 'Finalize your Plot', '2905', 1),
 	(273549, 34674, 0, 0, 81525, 1, 28, 0, 'Flight taken', '2339', 1),
 	(273552, 35190, 0, 0, 81481, 1, 1, 0, '', '', 19865),
 	(273553, 34646, 3, 0, 79446, 1, 0, 0, 'Speak with Qiana Moonshadow', '2099', 1),
@@ -17086,8 +17093,6 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(275612, 37111, 0, 0, 87170, 1, 0, 0, 'Maimclaw Killed', '3159', 19865),
 	(275615, 37119, 14, 0, 39383, 1, 0, 0, 'Recruit follower from Headhunter', '3091', 1),
 	(275616, 35176, 14, 3, 41327, 1, 0, 0, 'Check the Garrison Cache', '3088 3089 3090', 1),
-	(275622, 34587, 14, 2, 39422, 1, 0, 0, 'Find Blueprints', '', 1),
-	(275623, 34587, 14, 3, 36163, 1, 2, 0, 'Learn Blueprints', '2792', 1),
 	(275624, 37121, 3, 0, 86974, 1, 0, 0, 'Talk to Fanny', '505', 1),
 	(275629, 37122, 3, 0, 86974, 1, 0, 0, 'Talk to Fanny', '505', 19865),
 	(275631, 37123, 3, 0, 87242, 1, 0, 0, 'Talk to Sage Paluna', '505', 1),

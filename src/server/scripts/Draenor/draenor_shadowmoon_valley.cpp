@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Project-Hellscream https://hellscream.org
-// Copyright (C) 2018-2020 Project-Hellscream-6.2
-// Discord https://discord.gg/CWCF3C9
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 #include "PhaseMgr.h"
 #include "Common.h"
 
-/* When you first arrive Shadowmoon, the player must be set in phase 3, since the questgiver and actors are in phase 2 and the player 
+/* When you first arrive Shadowmoon, the player must be set in phase 3, since the questgiver and actors are in phase 2 and the player
    must be able to see both phase 1 and 2. On getting the first quest, we remove phase 2, so the questgiver and actors aren't
    seen by the player anymore.*/
 
@@ -30,26 +30,32 @@ public:
 		if (p_Player->GetZoneId() == 6719) // Shadowmoon Valley
 		{
 			/// UPDATE PHASEMASK DEPENDING OF QUESTS
+			/// == set the phase we want for player // |= add the phase to the ones player already has
 			uint32 l_PhaseMask = p_Player->GetPhaseMask();
 
-			if (p_Player->GetQuestStatus(eQuests::QuestStepThreeProphet) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED)
+			if (p_Player->GetQuestStatus(eQuests::QuestStepThreeProphet) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // 2
 			{
 				l_PhaseMask == 3;
 			}
 
-			if (p_Player->GetQuestStatus(eQuests::QuestFindingAFoothold) == QUEST_STATUS_COMPLETE)
+			if (p_Player->GetQuestStatus(eQuests::QuestFindingAFoothold) == QUEST_STATUS_COMPLETE) // 4
 			{
 				l_PhaseMask == 5;
 			}
 
-			if (p_Player->GetQuestStatus(eQuests::QuestForTheAlliance) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED)
+			if (p_Player->GetQuestStatus(eQuests::QuestForTheAlliance) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // 4+8
 			{
 				l_PhaseMask == 13;
 			}
 
-			if (p_Player->GetQuestStatus(eQuests::QuestLookingForLumber && QuestRavenousRavens) == QUEST_STATUS_COMPLETE)
+			if (p_Player->GetQuestStatus(eQuests::QuestLookingForLumber) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // 16
 			{
-				l_PhaseMask == 29;
+				l_PhaseMask |= 16;
+			}
+
+			if (p_Player->GetQuestStatus(eQuests::QuestRavenousRavens) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // 32
+			{
+				l_PhaseMask |= 32;
 			}
 
 			p_Player->SetPhaseMask(l_PhaseMask, true);
@@ -110,154 +116,155 @@ public:
 /// 79206 - Prophet Velen
 class shadowmoon_prophet_velen_eventide_questgiver : public CreatureScript
 {
-    public:
-        shadowmoon_prophet_velen_eventide_questgiver() : CreatureScript("shadowmoon_prophet_velen_eventide_questgiver") { }
+public:
+	shadowmoon_prophet_velen_eventide_questgiver() : CreatureScript("shadowmoon_prophet_velen_eventide_questgiver") { }
 
-		enum eAction
+	enum eAction
+	{
+		StartFindingAFoothold = 0
+	};
+
+	bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+	{
+		if (p_Quest->GetQuestId() == eQuests::QuestFindingAFoothold)
 		{
-			StartFindingAFoothold = 0
-		};
+			uint32 l_PhaseMask = p_Player->GetPhaseMask();
 
-        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
-        {
-            if (p_Quest->GetQuestId() == eQuests::QuestFindingAFoothold)
-            {
-				uint32 l_PhaseMask = p_Player->GetPhaseMask();
+			l_PhaseMask = ePhases::PhaseBase;
 
-				l_PhaseMask = ePhases::PhaseBase;
-
-				if (Creature* l_Velen = p_Player->SummonCreature(eCreature::NpcVelenEventide, l_VelenPos))
-				{
-					l_Velen->GetAI()->DoAction(eAction::StartFindingAFoothold);
-				}
-
-				if (Creature* l_Yrel = p_Player->SummonCreature(eCreature::NpcYrelEventide, l_YrelPos))
-				{
-					l_Yrel->GetAI()->DoAction(eAction::StartFindingAFoothold);
-				}
-
-				if (Creature* l_Maraad = p_Player->SummonCreature(eCreature::NpcMaraadEventide, l_MaraadPos))
-				{
-					l_Maraad->GetAI()->DoAction(eAction::StartFindingAFoothold);
-				}
-
-				if (Creature* l_Khadgar = p_Player->SummonCreature(eCreature::NpcKhadgarEventide, l_KhadgarPos))
-				{
-					l_Khadgar->GetAI()->DoAction(eAction::StartFindingAFoothold);
-				}
-
-                p_Player->SetPhaseMask(l_PhaseMask, true);
-            }
-
-            return true;
-        }
-
-		struct shadowmoon_prophet_velen_eventide_questgiverAI : public ScriptedAI
-		{
-			shadowmoon_prophet_velen_eventide_questgiverAI(Creature* creature) : ScriptedAI(creature)
+			if (Creature* l_Velen = p_Player->SummonCreature(eCreature::NpcVelenEventide, l_VelenPos))
 			{
-				m_PlayerGuid	= 0;
+				l_Velen->GetAI()->DoAction(eAction::StartFindingAFoothold);
 			}
 
-			bool EventStarted;
-
-			uint64 m_PlayerGuid;
-
-			void Reset() override
+			if (Creature* l_Yrel = p_Player->SummonCreature(eCreature::NpcYrelEventide, l_YrelPos))
 			{
-				ClearDelayedOperations();
+				l_Yrel->GetAI()->DoAction(eAction::StartFindingAFoothold);
 			}
 
-			void IsSummonedBy(Unit* p_Summoner) override
+			if (Creature* l_Maraad = p_Player->SummonCreature(eCreature::NpcMaraadEventide, l_MaraadPos))
 			{
-				m_PlayerGuid = p_Summoner->GetGUID();
+				l_Maraad->GetAI()->DoAction(eAction::StartFindingAFoothold);
 			}
 
-			void DoAction(int32 const p_Action) override
+			if (Creature* l_Khadgar = p_Player->SummonCreature(eCreature::NpcKhadgarEventide, l_KhadgarPos))
 			{
-				switch (p_Action)
-				{
-					case eAction::StartFindingAFoothold:
-					{
-						AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-
-							me->SetWalk(true);
-
-							me->GetMotionMaster()->MovePoint(0, 2301.7163f, 460.1557f, 7.8610f, false);
-						});
-
-						AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->AI()->Talk(0);
-						});
-
-						AddTimedDelayedOperation(14 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->SetWalk(false);
-							me->SetSpeed(UnitMoveType::MOVE_RUN, 1.8f, true);
-
-							me->Mount(59341);
-						});
-
-						AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->GetMotionMaster()->MoveSmoothPath(0, g_VelenMoves.data(), g_VelenMoves.size(), false);
-						});
-
-						AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->AI()->Talk(1);
-						});
-
-						AddTimedDelayedOperation(53 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->AI()->Talk(2);
-						});
-
-						AddTimedDelayedOperation(57 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->SetSpeed(UnitMoveType::MOVE_RUN, 1.0f, true);
-							me->SetWalk(true);
-
-							me->Dismount();
-						});
-
-						AddTimedDelayedOperation(59 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							if (m_PlayerGuid)
-							{
-								if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
-								{
-									if (l_Player->HasQuest(eQuests::QuestFindingAFoothold))
-										l_Player->CompleteQuest(eQuests::QuestFindingAFoothold);
-								}
-							}
-						});
-
-						AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->DespawnOrUnsummon();
-						});
-
-						break;
-					}
-				default:
-					break;
-				}
+				l_Khadgar->GetAI()->DoAction(eAction::StartFindingAFoothold);
 			}
 
-			void UpdateAI(const uint32 p_Diff) override
-			{
-				UpdateOperations(p_Diff);
-			}
-		};
-
-		CreatureAI* GetAI(Creature* creature) const
-		{
-			return new shadowmoon_prophet_velen_eventide_questgiverAI(creature);
+			p_Player->SetPhaseMask(l_PhaseMask, true);
 		}
+
+		return true;
+	}
+
+	struct shadowmoon_prophet_velen_eventide_questgiverAI : public ScriptedAI
+	{
+		shadowmoon_prophet_velen_eventide_questgiverAI(Creature* creature) : ScriptedAI(creature)
+		{
+			m_PlayerGuid = 0;
+		}
+
+		bool EventStarted;
+
+		uint64 m_PlayerGuid;
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void IsSummonedBy(Unit* p_Summoner) override
+		{
+			m_PlayerGuid = p_Summoner->GetGUID();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartFindingAFoothold:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+
+					me->SetWalk(true);
+
+					me->GetMotionMaster()->MovePoint(0, 2301.7163f, 460.1557f, 7.8610f, false);
+				});
+
+				AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->AI()->Talk(0);
+				});
+
+				AddTimedDelayedOperation(14 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SetWalk(false);
+					me->SetSpeed(UnitMoveType::MOVE_RUN, 1.8f, true);
+
+					me->Mount(59341);
+				});
+
+				AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_VelenMoves.data(), g_VelenMoves.size(), false);
+				});
+
+				AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->AI()->Talk(1);
+				});
+
+				AddTimedDelayedOperation(56 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->AI()->Talk(2);
+				});
+
+				AddTimedDelayedOperation(62.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SetSpeed(UnitMoveType::MOVE_RUN, 1.0f, true);
+					me->SetWalk(true);
+
+					me->Dismount();
+				});
+
+				AddTimedDelayedOperation(65 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (m_PlayerGuid)
+					{
+						if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
+						{
+							if (l_Player->HasQuest(eQuests::QuestFindingAFoothold))
+								l_Player->QuestObjectiveSatisfy(79697, 1);
+							l_Player->CompleteQuest(eQuests::QuestFindingAFoothold);
+						}
+					}
+				});
+
+				AddTimedDelayedOperation(66 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->DespawnOrUnsummon();
+				});
+
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_prophet_velen_eventide_questgiverAI(creature);
+	}
 
 };
 
@@ -302,54 +309,54 @@ public:
 		{
 			switch (p_Action)
 			{
-				case eAction::StartFindingAFoothold:
+			case eAction::StartFindingAFoothold:
+			{
+				Player* p_Player;
+				Creature* p_Creature;
+
+				me->SetSpeed(UnitMoveType::MOVE_RUN, 1.8f, true);
+
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					Player* p_Player;
-					Creature* p_Creature;
-				
+					me->SetWalk(true);
+
+					me->GetMotionMaster()->MovePoint(0, 2304.2285f, 458.3234f, 7.2519f, false);
+
+					me->AI()->Talk(0);
+				});
+
+				AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveBackward(1, 2306.1201f, 457.556f, 6.81435f, 1.0f);
+				});
+
+				AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SetWalk(false);
 					me->SetSpeed(UnitMoveType::MOVE_RUN, 1.8f, true);
 
-					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->SetWalk(true);
+					me->Mount(59341);
+				});
 
-						me->GetMotionMaster()->MovePoint(0, 2304.2285f, 458.3234f, 7.2519f, false);
+				AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(eMoves::StartQuestMove, g_YrelMoves.data(), g_YrelMoves.size(), false);
+				});
 
-						me->AI()->Talk(0);
-					});
+				AddTimedDelayedOperation(65 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SetSpeed(UnitMoveType::MOVE_RUN, 1.0f, true);
+					me->SetWalk(true);
+					me->Dismount();
+				});
 
-					AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->GetMotionMaster()->MoveBackward(1, 2306.1201f, 457.556f, 6.81435f, 1.0f);
-					});
+				AddTimedDelayedOperation(66 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->DespawnOrUnsummon();
+				});
 
-					AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->SetWalk(false);
-						me->SetSpeed(UnitMoveType::MOVE_RUN, 1.8f, true);
-
-						me->Mount(59341);
-					});
-
-					AddTimedDelayedOperation(16.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->GetMotionMaster()->MoveSmoothPath(eMoves::StartQuestMove, g_YrelMoves.data(), g_YrelMoves.size(), false);
-					});
-
-					AddTimedDelayedOperation(57 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->SetSpeed(UnitMoveType::MOVE_RUN, 1.0f, true);
-						me->SetWalk(true);
-						me->Dismount();
-					});
-
-					AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->DespawnOrUnsummon();
-					});
-
-					break;
-				}
+				break;
+			}
 			default:
 				break;
 			}
@@ -421,12 +428,12 @@ public:
 					me->AI()->Talk(0);
 				});
 
-				AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(16.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					me->GetMotionMaster()->MoveSmoothPath(0, g_MaraadMoves.data(), g_MaraadMoves.size(), false);
 				});
 
-				AddTimedDelayedOperation(52 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(61 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					me->Dismount();
 
@@ -434,7 +441,7 @@ public:
 					me->SetWalk(true);
 				});
 
-				AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(65 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					me->DespawnOrUnsummon();
 				});
@@ -503,17 +510,17 @@ public:
 				{
 					me->CastSpell(me, 165291, false);
 
-					me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 2.2f, true);
+					me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 3.0f, true);
 					me->SetDisableGravity(true);
 					me->SetCanFly(true);
 				});
 
 				AddTimedDelayedOperation(13 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					me->GetMotionMaster()->MoveSmoothFlyPath(0, g_KhadgarMoves.data(), g_KhadgarMoves.size(), false);
+					me->GetMotionMaster()->MoveSmoothPath(0, g_KhadgarMoves.data(), g_KhadgarMoves.size(), false, true);
 				});
 
-				AddTimedDelayedOperation(35 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(65 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					me->DespawnOrUnsummon();
 				});
@@ -579,20 +586,20 @@ public:
 		{
 			switch (p_Action)
 			{
-				case eAction::StartForTheAlliance:
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->AI()->Talk(0);
-					});
+					me->AI()->Talk(0);
+				});
 
-					AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->AI()->Talk(1);
-					});
+				AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->AI()->Talk(1);
+				});
 
-					break;
-				}
+				break;
+			}
 			default:
 				break;
 			}
@@ -653,20 +660,21 @@ public:
 		{
 			switch (p_Action)
 			{
-				case eAction::Despawn:
+			case eAction::Despawn:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-					});
+					go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+					go->SummonCreature(235344, 1939.54f, 321.950f, 88.967f, 1.880487f, TEMPSUMMON_MANUAL_DESPAWN, 0);
+				});
 
-					AddTimedDelayedOperation(38 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						go->Delete();
-					});
+				AddTimedDelayedOperation(45 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					go->Delete();
+				});
 
-					break;
-				}
+				break;
+			}
 			default:
 				break;
 			}
@@ -705,15 +713,15 @@ public:
 		{
 			switch (p_Action)
 			{
-				case 0:
+			case 0:
+			{
+				AddTimedDelayedOperation(12 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					AddTimedDelayedOperation(12 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->AI()->Talk(0);
-					});
+					me->AI()->Talk(0);
+				});
 
-					break;
-				}
+				break;
+			}
 			default:
 				break;
 			}
@@ -732,7 +740,7 @@ public:
 
 };
 
-/// 82125 - Khadgar
+/// 82125 - Khadgar (lunarfall)
 class shadowmoon_khadgar_lunarfall : public CreatureScript
 {
 public:
@@ -740,7 +748,7 @@ public:
 
 	struct shadowmoon_khadgar_lunarfallAI : public ScriptedAI
 	{
-		shadowmoon_khadgar_lunarfallAI(Creature* creature) : ScriptedAI(creature) 
+		shadowmoon_khadgar_lunarfallAI(Creature* creature) : ScriptedAI(creature)
 		{
 			PlayerGUID = 0;
 		}
@@ -812,12 +820,14 @@ public:
 			if (!bSummoned)
 			{
 				if (Creature* cordana = me->SummonCreature(79706, 1969.4899f, 340.9649f, 89.0431f, 3.5268f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-				if (Creature* portal = me->SummonCreature(79429, 1949.07f, 329.047f, 88.9664f, 3.5268f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-				{
-					PortalGUID = portal->GetGUID();
-					CordanaGUID = cordana->GetGUID();
-					cordana->SetVisible(false);
-				}
+					if (Creature* portal = me->SummonCreature(79429, 1949.07f, 329.047f, 88.9664f, 3.5268f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+					{
+						PortalGUID = portal->GetGUID();
+						CordanaGUID = cordana->GetGUID();
+						cordana->SetVisible(false);
+						cordana->CastSpell(cordana, 142479, true); // kneel
+						cordana->CastSpell(cordana, 165900, true); // touch of elune
+					}
 			}
 		}
 
@@ -825,42 +835,38 @@ public:
 		{
 			switch (p_Action)
 			{
-				case eAction::StartForTheAlliance:
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->CastSpell(me, 135586, false);
+					me->CastSpell(me, 135586, false);
 
-						me->SetWalk(true);
-					});
+					me->SetWalk(true);
+				});
 
-					AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->GetMotionMaster()->MovePoint(0, 1946.86f, 334.151f, 88.9551f, false);
-					});
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MovePoint(0, 1946.86f, 334.151f, 88.9551f, false);
+					me->AI()->Talk(0);
+				});
 
-					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->AI()->Talk(0);
-					});
+				AddTimedDelayedOperation(3.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 189654, false);
+				});
 
-					AddTimedDelayedOperation(3.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->CastSpell(me, 189654, false);
-					});
+				AddTimedDelayedOperation(5.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					PartySummoned();
+				});
 
-					AddTimedDelayedOperation(5.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						PartySummoned();
-					});
-
-					AddTimedDelayedOperation(7.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						bSummoned = true;
-						EntryTime = 250;
-					});
-					break;
-				}
+				AddTimedDelayedOperation(7.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					bSummoned = true;
+					EntryTime = 250;
+				});
+				break;
+			}
 			default:
 				break;
 			}
@@ -875,41 +881,49 @@ public:
 				if (bSummoned)
 				{
 					if (Creature* cordana = me->GetCreature(*me, CordanaGUID))
-					if (Creature* portal = me->GetCreature(*me, PortalGUID))
-					{
-						switch (Phase)
+						if (Creature* portal = me->GetCreature(*me, PortalGUID))
 						{
+							switch (Phase)
+							{
 							case 0:
 							{
 								cordana->SetVisible(true);
-								cordana->CastSpell(cordana, 51908, false);
+								cordana->CastSpell(cordana, 154797, true); // shadowstep
 								EntryTime = 1000;
 								Phase++;
 								break;
 							}
 							case 1:
 							{
-								me->SummonCreature(79394, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 27000);
+								if (Creature* guard1 = me->SummonCreature(79394, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 37000))
+								{
+									guard1->AI()->DoAction(0);
+								}
 								EntryTime = 1000;
 								Phase++;
 								break;
 							}
 							case 2:
 							{
-								me->SummonCreature(79422, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 26000);
+								if (Creature* guard2 = me->SummonCreature(79422, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 36000))
+								{
+									guard2->AI()->DoAction(0);
+								}
+								cordana->RemoveAura(142479); // kneel
+								cordana->RemoveAura(165900); // touch of elune
 								EntryTime = 2000;
 								Phase++;
 								break;
 							}
 							case 3:
 							{
-								if (Creature* starfall1 = me->SummonCreature(82154, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 24000))
+								if (Creature* sentinel1 = me->SummonCreature(82154, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 34000))
 								{
-									starfall1->AI()->DoAction(0);
+									sentinel1->AI()->DoAction(0);
 								}
-								if (Creature* starfall2 = me->SummonCreature(821540, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 24000))
+								if (Creature* sentinel2 = me->SummonCreature(82154, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 34000))
 								{
-									starfall2->AI()->DoAction(0);
+									sentinel2->AI()->DoAction(1);
 								}
 								EntryTime = 2000;
 								Phase++;
@@ -917,75 +931,90 @@ public:
 							}
 							case 4:
 							{
-								me->SummonCreature(82150, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 22000);
+								if (Creature* brightstone = me->SummonCreature(82150, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 32000))
+								{
+									brightstone->AI()->DoAction(0);
+								}
 								EntryTime = 2000;
 								Phase++;
 								break;
 							}
 							case 5:
 							{
-								me->SummonCreature(82149, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20000);
+								if (Creature* human = me->SummonCreature(82149, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000))
+								{
+									human->AI()->DoAction(0);
+								}
 								EntryTime = 2000;
 								Phase++;
 								break;
 							}
 							case 6:
 							{
-								me->SummonCreature(82152, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 18000);
+								if (Creature* thorn = me->SummonCreature(82152, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 28000))
+								{
+									thorn->AI()->DoAction(0);
+								}
 								EntryTime = 2000;
 								Phase++;
 								break;
 							}
 							case 7:
 							{
-								me->SummonCreature(79622, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 16000);
-								EntryTime = 1000;
+								if (Creature* shelly = me->SummonCreature(79622, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 26000))
+								{
+									shelly->AI()->DoAction(0);
+								}
+								if (Creature* jarrod = me->SummonCreature(79624, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 26000))
+								{
+									jarrod->AI()->DoAction(0);
+								}
+								if (Creature* dwarf = me->SummonCreature(82151, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 26000))
+								{
+									dwarf->AI()->DoAction(0);
+								}
+								EntryTime = 2000;
 								Phase++;
 								break;
 							}
 							case 8:
 							{
-								me->SummonCreature(79624, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 15000);
-								EntryTime = 1000;
+								me->SummonCreature(82148, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 24000);
+								EntryTime = 2000;
 								Phase++;
 								break;
 							}
 							case 9:
 							{
-								me->SummonCreature(82148, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 14000);
-								EntryTime = 2000;
+								if (Creature* foreman = me->SummonCreature(82098, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20000))
+								{
+									foreman->AI()->DoAction(0);
+								}
+								EntryTime = 1000;
 								Phase++;
 								break;
 							}
 							case 10:
 							{
-								me->SummonCreature(82151, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 12000);
+								if (Creature* packmule = me->SummonCreature(82099, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 18000))
+								{
+									packmule->AI()->DoAction(0);
+								}
 								EntryTime = 2000;
 								Phase++;
 								break;
 							}
 							case 11:
 							{
-								me->SummonCreature(82098, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000);
+								if (Creature* baros = me->SummonCreature(79436, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 18000))
+								{
+									baros->AI()->DoAction(0);
+								}
 								EntryTime = 1000;
 								Phase++;
 								break;
 							}
 							case 12:
-							{
-								me->SummonCreature(82099, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 8000);
-								EntryTime = 2000;
-								Phase++;
-								break;
-							}
-							case 13:
-							{
-								me->SummonCreature(79436, 1949.07f, 329.047f, 88.9664f, 2.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 6000);
-								EntryTime = 1000;
-								Phase++;
-								break;
-							}
-							case 14:
 							{
 								me->CastStop();
 								portal->SetVisible(false);
@@ -993,37 +1022,32 @@ public:
 								Phase++;
 								break;
 							}
-							case 15:
+							case 13:
 							{
 								me->GetMotionMaster()->MovePoint(1, 1943.910f, 339.194f, 89.015f, false);
-								EntryTime = 2500;
+								EntryTime = 3500;
 								Phase++;
 								break;
 							}
-							case 16:
+							case 14:
 							{
-								me->SetOrientation(4.303131f);
-								EntryTime = 500;
+								me->SetFacingTo(4.303131f);
+								EntryTime = 10500;
 								Phase++;
 								break;
 							}
-							case 17:
+							case 15:
 							{
 								if (PlayerGUID)
 								{
 									if (Player* l_Player = me->GetPlayer(*me, PlayerGUID))
 									{
 										if (l_Player->HasQuest(eQuests::QuestForTheAlliance))
-											l_Player->QuestObjectiveSatisfy(273766, 1, QUEST_OBJECTIVE_TYPE_NPC, l_Player->GetGUID());
+											l_Player->QuestObjectiveSatisfy(79433, 1);
+										l_Player->CompleteQuest(eQuests::QuestForTheAlliance);
 									}
 								}
 
-								EntryTime = 100;
-								Phase++;
-								break;
-							}
-							case 18:
-							{
 								me->DespawnOrUnsummon();
 								portal->DespawnOrUnsummon();
 								cordana->DespawnOrUnsummon();
@@ -1032,10 +1056,10 @@ public:
 								break;
 							}
 							break;
-						default:
-							break;
+							default:
+								break;
+							}
 						}
-					}
 				}
 			}
 			else EntryTime -= p_Diff;
@@ -1048,7 +1072,7 @@ public:
 	}
 };
 
-/// 79422 - Lunarfall 1 Guard
+/// 79394 - Lunarfall 1 Guard
 class shadowmoon_lunarfall1_guard : public CreatureScript
 {
 public:
@@ -1072,16 +1096,19 @@ public:
 		{
 			switch (p_Action)
 			{
-				case eAction::StartForTheAlliance:
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->SetWalk(false);
+					me->GetMotionMaster()->MoveSmoothPath(0, g_Lunarfall1Moves.data(), g_Lunarfall1Moves.size(), false);
+				});
 
-						me->GetMotionMaster()->MoveSmoothPath(0, g_Starfall1Moves.data(), g_Starfall1Moves.size(), false);
-					});
-					break;
-				}
+				AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SetFacingTo(1.71554f);
+				});
+				break;
+			}
 			default:
 				break;
 			}
@@ -1100,7 +1127,7 @@ public:
 
 };
 
-/// 794220 - Lunarfall 2 Guard
+/// 79422 - Lunarfall 2 Guard
 class shadowmoon_lunarfall2_guard : public CreatureScript
 {
 public:
@@ -1128,9 +1155,12 @@ public:
 			{
 				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					me->SetWalk(false);
+					me->GetMotionMaster()->MoveSmoothPath(0, g_Lunarfall2Moves.data(), g_Lunarfall2Moves.size(), false);
+				});
 
-					me->GetMotionMaster()->MoveSmoothPath(0, g_Starfall2Moves.data(), g_Starfall2Moves.size(), false);
+				AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SetFacingTo(1.71554f);
 				});
 				break;
 			}
@@ -1148,6 +1178,617 @@ public:
 	CreatureAI* GetAI(Creature* creature) const
 	{
 		return new shadowmoon_lunarfall2_guardAI(creature);
+	}
+
+};
+
+/// 82150 - Assistant Brightstone
+class shadowmoon_assistant_brightstone : public CreatureScript
+{
+public:
+	shadowmoon_assistant_brightstone() : CreatureScript("shadowmoon_assistant_brightstone") { }
+
+	enum eAction
+	{
+		StartForTheAlliance = 0
+	};
+
+	struct shadowmoon_assistant_brightstoneAI : public ScriptedAI
+	{
+		shadowmoon_assistant_brightstoneAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_BrightstoneMoves.data(), g_BrightstoneMoves.size(), true);
+				});
+
+				AddTimedDelayedOperation(29 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 162443, true); // Sitting
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_assistant_brightstoneAI(creature);
+	}
+
+};
+
+/// 79436 - Baros Alexstone
+class shadowmoon_baros_alexstone : public CreatureScript
+{
+public:
+	shadowmoon_baros_alexstone() : CreatureScript("shadowmoon_baros_alexstone") { }
+
+	enum eAction
+	{
+		StartForTheAlliance = 0,
+	};
+
+	struct shadowmoon_baros_alexstoneAI : public ScriptedAI
+	{
+		shadowmoon_baros_alexstoneAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_BarosAlexstoneMoves.data(), g_BarosAlexstoneMoves.size(), true);
+				});
+
+				AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->AI()->Talk(0);
+				});
+
+				AddTimedDelayedOperation(14 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SetFacingTo(1.022766f);
+					me->HandleEmoteCommand(483);
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_baros_alexstoneAI(creature);
+	}
+
+};
+
+/// 79622 - Shelly Hamby
+class shadowmoon_shelly_hamby : public CreatureScript
+{
+public:
+	shadowmoon_shelly_hamby() : CreatureScript("shadowmoon_shelly_hamby") { }
+
+	enum eAction
+	{
+		StartForTheAlliance = 0,
+	};
+
+	struct shadowmoon_shelly_hambyAI : public ScriptedAI
+	{
+		shadowmoon_shelly_hambyAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_ShellyMoves.data(), g_ShellyMoves.size(), true);
+				});
+
+				AddTimedDelayedOperation(12.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->HandleEmoteCommand(586);
+				});
+
+				AddTimedDelayedOperation(15.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 162443, true); // Sitting
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_shelly_hambyAI(creature);
+	}
+
+};
+
+/// 79624 - Jarrod Hamby
+class shadowmoon_jarrod_hamby : public CreatureScript
+{
+public:
+	shadowmoon_jarrod_hamby() : CreatureScript("shadowmoon_jarrod_hamby") { }
+
+	enum eAction
+	{
+		StartForTheAlliance = 0,
+	};
+
+	struct shadowmoon_jarrod_hambyAI : public ScriptedAI
+	{
+		shadowmoon_jarrod_hambyAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 156784, true); // Carrying wood
+					me->GetMotionMaster()->MoveSmoothPath(0, g_JarrodMoves.data(), g_JarrodMoves.size(), true);
+				});
+
+				AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->HandleEmoteCommand(550); // Kneel
+					me->RemoveAura(156784); // Remove wood
+				});
+
+				AddTimedDelayedOperation(10.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SummonGameObject(230365, 1955.64f, 343.562f, 88.666f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0); // Summon wood
+				});
+
+				AddTimedDelayedOperation(12.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SetFacingTo(4.65684f);
+					me->HandleEmoteCommand(586);
+				});
+
+				AddTimedDelayedOperation(14.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					std::list<GameObject*> wood;
+					GetClosestGameObjectWithEntry(me, 230365, 3.0f);
+
+					for (GameObject* wood : wood)
+						wood->RemoveFromWorld();
+
+					me->SummonGameObject(253434, 1955.64f, 343.562f, 88.666f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0); // Summon campfire
+				});
+
+				AddTimedDelayedOperation(15.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 162443, true); // Sitting
+				});
+
+				AddTimedDelayedOperation(18.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					std::list<GameObject*> campfire;
+					GetClosestGameObjectWithEntry(me, 253434, 3.0f);
+
+					for (GameObject* campfire : campfire)
+						campfire->RemoveFromWorld();
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_jarrod_hambyAI(creature);
+	}
+
+};
+
+/// 82151 - Dwarf Laborer
+class shadowmoon_dwarf_laborer : public CreatureScript
+{
+public:
+	shadowmoon_dwarf_laborer() : CreatureScript("shadowmoon_dwarf_laborer") { }
+
+	enum eAction
+	{
+		StartForTheAlliance = 0,
+	};
+
+	struct shadowmoon_dwarf_laborerAI : public ScriptedAI
+	{
+		shadowmoon_dwarf_laborerAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 165284, true); // Carrying wood
+					me->GetMotionMaster()->MoveSmoothPath(0, g_DwarfMoves.data(), g_DwarfMoves.size(), true);
+				});
+
+				AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->HandleEmoteCommand(550); // Kneel
+					me->RemoveAura(165284); // Remove wood
+				});
+
+				AddTimedDelayedOperation(12.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->SetFacingTo(1.664478f);
+					me->HandleEmoteCommand(586);
+				});
+
+				AddTimedDelayedOperation(15.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 162443, true); // Sitting
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_dwarf_laborerAI(creature);
+	}
+
+};
+
+/// 82154 - Starfall Sentinel
+class shadowmoon_starfall1_sentinel : public CreatureScript
+{
+public:
+	shadowmoon_starfall1_sentinel() : CreatureScript("shadowmoon_starfall1_sentinel") { }
+
+	enum eAction
+	{
+		StartForTheAlliance0 = 0,
+		StartForTheAlliance1 = 1
+	};
+
+	struct shadowmoon_starfall1_sentinelAI : public ScriptedAI
+	{
+		shadowmoon_starfall1_sentinelAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance0:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_Starfall0SentinelMoves.data(), g_Starfall0SentinelMoves.size(), false);
+				});
+
+				AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->HandleEmoteCommand(376);
+				});
+				break;
+			}
+			case eAction::StartForTheAlliance1:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_Starfall1SentinelMoves.data(), g_Starfall1SentinelMoves.size(), false);
+				});
+
+				AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->HandleEmoteCommand(384);
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_starfall1_sentinelAI(creature);
+	}
+
+};
+
+/// 82152 - Lieutenant Thorn
+class shadowmoon_lieutenant_thorn : public CreatureScript
+{
+public:
+	shadowmoon_lieutenant_thorn() : CreatureScript("shadowmoon_lieutenant_thorn") { }
+
+	enum eAction
+	{
+		StartForTheAlliance = 0
+	};
+
+	struct shadowmoon_lieutenant_thornAI : public ScriptedAI
+	{
+		shadowmoon_lieutenant_thornAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_ThornMoves.data(), g_ThornMoves.size(), false);
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_lieutenant_thornAI(creature);
+	}
+
+};
+
+/// 82149 - Human Laborer
+class shadowmoon_human_laborer : public CreatureScript
+{
+public:
+	shadowmoon_human_laborer() : CreatureScript("shadowmoon_human_laborer") { }
+
+	enum eAction
+	{
+		StartForTheAlliance = 0
+	};
+
+	struct shadowmoon_human_laborerAI : public ScriptedAI
+	{
+		shadowmoon_human_laborerAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_HumanMoves.data(), g_HumanMoves.size(), true);
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_human_laborerAI(creature);
+	}
+
+};
+
+/// 82098 - Foreman Zipfizzle
+class shadowmoon_foreman_zipfizzle : public CreatureScript
+{
+public:
+	shadowmoon_foreman_zipfizzle() : CreatureScript("shadowmoon_foreman_zipfizzle") { }
+
+	enum eAction
+	{
+		StartForTheAlliance = 0
+	};
+
+	struct shadowmoon_foreman_zipfizzleAI : public ScriptedAI
+	{
+		shadowmoon_foreman_zipfizzleAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_ForemanMoves.data(), g_ForemanMoves.size(), true);
+				});
+
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->AI()->Talk(0);
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_foreman_zipfizzleAI(creature);
+	}
+
+};
+
+/// 82099 - Garrison Packmule
+class shadowmoon_packmule : public CreatureScript
+{
+public:
+	shadowmoon_packmule() : CreatureScript("shadowmoon_packmule") { }
+
+	enum eAction
+	{
+		StartForTheAlliance = 0
+	};
+
+	struct shadowmoon_packmuleAI : public ScriptedAI
+	{
+		shadowmoon_packmuleAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::StartForTheAlliance:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_PackmuleMoves.data(), g_PackmuleMoves.size(), true);
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_packmuleAI(creature);
 	}
 
 };
@@ -1174,7 +1815,7 @@ public:
 
 		void Reset() override
 		{
-			
+
 		}
 	};
 
@@ -1184,51 +1825,436 @@ public:
 	}
 };
 
+/// 334320 - Lumberjack Summoner 0
+class shadowmoon_lumberjack_summoner0 : public CreatureScript
+{
+public:
+	shadowmoon_lumberjack_summoner0() : CreatureScript("shadowmoon_lumberjack_summoner0") {}
+
+	enum eEvents
+	{
+		Every40
+	};
+
+	struct shadowmoon_lumberjack_summoner0AI : public ScriptedAI
+	{
+		shadowmoon_lumberjack_summoner0AI(Creature* creature) : ScriptedAI(creature) {}
+
+		EventMap m_CosmeticEvents;
+
+		void Reset() override
+		{
+			m_CosmeticEvents.ScheduleEvent(eEvents::Every40, 36.5 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(uint32 const p_Diff)
+		{
+			UpdateOperations(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+			case eEvents::Every40:
+			{
+				AddTimedDelayedOperation(36.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Creature* lumberjack = me->SummonCreature(79255, 1876.62f, 155.773f, 81.149f, 2.44779f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+					{
+						lumberjack->AI()->DoAction(0);
+					}
+				});
+			}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new shadowmoon_lumberjack_summoner0AI(creature);
+	}
+};
+
+/// 334321 - Lumberjack Summoner 1
+class shadowmoon_lumberjack_summoner1 : public CreatureScript
+{
+public:
+	shadowmoon_lumberjack_summoner1() : CreatureScript("shadowmoon_lumberjack_summoner1") {}
+
+	enum eEvents
+	{
+		Every40
+	};
+
+	struct shadowmoon_lumberjack_summoner1AI : public ScriptedAI
+	{
+		shadowmoon_lumberjack_summoner1AI(Creature* creature) : ScriptedAI(creature) {}
+
+		EventMap m_CosmeticEvents;
+
+		void Reset() override
+		{
+			m_CosmeticEvents.ScheduleEvent(eEvents::Every40, 36.5 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(uint32 const p_Diff)
+		{
+			UpdateOperations(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+			case eEvents::Every40:
+			{
+				AddTimedDelayedOperation(36.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Creature* lumberjack = me->SummonCreature(79255, 1910.03f, 220.645f, 76.746f, 2.64022f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+					{
+						lumberjack->AI()->DoAction(1);
+					}
+				});
+			}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new shadowmoon_lumberjack_summoner1AI(creature);
+	}
+};
+
+/// 334322 - Lumberjack Summoner 2
+class shadowmoon_lumberjack_summoner2 : public CreatureScript
+{
+public:
+	shadowmoon_lumberjack_summoner2() : CreatureScript("shadowmoon_lumberjack_summoner2") {}
+
+	enum eEvents
+	{
+		Every40
+	};
+
+	struct shadowmoon_lumberjack_summoner2AI : public ScriptedAI
+	{
+		shadowmoon_lumberjack_summoner2AI(Creature* creature) : ScriptedAI(creature) {}
+
+		EventMap m_CosmeticEvents;
+
+		void Reset() override
+		{
+			m_CosmeticEvents.ScheduleEvent(eEvents::Every40, 36.5 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(uint32 const p_Diff)
+		{
+			UpdateOperations(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+			case eEvents::Every40:
+			{
+				AddTimedDelayedOperation(36.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Creature* lumberjack = me->SummonCreature(79255, 1774.31f, 279.247f, 76.989f, 0.480363f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+					{
+						lumberjack->AI()->DoAction(2);
+					}
+				});
+			}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new shadowmoon_lumberjack_summoner2AI(creature);
+	}
+};
+
+/// 334323 - Lumberjack Summoner 3
+class shadowmoon_lumberjack_summoner3 : public CreatureScript
+{
+public:
+	shadowmoon_lumberjack_summoner3() : CreatureScript("shadowmoon_lumberjack_summoner3") {}
+
+	enum eEvents
+	{
+		Every40
+	};
+
+	struct shadowmoon_lumberjack_summoner3AI : public ScriptedAI
+	{
+		shadowmoon_lumberjack_summoner3AI(Creature* creature) : ScriptedAI(creature) {}
+
+		EventMap m_CosmeticEvents;
+
+		void Reset() override
+		{
+			m_CosmeticEvents.ScheduleEvent(eEvents::Every40, 36.5 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(uint32 const p_Diff)
+		{
+			UpdateOperations(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+			case eEvents::Every40:
+			{
+				AddTimedDelayedOperation(36.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Creature* lumberjack = me->SummonCreature(79255, 1832.55f, 205.811f, 73.047f, 1.33252f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+					{
+						lumberjack->AI()->DoAction(3);
+					}
+				});
+			}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new shadowmoon_lumberjack_summoner3AI(creature);
+	}
+};
+
+/// 79255 - Lumberjack
+class shadowmoon_lumberjack : public CreatureScript
+{
+public:
+	shadowmoon_lumberjack() : CreatureScript("shadowmoon_lumberjack") { }
+
+	enum eAction
+	{
+		BringLumber0 = 0,
+		BringLumber1 = 1,
+		BringLumber2 = 2,
+		BringLumber3 = 3,
+	};
+
+	struct shadowmoon_lumberjackAI : public ScriptedAI
+	{
+		shadowmoon_lumberjackAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eAction::BringLumber0:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 156784, true); // Carrying wood
+					me->GetMotionMaster()->MoveSmoothPath(0, g_Lumberjack0Moves.data(), g_Lumberjack0Moves.size(), true);
+				});
+
+				AddTimedDelayedOperation(35 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->HandleEmoteCommand(550); // Kneel
+					me->RemoveAura(156784); // Remove wood
+				});
+
+				AddTimedDelayedOperation(36.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_LumberjackGoMoves.data(), g_LumberjackGoMoves.size(), true);
+				});
+				break;
+			}
+			case eAction::BringLumber1:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 156784, true); // Carrying wood
+					me->GetMotionMaster()->MoveSmoothPath(0, g_Lumberjack1Moves.data(), g_Lumberjack1Moves.size(), true);
+				});
+
+				AddTimedDelayedOperation(35 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->HandleEmoteCommand(550); // Kneel
+					me->RemoveAura(156784); // Remove wood
+				});
+
+				AddTimedDelayedOperation(36.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_LumberjackGoMoves.data(), g_LumberjackGoMoves.size(), true);
+				});
+				break;
+			}
+			case eAction::BringLumber2:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 156784, true); // Carrying wood
+					me->GetMotionMaster()->MoveSmoothPath(0, g_Lumberjack2Moves.data(), g_Lumberjack2Moves.size(), true);
+				});
+
+				AddTimedDelayedOperation(35 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->HandleEmoteCommand(550); // Kneel
+					me->RemoveAura(156784); // Remove wood
+				});
+
+				AddTimedDelayedOperation(36.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_LumberjackGoMoves.data(), g_LumberjackGoMoves.size(), true);
+				});
+				break;
+			}
+			case eAction::BringLumber3:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, 156784, true); // Carrying wood
+					me->GetMotionMaster()->MoveSmoothPath(0, g_Lumberjack3Moves.data(), g_Lumberjack3Moves.size(), true);
+				});
+
+				AddTimedDelayedOperation(35 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->HandleEmoteCommand(550); // Kneel
+					me->RemoveAura(156784); // Remove wood
+				});
+
+				AddTimedDelayedOperation(36.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetMotionMaster()->MoveSmoothPath(0, g_LumberjackGoMoves.data(), g_LumberjackGoMoves.size(), true);
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_lumberjackAI(creature);
+	}
+
+};
+
 /// Squeezing - 159303
 class spell_quest_shadowmoon_squeezing : public SpellScriptLoader
 {
-    enum
-    {
-        KillCredit = 74249
-    };
+	enum
+	{
+		KillCredit = 74249
+	};
 
-    public:
-        /// Constructor
-        spell_quest_shadowmoon_squeezing() : SpellScriptLoader("spell_quest_shadowmoon_squeezing") { }
+public:
+	/// Constructor
+	spell_quest_shadowmoon_squeezing() : SpellScriptLoader("spell_quest_shadowmoon_squeezing") { }
 
-        class spell_quest_shadowmoon_squeezing_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_quest_shadowmoon_squeezing_SpellScript);
+	class spell_quest_shadowmoon_squeezing_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_quest_shadowmoon_squeezing_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
+		void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetHitUnit();
 
-                if (l_Caster && l_Target && l_Caster->IsPlayer())
-                {
-                    if (   l_Target->GetEntry() == eCreature::JuicyMushroomA
-                        || l_Target->GetEntry() == eCreature::JuicyMushroomB
-                        || l_Target->GetEntry() == eCreature::JuicyMushroomC)
-                    {
-                        l_Caster->ToPlayer()->KilledMonsterCredit(KillCredit);
-                        l_Target->ToCreature()->DespawnOrUnsummon();
-                    }
-                }
-            }
+			if (l_Caster && l_Target && l_Caster->IsPlayer())
+			{
+				if (l_Target->GetEntry() == eCreature::JuicyMushroomA
+					|| l_Target->GetEntry() == eCreature::JuicyMushroomB
+					|| l_Target->GetEntry() == eCreature::JuicyMushroomC)
+				{
+					l_Caster->ToPlayer()->KilledMonsterCredit(KillCredit);
+					l_Target->ToCreature()->DespawnOrUnsummon();
+				}
+			}
+		}
 
-            /// Register all effect
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_quest_shadowmoon_squeezing_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
+		/// Register all effect
+		void Register() override
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_quest_shadowmoon_squeezing_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+		}
+	};
 
-        /// Get spell script
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_quest_shadowmoon_squeezing_SpellScript();
-        }
+	/// Get spell script
+	SpellScript* GetSpellScript() const override
+	{
+		return new spell_quest_shadowmoon_squeezing_SpellScript();
+	}
+};
+
+/// 76386 - Yrel (A Hero's Welcome)
+class shadowmoon_yrel_welcome : public CreatureScript
+{
+public:
+	shadowmoon_yrel_welcome() : CreatureScript("shadowmoon_yrel_welcome") { }
+
+	enum eAction
+	{
+		StartFindingAFoothold = 0
+	};
+
+	enum eMoves
+	{
+		StartQuestMove = 0
+	};
+
+	struct shadowmoon_yrel_welcomeAI : public ScriptedAI
+	{
+		shadowmoon_yrel_welcomeAI(Creature* creature) : ScriptedAI(creature)
+		{
+			m_PlayerGuid = 0;
+		}
+
+		uint64 m_PlayerGuid;
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+
+			m_PlayerGuid = 0;
+		}
+
+		void IsSummonedBy(Unit* p_Summoner) override
+		{
+			m_PlayerGuid = p_Summoner->GetGUID();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new shadowmoon_yrel_welcomeAI(creature);
+	}
+
 };
 
 void AddSC_draenor_shadowmoon_valley()
@@ -1247,10 +2273,27 @@ void AddSC_draenor_shadowmoon_valley()
 	new shadowmoon_khadgar_lunarfall();
 	new shadowmoon_lunarfall1_guard();
 	new shadowmoon_lunarfall2_guard();
+	new shadowmoon_assistant_brightstone();
+	new shadowmoon_baros_alexstone();
+	new shadowmoon_shelly_hamby();
+	new shadowmoon_jarrod_hamby();
+	new shadowmoon_human_laborer();
+	new shadowmoon_dwarf_laborer();
+	new shadowmoon_starfall1_sentinel();
+	new shadowmoon_lieutenant_thorn();
+	new shadowmoon_foreman_zipfizzle();
+	new shadowmoon_packmule();
+	new shadowmoon_lumberjack_summoner0();
+	new shadowmoon_lumberjack_summoner1();
+	new shadowmoon_lumberjack_summoner2();
+	new shadowmoon_lumberjack_summoner3();
+	new shadowmoon_lumberjack();
+
+	new shadowmoon_yrel_welcome();
 
 	// Objects
 	new gob_alliance_banner_230280();
 	new gob_alliance_tree_marking_230335();
 
-    new spell_quest_shadowmoon_squeezing();
+	new spell_quest_shadowmoon_squeezing();
 }

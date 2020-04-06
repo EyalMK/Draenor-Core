@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `waypoint_scripts` (
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.waypoint_scripts: 730 rows
+-- Dumping data for table worldlive.waypoint_scripts: 733 rows
 DELETE FROM `waypoint_scripts`;
 /*!40000 ALTER TABLE `waypoint_scripts` DISABLE KEYS */;
 INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
@@ -39,7 +39,7 @@ INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2
 	(6, 0, 0, 0, 0, 2000005002, 0, 0, 0, 0, 6),
 	(7, 0, 0, 0, 0, 2000005003, 0, 0, 0, 0, 7),
 	(8, 0, 0, 0, 0, 2000005004, 0, 0, 0, 0, 8),
-	(9, 0, 0, 0, 0, 2000005005, 0, 0, 0, 0, 9),
+	(9, 7, 31, 2, 0, 0, 0, 0, 0, 0, 950),
 	(10, 0, 0, 0, 0, 2000005006, 0, 0, 0, 0, 10),
 	(11, 0, 0, 0, 0, 2000005007, 0, 0, 0, 0, 11),
 	(12, 0, 0, 0, 0, 2000005008, 0, 0, 0, 0, 12),
@@ -760,7 +760,10 @@ INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2
 	(12698101, 0, 14, 52092, 1, 0, 0, 0, 0, 0, 855),
 	(12698101, 2, 15, 52098, 1, 0, 0, 0, 0, 0, 856),
 	(12698102, 0, 14, 52092, 1, 0, 0, 0, 0, 0, 857),
-	(51, 1, 1, 402, 0, 0, 0, 0, 0, 0, 70);
+	(51, 1, 1, 402, 0, 0, 0, 0, 0, 0, 70),
+	(9, 9, 1, 234, 0, 0, 0, 0, 0, 0, 951),
+	(9, 14, 1, 0, 0, 0, 0, 0, 0, 0, 952),
+	(9, 16, 31, 1, 0, 0, 0, 0, 0, 0, 953);
 /*!40000 ALTER TABLE `waypoint_scripts` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

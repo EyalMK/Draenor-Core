@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               5.5.9-log - MySQL Community Server (GPL)
--- Server OS:                    Win32
--- HeidiSQL Version:             10.3.0.5771
+-- Host:                         localhost
+-- Versión del servidor:         5.7.27-log - MySQL Community Server (GPL)
+-- SO del servidor:              Win64
+-- HeidiSQL Versión:             11.0.0.5919
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -11,7 +11,12 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table worldlive.creature_template_addon
+
+-- Volcando estructura de base de datos para worldlive
+CREATE DATABASE IF NOT EXISTS `worldlive` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `worldlive`;
+
+-- Volcando estructura para tabla worldlive.creature_template_addon
 CREATE TABLE IF NOT EXISTS `creature_template_addon` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -24,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_addon` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_template_addon: 24,981 rows
+-- Volcando datos para la tabla world_hellscream.creature_template_addon: 24.987 rows
 DELETE FROM `creature_template_addon`;
 /*!40000 ALTER TABLE `creature_template_addon` DISABLE KEYS */;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
@@ -7829,7 +7834,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(23542, 0, 0, 0, 1, 0, '97848', 0),
 	(23487, 0, 0, 0, 2, 0, '36440', 0),
 	(23564, 0, 0, 0, 1, 0, '21862', 0),
-	(23565, 0, 0, 3, 2, 65, NULL, 0),
+	(23565, 0, 0, 3, 2, 65, '55474', 0),
 	(23574, 0, 0, 0, 1, 0, '', 0),
 	(23576, 0, 0, 0, 1, 0, '', 0),
 	(23577, 0, 0, 0, 1, 0, '', 0),
@@ -8948,7 +8953,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(32932, 0, 0, 7, 1, 0, '', 0),
 	(32935, 0, 0, 0, 1, 0, '', 0),
 	(32936, 0, 0, 0, 1, 0, '', 0),
-	(82167, 0, 0, 1, 0, 0, '80816', 0),
+	(82167, 0, 0, 1, 0, 0, '0', 0),
 	(32960, 0, 0, 65536, 1, 0, '', 0),
 	(32963, 0, 0, 0, 2, 0, '', 0),
 	(32964, 0, 0, 8, 2, 0, '', 0),
@@ -9093,7 +9098,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(33286, 0, 0, 0, 1, 0, '', 0),
 	(33287, 0, 0, 0, 1, 0, NULL, 0),
 	(33293, 0, 0, 0, 1, 0, NULL, 0),
-	(33294, 0, 0, 3, 2, 0, '', 0),
+	(33294, 0, 0, 7, 257, 65, '36725', 0),
 	(33295, 0, 0, 0, 2, 0, '29266', 0),
 	(33296, 0, 0, 0, 1, 0, '', 0),
 	(33311, 0, 0, 0, 1, 0, '', 0),
@@ -10335,7 +10340,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(38294, 0, 0, 0, 1, 0, NULL, 0),
 	(38325, 0, 0, 1, 1, 0, NULL, 0),
 	(38332, 0, 0, 50331648, 0, 0, '55891', 0),
-	(38345, 0, 0, 0, 2, 0, '', 0),
+	(38345, 0, 0, 8, 2, 0, '', 0),
 	(38359, 0, 0, 0, 1, 375, NULL, 0),
 	(38360, 0, 0, 0, 1, 0, NULL, 0),
 	(38378, 0, 0, 0, 2, 0, '', 0),
@@ -13493,7 +13498,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(46335, 0, 0, 0, 1, 333, '', 0),
 	(46336, 0, 0, 0, 1, 376, '', 0),
 	(46337, 0, 0, 65536, 1, 0, '60921', 0),
-	(79243, 0, 0, 0, 0, 483, '80816', 0),
+	(79243, 0, 0, 0, 0, 483, '0', 0),
 	(46340, 0, 0, 0, 1, 0, '', 0),
 	(46341, 0, 0, 0, 1, 375, '', 0),
 	(46342, 0, 0, 0, 1, 0, '', 0),
@@ -14113,7 +14118,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(47594, 0, 0, 0, 1, 0, '', 0),
 	(47602, 0, 0, 0, 1, 69, '', 0),
 	(47603, 0, 0, 50397185, 1, 0, '', 0),
-	(82168, 0, 0, 0, 0, 69, '80816', 0),
+	(82168, 0, 0, 0, 0, 69, '0', 0),
 	(47606, 0, 0, 65536, 1, 0, '76651 88703 60921', 0),
 	(47617, 0, 0, 0, 1, 0, '', 0),
 	(47618, 0, 0, 7, 1, 0, '', 0),
@@ -15179,7 +15184,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(50000, 0, 0, 50331648, 1, 0, NULL, 0),
 	(50003, 0, 0, 50331648, 1, 0, '91288', 0),
 	(50009, 0, 0, 0, 1, 0, '8876', 0),
-	(50039, 0, 0, 0, 1, 0, NULL, 0),
+	(50039, 0, 0, 0, 1, 0, '93046', 0),
 	(50041, 0, 0, 0, 1, 0, '', 0),
 	(50043, 0, 0, 1, 1, 0, '', 0),
 	(50044, 0, 0, 0, 1, 0, '', 0),
@@ -20899,7 +20904,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(77368, 0, 0, 0, 2, 69, NULL, 0),
 	(77369, 0, 0, 0, 2, 0, NULL, 0),
 	(77370, 0, 0, 0, 0, 0, '178343', 0),
-	(77376, 0, 0, 5, 1, 0, '', 0),
+	(77376, 0, 0, 0, 0, 0, '', 0),
 	(77378, 0, 0, 0, 2, 69, NULL, 0),
 	(77387, 0, 0, 0, 1, 69, '', 0),
 	(77393, 0, 0, 0, 1, 0, NULL, 0),
@@ -21876,7 +21881,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(81145, 0, 0, 0, 1, 0, NULL, 0),
 	(81150, 0, 0, 0, 1, 0, NULL, 0),
 	(81151, 0, 0, 0, 1, 0, NULL, 0),
-	(81152, 0, 0, 0, 1, 0, '133464', 0),
+	(81152, 0, 0, 0, 1, 483, '133464', 0),
 	(81154, 0, 0, 0, 1, 0, NULL, 0),
 	(81156, 0, 0, 0, 1, 0, '164129', 0),
 	(81157, 0, 0, 0, 1, 0, '', 0),
@@ -21945,7 +21950,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(81327, 0, 0, 0, 1, 0, NULL, 0),
 	(81330, 0, 58436, 0, 1, 0, '168586 168590 168587 164045', 0),
 	(81331, 0, 58436, 0, 1, 0, '168587 168586 164045 166740', 0),
-	(81346, 0, 0, 0, 2, 0, NULL, 0),
+	(81346, 0, 0, 0, 2, 569, NULL, 0),
 	(81348, 0, 0, 0, 2, 0, NULL, 0),
 	(81350, 0, 0, 0, 2, 0, NULL, 0),
 	(81351, 0, 0, 1, 2, 0, NULL, 0),
@@ -22025,7 +22030,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(81651, 0, 0, 0, 1, 461, '161020 178377', 0),
 	(81653, 0, 0, 0, 1, 0, '', 0),
 	(81654, 0, 0, 0, 1, 69, '172990', 0),
-	(81656, 0, 0, 0, 1, 0, '80816', 0),
+	(81656, 0, 0, 0, 1, 0, '0', 0),
 	(81657, 0, 0, 0, 1, 0, '164442', 0),
 	(81658, 0, 0, 0, 2, 0, NULL, 0),
 	(81661, 0, 0, 0, 1, 0, NULL, 0),
@@ -22222,8 +22227,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(82161, 0, 0, 0, 1, 0, '', 0),
 	(82162, 0, 0, 0, 0, 0, '165114', 0),
 	(82163, 0, 0, 0, 1, 0, '146082', 0),
-	(82166, 0, 0, 1, 0, 0, '80816', 0),
-	(84038, 0, 0, 0, 0, 0, '80816', 0),
+	(82166, 0, 0, 1, 0, 0, '0', 0),
+	(84038, 0, 0, 0, 0, 0, '172660', 0),
 	(82170, 0, 0, 0, 1, 469, NULL, 0),
 	(82171, 0, 0, 0, 1, 0, NULL, 0),
 	(82172, 0, 0, 0, 1, 0, NULL, 0),
@@ -22845,7 +22850,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(84450, 0, 0, 0, 1, 0, NULL, 0),
 	(84451, 0, 0, 0, 1, 0, '', 0),
 	(84454, 0, 0, 50331648, 1, 0, NULL, 0),
-	(84455, 0, 0, 0, 0, 455, '80816', 0),
+	(84455, 0, 0, 0, 0, 455, '0', 0),
 	(84458, 0, 0, 262144, 1, 0, '169093', 0),
 	(84459, 0, 0, 8, 1, 0, NULL, 0),
 	(84460, 0, 0, 0, 2, 376, '169093', 0),
@@ -24059,8 +24064,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(85757, 0, 0, 0, 1, 0, NULL, 0),
 	(85767, 0, 0, 0, 1, 0, '171197', 0),
 	(85771, 0, 0, 0, 1, 0, NULL, 0),
-	(85811, 0, 0, 0, 2, 0, '0', 0),
-	(85812, 0, 0, 0, 2, 0, NULL, 0),
+	(85811, 0, 0, 0, 0, 0, '0', 0),
+	(85812, 0, 0, 0, 0, 0, NULL, 0),
 	(85823, 0, 0, 0, 1, 0, NULL, 0),
 	(85835, 0, 0, 0, 1, 0, NULL, 0),
 	(85849, 0, 0, 0, 1, 483, NULL, 0),
@@ -24148,11 +24153,11 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(87062, 0, 0, 0, 1, 0, NULL, 0),
 	(87063, 0, 0, 0, 1, 415, NULL, 0),
 	(87065, 0, 0, 0, 1, 426, NULL, 0),
-	(87067, 0, 0, 0, 1, 0, NULL, 0),
+	(87067, 0, 0, 0, 0, 0, NULL, 0),
 	(87243, 0, 0, 0, 1, 0, NULL, 0),
 	(87255, 0, 0, 0, 1, 0, NULL, 0),
-	(87269, 0, 0, 0, 1, 0, NULL, 0),
-	(87270, 0, 0, 0, 1, 0, NULL, 0),
+	(87269, 0, 0, 0, 1, 0, '', 0),
+	(87270, 0, 0, 0, 1, 0, '', 0),
 	(87271, 0, 0, 0, 1, 0, NULL, 0),
 	(87273, 0, 0, 0, 1, 415, NULL, 0),
 	(87274, 0, 0, 0, 1, 0, NULL, 0),
@@ -24195,8 +24200,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(88224, 0, 0, 0, 1, 0, '162651', 0),
 	(88230, 0, 0, 0, 1, 0, NULL, 0),
 	(88235, 0, 0, 0, 1, 0, NULL, 0),
-	(88236, 0, 0, 0, 1, 0, NULL, 0),
-	(88237, 0, 0, 0, 1, 0, NULL, 0),
+	(88236, 0, 0, 0, 0, 0, NULL, 0),
+	(88237, 0, 0, 0, 0, 0, NULL, 0),
 	(88254, 0, 0, 0, 1, 0, NULL, 0),
 	(88431, 0, 0, 33554432, 1, 0, NULL, 0),
 	(88448, 0, 0, 0, 1, 0, '10022', 0),
@@ -25008,7 +25013,13 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(78093, 0, 0, 0, 0, 0, '29266', 0),
 	(76293, 0, 0, 0, 0, 0, '29266', 0),
 	(76294, 0, 0, 0, 0, 0, '29266', 0),
-	(76297, 0, 0, 0, 0, 0, '29266', 0);
+	(76297, 0, 0, 0, 0, 0, '29266', 0),
+	(23811, 0, 0, 0, 4097, 0, '42464', 0),
+	(39270, 0, 0, 0, 1, 0, '57626', 0),
+	(33304, 0, 0, 7, 2, 0, '75041', 0),
+	(79706, 0, 0, 0, 1, 0, '182274', 0),
+	(79704, 0, 0, 0, 1, 0, '182274', 0),
+	(902120, 0, 0, 0, 0, 0, '29266', 0);
 /*!40000 ALTER TABLE `creature_template_addon` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
