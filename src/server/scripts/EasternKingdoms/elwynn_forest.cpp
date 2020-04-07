@@ -81,11 +81,6 @@ public:
 			wolfTarget = 0;
 			me->SetSheath(SHEATH_STATE_MELEE);
 			me->setRegeneratingHealth(true);
-			waitTime = urand(0, 2000);
-			uiSayNormalTimer = urand(40000, 80000);
-			uiSayCombatTimer = urand(30000, 90000);
-			waitTime = urand(10000, 20000);
-			uiCombatTimer = 500;
 		}
 
 		void EnterCombat(Unit * who) override
@@ -108,75 +103,9 @@ public:
 					damage = 0;
 		}
 
-		void SetData(uint32 type, uint32 data)
-		{
-			if (Creature* Paxton = me->FindNearestCreature(NPC_BROTHER_PAXTON, 15.0f, true))
-			{
-				Continue = false;
-
-				switch (data)
-				{
-				case 1:
-					if (me->GetDistance2d(-8807.426758f, -163.300751f) <= 4.0f)
-						Continue = true;
-					break;
-				case 2:
-					if (me->GetDistance2d(-8811.654297f, -151.384628f) <= 4.0f)
-						Continue = true;
-					break;
-				case 3:
-					if (me->GetDistance2d(-8820.900391f, -142.061005f) <= 4.0f)
-						Continue = true;
-					break;
-				case 4:
-					if (me->GetDistance2d(-8836.710938f, -143.393066f) <= 4.0f)
-						Continue = true;
-					break;
-				}
-
-				if (Continue == true)
-				{
-					Talk(0);
-					Paxton->SetFacingToObject(me);
-					Paxton->UpdateMovementFlags();
-
-					switch (type)
-					{
-					case 1:
-						Paxton->AI()->Talk(0);
-						Paxton->AI()->DoCast(me, SPELL_PRAYER_OF_HEALING);
-						break;
-					case 2:
-						Paxton->AI()->Talk(0);
-						Paxton->AI()->DoCast(me, SPELL_PENANCE);
-						break;
-					case 3:
-						Paxton->AI()->Talk(1);
-						Paxton->AI()->DoCast(me, SPELL_RENEW);
-						break;
-					case 4:
-						Paxton->AI()->Talk(0);
-						Paxton->AI()->DoCast(me, SPELL_FLASH_HEAL);
-						break;
-					}
-					Continue = false;
-				}
-				else
-					me->AI()->SetData(type, data);
-			}
-		}
-
 		void UpdateAI(uint32 diff) override
 		{
 			DoMeleeAttackIfReady();
-
-			if (waitTime && waitTime >= diff)
-			{
-				waitTime -= diff;
-				return;
-			}
-
-			waitTime = urand(10000, 20000);
 
 			if (wolfTarget != 0)
 			{
@@ -193,6 +122,7 @@ public:
 					}
 					else
 					{
+						me->AttackStop();
 						wolf->DespawnOrUnsummon();
 						wolfTarget = 0;
 						
@@ -218,53 +148,6 @@ public:
 				}
 			}
 
-			if (uiSayNormalTimer <= diff)
-			{
-				Talk(1);
-				uiSayNormalTimer = urand(40000, 80000);
-			}
-			else
-				uiSayNormalTimer -= diff;
-
-			if (HealthBelowPct(100))
-			{
-				if (uiSayCombatTimer <= diff)
-				{
-					if (Creature* Paxton = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 20.0f, true))
-					{
-						uint32 Random = urand(1, 4);
-						uint32 Mob = 0;
-
-						if (me->GetDistance2d(-8807.426758f, -163.300751f)
-							<= 2.0f)
-							Mob = 1;
-						if (me->GetDistance2d(-8811.654297f, -151.384628f)
-							<= 2.0f)
-							Mob = 2;
-						if (me->GetDistance2d(-8820.900391f, -142.061005f)
-							<= 2.0f)
-							Mob = 3;
-						if (me->GetDistance2d(-8836.710938f, -143.393066f)
-							<= 2.0f)
-							Mob = 4;
-
-						if (Mob != 0)
-							me->AI()->SetData(Random, Mob);
-						else
-							Talk(1);
-					}
-					uiSayCombatTimer = urand(30000, 90000);
-				}
-				else
-					uiSayCombatTimer -= diff;
-			}
-
-			if (uiCombatTimer <= diff)
-			{
-				uiCombatTimer = 500;
-			}
-			else
-				uiCombatTimer -= diff;
 		}
 	};
 };
@@ -337,7 +220,7 @@ public:
 	{
 		npc_brother_paxtonAI(Creature* creature) : ScriptedAI(creature) 
 		{
-			me->GetMotionMaster()->MovePath(951, true); // Need to script 951 path id
+			me->GetMotionMaster()->MovePath(95100, true);
 		}
 
 		void Reset()
