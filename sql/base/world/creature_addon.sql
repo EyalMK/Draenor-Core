@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
--- Host:                         localhost
--- Versión del servidor:         5.7.27-log - MySQL Community Server (GPL)
--- SO del servidor:              Win64
--- HeidiSQL Versión:             11.0.0.5919
+-- Host:                         127.0.0.1
+-- Server version:               5.5.9-log - MySQL Community Server (GPL)
+-- Server OS:                    Win32
+-- HeidiSQL Version:             10.3.0.5771
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -11,12 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-
--- Volcando estructura de base de datos para worldlive
-CREATE DATABASE IF NOT EXISTS `worldlive` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `worldlive`;
-
--- Volcando estructura para tabla worldlive.creature_addon
+-- Dumping structure for table worldlive.creature_addon
 CREATE TABLE IF NOT EXISTS `creature_addon` (
   `guid` int(10) unsigned NOT NULL,
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -29,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `creature_addon` (
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla world_hellscream.creature_addon: 51.815 rows
+-- Dumping data for table worldlive.creature_addon: 51,829 rows
 DELETE FROM `creature_addon`;
 /*!40000 ALTER TABLE `creature_addon` DISABLE KEYS */;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
@@ -51851,7 +51846,19 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 	(10184527, 0, 0, 0, 0, 482, NULL, 0),
 	(11793526, 0, 0, 0, 0, 0, '29266', 0),
 	(11793533, 0, 0, 0, 0, 0, NULL, 0),
-	(11793490, 0, 0, 0, 1, 568, NULL, 0);
+	(11793490, 0, 0, 0, 1, 568, NULL, 0),
+	(10124399, 0, 0, 0, 0, 0, NULL, 0),
+	(10124520, 0, 0, 0, 1, 173, NULL, 0),
+	(10124451, 0, 0, 0, 1, 69, NULL, 0),
+	(178475, 1784750, 0, 0, 1, 0, '92857', 0),
+	(178248, 1782480, 0, 0, 1, 0, '92857', 0),
+	(178184, 1781840, 0, 0, 1, 0, '92857', 0),
+	(178254, 1782540, 0, 0, 1, 0, '92857', 0),
+	(178205, 1782050, 0, 0, 1, 0, '92857', 0),
+	(178280, 1782800, 0, 0, 1, 0, '92857', 0),
+	(178460, 1784600, 0, 0, 1, 0, '92857', 0),
+	(178342, 1783420, 0, 0, 1, 0, '92857', 0),
+	(178341, 1783410, 0, 0, 1, 0, '92857', 0);
 /*!40000 ALTER TABLE `creature_addon` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

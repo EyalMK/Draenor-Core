@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `instance_template` (
   PRIMARY KEY (`map`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.instance_template: 126 rows
+-- Dumping data for table worldlive.instance_template: 127 rows
 DELETE FROM `instance_template`;
 /*!40000 ALTER TABLE `instance_template` DISABLE KEYS */;
 INSERT INTO `instance_template` (`map`, `parent`, `script`, `allowMount`) VALUES
@@ -46,6 +46,7 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`, `allowMount`) VALUES
 	(349, 1, '', 0),
 	(389, 1, 'instance_ragefire_chasm', 0),
 	(429, 1, '', 0),
+	(409, 230, 'instance_molten_core', 0),
 	(532, 0, 'instance_karazhan', 0),
 	(615, 571, 'instance_obsidian_sanctum', 1),
 	(534, 1, 'instance_hyjal', 1),
