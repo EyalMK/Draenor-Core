@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_archmage_khadgar_darkportal' WHERE `entry`=78423;

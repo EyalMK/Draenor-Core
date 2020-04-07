@@ -650,6 +650,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
         void UpdateDamagePhysical(WeaponAttackType attType, bool l_IsNoLongerDualWielding = false) override;
 
+		void SetCanDualWield(bool value);
         int8 GetOriginalEquipmentId() const { return m_OriginalEquipmentId; }
         uint8 GetCurrentEquipmentId() { return m_equipmentId; }
         void SetCurrentEquipmentId(uint8 p_ID) { m_equipmentId = p_ID; }

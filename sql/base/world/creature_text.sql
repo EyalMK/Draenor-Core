@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
--- Host:                         localhost
--- Versión del servidor:         5.7.27-log - MySQL Community Server (GPL)
--- SO del servidor:              Win64
--- HeidiSQL Versión:             11.0.0.5919
+-- Host:                         127.0.0.1
+-- Server version:               5.5.9-log - MySQL Community Server (GPL)
+-- Server OS:                    Win32
+-- HeidiSQL Version:             10.3.0.5771
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -11,12 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-
--- Volcando estructura de base de datos para worldlive
-CREATE DATABASE IF NOT EXISTS `worldlive` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `worldlive`;
-
--- Volcando estructura para tabla worldlive.creature_text
+-- Dumping structure for table worldlive.creature_text
 CREATE TABLE IF NOT EXISTS `creature_text` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -32,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla world_hellscream.creature_text: 13.067 rows
+-- Dumping data for table worldlive.creature_text: 13,083 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -1738,10 +1733,10 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(2981, 1, 0, 'May her spirit fly to you swiftly; may the winds carry her gently, and the grass whisper her name.', 12, 0, 100, 1, 0, 0, ''),
 	(2981, 2, 0, 'Watch over her as she has watched over us; let her look down on us with joy, through the eternal gaze of An\'she and Mu\'sha, until we too join her in death.', 12, 0, 100, 1, 0, 0, ''),
 	(2981, 3, 0, 'For we are all born of you, and shall all return to you.', 12, 0, 100, 1, 0, 0, ''),
-	(50047, 0, 3, 'Je ne craindrai nul mal !', 12, 0, 100, 0, 0, 0, 'Soldat d\'infanterie de Hurlevent bless?'),
-	(50047, 0, 2, 'Je... Je vais bien ! Je vais bien !', 12, 0, 100, 0, 0, 0, 'Soldat d\'infanterie de Hurlevent bless?'),
-	(50047, 0, 1, 'I live to fight another day!', 12, 0, 100, 0, 0, 0, 'Soldat d\'infanterie de Hurlevent bless?'),
-	(50047, 0, 0, 'Bless you, hero!', 12, 0, 100, 0, 0, 0, 'Soldat d\'infanterie de Hurlevent bless?'),
+	(50047, 0, 3, 'I will fear no evil!', 12, 0, 100, 0, 0, 0, 'Injured Stormwind Infantry - Text 4'),
+	(50047, 0, 2, 'I... I\'m ok! I\'m ok!', 12, 0, 100, 0, 0, 0, 'Injured Stormwind Infantry - Text 3'),
+	(50047, 0, 1, 'I live to fight another day!', 12, 0, 100, 0, 0, 0, 'Injured Stormwind Infantry - Text 2'),
+	(50047, 0, 0, 'Bless you, hero!', 12, 0, 100, 0, 0, 0, 'Injured Stormwind Infantry - Text 1'),
 	(52322, 0, 0, 'Sacrifice yo\' bodies ta Hethiss mah bruddahs, da voodoo will protect you!', 14, 0, 100, 0, 0, 0, 'Witch Doctor Qu\'in'),
 	(52077, 0, 0, '%s is chasing you. Run!', 42, 0, 100, 0, 0, 0, 'Gurubashi Berserker - Casting Pursuit emote'),
 	(52077, 1, 0, '%s is chasing $n.', 16, 0, 100, 0, 0, 0, 'Gurubashi Berserker - Casting Pursuit'),
@@ -2403,8 +2398,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(19606, 1, 0, 'Grek get a drink.', 12, 0, 100, 7, 0, 0, 'Grek2'),
 	(19606, 2, 0, 'Grek try!', 12, 0, 100, 5, 0, 0, 'Grek - Quest1'),
 	(19606, 3, 0, 'This oil no good for Grek! What Grek look like to you, some weakling in robes?', 12, 0, 100, 6, 0, 0, 'Grek - Quest2'),
-	(50047, 0, 4, 'Vous ?tes $N! Le h?ros dont tout le monde parle ! Merci !', 12, 0, 100, 0, 0, 0, 'Soldat d\'infanterie de Hurlevent bless?'),
-	(50047, 0, 5, 'Lou?e soit la Lumi?re !', 12, 0, 100, 0, 0, 0, 'Soldat d\'infanterie de Hurlevent bless?'),
+	(50047, 0, 4, 'You\'re $n! The hero that everyone has been talking about! Thank you!', 12, 0, 100, 0, 0, 0, 'Injured Stormwind Infantry - Text 5'),
+	(50047, 0, 5, 'Thank the Light!', 12, 0, 100, 0, 0, 0, 'Injured Stormwind Infantry - Text 6'),
 	(46949, 0, 0, 'Cette terre doit ?tre purg?e dans la Flamme du Cr?puscule !', 14, 0, 100, 0, 0, 0, 'Braisentaille le D?voreur - Aggro'),
 	(46949, 1, 0, 'Br?lez dans le feu liquide des Terres de Feu !', 12, 0, 100, 0, 0, 0, 'Braisentaille le D?voreur - Activation des bassins'),
 	(46949, 2, 0, 'M?mes les cieux br?lent avec ma fureur !', 14, 0, 100, 0, 0, 0, 'Braisentaille le D?voreur - 40% HP'),
@@ -3511,8 +3506,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(27431, 0, 0, '%s goes into a frenzy!', 16, 0, 100, 0, 0, 0, 'combat Frenzy'),
 	(26639, 0, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
 	(37214, 0, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
-	(475, 0, 0, 'You no take candle!', 12, 0, 50, 0, 0, 0, 'combat Say'),
-	(80, 0, 0, 'You no take candle!', 12, 0, 50, 0, 0, 0, 'combat Say'),
+	(475, 0, 1, 'Yiieeeee! Me run!', 12, 0, 50, 0, 0, 0, 'combat Say'),
+	(80, 0, 1, 'Yiieeeee! Me run!', 12, 0, 50, 0, 0, 0, 'combat Say'),
 	(40, 0, 0, 'You no take candle!', 12, 0, 50, 0, 0, 0, 'combat Say'),
 	(40, 0, 1, 'Yiieeeee! Me run!', 12, 0, 50, 0, 0, 0, 'combat Say'),
 	(476, 1, 0, 'You no take candle!', 12, 0, 50, 0, 0, 0, 'combat Say'),
@@ -6500,9 +6495,9 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(54611, 6, 0, 'You have been trained well.', 12, 0, 100, 0, 0, 0, ''),
 	(65471, 6, 0, 'You fought well. I must learn more from you in the future.', 12, 0, 100, 0, 0, 0, ''),
 	(65471, 7, 0, 'Your skills are too great. I yield.', 12, 0, 100, 0, 0, 0, ''),
-	(94, 0, 0, 'You\'re in the wrong place at the wrong time, friend!', 12, 0, 100, 0, 0, 0, 'combat Say'),
-	(50039, 0, 1, 'We\'re gonna burn this place to the ground!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
+	(94, 0, 0, 'You\'re in the wrong place at the wrong time, $g pal:missy;!', 12, 0, 100, 0, 0, 0, 'combat Say'),
 	(50039, 0, 0, 'Time to join your friends, kissin\' the dirt!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
+	(50039, 0, 1, 'We\'re gonna burn this place to the ground!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
 	(476, 0, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
 	(295, 0, 0, 'So much to do, so much to do! Where does the time go?', 12, 0, 100, 1, 0, 0, 'OOC say'),
 	(70155, 0, 0, 'Ahaha, get a load \'a me, mon! Griftah be back again! New stall, and brand new wares, and ready to pass on the deals to ya! Want more luck for deh mountains? Want tah buy the best "luckydo" ya ever smelled? Well step right up and don\' be talkin\' to grummles. Just let your good ol\' friend Griftah lead ya right. These miraculous baubles be cheap at tripple the price!', 12, 0, 100, 0, 0, 0, 'Griftah - Line 1'),
@@ -10812,10 +10807,10 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(37513, 1, 0, 'You... survive the boars? <Snort> So many boars! So sad!...', 12, 0, 100, 0, 0, 0, 'on Death Text'),
 	(37743, 0, 5, 'Has anyone seen the quilboar they had caged up over here?', 12, 0, 50, 1, 0, 0, 'say Text'),
 	(37743, 0, 6, 'Have we cleaned out the inn yet? Burn the rest of it when you\'re done!', 12, 0, 50, 1, 0, 0, 'say Text'),
-	(6927, 0, 0, 'You\'re in the wrong place at the wrong time, friend!', 12, 0, 100, 0, 0, 0, 'combat Say'),
-	(116, 0, 0, 'You\'re in the wrong place at the wrong time, friend!', 12, 0, 100, 0, 0, 0, 'combat Say'),
-	(475, 0, 1, 'Yiieeeee! Me run!', 12, 0, 50, 0, 0, 0, 'combat Say'),
-	(80, 0, 1, 'Yiieeeee! Me run!', 12, 0, 50, 0, 0, 0, 'combat Say'),
+	(6927, 0, 0, 'You\'re in the wrong place at the wrong time, $g pal:missy;!', 12, 0, 100, 0, 0, 0, 'combat Say'),
+	(116, 0, 0, 'You\'re in the wrong place at the wrong time, $g pal:missy;!', 12, 0, 100, 0, 0, 0, 'combat Say'),
+	(475, 0, 0, 'You no take candle!', 12, 0, 50, 0, 0, 0, 'combat Say'),
+	(80, 0, 0, 'You no take candle!', 12, 0, 50, 0, 0, 0, 'combat Say'),
 	(34509, 0, 2, 'That\'s right! Die, vemin! The Horde will have your heads for this.', 12, 0, 50, 0, 0, 0, 'say Text'),
 	(15645, 0, 2, 'More, more, more!  I must feed soon.', 12, 10, 100, 0, 0, 0, 'Wretched Thug'),
 	(36385, 0, 0, 'Got one!', 12, 0, 50, 0, 0, 0, 'combat Text'),
@@ -10823,7 +10818,6 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(34295, 0, 0, 'I am free of the bonds of earth, never to return again!', 14, 0, 50, 0, 0, 0, 'say Text'),
 	(3734, 0, 0, 'They say there\'s no rest for the wicked. That means you!', 12, 0, 50, 0, 0, 0, 'say Text'),
 	(11442, 1, 0, '%s becomes enraged!', 16, 0, 100, 0, 0, 0, 'Gordok Mauler'),
-	(49874, 0, 2, 'The grapes were VERY TASTY!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
 	(14267, 0, 0, '%s becomes enraged!', 16, 0, 100, 0, 0, 0, 'combat Enrage'),
 	(45398, 0, 0, '%s goes into a frenzy!', 16, 0, 100, 0, 0, 0, 'combat Frenzy'),
 	(23861, 0, 0, 'Go away,whoever you are!Witch Hill is mine...mine!', 12, 0, 50, 1, 0, 0, 'say Text'),
@@ -12422,8 +12416,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(41121, 0, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
 	(300, 0, 2, 'Raaar!!! Me smash $r!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
 	(23861, 0, 5, 'The darkness will consume all...all the living...', 12, 0, 50, 1, 0, 0, 'say Text'),
-	(49874, 0, 1, 'Blackrock take forest!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
-	(49874, 0, 0, 'Orc KILL human!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
+	(49874, 0, 2, 'The grapes were VERY TASTY!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
 	(476, 1, 1, 'Yiieeeee! Me run!', 12, 0, 50, 0, 0, 0, 'combat Say'),
 	(15670, 0, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
 	(15668, 0, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
@@ -13107,7 +13100,21 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(79206, 1, 0, 'We will deal with one problem at a time. First, we must settle your people.', 12, 0, 100, 1, 0, 45391, 'Prophet Velen'),
 	(79457, 4, 0, 'Qiana just headed out to Moonflower Valley. She is quite eager to explore this new land.', 12, 0, 100, 1, 0, 44816, ''),
 	(79457, 2, 0, 'We will escort this caravan and meet you in Elodor, commander.', 12, 0, 100, 1, 0, 44789, ''),
-	(79457, 3, 0, 'With these barracks complete we can finally shelter all of these troops from this eternal night.', 12, 0, 100, 1, 0, 44815, '');
+	(79457, 3, 0, 'With these barracks complete we can finally shelter all of these troops from this eternal night.', 12, 0, 100, 1, 0, 44815, ''),
+	(82504, 0, 0, 'She\'s dead! I\'m out of here!', 12, 0, 100, 0, 0, 0, 'Nethergarde Prisoner - Text 1'),
+	(82504, 0, 1, 'Thank you!', 12, 0, 100, 0, 0, 0, 'Nethergarde Prisoner - Text 2'),
+	(82504, 0, 2, 'Run!', 12, 0, 100, 0, 0, 0, 'Nethergarde Prisoner - Text 3'),
+	(85213, 0, 0, 'If Pazerp doesn\'t return soon I\'m going to have to send a scout to find my scout. That will be awkward for everybody involved.', 12, 0, 100, 0, 0, 0, 'Bodrick Grey - Peeking into the Portal Quest Accept'),
+	(85213, 1, 0, 'We have lost too many lives already. This battle is getting out of hand.', 12, 0, 100, 0, 0, 0, 'Bodrick Grey - Peeking into the Portal Quest Complete'),
+	(85213, 2, 0, 'Nethergarde has lost so much already, I can\'t stand to see them lose more.', 12, 0, 100, 0, 0, 0, 'Bodrick Grey - Ending Executions Quest Accept'),
+	(85213, 3, 0, 'Hopefully the prisoners you saved will have an opportunity to rebuild Nethergarde to its former glory.', 12, 0, 100, 0, 0, 0, 'Bodrick Grey - Ending Executions Quest Complete'),
+	(82270, 0, 0, 'We must hold the frontline!', 12, 0, 100, 0, 0, 0, 'Vindicator Maraad - Attack of the Iron Horde Quest Accept'),
+	(82270, 1, 0, 'We cannot win this battle if the enemy is always one step ahead of us.', 12, 0, 100, 0, 0, 0, 'Vindicator Maraad - Subversive Scouts Quest Accept'),
+	(82270, 2, 0, 'With those scouts dead we have a greater chance of catching the Iron Horde by surprise. Excellent work, $n.', 12, 0, 100, 0, 0, 0, 'Vindicator Maraad - Subversive Scouts Quest Complete'),
+	(82270, 3, 0, 'We cannot win this battle if those Iron Horde war machines remain operational.', 12, 0, 100, 0, 0, 0, 'Vindicator Maraad - Under Siege Quest Accept'),
+	(82270, 4, 0, 'With those machines destroyed we can focus on our next move.', 12, 0, 100, 0, 0, 0, 'Vindicator Maraad - Under Siege Quest Complete'),
+	(49874, 0, 1, 'Blackrock take forest!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
+	(49874, 0, 0, 'Orc KILL $r!', 12, 0, 50, 0, 0, 0, 'on Aggro Text');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

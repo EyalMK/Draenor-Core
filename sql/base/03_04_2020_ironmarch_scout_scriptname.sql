@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_ironmarch_scout' WHERE `entry`=76886;

@@ -3823,7 +3823,7 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, int32 castItemLevel /*= -1*/)
+Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, int32 castItemLevel /*= -1*/, bool resetPeriodicTimer)
 {
     ASSERT(casterGUID || caster);
     if (!casterGUID)
@@ -3875,13 +3875,13 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
 
             // try to increase stack amount
             if (foundAura->GetId() != 980)
-                foundAura->ModStackAmount(1);
+				foundAura->ModStackAmount(1, AURA_REMOVE_BY_DEFAULT, resetPeriodicTimer);
 
             // Agony is refreshed at manual reapply
             if (foundAura->GetId() == 980)
             {
                 foundAura->RefreshSpellMods();
-                foundAura->RefreshTimers();
+                foundAura->RefreshTimers(resetPeriodicTimer);
             }
 
             return foundAura;
@@ -4427,7 +4427,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit*
                 if (aura->IsSingleTarget())
                     aura->UnregisterSingleTarget();
 
-                Aura* newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellInfo(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
+				Aura* newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellInfo(), effMask, stealer, nullptr, &baseDamage[0], nullptr, aura->GetCasterGUID());
                 if (newAura != nullptr)
                 {
                     // created aura must not be single target aura,, so stealer won't loose it on recast

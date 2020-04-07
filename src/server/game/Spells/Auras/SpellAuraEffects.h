@@ -20,7 +20,7 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 class AuraEffect
 {
     friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID, int32 castItemLevel);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID, int32 castItemLevel, bool resetPeriodicTimer);
     friend Aura::~Aura();
     private:
         explicit AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster);
@@ -66,7 +66,7 @@ class AuraEffect
         int32 CalculateAmount(Unit* caster);
         uint32 AbsorbBonusDone(Unit* p_Caster, int32 p_Amount);
         uint32 AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount);
-        void CalculatePeriodic(Unit* p_Caster, bool p_ResetPeriodicTimer = true, bool p_Load = false, bool p_Recalculation = false);
+        void CalculatePeriodic(Unit* p_Caster, bool p_ResetPeriodicTimer = false, bool p_Load = false, bool p_Recalculation = false);
         void CalculateSpellMod();
         void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false);
         void RecalculateAmount(bool reapplyingEffects = false) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(GetCaster()), false, reapplyingEffects); }

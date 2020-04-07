@@ -1317,7 +1317,7 @@ void AuraEffect::CalculatePeriodic(Unit* p_Caster, bool p_ResetPeriodicTimer /*=
     if (!m_isPeriodic)
         return;
 
-    Player* modOwner = p_Caster ? p_Caster->GetSpellModOwner() : NULL;
+    Player* modOwner = p_Caster ? p_Caster->GetSpellModOwner() : nullptr;
 
     // Apply casting time mods
     if (m_amplitude)
@@ -1352,9 +1352,8 @@ void AuraEffect::CalculatePeriodic(Unit* p_Caster, bool p_ResetPeriodicTimer /*=
     else // aura just created or reapplied
     {
         m_tickNumber = 0;
-        // reset periodic timer on aura create or on reapply when aura isn't dot
-        // possibly we should not reset periodic timers only when aura is triggered by proc
-        // or maybe there's a spell attribute somewhere
+		// reset periodic timer on aura create or reapply
+		// we don't reset periodic timers when aura is triggered by proc
         if (p_ResetPeriodicTimer)
         {
             m_periodicTimer = 0;

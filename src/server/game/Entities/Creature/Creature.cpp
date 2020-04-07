@@ -1667,6 +1667,12 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
     return true;
 }
 
+void Creature::SetCanDualWield(bool value)
+{
+	Unit::SetCanDualWield(value);
+	UpdateDamagePhysical(OffAttack);
+}
+
 void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
 {
     if (p_ID == 0)
@@ -1691,9 +1697,9 @@ void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
     SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, l_EquipInfos->ItemEntry[1]);
     SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 4, l_EquipInfos->ItemEntry[2]);
 
-    /// Check if creature has two weapons, and set dual wield
+    /* Check if creature has two weapons, and set dual wield
     if (l_EquipInfos->ItemEntry[0] && l_EquipInfos->ItemEntry[1])
-        m_canDualWield = true;
+        m_canDualWield = true;*/
 }
 
 void Creature::LoadSpecialEquipment(uint32 p_First, uint32 p_Second, uint32 p_Third)
@@ -1710,9 +1716,9 @@ void Creature::LoadSpecialEquipment(uint32 p_First, uint32 p_Second, uint32 p_Th
     SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, p_Second);
     SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 4, p_Third);
 
-    /// Check if creature has two weapons, and set dual wield
+    /* Check if creature has two weapons, and set dual wield
     if (p_First && p_Second)
-        m_canDualWield = true;
+        m_canDualWield = true;*/
 }
 
 bool Creature::hasQuest(uint32 quest_id) const
