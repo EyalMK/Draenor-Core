@@ -5157,6 +5157,55 @@ class spell_item_Swapblaster : public SpellScriptLoader
         }
 };
 
+
+/// Totem Overcharge - 91647
+class spell_totem_overcharge : public SpellScriptLoader
+{
+public:
+	spell_totem_overcharge() : SpellScriptLoader("spell_totem_overcharge") { }
+
+	enum eData
+	{
+		NPC_WINTERFALL_EARTH_TOTEM	= 49177,
+		QUEST_TURNING_THE_EARTH		= 28615
+	};
+
+	class spell_item_totem_overcharge_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_item_totem_overcharge_SpellScript);
+
+		void HandleOnHit()
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetHitUnit();
+
+			
+			if (l_Target == nullptr)
+				return;
+			if (Player* l_Player = l_Caster->ToPlayer())
+			{
+				if (l_Target->GetEntry() == NPC_WINTERFALL_EARTH_TOTEM)
+				{
+					l_Target->setDeathState(JUST_DIED);
+					if (l_Player->HasQuest(eData::QUEST_TURNING_THE_EARTH) && l_Player->GetQuestStatus(eData::QUEST_TURNING_THE_EARTH) == QUEST_STATUS_INCOMPLETE)
+						l_Player->KilledMonsterCredit(eData::QUEST_TURNING_THE_EARTH);
+				}
+			}
+			
+		}
+
+		void Register() override
+		{
+			OnHit += SpellHitFn(spell_item_totem_overcharge_SpellScript::HandleOnHit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const override
+	{
+		return new spell_item_totem_overcharge_SpellScript();
+	}
+};
+
 /// Plans_Balanced_Trillium_Ingot_and_Its_Use - 100865
 class spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses : public SpellScriptLoader
 {
@@ -5430,6 +5479,7 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
     new spell_item_deviate_fish();
     new spell_item_Swapblaster();
+	new spell_totem_overcharge();
     new spell_item_throw_pigskin();
     new spell_item_super_simian_sphere();
     new spell_item_the_perfect_blossom();
