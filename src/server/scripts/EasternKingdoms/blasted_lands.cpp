@@ -424,6 +424,92 @@ public:
 	}
 };
 
+
+/// "Stitches" Solderbolt - 76108
+class npc_stitches_solderbolt : public CreatureScript
+{
+public:
+	npc_stitches_solderbolt() : CreatureScript("npc_stitches_solderbolt") { }
+
+
+	enum eData
+	{
+		Araazi = 85731
+	};
+
+
+	struct npc_stitches_solderboltAI : public ScriptedAI
+	{
+		npc_stitches_solderboltAI(Creature* p_Creature) : ScriptedAI(p_Creature) {
+		
+			me->GetMotionMaster()->MovePath(76108 * 100, true);
+
+		}
+
+		void UpdateAI(uint32 p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+
+
+		void WaypointReached(uint32 waypointId)
+		{
+			switch (waypointId)
+			{
+				case 1:
+
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->SetFacingTo(2.683312f);
+					});
+
+					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->CastSpell(me, 153964); // Kneel aura
+					});
+
+					AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->CastSpell(me, 94355); // First aid visual spell
+					});
+
+					AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->CastSpell(me, 94355); // First aid visual spell
+					});
+
+					AddTimedDelayedOperation(12.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->RemoveAura(153964); // Kneel aura
+					});
+					
+					break;
+
+				case 2:
+
+					AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->SetFacingTo(5.169490f);
+					});
+
+					break;
+
+				default:
+					break;
+			}
+			
+		}
+
+		
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_stitches_solderboltAI(p_Creature);
+	}
+};
+
+
 /// Ironmarch Scout - 76886
 class npc_ironmarch_scout : public CreatureScript
 {
@@ -439,7 +525,7 @@ public:
 	{
 		npc_ironmarch_scoutAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-		void EnterCombat(Unit* /*who*/)
+		void EnterCombat(Unit* /*who*/) override
 		{
 			me->RemoveAura(spellStealth, me->GetGUID());
 		}
@@ -475,15 +561,17 @@ public:
 	{
 		npc_ironmarch_executionerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-		void JustDied()
+		std::list<Creature*> PrisonersNearby;
+
+		void JustDied(Unit* killer) override
 		{
 
-			std::list<Creature*> prisoners;
-			me->GetCreatureListWithEntryInGrid(prisoners, eData::NPC_NETHERGARDE_PRISONER, 5.0f);
-			for (std::list<Creature*>::const_iterator itr = prisoners.begin(); itr != prisoners.end(); ++itr)
+			me->GetCreatureListWithEntryInGrid(PrisonersNearby, eData::NPC_NETHERGARDE_PRISONER, 10.0f);
+			for (std::list<Creature*>::const_iterator itr = PrisonersNearby.begin(); itr != PrisonersNearby.end(); ++itr)
 			{
 				(*itr)->GetAI()->DoAction(eAction::actionSaved);
 			}
+			
 		}
 				
 	};
@@ -530,16 +618,16 @@ public:
 				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					Talk(urand(0, 2));
-					me->RemoveAura(153964);
+					me->RemoveAurasDueToSpell(153964);
 				});
 
 
 				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					me->GetMotionMaster()->MoveRandom(20.0f);
+					me->GetMotionMaster()->MoveRandom(15.0f);
 				});
 
-				AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					me->DespawnOrUnsummon();
 				});
@@ -598,6 +686,43 @@ public:
 	}
 };
 
+/// Wounded Marine
+class npc_wounded_marine : public CreatureScript
+{
+public:
+	npc_wounded_marine() : CreatureScript("npc_wounded_marine") { }
+
+
+	struct npc_wounded_marineAI : public ScriptedAI
+	{
+		npc_wounded_marineAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+
+		void Reset() override
+		{
+			if (me->GetGUIDLow() == 10124397 || me->GetGUIDLow() == 10124405 || me->GetGUIDLow() == 10124446) // Wounded Marines standing next to the 2 sailors
+			{
+				me->SetHealth(me->CountPctFromMaxHealth(65));
+				me->setRegeneratingHealth(false);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+			}
+			else
+			{
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(10));
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+			}	
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_wounded_marineAI(p_Creature);
+	}
+};
+
 
 
 
@@ -610,9 +735,11 @@ void AddSC_blasted_lands()
 	new npc_deathly_usher();
 	new npc_vindicator_maraad_beachphase();
 	new npc_bodrick_grey_beachphase();
+	new npc_stitches_solderbolt();
 	new npc_ironmarch_scout();
 	new npc_ironmarch_executioner();
 	new npc_nethergarde_prisoner();
 	new npc_nethergarde_defender();
+	new npc_wounded_marine();
 }
 #endif
