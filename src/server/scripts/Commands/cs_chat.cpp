@@ -176,7 +176,7 @@ public:
 	{
 		static ChatCommand commandTable[] =
 		{
-			{ "chat", SEC_PLAYER, false, &HandleWorldChatCommand, "" },
+			{ "world", SEC_PLAYER, false, &HandleWorldChatCommand, "" },
 		};
 
 		return commandTable;
