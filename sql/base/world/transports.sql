@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `transports` (
   UNIQUE KEY `idx_entry` (`entry`)
 ) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Transports';
 
--- Dumping data for table worldlive.transports: 27 rows
+-- Dumping data for table worldlive.transports: 21 rows
 DELETE FROM `transports`;
 /*!40000 ALTER TABLE `transports` DISABLE KEYS */;
 INSERT INTO `transports` (`guid`, `entry`, `name`, `ScriptName`) VALUES
@@ -32,15 +32,9 @@ INSERT INTO `transports` (`guid`, `entry`, `name`, `ScriptName`) VALUES
 	(6, 164871, 'Orgrimmar, Durotar and Undercity, Tirisfal Glades ("The Thundercaller")', ''),
 	(7, 20808, 'Steamwheedle Cartel ports, Ratchet and Booty Bay ("The Maiden\'s Fancy")', ''),
 	(8, 177233, 'The Forgotten Coast, Feralas and Feathermoon Stronghold, Sardor Isle, Feralas ("Feathermoon Ferry")', ''),
-	(9, 181646, 'Valaar\'s Berth, Azuremyst Isle and Auberdine, Darkshore ("Elune\'s Blessing")', ''),
-	(10, 181688, 'Menethil Harbor, Wetlands and Valgarde, Howling Fjord ("Northspear")', ''),
-	(11, 181689, 'Undercity, Tirisfal Glades and Vengeance Landing, Howling Fjord ("Zeppelin, Horde (Cloudkisser)")', ''),
-	(12, 186238, 'Orgrimmar, Durotar and Warsong Hold, Borean Tundra ("Zeppelin, Horde (The Mighty Wind)")', ''),
 	(13, 186371, 'Westguard Keep in Howling Fjord to bombard pirate ("Zeppelin")', ''),
 	(14, 187038, 'Not Boardable - Cyrcling in Howling Fjord ("Sister Mercy")', ''),
-	(15, 187568, 'Unu\'pe, Borean Tundra and Moa\'ki Harbor, Dragonblight ("Turtle (Walker of Waves)")', ''),
 	(16, 188511, 'Moa\'ki Harbor and Kamagua ("Turtle (Green Island)")', ''),
-	(17, 190536, 'Stormwing Harbor and Valiance Keep, Borean Tundra ("The Kraken")', ''),
 	(18, 192241, 'Horde gunship patrolling above Icecrown ("Orgrim\'s Hammer")', ''),
 	(19, 192242, 'Alliance gunship patrolling above Icecrown ("The Skybreaker")', ''),
 	(20, 190549, 'Orgrimmar and Thunder Bluff', ''),

@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_text: 13,083 rows
+-- Dumping data for table worldlive.creature_text: 13,092 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -13114,7 +13114,16 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(82270, 3, 0, 'We cannot win this battle if those Iron Horde war machines remain operational.', 12, 0, 100, 0, 0, 0, 'Vindicator Maraad - Under Siege Quest Accept'),
 	(82270, 4, 0, 'With those machines destroyed we can focus on our next move.', 12, 0, 100, 0, 0, 0, 'Vindicator Maraad - Under Siege Quest Complete'),
 	(49874, 0, 1, 'Blackrock take forest!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
-	(49874, 0, 0, 'Orc KILL $r!', 12, 0, 50, 0, 0, 0, 'on Aggro Text');
+	(49874, 0, 0, 'Orc KILL $r!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
+	(49869, 0, 0, 'I could use a heal, brother!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry'),
+	(49869, 0, 1, 'I need a heal!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry'),
+	(49869, 0, 2, 'Make yourself useful and heal me, Paxton!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry'),
+	(49869, 0, 3, 'HELP!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry'),
+	(951, 0, 0, 'Be healed, $g brother:sister;!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
+	(951, 0, 1, 'AND I LAY MY HANDS UPON YOU!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
+	(951, 0, 2, 'Let the Holy Light embrace you!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
+	(951, 0, 3, 'BY THE LIGHT BE RENEWED!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
+	(951, 0, 4, 'FIGHT ON, $G BROTHER:SISTER;!', 12, 0, 100, 0, 0, 0, 'Brother Paxton');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

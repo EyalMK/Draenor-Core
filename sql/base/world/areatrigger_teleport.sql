@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `areatrigger_teleport` (
   FULLTEXT KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
 
--- Dumping data for table worldlive.areatrigger_teleport: 323 rows
+-- Dumping data for table worldlive.areatrigger_teleport: 326 rows
 DELETE FROM `areatrigger_teleport`;
 /*!40000 ALTER TABLE `areatrigger_teleport` DISABLE KEYS */;
 INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
@@ -85,7 +85,7 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(4743, 'Utgarde Keep (exit)', 571, 1237.2, -4859.27, 218.283, 0.274),
 	(2530, 'Hall of Legends - Ogrimmar (Inside)', 1, 1637.32, -4242.7, 56.1827, 4.1927),
 	(2534, 'Stormwind (Inside) - Champions Hall', 0, -8762.45, 403.062, 103.902, 5.34463),
-	(2567, 'Scholomance - Entrance target', 289, 199.876, 125.346, 138.43, 4.67748),
+	(2567, 'Scholomance - Entrance target', 1007, 199.773, 126.831, 134.912, 4.72716),
 	(2568, 'Scholomance - Stairs Exit Target 001', 0, 1273.91, -2553.09, 91.8393, 3.57792),
 	(2606, 'Alterac Valley - Horde Exit', 0, 534.868, -1087.68, 106.119, 3.35758),
 	(2608, 'Alterac Valley - Alliance Exit', 0, 98.432, -182.274, 127.52, 5.02654),
@@ -141,6 +141,7 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(4322, 'Caverns Of Time, Black Morass (Exit)', 1, -8765.66, -4175, -209.863, 5.53463),
 	(4323, 'Caverns Of Time, Battle Of Mount Hyjal (Exit)', 1, -8177.5, -4183, -168, 4.5),
 	(4324, 'Caverns Of Time, Old Hillsbrad Foothills (Exit)', 1, -8334.98, -4055.32, -207.737, 3.27431),
+	(2547, 'Scholomance - Exit Porch Target 001', 0, 1399.42, -2574.59, 107.786, 6.28319),
 	(4363, 'The Underbog (Entrance)', 546, 9.71391, -16.2008, -2.75334, 5.57082),
 	(4364, 'The Steamvault (Entrance)', 545, -13.8425, 6.7542, -4.2586, 0),
 	(4365, 'The Slave Pens (Entrance)', 547, 120.101, -131.957, -0.801547, 1.47574),
@@ -350,7 +351,9 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(8708, 'Pursuing the black harvest - Roof', 1112, 784.45, 304.44, 320, 0.03),
 	(10023, 'Shadowmoon Burial Grounds Entrance', 1176, 1774.28, 213.331, 304.917, 4.69119),
 	(9920, 'Shadowmoon Burial Grounds Exit', 1116, 766.887, 125.61, 7.25406, 5.48849),
-	(10237, 'GrimrailDepotEntrance', 1208, 1737.59, 1681.19, 7.6742, 3.082);
+	(10237, 'GrimrailDepotEntrance', 1208, 1737.59, 1681.19, 7.6742, 3.082),
+	(2548, 'Scholomance - Exit Porch Target 001', 0, 1399.42, -2574.59, 107.786, 6.28319),
+	(2549, 'Scholomance - Exit Porch Target 001', 0, 1399.42, -2574.59, 107.786, 6.28319);
 /*!40000 ALTER TABLE `areatrigger_teleport` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

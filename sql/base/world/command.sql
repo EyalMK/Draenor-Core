@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `command` (
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Chat System';
 
--- Dumping data for table worldlive.command: 455 rows
+-- Dumping data for table worldlive.command: 456 rows
 DELETE FROM `command`;
 /*!40000 ALTER TABLE `command` DISABLE KEYS */;
 INSERT INTO `command` (`name`, `security`, `help`) VALUES
@@ -333,7 +333,7 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 	('server idlerestart', 3, 'Syntax: .server idlerestart #delay [#exit_code] [reason]\n\nRestart the server after #delay seconds if no active connections are present (no players). Use #exit_code or 2 as program exit code.'),
 	('server idleshutdown cancel', 3, 'Syntax: .server idleshutdown cancel\r\n\r\nCancel the restart/shutdown timer if any.'),
 	('server idleshutdown', 3, 'Syntax: .server idleshutdown #delay [#exit_code] [reason]\n\nShut the server down after #delay seconds if no active connections are present (no players). Use #exit_code or 0 as program exist code.'),
-	('server info', 0, 'Syntax: .server info\r\n\r\nDisplay server version and the number of connected players.'),
+	('server info', 3, 'Syntax: .server info\r\n\r\nDisplay server version and the number of connected players.'),
 	('server motd', 3, 'Syntax: .server motd\r\n\r\nShow server Message of the day.'),
 	('server plimit', 3, 'Syntax: .server plimit [#num|-1|-2|-3|reset|player|moderator|gamemaster|administrator]\r\n\r\nWithout arg show current player amount and security level limitations for login to server, with arg set player linit ($num > 0) or securiti limitation ($num < 0 or security leme name. With `reset` sets player limit to the one in the config file'),
 	('server restart cancel', 3, 'Syntax: .server restart cancel\r\n\r\nCancel the restart/shutdown timer if any.'),
@@ -477,7 +477,8 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 	('ticket fscticketget', 3, ' '),
 	('ticket fscticketres', 3, ' '),
 	('reload motd', 3, 'Syntax: .reload motd\r\n\r\nReload the server motd'),
-	('character deleted list', 3, '');
+	('character deleted list', 3, ''),
+	('chat', 0, 'Syntax:Use .chat to speak in worldchat!');
 /*!40000 ALTER TABLE `command` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
