@@ -21,6 +21,7 @@ void AddSC_npc_custom();
 void AddSC_Webshop_Delivery();
 void AddSC_Character_Renderer();
 void AddSC_StressTest();
+void AddSC_PVPTitles();
 void AddSC_CustomPlayerscripts();
 void AddSC_midsummer_fire_festival();
 #ifndef CROSS
@@ -66,7 +67,7 @@ void AddSC_ban_commandscript();
 void AddSC_note_commandscript();
 void AddSC_bf_commandscript();
 void AddSC_cast_commandscript();
-void AddSC_cs_world_chat();
+//void AddSC_cs_world_chat();
 void AddSC_character_commandscript();
 void AddSC_cheat_commandscript();
 void AddSC_debug_commandscript();
@@ -1274,7 +1275,7 @@ void AddCommandScripts()
     AddSC_server_commandscript();
     AddSC_tele_commandscript();
 #ifndef CROSS
-    AddSC_cs_world_chat();
+    //AddSC_cs_world_chat();
     AddSC_ticket_commandscript();
 #endif /* not CROSS */
     AddSC_titles_commandscript();   
@@ -2212,6 +2213,7 @@ void AddCustomScripts()
     AddSC_warning_update_client();
     AddSC_DuelReset();
     AddSC_npc_custom();
+	AddSC_PVPTitles();
     
     AddSC_Webshop_Delivery();
     AddSC_Character_Renderer();
