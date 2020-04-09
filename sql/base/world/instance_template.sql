@@ -40,7 +40,7 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`, `allowMount`) VALUES
 	(230, 0, 'instance_blackrock_depths', 0),
 	(249, 1, 'instance_onyxias_lair', 0),
 	(269, 1, 'instance_dark_portal', 1),
-	(289, 0, 'instance_scholomance', 0),
+	(1007, 0, 'instance_scholomance', 0),
 	(309, 0, 'instance_zulgurub', 1),
 	(329, 0, 'instance_stratholme', 0),
 	(349, 1, '', 0),

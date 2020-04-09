@@ -15,6 +15,7 @@ void AddSC_promotion_new_players();
 void AddSC_user_reporting();
 void AddSC_warning_update_client();
 void AddSC_DuelReset();
+
 void AddSC_FunScripts();
 void AddSC_npc_custom();
 void AddSC_Webshop_Delivery();
@@ -65,6 +66,7 @@ void AddSC_ban_commandscript();
 void AddSC_note_commandscript();
 void AddSC_bf_commandscript();
 void AddSC_cast_commandscript();
+void AddSC_cs_world_chat();
 void AddSC_character_commandscript();
 void AddSC_cheat_commandscript();
 void AddSC_debug_commandscript();

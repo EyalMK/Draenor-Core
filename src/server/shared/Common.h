@@ -160,7 +160,7 @@ enum TimeConstants
     IN_MILLISECONDS = 1000
 };
 
-enum AccountTypes
+ enum AccountTypes
 {
     SEC_PLAYER                = 0,
     SEC_MODERATOR             = 1,
@@ -169,7 +169,7 @@ enum AccountTypes
     SEC_REALM_LEADER          = 4,
     SEC_GM_LEADER             = 5,
     SEC_ADMINISTRATOR         = 6,
-    SEC_CONSOLE               = 7                                  // must be always last in list, accounts must have less security level always also
+    SEC_CONSOLE               = 7
 };
 
 enum LocaleConstant
@@ -258,11 +258,14 @@ struct GmChat
     std::string message;
 };
 
+
+
 struct ArenaLog
 {
     uint32 timestamp;
     std::string str;
 };
+
 
 extern ACE_Based::LockedQueue<GmCommand*, ACE_Thread_Mutex> GmLogQueue;
 extern ACE_Based::LockedQueue<GmChat*,    ACE_Thread_Mutex> GmChatLogQueue;

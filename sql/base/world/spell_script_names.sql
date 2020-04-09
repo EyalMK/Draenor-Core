@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `spell_script_names` (
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.spell_script_names: 3,559 rows
+-- Dumping data for table worldlive.spell_script_names: 3,560 rows
 DELETE FROM `spell_script_names`;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -1530,6 +1530,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(91023, 'spell_rog_find_weakness'),
 	(91303, 'spell_chogall_conversion'),
 	(91317, 'spell_chogall_worshipping'),
+	(91647, 'spell_totem_overcharge'),
 	(91849, 'spell_lord_victor_nefarius_grip_of_death'),
 	(91871, 'spell_gathered_storms_trigger_cast'),
 	(91872, 'spell_gathered_storms_trigger_cast'),
