@@ -5188,7 +5188,7 @@ public:
 				{
 					l_Target->setDeathState(JUST_DIED);
 					if (l_Player->HasQuest(eData::QUEST_TURNING_THE_EARTH) && l_Player->GetQuestStatus(eData::QUEST_TURNING_THE_EARTH) == QUEST_STATUS_INCOMPLETE)
-						l_Player->KilledMonsterCredit(eData::QUEST_TURNING_THE_EARTH);
+						l_Player->QuestObjectiveSatisfy(eData::NPC_WINTERFALL_EARTH_TOTEM, 1, QUEST_OBJECTIVE_TYPE_NPC, l_Player->GetGUID());
 				}
 			}
 			
