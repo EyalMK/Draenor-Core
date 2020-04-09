@@ -48,19 +48,15 @@ class npc_hellscream_teleporter : public CreatureScript
         enum eActions
         {
 			SelectWodstart = 1001,
-			SelectBloodmaulslagmines = 1002,
-            TpAloneWodstart = 1003,
-			TpGroupWodstart = 1004,
-			TpAloneBloodmaulslagmines = 1005,
-			TpGroupBloodmaulslagmines = 1006,
+            TpAloneWodstart = 1002,
+			TpGroupWodstart = 1003,
 		
 
         };
 
         enum Destinations
         {
-			DestinationWodstart = 1,
-			DestinationBloodmaulslagmines = 2
+			DestinationWodstart = 1
 			
             
         };
@@ -70,11 +66,8 @@ class npc_hellscream_teleporter : public CreatureScript
             switch (p_Destination)
             {
 			case Destinations::DestinationWodstart:
-				p_Player->TeleportTo(1, -8452.49f, -4202.24f, -211.992f, 4.38f);
+				p_Player->TeleportTo(229, 89.8652f, -318.885f, 65.4642f, 0.0279307f);
 				break;
-                case Destinations::DestinationBloodmaulslagmines:
-                    p_Player->TeleportTo(1175, 1829.37f, -245.757f, 255.727f, 46.1094f);
-                    break;
 				
             }
         }
@@ -93,9 +86,6 @@ class npc_hellscream_teleporter : public CreatureScript
 					case Destinations::DestinationWodstart:
 						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationWodstart);
 						break;
-					case Destinations::DestinationBloodmaulslagmines:
-						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationBloodmaulslagmines);
-						break;
 				
 
                     }
@@ -105,8 +95,7 @@ class npc_hellscream_teleporter : public CreatureScript
 
         bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
         {
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Lower Blackrock Spire, please.", GOSSIP_SENDER_MAIN, eActions::SelectWodstart);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Upper Blackrock Spire, please.", GOSSIP_SENDER_MAIN, eActions::SelectBloodmaulslagmines);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Upper Blackrock Spire, please.", GOSSIP_SENDER_MAIN, eActions::SelectWodstart);
             p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 
             return true;
@@ -120,26 +109,16 @@ class npc_hellscream_teleporter : public CreatureScript
             switch (p_Action)
             {
 			case eActions::SelectWodstart:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Lower Blackrock Spire alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneWodstart);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Lower Blackrock Spire with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupWodstart);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Upper Blackrock Spire alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneWodstart);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Upper Blackrock Spire with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupWodstart);
 				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 				break;
-			case eActions::SelectBloodmaulslagmines:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Upper Blackrock Spire alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneBloodmaulslagmines);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Upper Blackrock Spire with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupBloodmaulslagmines);
-				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-				break;
+		
 				case eActions::TpAloneWodstart:
 					TeleportPlayer(p_Player, Destinations::DestinationWodstart);
 					break;
                     case eActions::TpGroupWodstart:
 					TeleportPlayer(p_Player, Destinations::DestinationWodstart);
-					break;
-				case eActions::TpAloneBloodmaulslagmines:
-					TeleportPlayer(p_Player, Destinations::DestinationBloodmaulslagmines);
-					break;
-				case eActions::TpGroupBloodmaulslagmines:
-					TeleportGroup(p_Player, Destinations::DestinationBloodmaulslagmines);
 					break;
             }
 
