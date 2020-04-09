@@ -1,2 +1,0 @@
-INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES (5047, 'The Gate WoTLK', 571, 4885, 5176, -85, 0.4);
-INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES (5046, 'The Gate Classic', 1, -6162, -1331, -169, 2.3);

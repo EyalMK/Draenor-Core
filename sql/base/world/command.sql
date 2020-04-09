@@ -478,7 +478,7 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 	('ticket fscticketres', 3, ' '),
 	('reload motd', 3, 'Syntax: .reload motd\r\n\r\nReload the server motd'),
 	('character deleted list', 3, ''),
-	('chat', 0, 'Syntax:Use .chat to speak in worldchat!');
+	('world', 0, 'Syntax:Use .world to speak in worldchat!');
 /*!40000 ALTER TABLE `command` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
