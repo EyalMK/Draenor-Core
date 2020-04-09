@@ -798,6 +798,13 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
                 cell.Visit(p, world_unit_searcher, *l_OriginalCaster->GetMap(), *l_OriginalCaster, 20.0f);
                 cell.Visit(p, grid_unit_searcher, *l_OriginalCaster->GetMap(), *l_OriginalCaster, 20.0f);
 
+				l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+				{
+					if (p_Unit->HasBreakableByDamageCrowdControlAura())
+						return true;
+					return false;
+				});
+
                 for (auto itr : l_TargetList)
                 {
                     if (!itr->IsWithinLOSInMap(l_OriginalCaster))
