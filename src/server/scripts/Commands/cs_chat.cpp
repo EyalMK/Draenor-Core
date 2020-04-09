@@ -123,45 +123,49 @@ std::string GetNameLink(Player* player)
 
 	switch (player->getClass())
 	{
+	case CLASS_MONK:
+		color = "|cffC41F3B";
+		CLASS_ICON = "|TInterface\\icons\\Spell_Deathknight_ClassIcon:15|t|r";
+		break;
 	case CLASS_DEATH_KNIGHT:
 		color = "|cffC41F3B";
-		//CLASS_ICON = "|TInterface\\icons\\Spell_Deathknight_ClassIcon:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\Spell_Deathknight_ClassIcon:15|t|r";
 		break;
 	case CLASS_DRUID:
 		color = "|cffFF7D0A";
-		//CLASS_ICON = "|TInterface\\icons\\Ability_Druid_Maul:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\Ability_Druid_Maul:15|t|r";
 		break;
 	case CLASS_HUNTER:
 		color = "|cffABD473";
-		//CLASS_ICON = "|TInterface\\icons\\INV_Weapon_Bow_07:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\INV_Weapon_Bow_07:15|t|r";
 		break;
 	case CLASS_MAGE:
 		color = "|cff69CCF0";
-		//CLASS_ICON = "|TInterface\\icons\\INV_Staff_13:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\INV_Staff_13:15|t|r";
 		break;
 	case CLASS_PALADIN:
 		color = "|cffF58CBA";
-		//CLASS_ICON = "|TInterface\\icons\\INV_Hammer_01:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\INV_Hammer_01:15|t|r";
 		break;
 	case CLASS_PRIEST:
 		color = "|cffFFFFFF";
-		//CLASS_ICON = "|TInterface\\icons\\INV_Staff_30:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\INV_Staff_30:15|t|r";
 		break;
 	case CLASS_ROGUE:
 		color = "|cffFFF569";
-		//CLASS_ICON = "|TInterface\\icons\\INV_ThrowingKnife_04:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\INV_ThrowingKnife_04:15|t|r";
 		break;
 	case CLASS_SHAMAN:
 		color = "|cff0070DE";
-		//CLASS_ICON = "|TInterface\\icons\\Spell_Nature_BloodLust:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\Spell_Nature_BloodLust:15|t|r";
 		break;
 	case CLASS_WARLOCK:
 		color = "|cff9482C9";
-		//CLASS_ICON = "|TInterface\\icons\\Spell_Nature_FaerieFire:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\Spell_Nature_FaerieFire:15|t|r";
 		break;
 	case CLASS_WARRIOR:
 		color = "|cffC79C6E";
-		//CLASS_ICON = "|TInterface\\icons\\INV_Sword_27.png:15|t|r";
+		CLASS_ICON = "|TInterface\\icons\\INV_Sword_27.png:15|t|r";
 		break;
 	}
 	return "|Hplayer:" + name + "|h" + RACE_ICON + CLASS_ICON + "|cffFFFFFF[" + color + name + "|cffFFFFFF]|h|r";
