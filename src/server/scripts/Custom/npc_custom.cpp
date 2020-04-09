@@ -49,73 +49,19 @@ class npc_hellscream_teleporter : public CreatureScript
         {
 			SelectWodstart = 1001,
 			SelectBloodmaulslagmines = 1002,
-			SelectIrondocks = 1003,
-			SelectAuchindoun = 1004,
-			SelectSkyreach = 1005,
-			SelectGrimraildepot = 1006,
-			SelectShadowmoonburialgrounds = 1007,
-			SelectEverbloom = 1008,
-			SelectUpperblackrockspire = 1009,
-			SelectHighmaul = 1010,
-			SelectBlackrock = 1011,
-			SelectHFC      = 1012,
-            SelectRukhmar     = 1013,
-            SelectTarlna      = 1014,
-            SelectDrov        = 1015,
-			SelectKazz        = 1016,
-			TpAloneWodstart = 1017,
-			TpGroupWodstart = 1018,
-			TpAloneBloodmaulslagmines = 1019,
-			TpGroupBloodmaulslagmines = 1020,
-			TpAloneIrondocks = 1021,
-			TpGroupIrondocks = 1022,
-			TpAloneAuchindoun = 1023,
-			TpGroupAuchindoun = 1024,
-			TpAloneSkyreach = 1025,
-			TpGroupSkyreach = 1026,
-			TpAloneGrimraildepot = 1027,
-			TpGroupGrimraildepot = 1028,
-			TpAloneShadowmoonburialgrounds = 1029,
-			TpGroupShadowmoonburialgrounds = 1030,
-			TpAloneEverbloom = 1031,
-			TpGroupEverbloom = 1032,
-			TpAloneUpperblackrockspire = 1033,
-			TpGroupUpperblackrockspire = 1034,
-			TpAloneHighmaul = 1035,
-			TpGroupHighmaul = 1036,
-			TpAloneBlackrock = 1037,
-			TpGroupBlackrock = 1038,
-			TpAloneHFC = 1039,
-			TpGroupHFC = 1040,
-            TpAloneRukhmar    = 1041,
-            TpGroupRukhmar    = 1042,
-            TpAloneTarlna     = 1043,
-            TpGroupTarlna     = 1044,
-            TpAloneDrov       = 1045,
-            TpGroupDrov       = 1046,
-			TpAloneKazz       = 1047,
-			TpGroupKazz       = 1048,
+            TpAloneWodstart = 1003,
+			TpGroupWodstart = 1004,
+			TpAloneBloodmaulslagmines = 1005,
+			TpGroupBloodmaulslagmines = 1006,
+		
 
         };
 
         enum Destinations
         {
 			DestinationWodstart = 1,
-			DestinationBloodmaulslagmines = 2,
-			DestinationIrondocks = 3,
-			DestinationAuchindoun = 4,
-			DestinationSkyreach = 5,
-			DestinationGrimraildepot = 6,
-			DestinationShadowmoonburialgrounds = 7,
-			DestinationEverbloom = 8,
-			DestinationUpperblackrockspire = 9,
-			DestinationHighmaul = 10,
-			DestinationBlackRockFoundry = 11,
-			DestinationHFC = 12,
-            DestinationRukhmar          = 13,
-            DestinationTarlna           = 14,
-            DestinationDrov             = 15,
-			DestinationKazz             = 16
+			DestinationBloodmaulslagmines = 2
+			
             
         };
 
@@ -129,48 +75,7 @@ class npc_hellscream_teleporter : public CreatureScript
                 case Destinations::DestinationBloodmaulslagmines:
                     p_Player->TeleportTo(1175, 1829.37f, -245.757f, 255.727f, 46.1094f);
                     break;
-				case Destinations::DestinationIrondocks:
-					p_Player->TeleportTo(1195, 6746.09f, -545.04f, 4.89f, 4.8989f);
-					break;
-				case Destinations::DestinationAuchindoun:
-					p_Player->TeleportTo(1182, 1483.99f, 2953.26f, 35.2387f, 0.0275292f);
-					break;
-				case Destinations::DestinationGrimraildepot:
-					p_Player->TeleportTo(1208, 1737.59f, 1681.19f, 7.6742f, 3.082f);
-					break;
-				case Destinations::DestinationSkyreach:
-					p_Player->TeleportTo(1209, 1232.46f, 1743.71f, 177.169f, 331.58f);
-					break;
-				case Destinations::DestinationShadowmoonburialgrounds:
-					p_Player->TeleportTo(1176, 1774.28f, 213.331f, 304.917f, 4.69119f);
-					break;
-				case Destinations::DestinationEverbloom:
-					p_Player->TeleportTo(1279, 454.855f, 1350.13f, 117.067f, 0.966836f);
-					break;
-				case Destinations::DestinationUpperblackrockspire:
-					p_Player->TeleportTo(1358, 120.472f, -319.104f, 70.9541f, 6.2642f);
-					break;
-				case Destinations::DestinationRukhmar:
-					p_Player->TeleportTo(1116, 167.2388f, 2655.39f, 68.58f, 4.105f);
-					break;
-                case Destinations::DestinationTarlna:
-                    p_Player->TeleportTo(1116, 4918.54f, 1292.16f, 120.28f, 4.018f);
-                    break;
-                case Destinations::DestinationDrov:
-                    p_Player->TeleportTo(1116, 7330.3f, 1455.87f, 81.76f, 6.08f);
-                    break;
-				case Destinations::DestinationKazz:
-					p_Player->TeleportTo(1464, 5122.14f, -814.783f, 329.13f, 0.759337f);
-					break;
-                case Destinations::DestinationHighmaul:
-					p_Player->TeleportTo(1228, 3486.48f, 7603.32f, 10.4853f, 4.0252f);
-                    break;
-                case Destinations::DestinationBlackRockFoundry:
-					p_Player->TeleportTo(1205, 131.172f, 3429.48f, 319.829f, 0.00135f);
-                    break;
-				case Destinations::DestinationHFC:
-					p_Player->TeleportTo(1448, 3980.45f, -782.131f, 36.5177f, 1.74766f);
-					break;
+				
             }
         }
 
@@ -191,48 +96,7 @@ class npc_hellscream_teleporter : public CreatureScript
 					case Destinations::DestinationBloodmaulslagmines:
 						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationBloodmaulslagmines);
 						break;
-					case Destinations::DestinationIrondocks:
-						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationIrondocks);
-						break;
-					case Destinations::DestinationAuchindoun:
-						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationAuchindoun);
-						break;
-					case Destinations::DestinationGrimraildepot:
-						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationGrimraildepot);
-						break;
-					case Destinations::DestinationSkyreach:
-						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationSkyreach);
-						break;
-					case Destinations::DestinationShadowmoonburialgrounds:
-						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationShadowmoonburialgrounds);
-						break;
-					case Destinations::DestinationEverbloom:
-						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationEverbloom);
-						break;
-					case Destinations::DestinationUpperblackrockspire:
-						TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationUpperblackrockspire);
-						break;
-                        case Destinations::DestinationRukhmar:
-                            TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationRukhmar);
-                            break;
-                        case Destinations::DestinationTarlna:
-                            TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationTarlna);
-                            break;
-                        case Destinations::DestinationDrov:
-                            TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationDrov);
-                            break;
-						case Destinations::DestinationKazz:
-							TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationKazz);
-							break;
-                        case Destinations::DestinationHighmaul:
-							TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationHighmaul);
-                            break;
-                        case Destinations::DestinationBlackRockFoundry:
-							TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationBlackRockFoundry);
-                            break;
-						case Destinations::DestinationHFC:
-							TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationHFC);
-							break;
+				
 
                     }
                 }
@@ -241,22 +105,8 @@ class npc_hellscream_teleporter : public CreatureScript
 
         bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
         {
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Intro] Warlords of Draenor, please.", GOSSIP_SENDER_MAIN, eActions::SelectWodstart);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Bloodmaul Slag Mines, please.", GOSSIP_SENDER_MAIN, eActions::SelectBloodmaulslagmines);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Iron Docks, please.", GOSSIP_SENDER_MAIN, eActions::SelectIrondocks);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Auchindoun, please.", GOSSIP_SENDER_MAIN, eActions::SelectAuchindoun);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Grimrail Depot, please.", GOSSIP_SENDER_MAIN, eActions::SelectGrimraildepot);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Skyreach, please.", GOSSIP_SENDER_MAIN, eActions::SelectSkyreach);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Shadowmoon Burial Grounds, please.", GOSSIP_SENDER_MAIN, eActions::SelectShadowmoonburialgrounds);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] The Everbloom, please.", GOSSIP_SENDER_MAIN, eActions::SelectEverbloom);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Upper Blackrock Spire, please.", GOSSIP_SENDER_MAIN, eActions::SelectUpperblackrockspire);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Raid] Highmaul, please.", GOSSIP_SENDER_MAIN, eActions::SelectHighmaul);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Raid] Blackrock Foundry, please.", GOSSIP_SENDER_MAIN, eActions::SelectBlackrock);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Raid] Hellfire Citadel, please.", GOSSIP_SENDER_MAIN, eActions::SelectHFC);
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Rukhmar, please.", GOSSIP_SENDER_MAIN, eActions::SelectRukhmar);
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Tarlna, please.", GOSSIP_SENDER_MAIN, eActions::SelectTarlna);
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Drov, please.", GOSSIP_SENDER_MAIN, eActions::SelectDrov);
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[World Boss] Supreme Lord Kazzak, please.", GOSSIP_SENDER_MAIN, eActions::SelectKazz);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Lower Blackrock Spire, please.", GOSSIP_SENDER_MAIN, eActions::SelectWodstart);
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[Dungeon] Upper Blackrock Spire, please.", GOSSIP_SENDER_MAIN, eActions::SelectBloodmaulslagmines);
             p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 
             return true;
@@ -270,86 +120,19 @@ class npc_hellscream_teleporter : public CreatureScript
             switch (p_Action)
             {
 			case eActions::SelectWodstart:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Tanaris alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneWodstart);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Tanaris with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupWodstart);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Lower Blackrock Spire alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneWodstart);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Lower Blackrock Spire with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupWodstart);
 				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 				break;
 			case eActions::SelectBloodmaulslagmines:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Bloodmaul Slag Mines alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneBloodmaulslagmines);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Bloodmaul Slag Mines with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupBloodmaulslagmines);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Upper Blackrock Spire alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneBloodmaulslagmines);
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to teleport to Upper Blackrock Spire with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupBloodmaulslagmines);
 				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 				break;
-			case eActions::SelectIrondocks:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Iron Docks alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneIrondocks);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Iron Docks with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupIrondocks);
-				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-				break;
-			case eActions::SelectAuchindoun:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Auchindoun alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneAuchindoun);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Auchindoun with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupAuchindoun);
-				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-				break;
-			case eActions::SelectGrimraildepot:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Grimrail Depot alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneGrimraildepot);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Grimrail Depot with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupGrimraildepot);
-				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-				break;
-			case eActions::SelectSkyreach:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Skyreach alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneSkyreach);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Skyreach with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupSkyreach);
-				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-				break;
-			case eActions::SelectShadowmoonburialgrounds:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Shadowmoon Burial Grounds alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneShadowmoonburialgrounds);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Shadowmoon Burial Grounds with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupShadowmoonburialgrounds);
-				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-				break;
-			case eActions::SelectEverbloom:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test The Everbloom alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneEverbloom);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight The Everbloom with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupEverbloom);
-				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-				break;
-			case eActions::SelectUpperblackrockspire:
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Upper Blackrock Spire alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneUpperblackrockspire);
-				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Upper Blackrock Spire with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupUpperblackrockspire);
-				p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-				break;
-                case eActions::SelectRukhmar:
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Rukhmar alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneRukhmar);
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Rukhmar with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupRukhmar);
-                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-                    break;
-                case eActions::SelectTarlna:
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Tarlna alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneTarlna);
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Tarlna with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupTarlna);
-                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-                    break;
-                case eActions::SelectDrov:
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Drov alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneDrov);
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Drov with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupDrov);
-                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-                    break;
-				case eActions::SelectKazz:
-					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Supreme Lord Kazzak alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneKazz);
-					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Supreme Lord Kazzak with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupKazz);
-					p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-					break;
-                case eActions::SelectHighmaul:
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Highmaul alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneHighmaul);
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Highmaul with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupHighmaul);
-                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-                    break;
-                case eActions::SelectBlackrock:
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Blackrock Foundry alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneBlackrock);
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Blackrock Foundry with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupBlackrock);
-                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-                    break;
-				case eActions::SelectHFC:
-					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Hellfire Citadel alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneHFC);
-					p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Hellfire Citadel with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupHFC);
-					p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-					break;
 				case eActions::TpAloneWodstart:
+					TeleportPlayer(p_Player, Destinations::DestinationWodstart);
+					break;
+                    case eActions::TpGroupWodstart:
 					TeleportPlayer(p_Player, Destinations::DestinationWodstart);
 					break;
 				case eActions::TpAloneBloodmaulslagmines:
@@ -358,92 +141,6 @@ class npc_hellscream_teleporter : public CreatureScript
 				case eActions::TpGroupBloodmaulslagmines:
 					TeleportGroup(p_Player, Destinations::DestinationBloodmaulslagmines);
 					break;
-				case eActions::TpAloneIrondocks:
-					TeleportPlayer(p_Player, Destinations::DestinationIrondocks);
-					break;
-				case eActions::TpGroupIrondocks:
-					TeleportGroup(p_Player, Destinations::DestinationIrondocks);
-					break;
-				case eActions::TpAloneAuchindoun:
-					TeleportPlayer(p_Player, Destinations::DestinationAuchindoun);
-					break;
-				case eActions::TpGroupAuchindoun:
-					TeleportGroup(p_Player, Destinations::DestinationAuchindoun);
-					break;
-				case eActions::TpAloneGrimraildepot:
-					TeleportPlayer(p_Player, Destinations::DestinationGrimraildepot);
-					break;
-				case eActions::TpGroupGrimraildepot:
-					TeleportGroup(p_Player, Destinations::DestinationGrimraildepot);
-					break;
-				case eActions::TpAloneSkyreach:
-					TeleportPlayer(p_Player, Destinations::DestinationSkyreach);
-					break;
-				case eActions::TpGroupSkyreach:
-					TeleportGroup(p_Player, Destinations::DestinationSkyreach);
-					break;
-				case eActions::TpAloneShadowmoonburialgrounds:
-					TeleportPlayer(p_Player, Destinations::DestinationShadowmoonburialgrounds);
-					break;
-				case eActions::TpGroupShadowmoonburialgrounds:
-					TeleportGroup(p_Player, Destinations::DestinationShadowmoonburialgrounds);
-					break;
-				case eActions::TpAloneEverbloom:
-					TeleportPlayer(p_Player, Destinations::DestinationEverbloom);
-					break;
-				case eActions::TpGroupEverbloom:
-					TeleportGroup(p_Player, Destinations::DestinationEverbloom);
-					break;
-				case eActions::TpAloneUpperblackrockspire:
-					TeleportPlayer(p_Player, Destinations::DestinationUpperblackrockspire);
-					break;
-				case eActions::TpGroupUpperblackrockspire:
-					TeleportGroup(p_Player, Destinations::DestinationUpperblackrockspire);
-					break;
-                case eActions::TpAloneRukhmar:
-                    TeleportPlayer(p_Player, Destinations::DestinationRukhmar);
-                    break;
-                case eActions::TpGroupRukhmar:
-                    TeleportGroup(p_Player, Destinations::DestinationRukhmar);
-                    break;
-                case eActions::TpAloneTarlna:
-                    TeleportPlayer(p_Player, Destinations::DestinationTarlna);
-                    break;
-                case eActions::TpGroupTarlna:
-                    TeleportGroup(p_Player, Destinations::DestinationTarlna);
-                    break;
-                case eActions::TpAloneDrov:
-                    TeleportPlayer(p_Player, Destinations::DestinationDrov);
-                    break;
-                case eActions::TpGroupDrov:
-                    TeleportGroup(p_Player, Destinations::DestinationDrov);
-                    break;
-				case eActions::TpAloneKazz:
-					TeleportPlayer(p_Player, Destinations::DestinationKazz);
-					break;
-				case eActions::TpGroupKazz:
-					TeleportGroup(p_Player, Destinations::DestinationKazz);
-					break;
-                case eActions::TpAloneHighmaul:
-                    TeleportPlayer(p_Player, Destinations::DestinationHighmaul);
-                    break;
-                case eActions::TpGroupHighmaul:
-                    TeleportGroup(p_Player, Destinations::DestinationHighmaul);
-                    break;
-                case eActions::TpAloneBlackrock:
-                    TeleportPlayer(p_Player, Destinations::DestinationBlackRockFoundry);
-                    break;
-                case eActions::TpGroupBlackrock:
-                    TeleportGroup(p_Player, Destinations::DestinationBlackRockFoundry);
-                    break;
-				case eActions::TpAloneHFC:
-					TeleportPlayer(p_Player, Destinations::DestinationHFC);
-					break;
-				case eActions::TpGroupHFC:
-					TeleportGroup(p_Player, Destinations::DestinationHFC);
-					break;
-                default:
-                    break;
             }
 
             return true;
@@ -453,24 +150,24 @@ class npc_hellscream_teleporter : public CreatureScript
         {
             npc_hellscream_teleporterAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_YellTimer = 300 * IN_MILLISECONDS;
+              //  m_YellTimer = 300 * IN_MILLISECONDS;
             }
 
-            uint32 m_YellTimer;
+         //   uint32 m_YellTimer;
 
             void UpdateAI(uint32 const p_Diff) override
             {
-                if (m_YellTimer)
-                {
-                    if (m_YellTimer <= p_Diff)
-                    {
+                //if (m_YellTimer)
+               // {
+                    //if (m_YellTimer <= p_Diff)
+                   // {
                         
-                        me->YellToZone(124097, LANG_UNIVERSAL, 0);
-                        m_YellTimer = 300 * IN_MILLISECONDS;
-                    }
-                    else
-                        m_YellTimer -= p_Diff;
-                }
+                      // me->YellToZone(124097, LANG_UNIVERSAL, 0);
+                      //  m_YellTimer = 300 * IN_MILLISECONDS;
+                   // }
+                   // else
+                      //  m_YellTimer -= p_Diff;
+               // }
             }
         };
 
