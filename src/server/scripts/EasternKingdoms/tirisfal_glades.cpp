@@ -16,7 +16,7 @@
 #include "Vehicle.h"
 #include "ScriptedEscortAI.h"
 
- // npc_agatha 49044
+ /// Agatha - 49044
 class npc_agatha_49044 : public CreatureScript
 {
 public:
@@ -26,15 +26,33 @@ public:
 
 	enum eAction
 	{
-		StartQuest
+		StartQuest	 = 0
+	};
+
+	enum eData
+	{
+		QUEST_FRESH_OUT_OF_THE_GRAVE	= 24959,
+		SPELL_REVIVE_COSMETIC			= 73524,
+		SPELL_RIGOR_MORTIS				= 73523
 	};
 
 	bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest const* p_Quest) override
 	{
-		if (p_Quest->GetQuestId() == 24954) // Fresh out of the Grave
+		if (p_Quest->GetQuestId() == QUEST_FRESH_OUT_OF_THE_GRAVE) // Fresh out of the Grave
 		{
 			p_Creature->GetAI()->DoAction(eAction::StartQuest);
+			m_PlayerGuid = p_Player->GetGUID();
+		}
 
+		return true;
+	}
+
+	bool OnQuestAbandon(Player* p_Player, Creature* p_Creature, Quest const* p_Quest)
+	{
+		if (p_Quest->GetQuestId() == QUEST_FRESH_OUT_OF_THE_GRAVE) // Fresh out of the Grave
+		{
+			// Teleport Player to start coordinates
+			p_Creature->GetAI()->DoAction(eAction::StartQuest);
 			m_PlayerGuid = p_Player->GetGUID();
 		}
 
@@ -62,9 +80,16 @@ public:
 			{
 				case eAction::StartQuest:
 				{
-					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					
+					AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-						Talk(2);
+						if (m_PlayerGuid)
+						{
+							if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
+							{
+								me->CastSpell(l_Player, SPELL_REVIVE_COSMETIC, false);
+							}
+						}
 					});
 
 					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -73,18 +98,7 @@ public:
 						{
 							if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
 							{
-								me->CastSpell(l_Player, 84197, false);
-							}
-						}
-					});
-
-					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						if (m_PlayerGuid)
-						{
-							if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
-							{
-								l_Player->RemoveAura(73523); // Rigor Mortis
+								l_Player->RemoveAura(SPELL_RIGOR_MORTIS); // Rigor Mortis
 							}
 						}
 					});
@@ -107,7 +121,7 @@ public:
 	}
 };
 
- // npc_aradne 50372
+ /// Aradne - 50372
 class npc_aradne_50372 : public CreatureScript
 {
 public:
@@ -115,8 +129,9 @@ public:
 
 	enum eAradne
 	{
-		SPELL_RAISE_UNDEAD = 84197,
-		EVENT_RISE_DEAD = 901,
+		SPELL_RAISE_UNDEAD			= 84197,
+		NPC_DEATHKNELL_GRAVE_TARGET = 50373,
+		EVENT_RISE_DEAD				= 901,
 		EVENT_START_TALK,
 		EVENT_START_WALK,
 	};
@@ -134,7 +149,7 @@ public:
 
 		bool CanWalk;
 
-		void Reset()  override
+		void Reset() override
 		{
 			CanWalk = true;
 		}
@@ -143,14 +158,13 @@ public:
 		{
 			switch (waypointId)
 			{
-				case 1:
 				case 2:
 				case 4:
-				case 6:
-				case 9:
+				case 18:
+				case 25:
 				{
-					if (Creature* npc = me->FindNearestCreature(50373, 1.0f))
-						me->SetFacingToObject(npc);
+					if (Creature* GraveTarget = me->FindNearestCreature(NPC_DEATHKNELL_GRAVE_TARGET, 1.0f))
+						me->SetFacingToObject(GraveTarget);
 
 					CanWalk = false;
 
@@ -166,7 +180,7 @@ public:
 			{
 				case eActions::Answer:
 				{
-					Talk(1);
+					Talk(1); // You are returned to life.
 					break;
 				}
 			default:
@@ -183,14 +197,14 @@ public:
 				switch (eventId)
 				{
 					case EVENT_RISE_DEAD:
-						if (Creature* npc = me->FindNearestCreature(50373, 2.0f))
+						if (Creature* npc = me->FindNearestCreature(NPC_DEATHKNELL_GRAVE_TARGET, 2.0f))
 							npc->CastSpell(npc, SPELL_RAISE_UNDEAD, true);
 
 						m_events.ScheduleEvent(EVENT_START_TALK, 500);
 						m_events.ScheduleEvent(EVENT_START_TALK, 3000);
 						break;
 					case EVENT_START_TALK:
-						Talk(0);
+						Talk(0); // Text after summon - rise, waken, you are returned to life, etc...
 						break;
 					case EVENT_START_WALK:
 						CanWalk = true;
@@ -206,7 +220,7 @@ public:
 	}
 };
 
-// Deathknell Grave Target 50373
+/// Deathknell Grave Target - 50373
 class npc_deathknell_grave_target : public CreatureScript
 {
 public:
@@ -214,9 +228,10 @@ public:
 
 	enum eRisenDead
 	{
-		SPELL_DIRT_EXPLOSION = 89199,
-		SPELL_CHURNING_DIRT = 92788,
-		SPELL_RIDE_UNDEAD = 84197,
+		NPC_RISEN_RECRUIT		= 50374,
+		SPELL_DIRT_EXPLOSION	= 89199,
+		SPELL_CHURNING_DIRT		= 92788,
+		SPELL_RISE_UNDEAD		= 84197
 	};
 
 	enum eActions
@@ -235,7 +250,7 @@ public:
 
 		void SpellHit(Unit* caster, SpellInfo const* spell)
 		{
-			if (spell->Id == SPELL_RIDE_UNDEAD)
+			if (spell->Id == SPELL_RISE_UNDEAD)
 			{
 				me->GetAI()->DoAction(eActions::StartEvent);
 			}
@@ -257,7 +272,7 @@ public:
 						Position l_Pos;
 						me->GetPosition(&l_Pos);
 
-						if (Creature* npc = me->SummonCreature(50374, l_Pos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+						if (Creature* npc = me->SummonCreature(NPC_RISEN_RECRUIT, l_Pos, TEMPSUMMON_TIMED_DESPAWN, 30000))
 						{
 							npc->GetAI()->DoCast(SPELL_DIRT_EXPLOSION);
 						}
@@ -287,7 +302,7 @@ public:
 	}
 };
 
-// npc_risen_dead 50374
+/// Risen Dead - 50374
 class npc_risen_dead : public CreatureScript
 {
 public:
@@ -300,6 +315,7 @@ public:
 
 	enum eNpc
 	{
+		NPC_ARADNE		 = 50372,
 		EVENT_START_ANIM = 901,
 		EVENT_SHOW_DEAD,
 		EVENT_SHOW_LIFE,
@@ -318,12 +334,12 @@ public:
 
 	struct npc_risen_deadAI : public ScriptedAI
 	{
-		npc_risen_deadAI(Creature *c) : ScriptedAI(c) {}
+		npc_risen_deadAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
 
 		EventMap m_events;
 		uint32 m_WishToBeDead;
 
-		void Reset()  override
+		void Reset() override
 		{
 			m_WishToBeDead = urand(0, 100);
 			m_events.RescheduleEvent(EVENT_START_ANIM, 1000);
@@ -350,15 +366,15 @@ public:
 						m_events.ScheduleEvent(EVENT_SHOW_DEAD1, 100);
 						break;
 					case EVENT_SHOW_DEAD1:
-						Talk(0);
+						Talk(2); // What's happening to me?
 						m_events.ScheduleEvent(EVENT_SHOW_DEAD2, 6000);
 						break;
 					case EVENT_SHOW_DEAD2:
-						Talk(1);
+						Talk(0); // I never asked for this 
 						m_events.ScheduleEvent(EVENT_SHOW_DEAD3, 6000);
 						break;
 					case EVENT_SHOW_DEAD3:
-						Talk(8);
+						Talk(4); // commits suicide
 						m_events.ScheduleEvent(EVENT_SHOW_DEAD4, 6000);
 						break;
 					case EVENT_SHOW_DEAD4:
@@ -370,40 +386,40 @@ public:
 						break;
 					case EVENT_SHOW_LIFE1:
 					{
-						Talk(4);
+						Talk(5); // Life answers 
 						m_events.ScheduleEvent(EVENT_SHOW_LIFE2, 6000);
 
 						std::list<Creature*> l_Aradne;
-						me->GetCreatureListWithEntryInGrid(l_Aradne, 50372, 5.0f);
+						me->GetCreatureListWithEntryInGrid(l_Aradne, NPC_ARADNE, 5.0f);
 						if (l_Aradne.front() != nullptr)
-							l_Aradne.front()->AI()->DoAction(0);
+							l_Aradne.front()->AI()->DoAction(0); // Answer
 
 						break;
 					}
 					case EVENT_SHOW_LIFE2:
-						Talk(5);
+						Talk(6); // If the Banshee Queen...
 						m_events.ScheduleEvent(EVENT_SHOW_LIFE3, 6000);
 						break;
 					case EVENT_SHOW_LIFE3:
-						Talk(9);
-						me->GetMotionMaster()->MovePath(5037401, false);
+						Talk(7); // Walks off towards the barracks.
+						me->GetMotionMaster()->MovePath(5037401, false); // Risen Dead Path 2
 						break;
 					case EVENT_SHOW_RUNNING:
 						me->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);
 						m_events.ScheduleEvent(EVENT_SHOW_RUNNING1, 100);
 						break;
 					case EVENT_SHOW_RUNNING1:
-						Talk(2);
+						Talk(2); // What's happening to me? 
 						m_events.ScheduleEvent(EVENT_SHOW_RUNNING2, 6000);
 						break;
 					case EVENT_SHOW_RUNNING2:
-						Talk(3);
+						Talk(0); // I never asked for this!
 						m_events.ScheduleEvent(EVENT_SHOW_RUNNING3, 6000);
 						break;
 					case EVENT_SHOW_RUNNING3:
-						Talk(7);
+						Talk(1); // enrages and transforms into a mindless zombie
 						me->HandleEmoteCommand(EMOTE_ONESHOT_CRY);
-						me->GetMotionMaster()->MovePath(5037402, false);
+						me->GetMotionMaster()->MovePath(5037402, false); // Risen Dead Path 3
 						break;
 					}
 				}
@@ -416,15 +432,20 @@ public:
 	}
 };
 
-// npc_undertaker_mordo 1568
+/// Undertaker Mordo - 1568
 class npc_undertaker_mordo : public CreatureScript
 {
 public:
 	npc_undertaker_mordo() : CreatureScript("npc_undertaker_mordo") { }
 
-	enum eNpc
+	enum eData
 	{
-		EVENT_START_ANIM = 901,
+		QUEST_THE_SHADOW_GRAVE				= 28608,
+		SPELL_SUMMON_DARNELL_SHADOW_GRAVE	= 91576,
+		SPELL_RISEN_DEAD_TRANSFORM			= 93460,
+		NPC_DEATHKNELL_GRAVE_TARGET			= 50373,
+		NPC_RISEN_DEAD						= 50414,
+		EVENT_START_ANIM					= 901,
 		EVENT_MASTER_RESET,
 		EVENT_START_TALK,
 		EVENT_ANIM_PART_01,
@@ -439,20 +460,18 @@ public:
 		EVENT_ANIM_PART_10,
 	};
 
-	bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+	bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest const* p_Quest)
 	{
-		if (!player->hasQuest(28608))
-			if (quest->GetQuestId() == 28608)
-			{
-				player->CastSpell(player, 91576);
-			}
+		if (!p_Player->HasQuest(QUEST_THE_SHADOW_GRAVE))
+			if (p_Quest->GetQuestId() == QUEST_THE_SHADOW_GRAVE)
+				p_Player->CastSpell(p_Player, SPELL_SUMMON_DARNELL_SHADOW_GRAVE);
 
 		return false;
 	}
 
 	struct npc_undertaker_mordoAI : public ScriptedAI
 	{
-		npc_undertaker_mordoAI(Creature *c) : ScriptedAI(c) {}
+		npc_undertaker_mordoAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
 		EventMap m_events;
 		uint64   m_targetGUID;
@@ -460,8 +479,8 @@ public:
 		void Reset()  override
 		{
 			m_targetGUID = 0;
-			m_events.RescheduleEvent(EVENT_START_ANIM, urand(50000, 70000));
-			m_events.RescheduleEvent(EVENT_MASTER_RESET, 150000);
+			m_events.RescheduleEvent(EVENT_START_ANIM, urand(60000, 80000));
+			m_events.RescheduleEvent(EVENT_MASTER_RESET, 160000);
 		}
 
 		void UpdateAI(uint32 diff) override
@@ -476,12 +495,12 @@ public:
 				{
 					case EVENT_START_ANIM:
 					{
-						if (Creature* npc_trigger = me->FindNearestCreature(50373, 20.0f))
+						if (Creature* npc_trigger = me->FindNearestCreature(NPC_DEATHKNELL_GRAVE_TARGET, 20.0f))
 						{
 							Position pos1;
 							npc_trigger->GetPosition(&pos1);
 
-							if (Creature* target = me->SummonCreature(50414, pos1, TEMPSUMMON_TIMED_DESPAWN, 40000))
+							if (Creature* target = me->SummonCreature(NPC_RISEN_DEAD, pos1, TEMPSUMMON_TIMED_DESPAWN, 40000))
 							{
 								Position pos;
 
@@ -498,14 +517,14 @@ public:
 						break;
 					case EVENT_START_TALK:
 					{
-						Talk(0);
+						Talk(0); // Let's see, I just saw a corpse with a jaw...
 						m_events.ScheduleEvent(EVENT_ANIM_PART_01, 3000);
 						m_events.RescheduleEvent(EVENT_MASTER_RESET, 150000);
 						break;
 					}
 					case EVENT_ANIM_PART_01:
 					{
-						if (Creature* target = ObjectAccessor::GetCreature(*me, m_targetGUID))
+						if (Creature* target = Unit::GetCreature(*me, m_targetGUID))
 						{
 							target->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_KNEEL);
 							target->SetFacingToObject(me);
@@ -533,16 +552,16 @@ public:
 					}
 					case EVENT_ANIM_PART_05:
 					{
-						Talk(1);
+						Talk(1); // That should do the job
 						m_events.ScheduleEvent(EVENT_ANIM_PART_06, 250);
 						break;
 					}
 					case EVENT_ANIM_PART_06:
 					{
-						if (Creature* target = ObjectAccessor::GetCreature(*me, m_targetGUID))
+						if (Creature* target = Unit::GetCreature(*me, m_targetGUID))
 						{
-							target->AddAura(93460, target);
-							target->CastSpell(target, 93460);
+							target->AddAura(SPELL_RISEN_DEAD_TRANSFORM, target);
+							target->CastSpell(target, SPELL_RISEN_DEAD_TRANSFORM);
 							target->SetDisplayId(36775);
 							target->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_STAND);
 							m_events.ScheduleEvent(EVENT_ANIM_PART_07, 2500);
@@ -551,17 +570,17 @@ public:
 					}
 					case EVENT_ANIM_PART_07:
 					{
-						if (Creature* target = ObjectAccessor::GetCreature(*me, m_targetGUID))
+						if (Creature* target = Unit::GetCreature(*me, m_targetGUID))
 						{
 							target->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-							target->AI()->Talk(0);
+							target->AI()->Talk(0); // T-thank you, Undert-t-taker
 							m_events.ScheduleEvent(EVENT_ANIM_PART_08, 3750);
 						}
 						break;
 					}
 					case EVENT_ANIM_PART_08:
 					{
-						if (Creature* target = ObjectAccessor::GetCreature(*me, m_targetGUID))
+						if (Creature* target = Unit::GetCreature(*me, m_targetGUID))
 						{
 							target->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 							m_events.ScheduleEvent(EVENT_ANIM_PART_09, 2500);
@@ -570,9 +589,9 @@ public:
 					}
 					case EVENT_ANIM_PART_09:
 					{
-						if (Creature* target = ObjectAccessor::GetCreature(*me, m_targetGUID))
+						if (Creature* target = Unit::GetCreature(*me, m_targetGUID))
 						{
-							target->GetMotionMaster()->MovePath(5041401, false);
+							target->GetMotionMaster()->MovePath(5041401, false); // Risen Dead Path
 							m_events.ScheduleEvent(EVENT_ANIM_PART_10, 45000);
 							m_events.RescheduleEvent(EVENT_START_ANIM, urand(50000, 70000));
 							m_events.RescheduleEvent(EVENT_MASTER_RESET, 150000);
@@ -581,7 +600,7 @@ public:
 					}
 					case EVENT_ANIM_PART_10:
 					{
-						if (Creature* target = ObjectAccessor::GetCreature(*me, m_targetGUID))
+						if (Creature* target = Unit::GetCreature(*me, m_targetGUID))
 						{
 							target->DespawnOrUnsummon();
 						}
@@ -598,7 +617,7 @@ public:
 	}
 };
 
-// npc_darnell 49141
+/// Darnell - 49141
 class npc_darnell_49141 : public CreatureScript
 {
 public:
@@ -614,9 +633,16 @@ public:
 		Ground,
 	};
 
+	enum eData
+	{
+		QUEST_THE_SHADOW_GRAVE		= 28608,
+		ITEM_CORPSE_STITCHING_TWINE	= 64581,
+		ITEM_THICK_EMBALMING_FLUID	= 64582
+	};
+
 	struct npc_darnell_49141AI : public ScriptedAI
 	{
-		npc_darnell_49141AI(Creature *c) : ScriptedAI(c) {}
+		npc_darnell_49141AI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
 
 		void Reset()  override
 		{
@@ -626,7 +652,7 @@ public:
 
 			if (Unit* npc = me->GetCharmerOrOwner())
 				if (m_player = npc->ToPlayer())
-					if (m_player->GetQuestStatus(28608) == QUEST_STATUS_INCOMPLETE)
+					if (m_player->GetQuestStatus(QUEST_THE_SHADOW_GRAVE) == QUEST_STATUS_INCOMPLETE)
 					{
 						m_modus = 1;
 						m_phase = 1;
@@ -638,7 +664,7 @@ public:
 						m_player->GetPosition(&m_OldPosition);
 						m_player->GetPosition(&m_player_pos);
 						m_player_area = m_player->GetAreaId();
-						Talk(0);
+						Talk(0); // Greetings
 					}
 		}
 
@@ -714,7 +740,7 @@ public:
 
 			if (m_counter >= 10)
 			{
-				Talk(1); // this way
+				Talk(1); // The shadow grave is in this direction.
 				me->GetMotionMaster()->MovePoint(1, 1665.368896f, 1662.722656f, 141.850983f);
 				m_path = 1;
 				m_arrived = false;
@@ -730,7 +756,7 @@ public:
 
 			if (m_counter >= 10)
 			{
-				Talk(2); // this way
+				Talk(2); // This way!
 				me->GetMotionMaster()->MovePoint(2, 1642.761963f, 1662.547729f, 132.477753f);
 				m_path = 2;
 				m_arrived = false;
@@ -746,7 +772,7 @@ public:
 
 			if (m_counter >= 10)
 			{
-				Talk(2); // this way
+				Talk(2); // This way!
 				me->GetMotionMaster()->MovePoint(3, 1642.498779f, 1677.809937f, 126.932129f);
 				m_path = 3;
 				m_arrived = false;
@@ -762,7 +788,7 @@ public:
 
 			if (m_counter >= 10)
 			{
-				Talk(2); // this way
+				Talk(2); // This way!
 				me->GetMotionMaster()->MovePoint(4, 1656.714478f, 1678.538330f, 120.718788f);
 				m_path = 4;
 				m_arrived = false;
@@ -777,7 +803,7 @@ public:
 				if (m_ItemsFound == false)
 				{
 					m_ItemsFound = true;
-					Talk(9);
+					Talk(5); // Nice work, you've found them
 					m_timer = 10000;
 					return;
 				}
@@ -794,13 +820,13 @@ public:
 			case 2:
 				MoveToCenter();
 				break;
-			case 3: // go to random corner
+			case 3: // Move to a random corner
 				MoveToRandomCorner();
 				break;
-			case 4: // say searching
+			case 4: // Say random text
 				SearchingOnCorner();
 				break;
-			case 5: // found
+			case 5: // Player found items
 				break;
 			default:
 				m_modus = 2;
@@ -864,14 +890,14 @@ public:
 
 		void SearchingOnCorner()
 		{
-			Talk(urand(3, 8));
+			Talk(urand(3, 4));
 			m_timer = 6000;
 			m_modus = 2;
 		}
 
 		bool CheckPlayerFoundItems()
 		{
-			if (m_player->HasItemCount(64582) && m_player->HasItemCount(64581))
+			if (m_player->HasItemCount(ITEM_THICK_EMBALMING_FLUID) && m_player->HasItemCount(ITEM_CORPSE_STITCHING_TWINE))
 				return true;
 
 			return false;
@@ -881,8 +907,8 @@ public:
 		{
 			if (!m_player->IsInWorld() ||
 				m_player->isDead() ||
-				m_player->GetQuestStatus(28608) != QUEST_STATUS_INCOMPLETE ||
-				(m_player->GetAreaId() != 5692 && m_player->GetAreaId() != 2117))
+				m_player->GetQuestStatus(QUEST_THE_SHADOW_GRAVE) != QUEST_STATUS_INCOMPLETE ||
+				(m_player->GetAreaId() != 5692 && m_player->GetAreaId() != 2117)) // Deathknell area id
 			{
 				me->DespawnOrUnsummon(); return false;
 			}
@@ -945,38 +971,54 @@ public:
 	}
 };
 
-// npc_marshal_redpath_49230
+
+/// The Wakening Quest - 24960
+/// Marshal Redpath - 49230
 class npc_marshal_redpath_49230 : public CreatureScript
 {
 public:
 	npc_marshal_redpath_49230() : CreatureScript("npc_marshal_redpath_49230") { }
 
-	enum eMarshal
+	enum eData
 	{
 		QUEST_THE_WAKENING = 24960,
+		MENU_ID_1		   = 12485,
+		MENU_ID_2		   = 12486,
+		NPC_TEXT_1		   = 17566,
+		NPC_TEXT_2		   = 17567
 	};
 
-	bool OnGossipHello(Player* player, Creature* creature) override
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
-		if (player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-			return false;
-
+		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_1, MENU_ID_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
+		}
+		p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
 		return true;
 	}
 
-	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
 	{
-		if (player->GetQuestStatus(24960) == QUEST_STATUS_INCOMPLETE)
+
+		if (action == GOSSIP_ACTION_INFO_DEF)
 		{
-			uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
-			if (id == 17567 && player->GetReqKillOrCastCurrentCount(QUEST_THE_WAKENING, 49230) == 0)
-			{
-				player->PlayerTalkClass->SendCloseGossip();
-				CAST_AI(npc_marshal_redpath_49230AI, creature->AI())->StartAnim(player);
-			}
+			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_2, MENU_ID_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_2, p_Creature->GetGUID());
 		}
-		return false;
+		else if (action == GOSSIP_ACTION_INFO_DEF + 1)
+		{
+			p_Player->KilledMonsterCredit(49230);
+			CAST_AI(npc_marshal_redpath_49230AI, p_Creature->AI())->StartAnim(p_Player);
+		}
+		p_Player->PlayerTalkClass->ClearMenus();
+		p_Player->PlayerTalkClass->SendCloseGossip();
+		return true;
 	}
+
+
 
 	struct npc_marshal_redpath_49230AI : public ScriptedAI
 	{
@@ -1018,7 +1060,7 @@ public:
 			switch (m_phase)
 			{
 			case 1:
-				Talk(1);
+				Talk(0); // Who are you calling a monster? 
 				m_timer = 2000;
 				m_phase = 2;
 				break;
@@ -1030,7 +1072,7 @@ public:
 				m_phase = 3;
 				break;
 			case 3:
-				me->GetMotionMaster()->MovePath(4923001, false);
+				me->GetMotionMaster()->MovePath(49230, false); // PathID 49230 in Waypoints table.
 				m_timer = 10000;
 				m_phase = 4;
 				break;
@@ -1049,38 +1091,58 @@ public:
 	}
 };
 
-// npc_valdred_moray_49231
+/// Valdred Moray - 49231
 class npc_valdred_moray_49231 : public CreatureScript
 {
 public:
 	npc_valdred_moray_49231() : CreatureScript("npc_valdred_moray_49231") { }
 
-	enum eValdred
+	enum eData
 	{
 		QUEST_THE_WAKENING = 24960,
+		MENU_ID_1		   = 12487,
+		MENU_ID_2		   = 12488,
+		MENU_ID_3		   = 12489,
+		NPC_TEXT_1		   = 17569,
+		NPC_TEXT_2		   = 17570,
+		NPC_TEXT_3	       = 17571
 	};
 
-	bool OnGossipHello(Player* player, Creature* creature) override
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
-		if (player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-			return false;
-
+		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_1, MENU_ID_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
+		}
+		p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
 		return true;
 	}
 
-	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-	{
-		if (player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-		{
-			uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
-			if (id == 12488 && player->GetReqKillOrCastCurrentCount(QUEST_THE_WAKENING, 49231) == 0)
-			{
-				player->PlayerTalkClass->SendCloseGossip();
-				CAST_AI(npc_valdred_moray_49231AI, creature->AI())->StartAnim(player);
-			}
-		}
 
-		return false;
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
+	{
+
+		if (action == GOSSIP_ACTION_INFO_DEF)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_2, MENU_ID_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_2, p_Creature->GetGUID());
+		}
+		else if (action == GOSSIP_ACTION_INFO_DEF + 1)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_3, MENU_ID_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_3, p_Creature->GetGUID());
+
+			
+		}
+		else if (action == GOSSIP_ACTION_INFO_DEF + 2)
+		{
+			p_Player->KilledMonsterCredit(49230);
+			CAST_AI(npc_valdred_moray_49231AI, p_Creature->AI())->StartAnim(p_Player);
+		}
+		p_Player->PlayerTalkClass->ClearMenus();
+		p_Player->PlayerTalkClass->SendCloseGossip();
+		return true;
 	}
 
 	struct npc_valdred_moray_49231AI : public ScriptedAI
@@ -1123,7 +1185,7 @@ public:
 			switch (m_phase)
 			{
 			case 1:
-				Talk(1);
+				Talk(0); // I see. Well then, let's get to work
 				m_timer = 2000;
 				m_phase = 2;
 				break;
@@ -1135,7 +1197,8 @@ public:
 				m_phase = 3;
 				break;
 			case 3:
-				me->GetMotionMaster()->MovePath(4923101, false);
+				me->GetMotionMaster()->MovePath(49231, false); // Pathid from Waypoints table
+				Talk(1); // Valdred Moray, reporting for duty.
 				m_timer = 10000;
 				m_phase = 4;
 				break;
@@ -1154,39 +1217,52 @@ public:
 	}
 };
 
-// npc_lilian_voss_38895
+/// Lilian Voss - 38895
 class npc_lilian_voss_38895 : public CreatureScript
 {
 public:
 	npc_lilian_voss_38895() : CreatureScript("npc_lilian_voss_38895") { }
 
-	enum eLilian
+	enum eData
 	{
-		QUEST_THE_WAKENING = 24960,
+		QUEST_THE_WAKENING	= 24960,
+		MENU_ID_1			= 12483,
+		MENU_ID_2			= 12484,
+		NPC_TEXT_1			= 17564,
+		NPC_TEXT_2		    = 17565
 	};
 
-	bool OnGossipHello(Player* player, Creature* creature) override
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
-		if (player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-			return false;
-
+		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_1, MENU_ID_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
+		}
+		p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
 		return true;
 	}
 
-	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-	{
-		if (player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-		{
-			uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
-			if (id == 17565 && player->GetReqKillOrCastCurrentCount(QUEST_THE_WAKENING, 38895) == 0)
-			{
-				player->PlayerTalkClass->SendCloseGossip();
-				CAST_AI(npc_lilian_voss_38895AI, creature->AI())->StartAnim(player);
-			}
-		}
 
-		return false;
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
+	{
+
+		if (action == GOSSIP_ACTION_INFO_DEF)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_2, MENU_ID_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_2, p_Creature->GetGUID());
+		}
+		else if (action == GOSSIP_ACTION_INFO_DEF + 1)
+		{
+			p_Player->KilledMonsterCredit(38895);
+			CAST_AI(npc_lilian_voss_38895AI, p_Creature->AI())->StartAnim(p_Player);
+		}
+		p_Player->PlayerTalkClass->ClearMenus();
+		p_Player->PlayerTalkClass->SendCloseGossip();
+		return true;
 	}
+
+
 
 	struct npc_lilian_voss_38895AI : public ScriptedAI
 	{
@@ -1228,7 +1304,7 @@ public:
 			switch (m_phase)
 			{
 			case 1:
-				Talk(1);
+				Talk(0); // No. You're lying!
 				m_timer = 2000;
 				m_phase = 2;
 				break;
@@ -1240,7 +1316,7 @@ public:
 				m_phase = 3;
 				break;
 			case 3:
-				me->GetMotionMaster()->MovePath(3889501, false);
+				me->GetMotionMaster()->MovePath(38895, false); // Pathid from Waypoints
 				m_timer = 10000;
 				m_phase = 4;
 				break;
@@ -1259,7 +1335,7 @@ public:
 	}
 };
 
-// npc_deathguard_saltain 1740
+/// Deathguard Saltain - 1740
 class npc_deathguard_saltain : public CreatureScript
 {
 public:
@@ -1304,7 +1380,7 @@ public:
 	}
 };
 
-// npc_darnell 49337
+/// Darnell - 49337
 class npc_darnell_49337 : public CreatureScript
 {
 public:
@@ -1371,7 +1447,7 @@ public:
 	}
 };
 
-// npc_scarlet_corpse_49340
+/// Scarlet Corpse - 49340
 class npc_scarlet_corpse_49340 : public CreatureScript
 {
 public:
@@ -1408,7 +1484,7 @@ public:
 	}
 };
 
-// npc_lilian_voss_38910
+/// Lilian Voss - 38910
 class npc_lilian_voss_38910 : public CreatureScript
 {
 public:
@@ -1500,7 +1576,7 @@ public:
 	}
 };
 
-// showfight npc_rotbrain_berserker 49422
+/// Rotbrain Berserker - 49422: Fight
 class npc_rotbrain_berserker : public CreatureScript
 {
 public:
@@ -1559,7 +1635,7 @@ public:
 	}
 };
 
-// showfight npc_rotbrain_magus 49423
+/// Rotbrain Magus - 49423: Fight
 class npc_rotbrain_magus : public CreatureScript
 {
 public:
@@ -1618,7 +1694,7 @@ public:
 	}
 };
 
-// showfight npc_marshal_redpath 49424
+/// Marshal Redpath - 49424: Fight
 class npc_marshal_redpath : public CreatureScript
 {
 public:
@@ -1677,7 +1753,7 @@ public:
 	}
 };
 
-// showfight npc_deathguard_protector 49428
+/// Deathguard Protector - 49428: Fight
 class npc_deathguard_protector : public CreatureScript
 {
 public:
@@ -1729,7 +1805,7 @@ public:
 	}
 };
 
-// 1543
+/// Vile Fin Puddlejumper - 1543
 class npc_vile_fin_puddlejumper_1543 : public CreatureScript
 {
 public:
@@ -1771,7 +1847,7 @@ public:
 	}
 };
 
-// 1544
+/// Vile Fin Minor Oracle - 1544
 class npc_vile_fin_minor_oracle_1544 : public CreatureScript
 {
 public:
@@ -1813,7 +1889,7 @@ public:
 	}
 };
 
-// 73108
+/// Spell: Murloc Leash - 73108
 class spell_murloc_leash_73108 : public SpellScriptLoader
 {
 public:
@@ -1901,7 +1977,7 @@ public:
 	}
 };
 
-// 38923
+/// Captured Vile Fin Puddlejumper - 38923
 class npc_captured_vile_fin_puddlejumper_38923 : public CreatureScript
 {
 public:
@@ -1946,7 +2022,7 @@ public:
 	}
 };
 
-// 39078
+/// Captured Vile Fin Minor Oracle - 39078
 class npc_captured_vile_fin_minor_oracle_39078 : public CreatureScript
 {
 public:
@@ -1991,7 +2067,7 @@ public:
 	}
 };
 
-// 38925
+/// Sedrick Calston - 38925
 class npc_sedrick_calston_38925 : public CreatureScript
 {
 public:
@@ -2075,7 +2151,8 @@ public:
 	}
 };
 
-// 39117 // quest 25006
+/// Quest: The Grasp Weakens
+/// Shadow Priestess Malia - 39117
 class npc_shadow_priestess_malia_39117 : public CreatureScript
 {
 public:
@@ -2302,7 +2379,7 @@ public:
 	}
 };
 
-// 38936 // vehicle sanders
+/// Lieutenant Sanders Noose - 38936
 class npc_lieutenant_sanders_noose_38936 : public CreatureScript
 {
 public:
@@ -2376,7 +2453,7 @@ public:
 	}
 };
 
-// 39038
+/// Lilian Voss - 39038
 class npc_lilian_voss_39038 : public CreatureScript
 {
 public:
@@ -2680,7 +2757,7 @@ public:
 	}
 };
 
-// 73307
+/// Spell: Lilian's Brain Burst 73307
 class spell_lilians_brain_burst_73307 : public SpellScriptLoader
 {
 public:
@@ -2710,7 +2787,7 @@ public:
 	}
 };
 
-// 73308
+/// Spell: Lilian's Shadow Hop 73308
 class spell_lilians_shadow_hop_73308 : public SpellScriptLoader
 {
 public:
@@ -2745,7 +2822,7 @@ public:
 	}
 };
 
-// 73309
+/// Spell: Lilian's Death Grip 73309
 class spell_lilians_death_grip_73309 : public SpellScriptLoader
 {
 public:
@@ -2794,9 +2871,9 @@ void AddSC_tirisfal_glades()
 	new npc_risen_dead();
 	new npc_undertaker_mordo();
 	new npc_darnell_49141();
-	new npc_marshal_redpath_49230();
-	new npc_valdred_moray_49231();
-	new npc_lilian_voss_38895();
+	// new npc_marshal_redpath_49230();
+	// new npc_valdred_moray_49231();
+	// new npc_lilian_voss_38895();
 	new npc_deathguard_saltain();
 	new npc_scarlet_corpse_49340();
 	new npc_darnell_49337();
