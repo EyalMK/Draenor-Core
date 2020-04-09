@@ -111,7 +111,7 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(3197, 'Dire Maul', 1, -3577.67, 841.859, 134.594, 0),
 	(3529, 'The Molten Core Window(Lava) Entrance', 409, 1096, -467, -104.6, 3.64),
 	(3726, 'Blackwing Lair - Blackrock Mountain - Eastern Kingdoms', 469, -7673.03, -1106.08, 396.651, 0.703353),
-	(3728, 'Blackrock Spire, Unknown', 229, 174.74, -474.77, 116.84, 3.2),
+	(10124, 'Lower blackrock spire - entrance', 229, 174.74, -474.77, 116.84, 3.2),
 	(8397, 'Chute de Theramore [Horde]', 1000, -4022.92, -4748.71, 5.219, 0),
 	(5148, 'CoT Stratholme - Exit Target', 1, -8756.6, -4457.02, -200.481, 1.39626),
 	(3948, 'Arathi Basin Alliance Out', 0, -1198, -2533, 22, 0),
@@ -312,7 +312,6 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(7838, 'Mogu\'shan Vaults - Entrance', 1008, 3861.55, 1045.11, 490.07, 0),
 	(7839, 'Mogu\'shan Vaults - Exit', 870, 3982.1, 1111.2, 497.21, 0),
 	(5047, 'The Gate WoTLK', 571, 4885, 5176, -85, 0.4),
-	(5046, 'The Gate Classic', 1, -6162, -1331, -169, 2.3),
 	(5461, 'Waygate sholazar -> un\'goro', 1, -6162.12, -1331.69, -168.965, 2.39285),
 	(5462, 'Waygate un\'goro -> sholazar', 571, 4885.89, 5176.28, -84.8635, 0.435156),
 	(5190, 'Teleportation pad, K3 -> Garm\'s Rise', 571, 6313.44, -1762.44, 457.645, 2.08917),
@@ -353,7 +352,8 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(9920, 'Shadowmoon Burial Grounds Exit', 1116, 766.887, 125.61, 7.25406, 5.48849),
 	(10237, 'GrimrailDepotEntrance', 1208, 1737.59, 1681.19, 7.6742, 3.082),
 	(2548, 'Scholomance - Exit Porch Target 001', 0, 1399.42, -2574.59, 107.786, 6.28319),
-	(2549, 'Scholomance - Exit Porch Target 001', 0, 1399.42, -2574.59, 107.786, 6.28319);
+	(2549, 'Scholomance - Exit Porch Target 001', 0, 1399.42, -2574.59, 107.786, 6.28319),
+	(5046, 'The Gate Classic', 1, -6162, -1331, -169, 2.3);
 /*!40000 ALTER TABLE `areatrigger_teleport` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

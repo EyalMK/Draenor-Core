@@ -1,1 +1,0 @@
-UPDATE `quest_template` SET `OfferRewardText`="Exactly what I needed. You'll be an asset to the Forsaken, $n.$B$BYou know, word has it that you were quite the $c in your previous life. Perhaps I should assign you to a more exciting task." WHERE `Id`=28608;
