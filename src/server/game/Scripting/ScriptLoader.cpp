@@ -23,6 +23,7 @@ void AddSC_Character_Renderer();
 void AddSC_StressTest();
 void AddSC_CustomPlayerscripts();
 void AddSC_midsummer_fire_festival();
+void AddSC_PVPTitles();
 #ifndef CROSS
 void AddSC_Loyalty_Points();
 #endif
@@ -1274,9 +1275,10 @@ void AddCommandScripts()
     AddSC_server_commandscript();
     AddSC_tele_commandscript();
 #ifndef CROSS
+    AddSC_cs_world_chat();
     AddSC_ticket_commandscript();
 #endif /* not CROSS */
-    AddSC_titles_commandscript();
+    AddSC_titles_commandscript();   
     AddSC_wp_commandscript();
 #ifndef CROSS
     AddSC_garrison_commandscript();
@@ -2211,9 +2213,11 @@ void AddCustomScripts()
     AddSC_warning_update_client();
     AddSC_DuelReset();
     AddSC_npc_custom();
+    
     AddSC_Webshop_Delivery();
     AddSC_Character_Renderer();
     AddSC_CustomPlayerscripts();
+    AddSC_PVPTitles();
     AddSC_midsummer_fire_festival();
 #ifndef CROSS
     AddSC_Loyalty_Points();
