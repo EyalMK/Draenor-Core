@@ -1,0 +1,1 @@
+UPDATE `creature_text` SET `text`="You're %n! The hero that everyone has been talking about! Thank you!" WHERE `entry`=50047 AND `id`=4;

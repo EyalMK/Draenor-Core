@@ -92,7 +92,7 @@ public:
 		void DamageTaken(Unit* doneBy, uint32& damage)
 		{
 			if (doneBy->ToCreature())
-				if (me->GetHealth() <= damage || me->GetHealthPct() <= 80.0f)
+				if (me->GetHealth() <= damage || me->GetHealthPct() <= 75.0f)
 					damage = 0;
 		}
 
@@ -137,7 +137,7 @@ public:
 
 				float z = me->GetMap()->GetHeight(me->GetPhaseMask(), wolfPos.GetPositionX(), wolfPos.GetPositionY(), wolfPos.GetPositionZ());
 				wolfPos.m_positionZ = z;
-
+				
 				if (Creature* wolf = me->SummonCreature(NPC_BLACKROCK_BATTLE_WORG, wolfPos))
 				{
 					me->getThreatManager().addThreat(wolf, 1000000.0f);
@@ -167,11 +167,51 @@ public:
 		npc_blackrock_battle_worgAI(Creature *c) : ScriptedAI(c) { }
 
 		uint32 m_minHealth;
+		uint32 guardTarget;
 
 		void Reset() 
 		{
 			m_minHealth = urand(60, 85);
 		}
+		
+		void UpdateAI(uint32 diff)
+		{
+			DoMeleeAttackIfReady();
+
+			if (guardTarget != 0)
+			{
+				if (Creature* guard = Unit::GetCreature(*me, guardTarget))
+				{
+					if (guard->isAlive())
+					{
+						if (me->getVictim() != guard)
+						{
+							me->getThreatManager().addThreat(guard, 1000000.0f);
+							guard->getThreatManager().addThreat(me, 1000000.0f);
+							me->Attack(guard, true);
+						}
+					}
+					else
+					{
+						me->AttackStop();
+						guardTarget = 0;
+
+					}
+				}
+			}
+			else
+			{
+				if (Creature* guard = me->FindNearestCreature(NPC_BLACKROCK_BATTLE_WORG, 5.0f, true))
+				{
+					me->getThreatManager().addThreat(guard, 1000000.0f);
+					guard->getThreatManager().addThreat(me, 1000000.0f);
+					AttackStart(guard);
+					guard->SetFacingToObject(me);
+					guardTarget = guard->GetGUID();
+				}
+			}
+		}
+	
 
 		void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
 		{
@@ -541,6 +581,51 @@ public:
 		return new npc_goblin_assassinAI(pCreature);
 	}
 };
+
+
+/*######
+ ## npc_wounded_trainee |= 44564
+ ######*/
+
+class npc_wounded_trainee : public CreatureScript
+{
+public:
+	npc_wounded_trainee() : CreatureScript("npc_wounded_trainee") {	}
+
+	struct npc_wounded_traineeAI : public ScriptedAI
+	{
+		npc_wounded_traineeAI(Creature *p_Creature) : ScriptedAI(p_Creature) { }
+		
+		uint32 HealedTimer = 10000;
+
+		void Reset()
+		{
+			me->SetHealth(me->CountPctFromMaxHealth(20));
+			me->setRegeneratingHealth(false);
+		}
+
+		void UpdateAI(const uint32 diff)
+		{			
+
+			/// Need to fix this so that after 10 seconds of being healed, run reset function
+			/* 
+			if (me->GetHealth() > 20.0f)
+				if (HealedTimer <= 0)
+				{
+					Reset();
+					HealedTimer = 10000;
+				}
+				else
+					HealedTimer -= diff; */
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_wounded_traineeAI(p_Creature);
+	}
+};
+
 
 enum Marshal
 {
@@ -1338,6 +1423,7 @@ void AddSC_elwyn_forest()
 	//new npc_blackrock_spy();
 	new npc_blackrock_invader();
 	new npc_goblin_assassin();
+	new npc_wounded_trainee();
 	new spell_quest_extincteur();
 
 	// Goldshire

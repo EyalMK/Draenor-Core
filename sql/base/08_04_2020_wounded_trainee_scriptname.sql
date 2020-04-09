@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_wounded_trainee' WHERE `entry`=44564;
