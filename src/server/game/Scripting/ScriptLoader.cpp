@@ -21,7 +21,6 @@ void AddSC_npc_custom();
 void AddSC_Webshop_Delivery();
 void AddSC_Character_Renderer();
 void AddSC_StressTest();
-void AddSC_PVPTitles();
 void AddSC_CustomPlayerscripts();
 void AddSC_midsummer_fire_festival();
 #ifndef CROSS
@@ -2213,7 +2212,6 @@ void AddCustomScripts()
     AddSC_warning_update_client();
     AddSC_DuelReset();
     AddSC_npc_custom();
-	AddSC_PVPTitles();
     
     AddSC_Webshop_Delivery();
     AddSC_Character_Renderer();
