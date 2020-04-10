@@ -854,27 +854,42 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* p_Quest, uint64 p_NpcGUI
 void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, bool canComplete, bool /*closeOnCancel*/) const
 {
     // We can always call to RequestItems, but this packet only goes out if there are actually
-    // items.  Otherwise, we'll skip straight to the OfferReward
+    // items and if the text exists. Otherwise, we'll skip straight to the OfferReward
 
     std::string questTitle = quest->GetTitle();
     std::string requestItemsText = quest->GetRequestItemsText();
 
-    int32 locale = _session->GetSessionDbLocaleIndex();
-    if (locale >= 0)
-    {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
-            ObjectMgr::GetLocaleString(localeData->Title, locale, questTitle);
-            ObjectMgr::GetLocaleString(localeData->RequestItemsText, locale, requestItemsText);
-        }
-    }
+	if (!requestItemsText.empty())
+	{
 
-    uint32 itemCounter = quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM);
-    if (itemCounter && canComplete)
-    {
-        SendQuestGiverOfferReward(quest, npcGUID);
-        return;
-    }
+		int32 locale = _session->GetSessionDbLocaleIndex();
+		if (locale >= 0)
+		{
+			if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+			{
+				ObjectMgr::GetLocaleString(localeData->Title, locale, questTitle);
+				ObjectMgr::GetLocaleString(localeData->RequestItemsText, locale, requestItemsText);
+			}
+		}
+
+		uint32 itemCounter = quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM);
+		if (itemCounter && canComplete)
+		{
+			SendQuestGiverOfferReward(quest, npcGUID);
+			return;
+		}
+		else if (canComplete)
+		{
+			SendQuestGiverOfferReward(quest, npcGUID);
+			return;
+		}
+	}
+	else {
+		SendQuestGiverOfferReward(quest, npcGUID);
+		return;
+	}
+	
+    
 
     ByteBuffer l_RequiredItemData;
     ByteBuffer l_RequiredCurrencyData;
