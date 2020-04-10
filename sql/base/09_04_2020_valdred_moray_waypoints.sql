@@ -1,0 +1,6 @@
+DELETE FROM `waypoint_data` WHERE `id`=49231 * 100;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (49231 * 100, 1, 1739.91, 1704.02, 128.66, 0, 0, 0, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (49231 * 100, 2, 1739.04, 1701.16, 127.72, 0, 0, 0, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (49231 * 100, 3, 1730.54, 1697.55, 127.548, 0, 0, 0, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (49231 * 100, 4, 1721, 1692.4, 131.4, 0, 0, 0, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (49231 * 100, 5, 1692.15, 1676.17, 135.123, 0, 0, 0, 0, 100, 0);
