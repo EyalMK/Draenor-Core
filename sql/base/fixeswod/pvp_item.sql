@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.pvp_item
+-- Dumping structure for table fixeslive.pvp_item
 CREATE TABLE IF NOT EXISTS `pvp_item` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `ItemID` int(11) NOT NULL DEFAULT '0',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `pvp_item` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM AUTO_INCREMENT=45662 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.pvp_item: 3,627 rows
+-- Dumping data for table fixeslive.pvp_item: 3,627 rows
 DELETE FROM `pvp_item`;
 /*!40000 ALTER TABLE `pvp_item` DISABLE KEYS */;
 INSERT INTO `pvp_item` (`ID`, `ItemID`, `ILvl`, `BuildVerified`) VALUES

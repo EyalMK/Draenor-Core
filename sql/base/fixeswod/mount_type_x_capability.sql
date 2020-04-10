@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.mount_type_x_capability
+-- Dumping structure for table fixeslive.mount_type_x_capability
 CREATE TABLE IF NOT EXISTS `mount_type_x_capability` (
   `ID` int(11) unsigned NOT NULL,
   `MountTypeID` int(11) unsigned NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `mount_type_x_capability` (
   `BuildVerified` int(11) unsigned NOT NULL DEFAULT '19865'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.mount_type_x_capability: ~243 rows (approximately)
+-- Dumping data for table fixeslive.mount_type_x_capability: ~243 rows (approximately)
 DELETE FROM `mount_type_x_capability`;
 /*!40000 ALTER TABLE `mount_type_x_capability` DISABLE KEYS */;
 INSERT INTO `mount_type_x_capability` (`ID`, `MountTypeID`, `Index`, `CapabilityID`, `BuildVerified`) VALUES

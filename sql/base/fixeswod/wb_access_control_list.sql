@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.wb_access_control_list
+-- Dumping structure for table fixeslive.wb_access_control_list
 CREATE TABLE IF NOT EXISTS `wb_access_control_list` (
   `ID` int(11) unsigned NOT NULL,
   `Url` text NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `wb_access_control_list` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.wb_access_control_list: ~3 rows (approximately)
+-- Dumping data for table fixeslive.wb_access_control_list: ~3 rows (approximately)
 DELETE FROM `wb_access_control_list`;
 /*!40000 ALTER TABLE `wb_access_control_list` DISABLE KEYS */;
 INSERT INTO `wb_access_control_list` (`ID`, `Url`, `AccessFlags`, `Unk1`, `Restricted`, `Region`, `BuildVerified`) VALUES

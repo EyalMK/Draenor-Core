@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.item_extended_cost
+-- Dumping structure for table fixeslive.item_extended_cost
 CREATE TABLE IF NOT EXISTS `item_extended_cost` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `RequiredArenaSlot` int(11) NOT NULL DEFAULT '0',
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `item_extended_cost` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5854 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.item_extended_cost: 3,699 rows
+-- Dumping data for table fixeslive.item_extended_cost: 3,699 rows
 DELETE FROM `item_extended_cost`;
 /*!40000 ALTER TABLE `item_extended_cost` DISABLE KEYS */;
 INSERT INTO `item_extended_cost` (`ID`, `RequiredArenaSlot`, `RequiredItem1`, `RequiredItem2`, `RequiredItem3`, `RequiredItem4`, `RequiredItem5`, `RequiredItemCount1`, `RequiredItemCount2`, `RequiredItemCount3`, `RequiredItemCount4`, `RequiredItemCount5`, `RequiredPersonalArenaRating`, `ItemPurchaseGroup`, `RequiredCurrency1`, `RequiredCurrency2`, `RequiredCurrency3`, `RequiredCurrency4`, `RequiredCurrency5`, `RequiredCurrencyCount1`, `RequiredCurrencyCount2`, `RequiredCurrencyCount3`, `RequiredCurrencyCount4`, `RequiredCurrencyCount5`, `RequiredFactionId`, `RequiredFactionStanding`, `RequirementFlags`, `RequiredAchievement`, `OverrideBuyPrice`, `BuildVerified`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.battle_pet_species_locale
+-- Dumping structure for table fixeslive.battle_pet_species_locale
 CREATE TABLE IF NOT EXISTS `battle_pet_species_locale` (
   `ID` int(11) unsigned NOT NULL,
   `Source_koKR` text CHARACTER SET latin1,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `battle_pet_species_locale` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.battle_pet_species_locale: ~0 rows (approximately)
+-- Dumping data for table fixeslive.battle_pet_species_locale: ~0 rows (approximately)
 DELETE FROM `battle_pet_species_locale`;
 /*!40000 ALTER TABLE `battle_pet_species_locale` DISABLE KEYS */;
 /*!40000 ALTER TABLE `battle_pet_species_locale` ENABLE KEYS */;

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.wb_cert_whitelist
+-- Dumping structure for table fixeslive.wb_cert_whitelist
 CREATE TABLE IF NOT EXISTS `wb_cert_whitelist` (
   `ID` int(10) unsigned NOT NULL,
   `Url` text NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `wb_cert_whitelist` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.wb_cert_whitelist: ~1 rows (approximately)
+-- Dumping data for table fixeslive.wb_cert_whitelist: ~1 rows (approximately)
 DELETE FROM `wb_cert_whitelist`;
 /*!40000 ALTER TABLE `wb_cert_whitelist` DISABLE KEYS */;
 INSERT INTO `wb_cert_whitelist` (`ID`, `Url`, `Unk1`, `Unk2`, `Unk3`, `BuildVerified`) VALUES

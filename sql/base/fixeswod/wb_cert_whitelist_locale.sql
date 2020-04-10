@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.wb_cert_whitelist_locale
+-- Dumping structure for table fixeslive.wb_cert_whitelist_locale
 CREATE TABLE IF NOT EXISTS `wb_cert_whitelist_locale` (
   `ID` int(11) unsigned NOT NULL,
   `UrlLang_koKR` text CHARACTER SET latin1,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `wb_cert_whitelist_locale` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.wb_cert_whitelist_locale: ~0 rows (approximately)
+-- Dumping data for table fixeslive.wb_cert_whitelist_locale: ~0 rows (approximately)
 DELETE FROM `wb_cert_whitelist_locale`;
 /*!40000 ALTER TABLE `wb_cert_whitelist_locale` DISABLE KEYS */;
 /*!40000 ALTER TABLE `wb_cert_whitelist_locale` ENABLE KEYS */;

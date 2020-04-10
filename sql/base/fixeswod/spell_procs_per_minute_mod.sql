@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.spell_procs_per_minute_mod
+-- Dumping structure for table fixeslive.spell_procs_per_minute_mod
 CREATE TABLE IF NOT EXISTS `spell_procs_per_minute_mod` (
   `ID` int(10) unsigned NOT NULL DEFAULT '0',
   `Type` int(10) unsigned NOT NULL DEFAULT '0',
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `spell_procs_per_minute_mod` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.spell_procs_per_minute_mod: 0 rows
+-- Dumping data for table fixeslive.spell_procs_per_minute_mod: 0 rows
 DELETE FROM `spell_procs_per_minute_mod`;
 /*!40000 ALTER TABLE `spell_procs_per_minute_mod` DISABLE KEYS */;
 /*!40000 ALTER TABLE `spell_procs_per_minute_mod` ENABLE KEYS */;

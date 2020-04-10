@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.map_challenge_mode
+-- Dumping structure for table fixeslive.map_challenge_mode
 CREATE TABLE IF NOT EXISTS `map_challenge_mode` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `MapID` int(11) unsigned NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `map_challenge_mode` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.map_challenge_mode: ~17 rows (approximately)
+-- Dumping data for table fixeslive.map_challenge_mode: ~17 rows (approximately)
 DELETE FROM `map_challenge_mode`;
 /*!40000 ALTER TABLE `map_challenge_mode` DISABLE KEYS */;
 INSERT INTO `map_challenge_mode` (`ID`, `MapID`, `Unk1`, `Unk2`, `Unk3`, `BronzeTime`, `SilverTime`, `GoldTime`, `Unk4`, `Unk5`, `BuildVerified`) VALUES

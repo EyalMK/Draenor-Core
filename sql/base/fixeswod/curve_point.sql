@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.curve_point
+-- Dumping structure for table fixeslive.curve_point
 CREATE TABLE IF NOT EXISTS `curve_point` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `CurveID` int(11) unsigned NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `curve_point` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4866 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.curve_point: ~2,820 rows (approximately)
+-- Dumping data for table fixeslive.curve_point: ~2,870 rows (approximately)
 DELETE FROM `curve_point`;
 /*!40000 ALTER TABLE `curve_point` DISABLE KEYS */;
 INSERT INTO `curve_point` (`ID`, `CurveID`, `Index`, `X`, `Y`, `BuildVerified`) VALUES

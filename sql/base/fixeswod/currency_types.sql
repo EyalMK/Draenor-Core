@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.currency_types
+-- Dumping structure for table fixeslive.currency_types
 CREATE TABLE IF NOT EXISTS `currency_types` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Category` int(11) unsigned NOT NULL DEFAULT '0',
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `currency_types` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1021 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.currency_types: ~75 rows (approximately)
+-- Dumping data for table fixeslive.currency_types: ~75 rows (approximately)
 DELETE FROM `currency_types`;
 /*!40000 ALTER TABLE `currency_types` DISABLE KEYS */;
 INSERT INTO `currency_types` (`ID`, `Category`, `NameLang`, `InventoryIcon`, `InventoryIcon2`, `SpellWeight`, `SpellCategory`, `TotalCap`, `WeekCap`, `Flags`, `Quality`, `DescriptionLang`, `BuildVerified`) VALUES

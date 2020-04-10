@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.item_appearance
+-- Dumping structure for table fixeslive.item_appearance
 CREATE TABLE IF NOT EXISTS `item_appearance` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `DisplayID` int(11) unsigned NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `item_appearance` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25540 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.item_appearance: ~23,780 rows (approximately)
+-- Dumping data for table fixeslive.item_appearance: ~24,344 rows (approximately)
 DELETE FROM `item_appearance`;
 /*!40000 ALTER TABLE `item_appearance` DISABLE KEYS */;
 INSERT INTO `item_appearance` (`ID`, `DisplayID`, `Unk`, `BuildVerified`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.garr_ability
+-- Dumping structure for table fixeslive.garr_ability
 CREATE TABLE IF NOT EXISTS `garr_ability` (
   `ID` int(11) DEFAULT NULL,
   `field1` int(11) DEFAULT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `garr_ability` (
   `BuildVerified` int(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.garr_ability: ~115 rows (approximately)
+-- Dumping data for table fixeslive.garr_ability: ~211 rows (approximately)
 DELETE FROM `garr_ability`;
 /*!40000 ALTER TABLE `garr_ability` DISABLE KEYS */;
 INSERT INTO `garr_ability` (`ID`, `field1`, `Name`, `Descripion`, `field4`, `field5`, `Category`, `newField`, `BuildVerified`) VALUES

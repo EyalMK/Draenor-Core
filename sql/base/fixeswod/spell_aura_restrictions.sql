@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.spell_aura_restrictions
+-- Dumping structure for table fixeslive.spell_aura_restrictions
 CREATE TABLE IF NOT EXISTS `spell_aura_restrictions` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `CasterAuraState` int(11) unsigned NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `spell_aura_restrictions` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9832 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.spell_aura_restrictions: ~3,370 rows (approximately)
+-- Dumping data for table fixeslive.spell_aura_restrictions: ~3,617 rows (approximately)
 DELETE FROM `spell_aura_restrictions`;
 /*!40000 ALTER TABLE `spell_aura_restrictions` DISABLE KEYS */;
 INSERT INTO `spell_aura_restrictions` (`ID`, `CasterAuraState`, `TargetAuraState`, `CasterAuraStateNot`, `TargetAuraStateNot`, `CasterAuraSpell`, `TargetAuraSpell`, `ExcludeCasterAuraSpell`, `ExcludeTargetAuraSpell`, `BuildVerified`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.item_currency_cost
+-- Dumping structure for table fixeslive.item_currency_cost
 CREATE TABLE IF NOT EXISTS `item_currency_cost` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `ItemID` int(11) NOT NULL DEFAULT '0',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `item_currency_cost` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM AUTO_INCREMENT=42311 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.item_currency_cost: 28,692 rows
+-- Dumping data for table fixeslive.item_currency_cost: 28,692 rows
 DELETE FROM `item_currency_cost`;
 /*!40000 ALTER TABLE `item_currency_cost` DISABLE KEYS */;
 INSERT INTO `item_currency_cost` (`ID`, `ItemID`, `BuildVerified`) VALUES

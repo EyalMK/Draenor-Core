@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.spell_casting_requirements
+-- Dumping structure for table fixeslive.spell_casting_requirements
 CREATE TABLE IF NOT EXISTS `spell_casting_requirements` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `FacingCasterFlags` int(11) unsigned NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `spell_casting_requirements` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16444 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.spell_casting_requirements: ~11,439 rows (approximately)
+-- Dumping data for table fixeslive.spell_casting_requirements: ~11,191 rows (approximately)
 DELETE FROM `spell_casting_requirements`;
 /*!40000 ALTER TABLE `spell_casting_requirements` DISABLE KEYS */;
 INSERT INTO `spell_casting_requirements` (`ID`, `FacingCasterFlags`, `MinFactionId`, `MinReputation`, `AreaGroupId`, `RequiredAuraVision`, `RequiresSpellFocus`, `BuildVerified`) VALUES

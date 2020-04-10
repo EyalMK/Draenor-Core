@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.quest_package_item
+-- Dumping structure for table fixeslive.quest_package_item
 CREATE TABLE IF NOT EXISTS `quest_package_item` (
   `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `PackageID` int(10) unsigned NOT NULL DEFAULT '0',
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `quest_package_item` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3964 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.quest_package_item: ~2,507 rows (approximately)
+-- Dumping data for table fixeslive.quest_package_item: ~2,362 rows (approximately)
 DELETE FROM `quest_package_item`;
 /*!40000 ALTER TABLE `quest_package_item` DISABLE KEYS */;
 INSERT INTO `quest_package_item` (`ID`, `PackageID`, `ItemId`, `Count`, `Type`, `BuildVerified`) VALUES
