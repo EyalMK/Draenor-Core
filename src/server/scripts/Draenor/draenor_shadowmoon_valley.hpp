@@ -13,16 +13,18 @@
 
 enum eQuests
 {
-	QuestStepThreeProphet = 34575,
-	QuestFindingAFoothold = 34582,
-	QuestForTheAlliance = 34583,
-	QuestLookingForLumber = 34584,
-	QuestRavenousRavens = 34616,
-	QuestEstablishYourGarrison = 34586,
-	QuestQianaMoonshadow = 34646,
-	QuestDelegatingOnDraenor = 34692,
-	QuestAHerosWelcome = 33075,
-	QuestMigrantWorkers = 34778,
+	QuestStepThreeProphet		= 34575,
+	QuestFindingAFoothold		= 34582,
+	QuestForTheAlliance			= 34583,
+	QuestLookingForLumber		= 34584,
+	QuestRavenousRavens			= 34616,
+	QuestEstablishYourGarrison  = 34586,
+	QuestPaleMoonlight			= 35174,
+	QuestShipSalvage			= 35166,
+	QuestQianaMoonshadow		= 34646,
+	QuestDelegatingOnDraenor	= 34692,
+	QuestAHerosWelcome			= 33075,
+	QuestMigrantWorkers			= 34778,
 };
 
 
@@ -41,6 +43,11 @@ enum eCreature
 	JuicyMushroomC = 78904
 };
 
+enum eAreas
+{
+	AreaEventideLanding = 7173
+};
+
 enum eGameObjects
 {
 
@@ -51,13 +58,13 @@ enum ePhases
 	PhaseBase = 0x0000001,
 
 	/// AREA 7760 (Eventide Landing)
-	PhaseBeforeGoingBase = 0x0000002,
+	PhaseBeforeGoingBase		= 0x0000002,
 
 	/// AREA 7078 (Lunarfall)
-	PhaseFirstTimeBase = 0x0000004,
-	PhaseNpcSummoned = 0x0000008,
-	PhaseRavenQuestCompleted = 0x0000010,
-	PhaseTreeQuestCompleted = 0x0000016
+	PhaseFirstTimeBase			= 0x0000004,
+	PhaseNpcSummoned			= 0x0000008,
+	PhaseRavenQuestCompleted	= 0x0000010,
+	PhaseTreeQuestCompleted		= 0x0000016
 };
 
 
@@ -91,7 +98,8 @@ enum eMovepointsData
 	MaxForeman = 4,
 	MaxPackmule = 5,
 	MaxLumberjack = 8,
-	MaxLumberjackGo = 4
+	MaxLumberjackGo = 4,
+	MaxStormwindCharger1Moves = 7
 };
 
 static std::array<G3D::Vector3, eMovepointsData::MaxVelenMoves> g_VelenMoves =
@@ -360,5 +368,19 @@ static std::array<G3D::Vector3, eMovepointsData::MaxLumberjackGo> g_LumberjackGo
 		{ 1960.27f, 320.974f, 89.385f }
 	}
 };
+
+static std::array<G3D::Vector3, eMovepointsData::MaxStormwindCharger1Moves> g_StormwindCharger1Moves =
+{
+	{
+		{ 1891.95f, 244.045f, 118.181f },
+		{ 1939.28f, 346.429f, 116.204f },
+		{ 1974.98f, 382.252f, 112.687f },
+		{ 1992.15f, 441.485f, 85.741f  },
+		{ 2127.17f, 447.206f, 50.431f  },
+		{ 2233.85f, 507.924f, 39.108f  },
+		{ 2302.42f, 501.619f, 8.834f   }
+	}
+};
+
 
 #endif

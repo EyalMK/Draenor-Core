@@ -15,11 +15,7 @@
 #include "PhaseMgr.h"
 #include "Common.h"
 
-/* When you first arrive Shadowmoon, the player must be set in phase 3, since the questgiver and actors are in phase 2 and the player
-   must be able to see both phase 1 and 2. On getting the first quest, we remove phase 2, so the questgiver and actors aren't
-   seen by the player anymore.*/
-
-   /// Passive Scene Object
+   /// Phase Handler
 class playerScript_shadowmoon_phase_handler : public PlayerScript
 {
 public:
@@ -27,12 +23,10 @@ public:
 
 	void UpdatePhaseMask(Player* p_Player)
 	{
+		uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
 		if (p_Player->GetZoneId() == 6719) // Shadowmoon Valley
 		{
-			/// UPDATE PHASEMASK DEPENDING OF QUESTS
-			/// == set the phase we want for player // |= add the phase to the ones player already has
-			uint32 l_PhaseMask = p_Player->GetPhaseMask();
-
 			if (p_Player->GetQuestStatus(eQuests::QuestStepThreeProphet) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // 2
 			{
 				l_PhaseMask == 3;
@@ -57,59 +51,52 @@ public:
 			{
 				l_PhaseMask |= 32;
 			}
-
-			p_Player->SetPhaseMask(l_PhaseMask, true);
 		}
+
+		p_Player->SetPhaseMask(l_PhaseMask, true);
+	}
+
+	void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID) override
+	{
+		if (p_OldZoneID == 6719 && p_NewAreaID == 7173)
+		{
+			if (p_Player->GetQuestStatus(eQuests::QuestPaleMoonlight) == QUEST_STATUS_INCOMPLETE || QUEST_STATUS_COMPLETE)
+				p_Player->SetPhaseMask(4, true);
+			else if (p_Player->GetQuestStatus(eQuests::QuestShipSalvage) == QUEST_STATUS_INCOMPLETE || QUEST_STATUS_COMPLETE)
+				p_Player->SetPhaseMask(4, true);
+			else
+				p_Player->GetPhaseMask();
+		}
+	}
+
+	void OnLogin(Player* p_Player) override
+	{
+		if (p_Player->GetZoneId() == 6719) // Shadowmoon Valley
+			UpdatePhaseMask(p_Player);
+	}
+
+	void OnQuestAccept(Player * p_Player, const Quest * p_Quest) override
+	{
+		if (p_Player->GetZoneId() == 6719) // Shadowmoon Valley
+			UpdatePhaseMask(p_Player);
+	}
+
+	void OnQuestAbandon(Player* p_Player, const Quest* /*p_Quest*/) override
+	{
+		if (p_Player->GetZoneId() == 6719) // Shadowmoon Valley
+			UpdatePhaseMask(p_Player);
 	}
 
 	void OnQuestComplete(Player* p_Player, const Quest* p_Quest) override
 	{
 		if (p_Player->GetZoneId() == 6719) // Shadowmoon Valley
-		{
-			uint32 l_PhaseMask = p_Player->GetPhaseMask();
-
-			if (p_Quest->GetQuestId() == eQuests::QuestStepThreeProphet)
-			{
-				l_PhaseMask |= ePhases::PhaseBeforeGoingBase;
-			}
-
-			if (p_Quest->GetQuestId() == eQuests::QuestFindingAFoothold)
-			{
-				l_PhaseMask |= ePhases::PhaseFirstTimeBase;
-			}
-
-			if (p_Quest->GetQuestId() == eQuests::QuestForTheAlliance)
-			{
-				l_PhaseMask |= ePhases::PhaseNpcSummoned;
-			}
-
-			if (p_Quest->GetQuestId() == eQuests::QuestLookingForLumber && QuestRavenousRavens)
-			{
-				l_PhaseMask |= ePhases::PhaseRavenQuestCompleted;
-			}
-
-			p_Player->SetPhaseMask(l_PhaseMask, true);
-		}
+			UpdatePhaseMask(p_Player);
 	}
 
 	void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
 	{
 		if (p_Player->GetZoneId() == 6719) // Shadowmoon Valley
-		{
-			uint32 l_PhaseMask = p_Player->GetPhaseMask();
-
-			if (p_Quest->GetQuestId() == eQuests::QuestStepThreeProphet)
-			{
-				l_PhaseMask |= ePhases::PhaseBeforeGoingBase;
-			}
-
-			if (p_Quest->GetQuestId() == eQuests::QuestForTheAlliance)
-			{
-				l_PhaseMask |= ePhases::PhaseNpcSummoned;
-			}
-
-			p_Player->SetPhaseMask(l_PhaseMask, true);
-		}
+			UpdatePhaseMask(p_Player);
 	}
 };
 
