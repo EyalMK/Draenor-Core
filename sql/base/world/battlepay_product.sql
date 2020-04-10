@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `battlepay_product` (
   PRIMARY KEY (`ProductID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=853 DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.battlepay_product: ~751 rows (approximately)
+-- Dumping data for table worldlive.battlepay_product: ~848 rows (approximately)
 DELETE FROM `battlepay_product`;
 /*!40000 ALTER TABLE `battlepay_product` DISABLE KEYS */;
 INSERT INTO `battlepay_product` (`ProductID`, `NormalPriceFixedPoint`, `CurrentPriceFixedPoint`, `Type`, `ChoiceType`, `Flags`, `DisplayInfoID`, `ScriptName`, `ClassMask`, `WebsiteType`) VALUES
@@ -135,8 +135,6 @@ INSERT INTO `battlepay_product` (`ProductID`, `NormalPriceFixedPoint`, `CurrentP
 	(106, 90, 90, 0, 2, 47, 106, 'battlepay_gold_30k', 0, 7),
 	(107, 140, 140, 0, 2, 47, 107, 'battlepay_gold_80k', 0, 7),
 	(108, 200, 200, 0, 2, 47, 108, 'battlepay_gold_150k', 0, 7),
-	(109, 135, 135, 0, 2, 47, 109, 'battlepay_service_level100', 0, 29),
-	(110, 100, 100, 0, 2, 47, 110, 'battlepay_service_level90', 0, 29),
 	(111, 40, 40, 0, 2, 47, 111, 'battlepay_service_rename', 0, 5),
 	(112, 90, 90, 0, 2, 47, 112, 'battlepay_service_change_faction', 0, 9),
 	(113, 50, 50, 0, 2, 47, 113, 'battlepay_service_change_race', 0, 10),

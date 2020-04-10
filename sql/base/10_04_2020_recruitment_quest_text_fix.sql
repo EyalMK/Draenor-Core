@@ -1,2 +1,0 @@
-UPDATE `quest_template` SET `OfferRewardText`="Great work $n. I knew you weren't useless.$B$BHere, take one of these. We deathguards have piles of these things just sitting around." WHERE `Id`=26800;
-UPDATE `quest_template` SET `RequestItemsText`="Have you managed to scavenge up some corpses?" WHERE `Id`=26800;
