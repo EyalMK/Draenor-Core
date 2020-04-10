@@ -29594,8 +29594,9 @@ void Player::SetClientControl(Unit* p_Target, bool p_On)
 	WorldPacket l_Data(SMSG_CLIENT_CONTROL_UPDATE);
 	ObjectGuid targetGUID = p_Target->GetGUID();
 	
-	l_Data << uint64(p_Target->GetGUID());
-	l_Data << p_On;
+	l_Data.append(p_Target->GetPackGUID());
+	l_Data.WriteBit(p_On);
+	l_Data.FlushBits();
 
     GetSession()->SendPacket(&l_Data);
 
