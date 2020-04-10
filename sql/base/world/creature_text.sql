@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_text: 13,092 rows
+-- Dumping data for table worldlive.creature_text: 13,107 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -2398,7 +2398,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(19606, 1, 0, 'Grek get a drink.', 12, 0, 100, 7, 0, 0, 'Grek2'),
 	(19606, 2, 0, 'Grek try!', 12, 0, 100, 5, 0, 0, 'Grek - Quest1'),
 	(19606, 3, 0, 'This oil no good for Grek! What Grek look like to you, some weakling in robes?', 12, 0, 100, 6, 0, 0, 'Grek - Quest2'),
-	(50047, 0, 4, 'You\'re $n! The hero that everyone has been talking about! Thank you!', 12, 0, 100, 0, 0, 0, 'Injured Stormwind Infantry - Text 5'),
+	(50047, 0, 4, 'You\'re %n! The hero that everyone has been talking about! Thank you!', 12, 0, 100, 0, 0, 0, 'Injured Stormwind Infantry - Text 5'),
 	(50047, 0, 5, 'Thank the Light!', 12, 0, 100, 0, 0, 0, 'Injured Stormwind Infantry - Text 6'),
 	(46949, 0, 0, 'Cette terre doit ?tre purg?e dans la Flamme du Cr?puscule !', 14, 0, 100, 0, 0, 0, 'Braisentaille le D?voreur - Aggro'),
 	(46949, 1, 0, 'Br?lez dans le feu liquide des Terres de Feu !', 12, 0, 100, 0, 0, 0, 'Braisentaille le D?voreur - Activation des bassins'),
@@ -4228,7 +4228,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(1536, 1, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
 	(4282, 1, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
 	(1538, 1, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
-	(50374, 0, 0, 'I never asked for this! Leave me alone!', 12, 0, 100, 5, 0, 0, 'Risen Dead'),
+	(50374, 1, 0, '%s enrages and transforms into a Mindless Zombie and runs away.', 16, 0, 100, 0, 0, 0, 'Risen Dead'),
 	(1568, 0, 0, 'Let\'s see, I just saw a corpse with a jaw that would fit you...', 12, 0, 100, 0, 0, 0, 'Totengr'),
 	(1568, 1, 0, 'That should do the job. Come back right away if it falls off again.', 12, 0, 100, 0, 0, 0, 'Totengr'),
 	(50414, 0, 0, 'T-thank you, Undert-t-taker.', 12, 0, 100, 0, 0, 0, 'Totengr'),
@@ -7765,7 +7765,6 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(72545, 0, 0, 'Garrosh demands the wealth you\'ve accumulated. You will give me access to your vaults!', 12, 0, 100, 0, 0, 0, 'Mokvar the Treasurer'),
 	(72545, 1, 0, 'We shall see if you are so defiant after we start breaking your bones.', 12, 0, 100, 0, 0, 0, 'Mokvar the Treasurer'),
 	(3216, 0, 0, 'Interesting, very interesting. You found this in Durotar, <name>?', 12, 0, 100, 0, 0, 0, 'Neeru Fireblade'),
-	(3296, 0, 0, 'For the Warchief!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Grunt'),
 	(14392, 0, 0, 'Be lifted by <name>\'s accomplishment! Revel in his rallying cry!', 14, 0, 100, 0, 0, 0, 'Overlord Runthak'),
 	(14392, 1, 0, 'NEFARIAN IS SLAIN! People of Orgrimmar, bow down before the might of <name> and his allies for they have laid a blow against the Black Dragonflight that is sure to stir the Aspects from their malaise! This defeat shall surely be felt by the father of the Black Flight: Deathwing reels in pain and anguish this day!', 14, 0, 100, 0, 0, 0, 'Overlord Runthak'),
 	(3355, 0, 0, 'I have to admit, you\'re not what I expected when I received the warchief\'s commission.', 12, 0, 100, 0, 0, 0, 'Saru Steelfury'),
@@ -12981,17 +12980,15 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(25639, 0, 1, 'Your wounds are severe, but you will live.', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
 	(25639, 0, 2, 'Rest now, you have fought well today.', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
 	(25599, 0, 0, '%s becomes enraged!', 16, 0, 100, 0, 0, 0, 'combat Enrage'),
-	(50372, 0, 4, 'You are returned to life. The Banshee Queen asks for your service.', 12, 0, 100, 1, 0, 0, 'Aradne'),
-	(50374, 1, 0, 'What magic is this that turn back the hand of death?', 12, 0, 100, 6, 0, 0, 'Risen Dead'),
-	(50374, 1, 1, 'This is Lady Sylvanas\'s doing?', 12, 0, 100, 6, 0, 0, 'Risen Dead'),
-	(50374, 2, 0, 'If the Banshee Queen has offered me this chance, I will gladly serve.', 12, 0, 100, 1, 0, 0, 'Risen Dead'),
-	(50374, 2, 1, 'What use has the Dark Lady for me?', 12, 0, 100, 6, 0, 0, 'Risen Dead'),
-	(50374, 3, 0, 'What... what\'s happening to me? Why have you done this to me?', 12, 0, 100, 6, 0, 0, 'Risen Dead'),
-	(50374, 3, 1, 'I... I don\'t remember... Why have you done this?', 12, 0, 100, 6, 0, 0, 'Risen Dead'),
-	(50374, 4, 0, 'I should be dead and to death I will return!', 12, 0, 100, 5, 0, 0, 'Risen Dead'),
-	(50374, 5, 0, '%s enrages and transforms into a Mindless Zombie and runs away.', 16, 0, 100, 0, 0, 0, 'Risen Dead'),
-	(50374, 6, 0, '%s commits suicide.', 16, 0, 100, 0, 0, 0, 'Risen Dead'),
-	(50374, 7, 0, '%s walks off towards the barracks.', 16, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(50372, 1, 0, 'You are returned to life. The Banshee Queen asks for your service.', 12, 0, 100, 1, 0, 0, 'Aradne'),
+	(50374, 3, 0, 'I should be dead and to death I will return!', 12, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(50374, 2, 0, 'What... what\'s happening to me? Why have you done this to me?', 12, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(50374, 6, 0, 'If the Banshee Queen has offered me this chance, I will gladly serve.', 12, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(50374, 5, 3, 'I... I don\'t remember... Why have you done this?', 12, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(50374, 5, 2, 'What use has the Dark lady for me?', 12, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(50374, 5, 1, 'This is Lady Sylvanas\'s doing?', 12, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(50374, 5, 0, 'What magic is this that turn back the hand of death?', 12, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(50374, 0, 0, 'I never asked for this! Leave me alone!', 12, 0, 100, 0, 0, 0, 'Risen Dead'),
 	(21514, 1, 0, 'I will crush it and flay it and eat its meat and crack its bones one by one when I am done.', 14, 0, 100, 0, 0, 0, 'Gorgrom the Dragon-Eater'),
 	(21514, 0, 0, 'Who dares defile the altar of Gorgrom the Dragon-Eater?', 14, 0, 100, 0, 0, 0, 'Gorgrom the Dragon-Eater'),
 	(10204, 0, 0, 'Misha lets OUT a loud roar AS she rakes her claws AGAINST the gronn\'s altar.', 16, 0, 100, 0, 0, 0, 'Misha'),
@@ -13123,7 +13120,25 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(951, 0, 1, 'AND I LAY MY HANDS UPON YOU!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
 	(951, 0, 2, 'Let the Holy Light embrace you!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
 	(951, 0, 3, 'BY THE LIGHT BE RENEWED!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
-	(951, 0, 4, 'FIGHT ON, $G BROTHER:SISTER;!', 12, 0, 100, 0, 0, 0, 'Brother Paxton');
+	(951, 0, 4, 'FIGHT ON, $G BROTHER:SISTER;!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
+	(3296, 0, 0, '%s becomes enraged!', 16, 0, 100, 0, 0, 0, 'Orgrimmar Grunt'),
+	(14304, 1, 0, '%s becomes enraged!', 16, 0, 100, 0, 0, 0, 'Kor\'kron Elite'),
+	(16222, 3, 0, 'Your power strengthens us all.', 12, 1, 100, 0, 0, 0, 'Silvermoon City Guardian'),
+	(16222, 2, 0, 'Even the Light is no match for the indomitable will of our people.', 12, 1, 100, 0, 0, 0, 'Silvermoon City Guardian'),
+	(50374, 4, 0, '%s commits suicide.', 16, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(50374, 7, 0, '%s walks off towards the barracks.', 16, 0, 100, 0, 0, 0, 'Risen Dead'),
+	(38895, 0, 0, 'No. You\'re lying! My father will protect me!', 0, 0, 100, 0, 0, 0, 'Lilian Voss'),
+	(49230, 0, 0, 'Who are you calling a monster? You\'re the monster! I\'m just a man who died.', 0, 0, 100, 0, 0, 0, 'Marshal Redpath'),
+	(49231, 0, 0, 'I see.  Well then, let\'s get to work, $N!  The Dark Lady needs us, right?', 0, 0, 100, 0, 0, 0, 'Valdred Moray'),
+	(49231, 1, 0, 'Valdred Moray, reporting for duty, sir!', 1, 0, 100, 0, 0, 0, 'Valdred Moray'),
+	(17855, 0, 0, 'Taste blade, mongrel!', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
+	(17855, 0, 1, 'Please tell me that you didn\'t just do what I think you just did. Please tell me that I\'m not going to have to hurt you...', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
+	(17855, 0, 2, 'As if we don\'t have enough problems, you go and create more!', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
+	(17855, 0, 3, 'You dare spill blood on neutral ground? OUT! OUT, I SAY!', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
+	(17855, 0, 4, 'We don\'t take kindly to miscreants, $r.', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
+	(17855, 0, 5, 'Get a rope!', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
+	(17855, 0, 6, 'Believe me when I tell you this: You\'re gonna wish you weren\'t born, sissy!', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
+	(17855, 0, 7, 'Your actions shame us all, $c. I hurt inside as I beat you senseless.', 12, 0, 100, 0, 0, 0, 'Expedition Warden');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
