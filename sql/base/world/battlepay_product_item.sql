@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `battlepay_product_item` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=874 DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.battlepay_product_item: ~847 rows (approximately)
+-- Dumping data for table worldlive.battlepay_product_item: ~821 rows (approximately)
 DELETE FROM `battlepay_product_item`;
 /*!40000 ALTER TABLE `battlepay_product_item` DISABLE KEYS */;
 INSERT INTO `battlepay_product_item` (`ID`, `ProductID`, `ItemID`, `Quantity`, `DisplayID`, `PetResult`) VALUES

@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `creature_addon` (
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_addon: 51,851 rows
+-- Dumping data for table worldlive.creature_addon: 51,850 rows
 DELETE FROM `creature_addon`;
 /*!40000 ALTER TABLE `creature_addon` DISABLE KEYS */;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
@@ -7197,7 +7197,6 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 	(56241, 0, 0, 0, 1, 400, NULL, 0),
 	(56242, 0, 0, 0, 1, 400, NULL, 0),
 	(56243, 0, 0, 0, 1, 400, NULL, 0),
-	(56244, 0, 0, 0, 1, 400, NULL, 0),
 	(56245, 0, 0, 0, 1, 400, NULL, 0),
 	(56246, 0, 0, 0, 1, 400, NULL, 0),
 	(56247, 0, 0, 0, 1, 400, NULL, 0),
@@ -25338,9 +25337,9 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 	(116578, 0, 0, 0, 1, 0, NULL, 0),
 	(116579, 0, 0, 0, 1, 0, NULL, 0),
 	(116580, 0, 0, 0, 1, 0, NULL, 0),
-	(116581, 0, 0, 0, 1, 0, NULL, 0);
+	(116581, 0, 0, 0, 1, 0, NULL, 0),
+	(116582, 0, 0, 0, 1, 0, NULL, 0);
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
-	(116582, 0, 0, 0, 1, 0, NULL, 0),
 	(116583, 0, 0, 0, 1, 0, NULL, 0),
 	(116584, 0, 0, 0, 1, 0, NULL, 0),
 	(116585, 0, 0, 0, 1, 0, NULL, 0),
@@ -49479,9 +49478,9 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 	(11599995, 0, 0, 0, 1, 0, '', 0),
 	(11599996, 0, 0, 0, 1, 0, '', 0),
 	(11599997, 0, 0, 0, 1, 0, '', 0),
-	(11599998, 0, 0, 0, 1, 0, '', 0);
+	(11599998, 0, 0, 0, 1, 0, '', 0),
+	(11599999, 0, 0, 0, 1, 0, '', 0);
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
-	(11599999, 0, 0, 0, 1, 0, '', 0),
 	(11600000, 344365, 0, 0, 1, 0, '', 0),
 	(11600001, 0, 0, 0, 1, 0, '109247 99201', 0),
 	(11600002, 0, 0, 0, 1, 0, '109247 99201', 0),

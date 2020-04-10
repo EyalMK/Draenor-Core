@@ -13127,10 +13127,9 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(16222, 2, 0, 'Even the Light is no match for the indomitable will of our people.', 12, 1, 100, 0, 0, 0, 'Silvermoon City Guardian'),
 	(50374, 4, 0, '%s commits suicide.', 16, 0, 100, 0, 0, 0, 'Risen Dead'),
 	(50374, 7, 0, '%s walks off towards the barracks.', 16, 0, 100, 0, 0, 0, 'Risen Dead'),
-	(38895, 0, 0, 'No. You\'re lying! My father will protect me!', 0, 0, 100, 0, 0, 0, 'Lilian Voss'),
-	(49230, 0, 0, 'Who are you calling a monster? You\'re the monster! I\'m just a man who died.', 0, 0, 100, 0, 0, 0, 'Marshal Redpath'),
-	(49231, 0, 0, 'I see.  Well then, let\'s get to work, $N!  The Dark Lady needs us, right?', 0, 0, 100, 0, 0, 0, 'Valdred Moray'),
-	(49231, 1, 0, 'Valdred Moray, reporting for duty, sir!', 1, 0, 100, 0, 0, 0, 'Valdred Moray'),
+	(49230, 0, 0, 'Who are you calling a monster? You\'re the monster! I\'m just a man who died.', 12, 0, 100, 1, 0, 0, 'Marshal Redpath - The Wakening'),
+	(49231, 1, 0, 'Valdred Moray, reporting for duty, sir!', 14, 0, 100, 1, 0, 0, 'Valdred Moray - Text 2'),
+	(49231, 0, 0, 'I see. Well then, let\'s get to work, $n! The Dark Lady needs us, right?', 12, 0, 100, 1, 0, 0, 'Valdred Moray - Text 1'),
 	(17855, 0, 0, 'Taste blade, mongrel!', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
 	(17855, 0, 1, 'Please tell me that you didn\'t just do what I think you just did. Please tell me that I\'m not going to have to hurt you...', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
 	(17855, 0, 2, 'As if we don\'t have enough problems, you go and create more!', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
@@ -13138,7 +13137,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(17855, 0, 4, 'We don\'t take kindly to miscreants, $r.', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
 	(17855, 0, 5, 'Get a rope!', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
 	(17855, 0, 6, 'Believe me when I tell you this: You\'re gonna wish you weren\'t born, sissy!', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
-	(17855, 0, 7, 'Your actions shame us all, $c. I hurt inside as I beat you senseless.', 12, 0, 100, 0, 0, 0, 'Expedition Warden');
+	(17855, 0, 7, 'Your actions shame us all, $c. I hurt inside as I beat you senseless.', 12, 0, 100, 0, 0, 0, 'Expedition Warden'),
+	(38895, 0, 0, 'No. You\'re lying! My father will protect me!', 12, 0, 100, 0, 0, 0, 'Lilian Voss - The Wakening');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

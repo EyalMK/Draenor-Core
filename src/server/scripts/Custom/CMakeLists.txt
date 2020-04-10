@@ -15,6 +15,7 @@ set(scripts_STAT_SRCS
     	Custom/stress_test.cpp
 	Custom/custom_playerscripts.cpp
 	Custom/midsummer_fire_festival.cpp
+	Custom/classic_pvp_titles.cpp
 )
 
 message("  -> Prepared: Custom")
