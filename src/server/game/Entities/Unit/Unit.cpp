@@ -19576,7 +19576,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         Player* player = ToPlayer();
         if (player->isAFK())
             player->ToggleAFK();
-        player->SetClientControl(this, 0);
+        player->SetClientControl(this, false);
     }
 
     // charm is set by aura, and aura effect remove handler was called during apply handler execution
@@ -19602,7 +19602,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         {
             case CHARM_TYPE_VEHICLE:
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-                charmer->ToPlayer()->SetClientControl(this, 1);
+                charmer->ToPlayer()->SetClientControl(this, true);
                 charmer->ToPlayer()->SetMover(this);
                 charmer->ToPlayer()->SetViewpoint(this, true);
                 charmer->ToPlayer()->VehicleSpellInitialize();
@@ -19611,7 +19611,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 AddUnitState(UNIT_STATE_POSSESSED);
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                 charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                charmer->ToPlayer()->SetClientControl(this, 1);
+                charmer->ToPlayer()->SetClientControl(this, true);
                 charmer->ToPlayer()->SetMover(this);
                 charmer->ToPlayer()->SetViewpoint(this, true);
                 charmer->ToPlayer()->PossessSpellInitialize();
@@ -19712,7 +19712,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         }
     }
     else
-        ToPlayer()->SetClientControl(this, 1);
+        ToPlayer()->SetClientControl(this, true);
 
     // If charmer still exists
     if (!charmer)
@@ -19728,7 +19728,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         switch (type)
         {
             case CHARM_TYPE_VEHICLE:
-                charmer->ToPlayer()->SetClientControl(charmer, 1);
+                charmer->ToPlayer()->SetClientControl(charmer, true);
                 charmer->ToPlayer()->SetViewpoint(this, false);
                 charmer->ToPlayer()->SetClientControl(this, 0);
                 if (IsPlayer())
@@ -19736,13 +19736,13 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                 break;
             case CHARM_TYPE_POSSESS:
                 ClearUnitState(UNIT_STATE_POSSESSED);
-                charmer->ToPlayer()->SetClientControl(charmer, 1);
+                charmer->ToPlayer()->SetClientControl(charmer, true);
                 charmer->ToPlayer()->SetViewpoint(this, false);
-                charmer->ToPlayer()->SetClientControl(this, 0);
+                charmer->ToPlayer()->SetClientControl(this, false);
                 charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 if (IsPlayer())
                 {
-                    ToPlayer()->SetClientControl(this, 1);
+                    ToPlayer()->SetClientControl(this, true);
                 }
                 break;
             case CHARM_TYPE_CHARM:

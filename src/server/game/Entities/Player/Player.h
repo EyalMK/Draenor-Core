@@ -3144,7 +3144,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsKnowHowFlyIn(uint32 mapid, uint32 zone, uint32 spellId = 0) const;
 
-        void SetClientControl(Unit* target, uint8 allowMove);
+        void SetClientControl(Unit* target, bool p_On);
 
         void SetMover(Unit* target);
 

@@ -29589,22 +29589,17 @@ void Player::SendGameError(GameError::Type p_Error, uint32 p_Data1 /*= 0xF0F0F0F
     GetSession()->SendGameError(p_Error, p_Data1, p_Data2);
 }
 
-void Player::SetClientControl(Unit* p_Target, uint8 p_AllowMove)
+void Player::SetClientControl(Unit* p_Target, bool p_On)
 {
 	WorldPacket l_Data(SMSG_CLIENT_CONTROL_UPDATE);
 	ObjectGuid targetGUID = p_Target->GetGUID();
 	
-	uint8 bitOrder[8] = { 5, 6, 1, 4, 3, 2, 7, 0 };
-	l_Data.WriteBitInOrder(targetGUID, bitOrder);
-	l_Data.WriteBit(p_AllowMove);
-	l_Data.FlushBits();
-	
-	uint8 byteOrder[8] = { 2, 0, 3, 1, 6, 4, 5, 7 };
-	l_Data.WriteBytesSeq(targetGUID, byteOrder);
-	
+	l_Data << uint64(p_Target->GetGUID());
+	l_Data << p_On;
+
     GetSession()->SendPacket(&l_Data);
 
-    if (p_Target == this && p_AllowMove)
+    if (p_Target == this && p_On)
         SetMover(this);
 }
 

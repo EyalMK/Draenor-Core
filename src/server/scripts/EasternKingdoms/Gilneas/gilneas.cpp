@@ -2334,7 +2334,7 @@ public:
                     break;
                 case 12:
                     player->ExitVehicle();
-                    player->SetClientControl(me, 1);
+                    player->SetClientControl(me, true);
                     break;
             }
         }
@@ -2356,7 +2356,7 @@ public:
 
             if (PlayerOn && player != nullptr)
             {
-                player->SetClientControl(me, 0);
+                player->SetClientControl(me, false);
                 PlayerOn = false;
             }
 
@@ -2652,7 +2652,7 @@ public:
             switch(i)
             {
                 case 1:
-                    player->SetClientControl(me, 0);
+                    player->SetClientControl(me, false);
                     crowley->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->GetMotionMaster()->MoveJump(-1714.02f, 1666.37f, 20.57f, 25.0f, 15.0f);
                     break;
@@ -2675,7 +2675,7 @@ public:
                     player->getThreatManager().resetAllAggro();
                     break;
                 case 21:
-                    player->SetClientControl(me, 1);
+                    player->SetClientControl(me, true);
                     player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     player->ExitVehicle();
                     break;
