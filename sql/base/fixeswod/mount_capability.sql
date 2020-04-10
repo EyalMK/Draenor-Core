@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.mount_capability
+-- Dumping structure for table fixeslive.mount_capability
 CREATE TABLE IF NOT EXISTS `mount_capability` (
   `ID` int(11) NOT NULL DEFAULT '0',
   `Flags` int(11) NOT NULL DEFAULT '0',
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `mount_capability` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Export of MountCapability.dbc';
 
--- Dumping data for table fixeswod.mount_capability: 66 rows
+-- Dumping data for table fixeslive.mount_capability: 66 rows
 DELETE FROM `mount_capability`;
 /*!40000 ALTER TABLE `mount_capability` DISABLE KEYS */;
 INSERT INTO `mount_capability` (`ID`, `Flags`, `RequiredRidingSkill`, `RequiredArea`, `RequiredAura`, `RequiredSpell`, `SpeedModSpell`, `RequiredMap`, `BuildVerified`) VALUES

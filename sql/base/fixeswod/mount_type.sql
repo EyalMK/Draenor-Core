@@ -11,13 +11,13 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.mount_type
+-- Dumping structure for table fixeslive.mount_type
 CREATE TABLE IF NOT EXISTS `mount_type` (
   `ID` int(11) unsigned NOT NULL,
   `BuildVerified` int(11) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.mount_type: ~28 rows (approximately)
+-- Dumping data for table fixeslive.mount_type: ~28 rows (approximately)
 DELETE FROM `mount_type`;
 /*!40000 ALTER TABLE `mount_type` DISABLE KEYS */;
 INSERT INTO `mount_type` (`ID`, `BuildVerified`) VALUES

@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.item
+-- Dumping structure for table fixeslive.item
 CREATE TABLE IF NOT EXISTS `item` (
   `ID` int(11) unsigned NOT NULL DEFAULT '0',
   `Class` int(11) NOT NULL DEFAULT '0',
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.item: 1 rows
+-- Dumping data for table fixeslive.item: 1 rows
 DELETE FROM `item`;
 /*!40000 ALTER TABLE `item` DISABLE KEYS */;
 INSERT INTO `item` (`ID`, `Class`, `SubClass`, `SoundOverrideSubclass`, `Material`, `InventoryType`, `Sheath`, `DisplayId`, `GroupSoundsID`, `BuildVerified`) VALUES

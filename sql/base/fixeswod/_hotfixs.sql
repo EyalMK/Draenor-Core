@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod._hotfixs
+-- Dumping structure for table fixeslive._hotfixs
 CREATE TABLE IF NOT EXISTS `_hotfixs` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Entry` int(11) unsigned NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `_hotfixs` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=350 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod._hotfixs: ~246 rows (approximately)
+-- Dumping data for table fixeslive._hotfixs: ~246 rows (approximately)
 DELETE FROM `_hotfixs`;
 /*!40000 ALTER TABLE `_hotfixs` DISABLE KEYS */;
 INSERT INTO `_hotfixs` (`ID`, `Entry`, `Hash`, `Date`, `Comment`) VALUES

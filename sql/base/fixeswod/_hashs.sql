@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod._hashs
+-- Dumping structure for table fixeslive._hashs
 CREATE TABLE IF NOT EXISTS `_hashs` (
   `ID` int(11) unsigned NOT NULL,
   `Name` varchar(100) NOT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod._hashs: ~172 rows (approximately)
+-- Dumping data for table fixeslive._hashs: ~172 rows (approximately)
 DELETE FROM `_hashs`;
 /*!40000 ALTER TABLE `_hashs` DISABLE KEYS */;
 INSERT INTO `_hashs` (`ID`, `Name`) VALUES

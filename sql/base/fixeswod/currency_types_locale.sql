@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.currency_types_locale
+-- Dumping structure for table fixeslive.currency_types_locale
 CREATE TABLE IF NOT EXISTS `currency_types_locale` (
   `ID` int(11) unsigned NOT NULL,
   `NameLang_koKR` text CHARACTER SET latin1,
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `currency_types_locale` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.currency_types_locale: ~0 rows (approximately)
+-- Dumping data for table fixeslive.currency_types_locale: ~0 rows (approximately)
 DELETE FROM `currency_types_locale`;
 /*!40000 ALTER TABLE `currency_types_locale` DISABLE KEYS */;
 /*!40000 ALTER TABLE `currency_types_locale` ENABLE KEYS */;

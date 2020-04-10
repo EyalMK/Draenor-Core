@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.item_effect
+-- Dumping structure for table fixeslive.item_effect
 CREATE TABLE IF NOT EXISTS `item_effect` (
   `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `ItemID` int(10) unsigned NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `item_effect` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25037 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.item_effect: ~20,271 rows (approximately)
+-- Dumping data for table fixeslive.item_effect: ~21,291 rows (approximately)
 DELETE FROM `item_effect`;
 /*!40000 ALTER TABLE `item_effect` DISABLE KEYS */;
 INSERT INTO `item_effect` (`ID`, `ItemID`, `EffectIndex`, `SpellID`, `SpellTrigger`, `SpellCharge`, `SpellCooldown`, `SpellCategory`, `SpellCategoryCooldown`, `ChrSpecializationID`, `BuildVerified`) VALUES

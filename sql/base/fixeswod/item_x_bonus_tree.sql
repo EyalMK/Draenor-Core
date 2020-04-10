@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.item_x_bonus_tree
+-- Dumping structure for table fixeslive.item_x_bonus_tree
 CREATE TABLE IF NOT EXISTS `item_x_bonus_tree` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `ItemID` int(11) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `item_x_bonus_tree` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM AUTO_INCREMENT=21575 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.item_x_bonus_tree: 1,676 rows
+-- Dumping data for table fixeslive.item_x_bonus_tree: 1,676 rows
 DELETE FROM `item_x_bonus_tree`;
 /*!40000 ALTER TABLE `item_x_bonus_tree` DISABLE KEYS */;
 INSERT INTO `item_x_bonus_tree` (`ID`, `ItemID`, `ItemBonusTreeCategory`, `BuildVerified`) VALUES

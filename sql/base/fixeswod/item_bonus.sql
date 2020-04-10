@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.item_bonus
+-- Dumping structure for table fixeslive.item_bonus
 CREATE TABLE IF NOT EXISTS `item_bonus` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Entry` int(11) unsigned NOT NULL DEFAULT '0',
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `item_bonus` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1571 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fixeswod.item_bonus: 1,478 rows
+-- Dumping data for table fixeslive.item_bonus: 1,478 rows
 DELETE FROM `item_bonus`;
 /*!40000 ALTER TABLE `item_bonus` DISABLE KEYS */;
 INSERT INTO `item_bonus` (`ID`, `Entry`, `Type`, `Value1`, `Value2`, `Index`, `BuildVerified`) VALUES

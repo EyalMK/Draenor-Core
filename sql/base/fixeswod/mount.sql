@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.mount
+-- Dumping structure for table fixeslive.mount
 CREATE TABLE IF NOT EXISTS `mount` (
   `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `SpellID` int(10) unsigned NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `mount` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=600002 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.mount: ~4 rows (approximately)
+-- Dumping data for table fixeslive.mount: ~4 rows (approximately)
 DELETE FROM `mount`;
 /*!40000 ALTER TABLE `mount` DISABLE KEYS */;
 INSERT INTO `mount` (`ID`, `SpellID`, `Category`, `CreatureDisplayID`, `Flags`, `Name`, `Description`, `Icon`, `FilterCategory`, `PlayerConditionID`, `BuildVerified`) VALUES

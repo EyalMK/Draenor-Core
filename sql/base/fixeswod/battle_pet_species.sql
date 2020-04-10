@@ -11,7 +11,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table fixeswod.battle_pet_species
+-- Dumping structure for table fixeslive.battle_pet_species
 CREATE TABLE IF NOT EXISTS `battle_pet_species` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Entry` int(11) unsigned NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `battle_pet_species` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1657 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeswod.battle_pet_species: ~990 rows (approximately)
+-- Dumping data for table fixeslive.battle_pet_species: ~1,053 rows (approximately)
 DELETE FROM `battle_pet_species`;
 /*!40000 ALTER TABLE `battle_pet_species` DISABLE KEYS */;
 INSERT INTO `battle_pet_species` (`ID`, `Entry`, `IconID`, `SpellID`, `Type`, `ObtainmentCategoryDescription`, `Flags`, `Source`, `Description`, `BuildVerified`) VALUES
