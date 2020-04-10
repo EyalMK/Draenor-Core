@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `modelid1`=37559, `unit_flags`=67108928, `dynamicflags`=4 WHERE `entry`=41166;
