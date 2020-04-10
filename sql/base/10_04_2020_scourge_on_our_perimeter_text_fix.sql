@@ -1,0 +1,1 @@
+UPDATE `quest_template` SET `RequestItemsText`="Those who dally in this task might as well end up wandering about aimlessly like our fallen brothers and sisters in the village.$B$BLet's hope you will fare better than them, yes?" WHERE `Id`=26801;
