@@ -92,14 +92,14 @@ public:
 		void DamageTaken(Unit* doneBy, uint32& damage)
 		{
 			if (doneBy->ToCreature())
-				if (me->GetHealth() <= damage || me->GetHealthPct() <= 75.0f)
+				if (me->GetHealth() <= damage || me->GetHealthPct() <= 87.0f)
 					damage = 0;
 		}
 
 		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
 		{
 			if (target->ToCreature())
-				if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
+				if (target->GetHealth() <= damage || target->GetHealthPct() <= 91.0f)
 					damage = 0;
 		}
 
@@ -171,7 +171,7 @@ public:
 
 		void Reset() 
 		{
-			m_minHealth = urand(60, 85);
+			m_minHealth = 91.0f;
 		}
 		
 		void UpdateAI(uint32 diff)
@@ -216,7 +216,7 @@ public:
 		void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
 		{
 			if (target->ToCreature())
-				if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
+				if (target->GetHealth() <= damage || target->GetHealthPct() <= 87.0f)
 					damage = 0;
 		}
 
@@ -336,7 +336,7 @@ public:
 			m_Events.Reset();
 			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 			me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
-			me->SetHealth(me->CountPctFromMaxHealth(5));
+			me->SetHealth(me->CountPctFromMaxHealth(30.0f));
 			me->setRegeneratingHealth(false);
 		}
 
@@ -362,7 +362,7 @@ public:
 				{
 					AddTimedDelayedOperation(0.3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-						me->SetHealth(35);
+						me->SetHealth(me->CountPctFromMaxHealth(80.0f));
 					});
 
 					AddTimedDelayedOperation(1.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -596,27 +596,26 @@ public:
 	{
 		npc_wounded_traineeAI(Creature *p_Creature) : ScriptedAI(p_Creature) { }
 		
-		uint32 HealedTimer = 10000;
+		uint32 HealedTimer; 
 
 		void Reset()
 		{
-			me->SetHealth(me->CountPctFromMaxHealth(20));
+			me->SetHealth(me->CountPctFromMaxHealth(43.0f));
 			me->setRegeneratingHealth(false);
+			HealedTimer = 15000;
 		}
 
 		void UpdateAI(const uint32 diff)
 		{			
 
-			/// Need to fix this so that after 10 seconds of being healed, run reset function
-			/* 
-			if (me->GetHealth() > 20.0f)
-				if (HealedTimer <= 0)
+			if (me->GetHealthPct() > 43.0f)
+				if (HealedTimer <= diff)
 				{
 					Reset();
-					HealedTimer = 10000;
+					HealedTimer = 15000;
 				}
 				else
-					HealedTimer -= diff; */
+					HealedTimer -= diff;
 		}
 	};
 
