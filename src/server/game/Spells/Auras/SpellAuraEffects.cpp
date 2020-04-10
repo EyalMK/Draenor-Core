@@ -3961,6 +3961,12 @@ void AuraEffect::HandleModPossess(AuraApplication const* p_AurApp, uint8 p_Mode,
     {
         l_Target->SetCharmedBy(caster, CHARM_TYPE_POSSESS, p_AurApp);
         l_Target->SendAddLossOfControl(p_AurApp, Mechanics::MECHANIC_CHARM, LossOfControlType::TypePossess);
+		l_Target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+		if (caster)
+		{
+			caster->SetCombatTimer(GetBase()->GetDuration());
+			caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+		}
     }
     else
     {

@@ -287,7 +287,7 @@ class spell_akilzon_electrical_storm: public SpellScriptLoader
                 if (Player* pPlayer = GetTarget()->ToPlayer())
                 {
                     pPlayer->CastSpell(pPlayer, SPELL_ELECTRICAL_SAFE, true);
-                    pPlayer->SetClientControl(pPlayer, 0);
+                    pPlayer->SetClientControl(pPlayer, false);
                     pPlayer->SetCanFly(true);
                     pPlayer->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                     pPlayer->MonsterMoveWithSpeed(pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ() + 12, 15000);
@@ -301,7 +301,7 @@ class spell_akilzon_electrical_storm: public SpellScriptLoader
 
                 if (Player* pPlayer = GetTarget()->ToPlayer())
                 {
-                    pPlayer->SetClientControl(pPlayer, 1);
+                    pPlayer->SetClientControl(pPlayer, true);
                     pPlayer->SetCanFly(false);
                     pPlayer->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                 }

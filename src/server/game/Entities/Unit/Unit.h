@@ -1870,6 +1870,7 @@ class Unit : public WorldObject
         void SetInCombatState(bool PvP, Unit* enemy = NULL, bool isControlled = false);
         void SetInCombatWith(Unit* enemy);
         void ClearInCombat();
+		void SetCombatTimer(uint32 value) { m_CombatTimer = value; }
         uint32 GetCombatTimer() const { return m_CombatTimer; }
 
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const;
