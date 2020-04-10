@@ -313,8 +313,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     // equal to player Race field, but creature does not have race
     SetByteValue(UNIT_FIELD_SEX, 0, 0);
 
-	//						     1		            2                  4                8
-    // known valid are: UNIT_CLASS_WARRIOR, UNIT_CLASS_PALADIN, UNIT_CLASS_ROGUE, UNIT_CLASS_MAGE
+    // known valid are: CLASS_WARRIOR, CLASS_PALADIN, CLASS_ROGUE, CLASS_MAGE
     SetByteValue(UNIT_FIELD_SEX, 1, uint8(cinfo->unit_class));
 
     // Cancel load if no model defined
@@ -677,10 +676,15 @@ void Creature::Update(uint32 diff)
                         m_HealthRegenTimer -= diff;
                 }
 
-                if (m_RegenPowerTimer == 0 && HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
+                if (m_RegenPowerTimer == 0)
                 {
                     if (getPowerType() == POWER_ENERGY)
-                        Regenerate(POWER_ENERGY);
+                    {
+                        if (!IsVehicle() ||
+                            (GetVehicleKit()->GetVehicleInfo()->m_PowerDisplayID != POWER_PYRITE &&
+                            GetVehicleKit()->GetVehicleInfo()->m_PowerDisplayID != POWER_HEAT))
+                            Regenerate(POWER_ENERGY);
+                    }
                     else
                         RegenerateMana();
 
@@ -1424,18 +1428,17 @@ void Creature::UpdateStatsForLevel()
 
     switch (getClass())
     {
-        case UNIT_CLASS_WARRIOR:
+        case CLASS_WARRIOR:
             setPowerType(POWER_RAGE);
             SetMaxPower(POWER_RAGE, GetCreatePowers(POWER_RAGE));
             SetPower(POWER_RAGE, GetCreatePowers(POWER_RAGE));
             break;
-        case UNIT_CLASS_ROGUE:
+        case CLASS_ROGUE:
             setPowerType(POWER_ENERGY);
             SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
             SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
             break;
-        case UNIT_CLASS_PALADIN:
-		case UNIT_CLASS_MAGE:
+        default:
             setPowerType(POWER_MANA);
             SetMaxPower(POWER_MANA, l_Mana);
             SetPower(POWER_MANA, l_Mana);
