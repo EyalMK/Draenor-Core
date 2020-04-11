@@ -131,89 +131,49 @@ public:
 	}
 };
 
-/// Archmage Khadgar - 78423
-class npc_archmage_khadgar_darkportal : public CreatureScript
-{
-public:
-	npc_archmage_khadgar_darkportal() : CreatureScript("npc_archmage_khadgar_darkportal") { }
 
-	enum eGossips
-	{
-		BaseGossip = 78423
-	};
 
-	enum eActions
-	{
-		SelectGossip = 1001,
-	};
-
-	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-	{
-		p_Player->PrepareQuestMenu(p_Creature->GetGUID());
-
-		if (p_Player->GetQuestStatus(34398) == QUEST_STATUS_INCOMPLETE || p_Player->GetQuestStatus(36881) == QUEST_STATUS_INCOMPLETE)
-		{
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "FOR AZEROTH!", GOSSIP_SENDER_MAIN, eActions::SelectGossip);
-		}
-
-		p_Player->SEND_GOSSIP_MENU(eGossips::BaseGossip, p_Creature->GetGUID());
-		return true;
-	}
-
-	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action) override
-	{
-		switch (p_Action)
-		{
-			case eActions::SelectGossip: // FOR AZEROTH!
-			{
-				if (p_Player->GetQuestStatus(34398) != QUEST_STATUS_REWARDED || p_Player->GetQuestStatus(36881) != QUEST_STATUS_REWARDED)
-				{
-					p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
-					p_Player->SendMovieStart(TanaanMovies::MovieEnterPortal);
-					p_Player->KilledMonsterCredit(78419);
-				}
-			break;
-			}
-		default:
-			break;
-		}
-
-		p_Player->PlayerTalkClass->ClearMenus();
-		p_Player->PlayerTalkClass->SendCloseGossip();
-		return true;
-	}
-
-	struct npc_archmage_khadgar_darkportalAI : public ScriptedAI
-	{
-		npc_archmage_khadgar_darkportalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-	};
-
-	CreatureAI* GetAI(Creature* p_Creature) const override
-	{
-		return new npc_archmage_khadgar_darkportalAI(p_Creature);
-	}
-};
-
-/*######
-## npc_deathly_usher
-######*/
-
-#define GOSSIP_ITEM_USHER "I would like to visit the Rise of the Defiler."
-
-#define SPELL_TELEPORT_SINGLE           12885
-#define SPELL_TELEPORT_SINGLE_IN_GROUP  13142
-#define SPELL_TELEPORT_GROUP            27686
-
-#define QUEST_START_DRAENOR             36881
+/// Deathly Usher - 8816
+#define GOSSIP_ITEM_USHER "I wish to face the Defiler."
 
 class npc_deathly_usher : public CreatureScript
 {
 public:
     npc_deathly_usher() : CreatureScript("npc_deathly_usher") { }
 
+	enum eData
+	{
+		// Spell
+		SPELL_TELEPORT_SINGLE			= 12885,
+
+		// Quests
+		HORDE_DEMON_QUEST				= 25701,
+		ALLIANCE_DEMON_QUEST			= 26171,
+
+		// Provided Item
+		ITEM_STONE_KNIFE				= 56012
+	};
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature, Quest* p_Quest)
+	{
+		if (p_Player->getFaction() == TEAM_ALLIANCE && (p_Player->HasQuest(ALLIANCE_DEMON_QUEST) && p_Player->GetQuestStatus(ALLIANCE_DEMON_QUEST) == QUEST_STATUS_INCOMPLETE && p_Player->HasItemCount(ITEM_STONE_KNIFE)))
+		{
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_USHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+		}
+		else if (p_Player->getFaction() == TEAM_HORDE && p_Player->HasQuest(HORDE_DEMON_QUEST) && p_Player->GetQuestStatus(HORDE_DEMON_QUEST) == QUEST_STATUS_INCOMPLETE && p_Player->HasItemCount(ITEM_STONE_KNIFE))
+		{
+				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_USHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+		}
+
+		p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
+
+		return true;
+	}
+
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
+
         if (action == GOSSIP_ACTION_INFO_DEF)
         {
             player->CLOSE_GOSSIP_MENU();
@@ -223,16 +183,485 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(3628) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(10757))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_USHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
+   
 };
+
+
+/// Loramus Thalipedes - 41297
+class npc_loramus_thalipedes : public CreatureScript
+{
+public:
+	npc_loramus_thalipedes() : CreatureScript("npc_loramus_thalipedes") { }
+
+	enum eData
+	{
+
+		// Npcs
+		NPC_RAZELIKH_DEMON	=	41280,
+		NPC_LORAMUS_THE_DEFILED	= 41292,
+
+		// Spells
+		SPELL_TELEPORT_SINGLE = 12885,
+		SPELL_DEMONS_RESOLVE  = 77371,
+
+		// Quests
+		HORDE_DEMON_QUEST = 25701,
+		ALLIANCE_DEMON_QUEST = 26171,
+
+		// Provided Item
+		ITEM_STONE_KNIFE = 56012,
+
+		// Event
+		EVENT_CHECK_PLAYER	=	0
+	};
+
+	enum eActions
+	{
+		StartEvent = 0,
+		BeforeDeath = 1,
+		Transformation = 2,
+		TheDefiledSummoned = 3,
+		EndDeath = 4,
+		EndQuestAndDeath = 5
+	};
+
+	struct npc_loramus_thalipedesAI : public ScriptedAI
+	{
+		npc_loramus_thalipedesAI(Creature* p_Creature) : ScriptedAI(p_Creature) {
+			m_Quest = false;
+		}
+
+		bool m_Quest;
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+			m_CosmeticEvents.ScheduleEvent(EVENT_CHECK_PLAYER, 1 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+				case EVENT_CHECK_PLAYER:
+				{
+					std::list<Player*> l_PlayerList;
+					me->GetPlayerListInGrid(l_PlayerList, 5.0f);
+
+					for (Player* p_Player : l_PlayerList)
+
+						if (p_Player->HasQuest(ALLIANCE_DEMON_QUEST) || p_Player->HasQuest(HORDE_DEMON_QUEST))
+						{
+							// Buff
+							/// Keeps reapplying the buff even though player has aura after he applies it for the first time.
+							if (!p_Player->HasAura(SPELL_DEMONS_RESOLVE))
+							{
+								me->CastSpell(p_Player, SPELL_DEMONS_RESOLVE);
+							}
+
+							if (Creature* razelikh = me->FindNearestCreature(NPC_RAZELIKH_DEMON, 10.0f, true))
+							{
+								me->AI()->DoAction(StartEvent);
+							}	
+						}
+				}
+			}
+		}
+
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case StartEvent:
+				{
+					if (m_Quest)
+						return;
+
+					m_Quest = true;
+
+					m_CosmeticEvents.CancelEvent(EVENT_CHECK_PLAYER);
+
+					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(0); // Demon! I have returned..
+						me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+					});
+
+
+					AddTimedDelayedOperation(4.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(1); // Death has not erased my memory.
+						me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+					});
+
+					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(2); // RAKH'LIKH!
+						me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+
+
+						/// This isn't working
+						if (Creature* razelikh = me->FindNearestCreature(NPC_RAZELIKH_DEMON, 15.0f, true))
+						{
+							razelikh->GetAI()->DoAction(StartEvent);
+						}
+					});
+
+					break;
+				}
+
+				case BeforeDeath:
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->getThreatManager().resetAllAggro();
+						me->AttackStop();
+					});
+
+					break;
+			
+				case Transformation:
+
+					AddTimedDelayedOperation(1.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (Player* player = me->FindNearestPlayer(20.0f, true))
+						{
+							me->SetFacingToObject(player);
+							Position l_Pos;
+							me->GetPosition(&l_Pos);
+
+							if (Creature* loramus_the_defiled = me->SummonCreature(NPC_LORAMUS_THE_DEFILED, l_Pos, TEMPSUMMON_MANUAL_DESPAWN))
+							{
+								loramus_the_defiled->GetAI()->DoAction(TheDefiledSummoned);
+								me->DespawnOrUnsummon();
+							}
+						
+						}
+						else {
+							Reset();
+						}
+					
+					});
+
+					break;
+
+				default:
+					break;
+				}
+			}
+	};
+
+	
+		CreatureAI* GetAI(Creature* p_Creature) const
+		{
+			return new npc_loramus_thalipedesAI(p_Creature);
+		}
+};
+
+
+
+/// Razelikh the Defiler - 41280
+class npc_razelikh_the_defiler : public CreatureScript
+{
+public:
+	npc_razelikh_the_defiler() : CreatureScript("npc_razelikh_the_defiler") { }
+
+	enum eData
+	{
+
+		// Npcs
+		NPC_LORAMUS_THALIPEDES		= 41279,
+		NPC_DEFILED_FELHOUND		= 41290,
+		NPC_RAZELIKH_THE_DEFILER	= 41280,
+
+		// Spell
+		SPELL_TELEPORT_SINGLE = 12885,
+		SPELL_RITUAL_BEAM	  = 104158,
+		SPELL_COSMETIC_STUN	  = 73566,
+
+		// Quests
+		HORDE_DEMON_QUEST = 25701,
+		ALLIANCE_DEMON_QUEST = 26171,
+
+		// Provided Item
+		ITEM_STONE_KNIFE = 56012
+	};
+
+	enum eActions
+	{
+		StartEvent = 0,
+		BeforeDeath = 1,
+		Transformation = 2,
+		TheDefiledSummoned = 3,
+		EndDeath = 4,
+		EndQuestAndDeath = 5
+	};
+
+	struct npc_razelikh_the_defilerAI : public ScriptedAI
+	{
+		npc_razelikh_the_defilerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+		Player* l_Target;
+
+		void Reset()
+		{
+			ClearDelayedOperations();
+			l_Target = nullptr;
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case StartEvent:
+			{
+				AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					Talk(0); // Fool of a demon hunter
+					me->SetReactState(REACT_AGGRESSIVE);
+					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+					if (l_Target = me->FindNearestPlayer(20.0f, true));
+						me->CombatStart(l_Target, true);
+				});
+
+				/// Spells are in scripted in SmartAI
+
+				break;
+			}
+
+			case BeforeDeath:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					// Set flags
+					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6);
+					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+
+					Talk(1); // Enough games!
+
+					// Despawn Felhound
+					if (Creature* Felhound = me->FindNearestCreature(NPC_DEFILED_FELHOUND, 20.0f))
+					{
+						Felhound->DespawnOrUnsummon();
+					}
+
+
+					if (Creature* loramus = me->FindNearestCreature(NPC_LORAMUS_THALIPEDES, 20.0f))
+					{
+						me->SetFacingToObject(loramus);
+						me->CastSpell(loramus->GetEntry(), SPELL_RITUAL_BEAM, true);
+						me->CastSpell(loramus->GetEntry(), SPELL_COSMETIC_STUN, true);
+
+						loramus->GetAI()->DoAction(BeforeDeath);
+					}
+
+				});
+
+				AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					Talk(2); // What's this? Loramus...
+					
+				});
+
+				AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					Talk(3); // You must feel it already then...
+
+				});
+
+				AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					Talk(4); // Allow me to speed up the process a bit!
+
+				});
+
+				AddTimedDelayedOperation(12 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					
+					if (Creature* loramus = me->FindNearestCreature(NPC_LORAMUS_THALIPEDES, 15.0f))
+					{
+						me->setDeathState(JUST_DIED); // Die
+						me->CastStop(SPELL_RITUAL_BEAM); // Stop casting beam spell
+						l_Target->QuestObjectiveSatisfy(NPC_RAZELIKH_THE_DEFILER, 1, QUEST_OBJECTIVE_TYPE_NPC, l_Target->GetGUID());
+
+						loramus->RemoveAurasDueToSpell(SPELL_COSMETIC_STUN); // Remove Stun cosmetic
+						loramus->GetAI()->DoAction(Transformation); // Transform Phase
+					}
+
+				});
+
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+
+		void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
+		{
+			if (me->GetHealthPct() <= 25.0f)
+			{
+				me->AttackStop(); // Stop attacking
+				me->getThreatManager().resetAllAggro(); // Clear Aggro
+				me->AI()->DoAction(BeforeDeath);
+			}
+		}
+
+
+	};
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_razelikh_the_defilerAI(p_Creature);
+	}
+	
+};
+
+/// Loramus the Defiled - 41292
+class npc_loramus_the_defiled : public CreatureScript
+{
+public:
+	npc_loramus_the_defiled() : CreatureScript("npc_loramus_the_defiled") { }
+
+	enum eData
+	{
+
+		// Npcs
+		NPC_LORAMUS_THALIPEDES	= 41279,
+		NPC_DEFILED_FELHOUND	= 41290,
+		NPC_LORAMUS_THE_DEFILED	= 41292,
+
+		// Spell
+		SPELL_TELEPORT_SINGLE = 12885,
+		SPELL_RITUAL_BEAM = 104158,
+		SPELL_COSMETIC_STUN = 73566,
+		SPELL_DEATH			= 41220,
+		SPELL_KNIFE			= 77380,
+
+		// Quests
+		HORDE_DEMON_QUEST = 25701,
+		ALLIANCE_DEMON_QUEST = 26171,
+
+		// Provided Item
+		ITEM_STONE_KNIFE = 56012
+	};
+
+	enum eActions
+	{
+		StartEvent			= 0,
+		BeforeDeath			= 1,
+		Transformation		= 2,
+		TheDefiledSummoned	= 3,
+		EndDeath			= 4,
+		EndQuestAndDeath	= 5
+	};
+
+	struct npc_loramus_the_defiledAI : public ScriptedAI
+	{
+		npc_loramus_the_defiledAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+		Player* l_Target;
+
+		void SpellHit(Unit* /*who*/, SpellInfo const* spellInfo)
+		{
+			if (spellInfo->Id == SPELL_KNIFE)
+				if (me->GetHealth() == 1.0f)
+					me->AI()->DoAction(EndQuestAndDeath);
+		}
+
+
+		void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
+		{
+
+			if (me->GetHealthPct() == 25.0f)
+				Talk(3); // Lok zenn Za enkil refir mordanas lok zenn
+
+			if (me->GetHealth() == 1.0f && damage > me->GetHealth())
+			{
+				damage = 0;
+				me->AI()->DoAction(EndDeath);
+			}
+		}
+
+
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case EndDeath:
+				{
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						
+							DoCast(me, SPELL_DEATH);
+							me->RemoveAllAuras();
+							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+							me->CombatStop(true);
+
+							Talk(1); // Quickly! Use the knife on me!
+						
+					});
+					break;
+				}
+
+				case TheDefiledSummoned:
+
+					Talk(0); // Now, heroes!
+					l_Target = me->FindNearestPlayer(20.0f, true);
+
+					if (l_Target->HasQuest(ALLIANCE_DEMON_QUEST) || l_Target->HasQuest(HORDE_DEMON_QUEST))
+						me->CombatStart(l_Target, true);
+
+					break;
+
+				case EndQuestAndDeath:
+
+					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						l_Target->QuestObjectiveSatisfy(NPC_LORAMUS_THE_DEFILED, 1, QUEST_OBJECTIVE_TYPE_NPC, l_Target->GetGUID());
+						Talk(2); // It is done. Leave me here, then.
+					});
+
+					AddTimedDelayedOperation(3.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->RemoveAurasDueToSpell(SPELL_DEATH);
+						// Missing Green Blowup effect spell - Couldn't find - not a priority.
+						me->DespawnOrUnsummon();
+
+					});
+
+					break;
+
+				default:
+					break;
+			}
+		}
+		CreatureAI* GetAI(Creature* p_Creature) const
+		{
+			return new npc_loramus_the_defiledAI(p_Creature);
+		}
+	};
+};
+
+
+
+
+
 
 /// OLDWorld Trigger (DO NOT DELETE) - 15384
 class npc_world_invisible_trigger : public CreatureScript
@@ -300,6 +729,75 @@ class npc_world_invisible_trigger : public CreatureScript
             return new npc_world_invisible_triggerAI(p_Creature);
         }
 };
+
+
+
+
+/*														 /// New Blasted Lands Scripts ///																		*/
+
+/// Archmage Khadgar - 78423
+class npc_archmage_khadgar_darkportal : public CreatureScript
+{
+public:
+	npc_archmage_khadgar_darkportal() : CreatureScript("npc_archmage_khadgar_darkportal") { }
+
+	enum eGossips
+	{
+		BaseGossip = 78423
+	};
+
+	enum eActions
+	{
+		SelectGossip = 1001,
+	};
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		p_Player->PrepareQuestMenu(p_Creature->GetGUID());
+
+		if (p_Player->GetQuestStatus(34398) == QUEST_STATUS_INCOMPLETE || p_Player->GetQuestStatus(36881) == QUEST_STATUS_INCOMPLETE)
+		{
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "FOR AZEROTH!", GOSSIP_SENDER_MAIN, eActions::SelectGossip);
+		}
+
+		p_Player->SEND_GOSSIP_MENU(eGossips::BaseGossip, p_Creature->GetGUID());
+		return true;
+	}
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action) override
+	{
+		switch (p_Action)
+		{
+		case eActions::SelectGossip: // FOR AZEROTH!
+		{
+			if (p_Player->GetQuestStatus(34398) != QUEST_STATUS_REWARDED || p_Player->GetQuestStatus(36881) != QUEST_STATUS_REWARDED)
+			{
+				p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
+				p_Player->SendMovieStart(TanaanMovies::MovieEnterPortal);
+				p_Player->KilledMonsterCredit(78419);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+
+		p_Player->PlayerTalkClass->ClearMenus();
+		p_Player->PlayerTalkClass->SendCloseGossip();
+		return true;
+	}
+
+	struct npc_archmage_khadgar_darkportalAI : public ScriptedAI
+	{
+		npc_archmage_khadgar_darkportalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_archmage_khadgar_darkportalAI(p_Creature);
+	}
+};
+
 
 /// Vindicator Maraad - 82270
 class npc_vindicator_maraad_beachphase : public CreatureScript
@@ -729,10 +1227,16 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_blasted_lands()
 {
+	/// Old Blasted Lands Scripts
 	new npc_blasted_lands_zidormi();
-	new npc_archmage_khadgar_darkportal();
-    new npc_world_invisible_trigger();
 	new npc_deathly_usher();
+	new npc_loramus_the_defiled();
+	new npc_razelikh_the_defiler();
+	new npc_loramus_thalipedes();
+	
+	/// New Blasted Lands Scripts
+	new npc_archmage_khadgar_darkportal();
+	new npc_world_invisible_trigger();
 	new npc_vindicator_maraad_beachphase();
 	new npc_bodrick_grey_beachphase();
 	new npc_stitches_solderbolt();
