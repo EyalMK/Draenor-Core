@@ -1079,7 +1079,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_SET_MISSION_NPC,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonRequestSetMissionNPC               , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_FOLLOWER_RENAME,                            STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonFollowerRename                     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_DECOMISSION_SHIP,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonDecommisionShip                    , PROCESS_LOCAL);
-	DEFINE_OPCODE_HANDLER(CMSG_PLAYER_CAN_VISIT_GARRISON,							STATUS_LOGGEDIN,	PROCESS_THREADSAFE,		   &WorldSession::HandlePlayerJoinedFriendlyGarrison               , PROCESS_LOCAL);
+	DEFINE_OPCODE_HANDLER(CMSG_SET_USING_PARTY_GARRISON,							STATUS_LOGGEDIN,	PROCESS_THREADSAFE,		   &WorldSession::HandlePlayerJoinedFriendlyGarrison               , PROCESS_LOCAL);
 #endif
 
     //////////////////////////////////////////////////////////////////////////
@@ -1220,7 +1220,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_CHANNELLING,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleCancelChanneling           , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_GROWTH_AURA,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleCancelGrowthAuraOpcode     , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_MOUNT_AURA,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleCancelMountAuraOpcode      , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_CANCEL_QUEUED_SPELL,                             STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CANCEL_QUEUED_SPELL,                             STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleCancelQueuedSpellOpcode    , PROCESS_DISTANT_IF_NEED);
 
     //////////////////////////////////////////////////////////////////////////
     /// Cache

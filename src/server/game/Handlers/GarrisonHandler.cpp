@@ -1055,34 +1055,39 @@ void WorldSession::HandleGarrisonDecommisionShip(WorldPacket& p_RecvData)
 
 void WorldSession::HandlePlayerJoinedFriendlyGarrison(WorldPacket& p_RecvData)
 {
-	Group* group = m_Player->GetGroup();
+	bool Enabled = p_RecvData.ReadBit();
 
-	if (!group)
-		return;
-
-	uint32 leaderGuid = group->GetLeaderGUID();
-	if (Player* leader = ObjectAccessor::FindPlayer(leaderGuid))
+	if (Enabled)
 	{
-		MS::Garrison::Manager* l_Garrison = leader->GetGarrison();
-		if (leader == m_Player)
+		Group* group = m_Player->GetGroup();
+
+		if (!group)
 			return;
 
-		if (!l_Garrison)
-			return;
+		uint32 leaderGuid = group->GetLeaderGUID();
+		if (Player* leader = ObjectAccessor::FindPlayer(leaderGuid))
+		{
+			MS::Garrison::Manager* l_Garrison = leader->GetGarrison();
+			if (leader == m_Player)
+				return;
 
-		Map* map = leader->GetMap();
+			if (!l_Garrison)
+				return;
 
-		InstancePlayerBind* bind = leader->GetBoundInstance(leader->GetMapId(), leader->GetDifficultyID(map->GetEntry()));
+			Map* map = leader->GetMap();
 
-		if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(leader->GetInstanceId()))
-			m_Player->BindToInstance(save, !save->CanReset());
+			InstancePlayerBind* bind = leader->GetBoundInstance(leader->GetMapId(), leader->GetDifficultyID(map->GetEntry()));
 
-		float x, y, z;
-		leader->GetContactPoint(m_Player, x, y, z);
-		m_Player->TeleportTo(leader->GetMapId(), x, y, z, m_Player->GetAngle(leader), TELE_TO_SEAMLESS);
-		m_Player->SetPhaseMask(leader->GetPhaseMask(), true);
-		m_Player->SetInPartyGarrison();
-		m_Player->SetUInt32Value(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_USING_PARTY_GARRISON);
+			if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(leader->GetInstanceId()))
+				m_Player->BindToInstance(save, !save->CanReset());
+
+			float x, y, z;
+			leader->GetContactPoint(m_Player, x, y, z);
+			m_Player->TeleportTo(leader->GetMapId(), x, y, z, m_Player->GetAngle(leader), TELE_TO_SEAMLESS);
+			m_Player->SetPhaseMask(leader->GetPhaseMask(), true);
+			m_Player->SetInPartyGarrison();
+			m_Player->SetUInt32Value(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_USING_PARTY_GARRISON);
+		}
 	}
 }
 

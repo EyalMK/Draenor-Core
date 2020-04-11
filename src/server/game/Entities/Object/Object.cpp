@@ -2536,7 +2536,8 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
                 return true;
         }
 
-        if (!HasInArc(M_PI, obj))
+		// Only check back for units, it does not make sense for gameobjects
+		if (((Unit*)this) && !HasInArc(float(M_PI), obj))
             return false;
 
         // Starting points

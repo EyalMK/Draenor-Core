@@ -2053,6 +2053,21 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
 
 }
 
+void WorldSession::HandleCancelQueuedSpellOpcode(WorldPacket& recvData)
+{
+	if (!m_Player)
+		return;
+
+	Spell* queuedSpell = m_Player->GetQueuedSpell();
+
+	if (queuedSpell != nullptr)
+	{
+		queuedSpell->SendCastResult(SPELL_FAILED_DONT_REPORT);
+		queuedSpell->finish(false);
+		m_Player->ResetSpellQueue();
+	}
+}
+
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 {
     /*

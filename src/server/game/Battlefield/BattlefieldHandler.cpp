@@ -234,7 +234,7 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 
 void WorldSession::HandleRequestPvpOptions(WorldPacket& /*recvData*/)
 {
-    /// @Todo: perfome research in this case
+	/// This packet is completely irrelevant, it triggers PVP_TYPES_ENABLED lua event but that is not handled in interface code as of 6.1.2
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
     data.WriteBit(1);
     data.WriteBit(1);

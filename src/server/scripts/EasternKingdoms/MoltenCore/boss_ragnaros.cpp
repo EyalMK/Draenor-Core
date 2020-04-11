@@ -75,6 +75,8 @@ class boss_ragnaros : public CreatureScript
                 _introState = 0;
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetDisableGravity(true);
+				me->SetCanFly(true);
             }
 
             void Reset()
@@ -111,7 +113,8 @@ class boss_ragnaros : public CreatureScript
                 {
                     if (!_introState)
                     {
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+						me->RemoveAura(100312); // we're removing submerge
+						me->CastSpell(me, 50142, false); // emerge
                         events.ScheduleEvent(EVENT_INTRO_1, 4000);
                         events.ScheduleEvent(EVENT_INTRO_2, 23000);
                         events.ScheduleEvent(EVENT_INTRO_3, 42000);
@@ -144,7 +147,7 @@ class boss_ragnaros : public CreatureScript
                         case EVENT_INTRO_5:
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             _introState = 2;
                             break;
                         default:
@@ -162,9 +165,10 @@ class boss_ragnaros : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->setFaction(14);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+							me->RemoveAura(100312); // we're removing submerge
+							me->CastSpell(me, 50142, false); // emerge
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 AttackStart(target);
                             instance->SetData(DATA_RAGNAROS_ADDS, 0);
@@ -238,13 +242,11 @@ class boss_ragnaros : public CreatureScript
                                     DoResetThreat();
                                     me->SetReactState(REACT_PASSIVE);
                                     me->InterruptNonMeleeSpells(false);
-                                    //Root self
-                                    //DoCast(me, 23973);
                                     me->setFaction(35);
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+									me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                                     me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_SUBMERGED);
-                                    me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
+									me->CastSpell(me, 100312, false); // Submerge
                                     instance->SetData(DATA_RAGNAROS_ADDS, 0);
 
                                     if (!_hasSubmergedOnce)
