@@ -1220,7 +1220,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_CHANNELLING,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleCancelChanneling           , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_GROWTH_AURA,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleCancelGrowthAuraOpcode     , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_MOUNT_AURA,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleCancelMountAuraOpcode      , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_CANCEL_QUEUED_SPELL,                             STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CANCEL_QUEUED_SPELL,                             STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleCancelQueuedSpellOpcode    , PROCESS_DISTANT_IF_NEED);
 
     //////////////////////////////////////////////////////////////////////////
     /// Cache
