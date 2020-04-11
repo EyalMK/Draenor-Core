@@ -144,7 +144,7 @@ class boss_ragnaros : public CreatureScript
                         case EVENT_INTRO_5:
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             _introState = 2;
                             break;
                         default:
@@ -162,7 +162,7 @@ class boss_ragnaros : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->setFaction(14);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -238,11 +238,9 @@ class boss_ragnaros : public CreatureScript
                                     DoResetThreat();
                                     me->SetReactState(REACT_PASSIVE);
                                     me->InterruptNonMeleeSpells(false);
-                                    //Root self
-                                    //DoCast(me, 23973);
                                     me->setFaction(35);
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+									me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                                     me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_SUBMERGED);
                                     me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
                                     instance->SetData(DATA_RAGNAROS_ADDS, 0);
