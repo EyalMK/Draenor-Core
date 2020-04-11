@@ -113,6 +113,7 @@ class boss_ragnaros : public CreatureScript
                 {
                     if (!_introState)
                     {
+						me->RemoveAura(100312); // we're removing submerge
 						me->CastSpell(me, 50142, false); // emerge
                         events.ScheduleEvent(EVENT_INTRO_1, 4000);
                         events.ScheduleEvent(EVENT_INTRO_2, 23000);
@@ -166,6 +167,7 @@ class boss_ragnaros : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+							me->RemoveAura(100312); // we're removing submerge
 							me->CastSpell(me, 50142, false); // emerge
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 AttackStart(target);
