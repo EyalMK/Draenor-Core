@@ -150,7 +150,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     init.MoveTo(node->x, node->y, node->z);
 
     //! Accepts angles such as 0.00001 and -0.00001, 0 must be ignored, default value in waypoint table
-    if (node->orientation > 0.f && node->delay)
+    if (node->orientation /*> 0.f*/ && node->delay)
         init.SetFacing(node->orientation);
 	/*else
 	{
@@ -229,9 +229,10 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
 
         if (creature->IsStopped())
             Stop(STOP_TIME_FOR_PLAYER);
+		else if (creature->movespline->Finalized())
 
-		// If it's moving or has not reached its real final waypoint spline point yet
-        else if (creature->movespline->currentPathIdx() < _transitionPointId)
+		/* If it's moving or has not reached its real final waypoint spline point yet
+        else if (creature->movespline->currentPathIdx() < _transitionPointId)*/
         {
             OnArrived(creature);
             return StartMove(creature);
