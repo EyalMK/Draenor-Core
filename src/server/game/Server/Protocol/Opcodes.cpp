@@ -1079,7 +1079,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_SET_MISSION_NPC,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonRequestSetMissionNPC               , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_FOLLOWER_RENAME,                            STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonFollowerRename                     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_DECOMISSION_SHIP,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonDecommisionShip                    , PROCESS_LOCAL);
-	DEFINE_OPCODE_HANDLER(CMSG_PLAYER_CAN_VISIT_GARRISON,							STATUS_LOGGEDIN,	PROCESS_THREADSAFE,		   &WorldSession::HandlePlayerJoinedFriendlyGarrison               , PROCESS_LOCAL);
+	DEFINE_OPCODE_HANDLER(CMSG_SET_USING_PARTY_GARRISON,							STATUS_LOGGEDIN,	PROCESS_THREADSAFE,		   &WorldSession::HandlePlayerJoinedFriendlyGarrison               , PROCESS_LOCAL);
 #endif
 
     //////////////////////////////////////////////////////////////////////////
