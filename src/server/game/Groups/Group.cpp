@@ -2243,6 +2243,9 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // check is someone in party is loading or teleporting
         if (member->GetSession()->PlayerLoading() || member->IsBeingTeleported())
             return ERR_BATTLEGROUND_JOIN_FAILED;
+		// check if death knight still hasn't completed starting zone and if death knight isn't a GM and doesn't have death gate spell
+		if (member->getClass() == CLASS_DEATH_KNIGHT && member->GetMapId() == 609 && !member->isGameMaster() && !member->HasSpell(50977))
+			return ERR_BATTLEGROUND_JOIN_FAILED;
     }
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...

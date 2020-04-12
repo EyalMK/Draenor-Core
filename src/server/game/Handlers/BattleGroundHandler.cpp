@@ -165,6 +165,18 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
             return;
         }
 
+		/// Check if player is a death knight who didn't finish starting zone
+		if (m_Player->getClass() == CLASS_DEATH_KNIGHT && m_Player->GetMapId() == 609 && !m_Player->isGameMaster() && !m_Player->HasSpell(50977))
+		{
+
+			WorldPacket data;
+			MS::Battlegrounds::PacketFactory::StatusFailed(&data, l_BG, m_Player, 0, ERR_BATTLEGROUND_NONE);
+			m_Player->GetSession()->SendPacket(&data);
+			return;
+		}
+
+
+
         if (m_Player->InBattlegroundQueue() && l_BGTypeID == BATTLEGROUND_RB)
         {
             //player is already in queue, can't start random queue
