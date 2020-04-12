@@ -659,7 +659,126 @@ public:
 };
 
 
+/// Kasim Sharim - 42298
+class npc_kasim_sharim : public CreatureScript
+{
+public:
+	npc_kasim_sharim() : CreatureScript("npc_kasim_sharim") { }
 
+	enum eData
+	{
+		// Quests
+		QUEST_BLOOD_RITUAL	= 26160,
+		QUEST_FINAL_RITUAL	= 26170,
+
+		// Spells
+		SPELL_BLOOD_RITUAL	= 77573,
+	};
+
+	enum eActions
+	{
+		BEGIN_BLOOD_RITUAL	= 0,
+		BEGIN_FINAL_RITUAL	= 1
+	};
+
+	#define	GOSSIP_ITEM_BEGIN "I would like to start the Blood Ritual, Kasim."
+	#define	GOSSIP_ITEM_BEGIN_FINAL "I would like to start the Amulet Ritual, Kasim."
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature, Quest* p_Quest)
+	{
+		if (p_Player->GetQuestStatus(QUEST_BLOOD_RITUAL) == QUEST_STATUS_INCOMPLETE)
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEGIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+		if (p_Player->GetQuestStatus(QUEST_FINAL_RITUAL) == QUEST_STATUS_INCOMPLETE)
+			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEGIN_FINAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+		p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
+
+		return true;
+	}
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
+	{
+		p_Player->PlayerTalkClass->ClearMenus();
+
+		if (action == GOSSIP_ACTION_INFO_DEF)
+		{
+			p_Player->CLOSE_GOSSIP_MENU();
+
+			p_Creature->AI()->DoAction(BEGIN_BLOOD_RITUAL); // Begin the ritual
+
+			p_Player->KilledMonsterCredit(QUEST_BLOOD_RITUAL, p_Player->GetGUID());
+		}
+
+		if (action == GOSSIP_ACTION_INFO_DEF + 1)
+		{
+			p_Player->CLOSE_GOSSIP_MENU();
+
+			p_Creature->AI()->DoAction(BEGIN_FINAL_RITUAL); // Begin the ritual
+
+			p_Player->KilledMonsterCredit(BEGIN_FINAL_RITUAL, p_Player->GetGUID());
+		}
+
+		return true;
+	}
+
+	struct npc_kasim_sharimAI : public ScriptedAI
+	{
+		npc_kasim_sharimAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+		void Reset()
+		{
+			ClearDelayedOperations();
+		}
+
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case BEGIN_BLOOD_RITUAL:
+				
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(0); // Very well. Stand back...	
+					});
+
+					AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->CastSpell(me, SPELL_BLOOD_RITUAL, true);
+					});
+
+					AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(1); // The blood ritual is complete...
+					});
+
+					break;
+
+				case BEGIN_FINAL_RITUAL:
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(2); // With the power within the amulets of Razelikh...
+					});
+
+					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(3); // ... I bind you to his lair!
+					});
+
+					break;
+
+				default:
+					break;
+			}
+		}
+		
+		CreatureAI* GetAI(Creature* p_Creature) const
+		{
+			return new npc_kasim_sharimAI(p_Creature);
+		}
+	};
+};
 
 
 
@@ -1233,6 +1352,7 @@ void AddSC_blasted_lands()
 	new npc_loramus_the_defiled();
 	new npc_razelikh_the_defiler();
 	new npc_loramus_thalipedes();
+	new npc_kasim_sharim();
 	
 	/// New Blasted Lands Scripts
 	new npc_archmage_khadgar_darkportal();
