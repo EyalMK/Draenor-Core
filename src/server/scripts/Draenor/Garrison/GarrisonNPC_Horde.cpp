@@ -140,6 +140,9 @@ namespace MS {
 		bool npc_SergeantGrimjaw::OnGossipHello(Player* p_Player, Creature* p_Creature)
 		{
 			p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_SERGENT_GRIMJAW, p_Creature->GetGUID());
+			if (p_Player->HasQuest(Quests::QUEST_NEW_GOODS) && p_Player->GetQuestObjectiveCounter(278234) != 1)
+				p_Player->QuestObjectiveSatisfy(NPC_SERGEANT_GRIMJAW, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
+
 			return true;
 		}
 

@@ -180,6 +180,7 @@ namespace MS {
 				/// Horde
 				QUEST_ETABLISH_YOUR_GARRISON_H = 34378,
 				QUEST_WHAT_WE_GOT = 34824,
+				QUEST_NEW_GOODS	  = 38427,
 				Horde_BuildYourBarracks = 34461,
 				Horde_LostInTransition = 37060,
 				Horde_BiggerIsBetter = 36567,
@@ -259,6 +260,7 @@ namespace MS {
 			NPC_FROSTWALL_PEON_DYNAMIC = 79605,
 			NPC_FROSTWALL_GRUNT = 79781,
 			NPC_SKAGGIT = 80225,
+			NPC_SERGEANT_GRIMJAW = 79774,
 			NPC_GASLOWE = 78466,
 			NpcFrostwallNibbler = 81967,
 			NpcHordePeon = 83985,
