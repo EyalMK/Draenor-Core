@@ -238,10 +238,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectRemoveAura,                               //164 SPELL_EFFECT_REMOVE_AURA
     &Spell::EffectDamageFromMaxHealthPCT,                   //165 SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT
     &Spell::EffectGiveCurrency,                             //166 SPELL_EFFECT_GIVE_CURRENCY
-    &Spell::EffectNULL,                                     //167 SPELL_EFFECT_UPDATE_PLAYER_PHASE
+	&Spell::EffectNULL,										//167 SPELL_EFFECT_UPDATE_PLAYER_PHASE
     &Spell::EffectNULL,                                     //168 SPELL_EFFECT_ALLOW_CONTROL_PET        @TODO: Implement it, it's needed to havn't action pet bar (hunter & warlocks) until level 10
     &Spell::EffectDestroyItem,                              //169 SPELL_EFFECT_DESTROY_ITEM
-    &Spell::EffectNULL,                                     //170 SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES
+	&Spell::EffectNULL,                                     //170 SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES
     &Spell::EffectSummonObject,                             //171 SPELL_EFFECT_SUMMON_OBJECT
     &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA      Aoe resurrection (guild perk)
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
@@ -3663,6 +3663,29 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         itemTarget->ClearSoulboundTradeable(item_owner);
     }
 }
+
+/*
+void Spell::EffectUpdatePlayerPhase(SpellEffIndex /*effIndex)
+{
+	if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+		return;
+
+	if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+		return;
+
+	unitTarget->UpdateAreaPhase();
+}
+
+void Spell::EffectUpdateZoneAurasAndPhases(SpellEffIndex /*effIndex)
+{
+	if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+		return;
+
+	if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+		return;
+
+	unitTarget->ToPlayer()->UpdateAreaDependentAuras(unitTarget->GetAreaId());
+}*/
 
 void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
 {

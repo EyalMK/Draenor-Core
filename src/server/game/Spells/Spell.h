@@ -522,6 +522,9 @@ public:
     void EffectStampede(SpellEffIndex p_EffIndex);
     void EffectCreateHeirloom(SpellEffIndex p_EffIndex);
     void EffectApplyEnchantIllusion(SpellEffIndex p_EffIndex);
+	// In order to add these we need to finish phasing rework
+	//void EffectUpdatePlayerPhase(SpellEffIndex effIndex);
+	//void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
     void EffectLearnFollowerAbility(SpellEffIndex p_EffIndex);
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
     void EffectFinishGarrisonMission(SpellEffIndex p_EffIndex);
