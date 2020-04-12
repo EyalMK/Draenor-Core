@@ -8,8 +8,8 @@
 
 /* ScriptData
 SDName: Boss_Ragnaros
-SD%Complete: 95
-SDComment: some spells doesnt work correctly
+SD%Complete: 100
+SDComment: Revamped by Teleqraph
 SDCategory: Molten Core
 EndScriptData */
 
@@ -19,28 +19,26 @@ EndScriptData */
 
 enum Texts
 {
-    SAY_REINFORCEMENTS1 = -1409013,
-    SAY_REINFORCEMENTS2 = -1409014,
-    SAY_HAND            = -1409015,
-    SAY_WRATH           = -1409016,
-    SAY_KILL            = -1409017,
-    SAY_MAGMABURST      = -1409018,
-    SAY_SUMMON_MAJ      = -1409008,
-    SAY_ARRIVAL1_RAG    = -1409009,
-    SAY_ARRIVAL2_MAJ    = -1409010,
-    SAY_ARRIVAL3_RAG    = -1409011,
-    SAY_ARRIVAL5_RAG    = -1409012
+	SAY_ARRIVAL1_RAG	= 1,
+	SAY_ARRIVAL3_RAG	= 2,
+	SAY_ARRIVAL5_RAG	= 3,
+    SAY_REINFORCEMENTS1 = 5,
+    SAY_REINFORCEMENTS2 = 6,
+    SAY_HAND            = 7,
+    SAY_WRATH           = 8,
+    SAY_KILL            = 9,
+    SAY_MAGMABURST      = 10
 };
 
 enum Spells
 {
+	SPELL_EMERGE				= 50142,
+	SPELL_SUBMERGE				= 100312,
     SPELL_HAND_OF_RAGNAROS      = 19780,
     SPELL_WRATH_OF_RAGNAROS     = 20566,
     SPELL_LAVA_BURST            = 21158,
     SPELL_MAGMA_BLAST           = 20565,                   // Ranged attack
     SPELL_SONS_OF_FLAME_DUMMY   = 21108,                   // Server side effect
-    SPELL_RAGSUBMERGE           = 21107,                   // Stealth aura
-    SPELL_RAGEMERGE             = 20568,
     SPELL_MELT_WEAPON           = 21388,
     SPELL_ELEMENTAL_FIRE        = 20564,
     SPELL_ERRUPTION             = 17731
@@ -75,6 +73,7 @@ class boss_ragnaros : public CreatureScript
                 _introState = 0;
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->AddAura(SPELL_SUBMERGE, me);
 				me->SetDisableGravity(true);
 				me->SetCanFly(true);
             }
@@ -101,11 +100,12 @@ class boss_ragnaros : public CreatureScript
                 events.ScheduleEvent(EVENT_SUBMERGE, 180000);
             }
 
-            void KilledUnit(Unit* /*victim*/)
-            {
-                if (urand(0, 99) < 25)
-                    DoScriptText(SAY_KILL, me);
-            }
+			void KilledUnit(Unit* who)
+			{
+				if (who && who->GetTypeId() == TYPEID_PLAYER)
+					if (urand(0, 99) < 25)
+						Talk(SAY_KILL);
+			}
 
             void UpdateAI(const uint32 diff)
             {
@@ -113,8 +113,8 @@ class boss_ragnaros : public CreatureScript
                 {
                     if (!_introState)
                     {
-						me->RemoveAura(100312); // we're removing submerge
-						me->CastSpell(me, 50142, false); // emerge
+						DoCast(me, SPELL_EMERGE, true);
+						me->RemoveAura(SPELL_SUBMERGE);
                         events.ScheduleEvent(EVENT_INTRO_1, 4000);
                         events.ScheduleEvent(EVENT_INTRO_2, 23000);
                         events.ScheduleEvent(EVENT_INTRO_3, 42000);
@@ -130,16 +130,16 @@ class boss_ragnaros : public CreatureScript
                         switch (eventId)
                         {
                         case EVENT_INTRO_1:
-                            DoScriptText(SAY_ARRIVAL1_RAG, me);
+							Talk(SAY_ARRIVAL1_RAG);
                             break;
                         case EVENT_INTRO_2:
-                            DoScriptText(SAY_ARRIVAL3_RAG, me);
+							Talk(SAY_ARRIVAL3_RAG);
                             break;
                         case EVENT_INTRO_3:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
                             break;
                         case EVENT_INTRO_4:
-                            DoScriptText(SAY_ARRIVAL5_RAG, me);
+							Talk(SAY_ARRIVAL5_RAG);
                             if (instance)
                                 if (Creature* executus = Unit::GetCreature(*me, instance->GetData64(BOSS_MAJORDOMO_EXECUTUS)))
                                     me->Kill(executus);
@@ -167,13 +167,12 @@ class boss_ragnaros : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-							me->RemoveAura(100312); // we're removing submerge
-							me->CastSpell(me, 50142, false); // emerge
+							me->RemoveAura(SPELL_SUBMERGE);
+							DoCast(me, SPELL_EMERGE, true);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 AttackStart(target);
                             instance->SetData(DATA_RAGNAROS_ADDS, 0);
 
-                            //DoCast(me, SPELL_RAGEMERGE); //"phase spells" didnt worked correctly so Ive commented them and wrote solution witch doesnt need core support
                             _isBanished = false;
                         }
                         else if (_isBanished)
@@ -184,7 +183,6 @@ class boss_ragnaros : public CreatureScript
                         }
                     }
 
-                    //Return since we have no target
                     if (!UpdateVictim())
                         return;
 
@@ -201,13 +199,13 @@ class boss_ragnaros : public CreatureScript
                             case EVENT_WRATH_OF_RAGNAROS:
                                 DoCastVictim(SPELL_WRATH_OF_RAGNAROS);
                                 if (urand(0, 1))
-                                    DoScriptText(SAY_WRATH, me);
+									Talk(SAY_WRATH);
                                 events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 25000);
                                 break;
                             case EVENT_HAND_OF_RAGNAROS:
                                 DoCast(me, SPELL_HAND_OF_RAGNAROS);
                                 if (urand(0, 1))
-                                    DoScriptText(SAY_HAND, me);
+									Talk(SAY_HAND);
                                 events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 20000);
                                 break;
                             case EVENT_LAVA_BURST:
@@ -221,22 +219,11 @@ class boss_ragnaros : public CreatureScript
                             case EVENT_MAGMA_BLAST:
                                 if (!me->IsWithinMeleeRange(me->getVictim()))
                                 {
-									std::list<Unit*> targetList;
-
-									JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Ucheck(me, me, 60.0f);
-									JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(me, targetList, l_Ucheck);
-									me->VisitNearbyObject(60.0f, l_Searcher);
-									JadeCore::Containers::RandomResizeList(targetList, 1);
-
-									for (auto itr : targetList)
-									{
-										me->CastSpell(itr, SPELL_MAGMA_BLAST, false);
-									}
+									DoCastVictim(SPELL_MAGMA_BLAST);
 
                                     if (!_hasYelledMagmaBurst)
                                     {
-                                        //Say our dialog
-                                        DoScriptText(SAY_MAGMABURST, me);
+                                        Talk(SAY_MAGMABURST);
                                         _hasYelledMagmaBurst = true;
                                     }
                                 }
@@ -256,13 +243,12 @@ class boss_ragnaros : public CreatureScript
                                     me->setFaction(35);
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 									me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_SUBMERGED);
-									me->CastSpell(me, 100312, false); // Submerge
+									DoCast(me, SPELL_SUBMERGE, true);
                                     instance->SetData(DATA_RAGNAROS_ADDS, 0);
 
                                     if (!_hasSubmergedOnce)
                                     {
-                                        DoScriptText(SAY_REINFORCEMENTS1, me);
+                                        Talk(SAY_REINFORCEMENTS1);
 
                                         // summon 8 elementals
                                         for (uint8 i = 0; i < 8; ++i)
@@ -272,13 +258,12 @@ class boss_ragnaros : public CreatureScript
 
                                         _hasSubmergedOnce = true;
                                         _isBanished = true;
-                                        //DoCast(me, SPELL_RAGSUBMERGE);
                                         _emergeTimer = 90000;
 
                                     }
                                     else
                                     {
-                                        DoScriptText(SAY_REINFORCEMENTS2, me);
+										Talk(SAY_REINFORCEMENTS2);
 
                                         for (uint8 i = 0; i < 8; ++i)
                                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -286,7 +271,6 @@ class boss_ragnaros : public CreatureScript
                                                     summoned->AI()->AttackStart(target);
 
                                         _isBanished = true;
-                                        //DoCast(me, SPELL_RAGSUBMERGE);
                                         _emergeTimer = 90000;
                                     }
                                 }
