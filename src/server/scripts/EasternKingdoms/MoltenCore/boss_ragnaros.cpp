@@ -219,9 +219,20 @@ class boss_ragnaros : public CreatureScript
                                 events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, urand(10000, 14000));
                                 break;
                             case EVENT_MAGMA_BLAST:
-                                if (me->IsWithinMeleeRange(me->getVictim()))
+                                if (!me->IsWithinMeleeRange(me->getVictim()))
                                 {
-                                    DoCastVictim(SPELL_MAGMA_BLAST);
+									std::list<Unit*> targetList;
+
+									JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Ucheck(me, me, 60.0f);
+									JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(me, targetList, l_Ucheck);
+									me->VisitNearbyObject(60.0f, l_Searcher);
+									JadeCore::Containers::RandomResizeList(targetList, 1);
+
+									for (auto itr : targetList)
+									{
+										me->CastSpell(itr, SPELL_MAGMA_BLAST, false);
+									}
+
                                     if (!_hasYelledMagmaBurst)
                                     {
                                         //Say our dialog
