@@ -849,6 +849,10 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& p_Packet)
     if (!l_SpellInfo->IsPositive() || l_SpellInfo->IsPassive())
         return;
 
+	if (l_SpellInfo->Id == SPELL_MERCENARY_CONTRACT_HORDE || l_SpellInfo->Id == SPELL_MERCENARY_CONTRACT_ALLIANCE)
+		if (m_Player->InBattlegroundQueue())
+			return;
+
     m_Player->RemoveOwnedAura(l_SpellID, l_CasterGUID, 0, AURA_REMOVE_BY_CANCEL);
 }
 

@@ -147,7 +147,7 @@ namespace MS
             l_GroupQueue->m_IsInvitedToBGInstanceGUID = 0;
             l_GroupQueue->m_JoinTime = getMSTime();
             l_GroupQueue->m_RemoveInviteTime = 0;
-            l_GroupQueue->m_Team = p_Leader->GetTeam();
+            l_GroupQueue->m_Team = p_Leader->GetBgQueueTeam();
             l_GroupQueue->m_ArenaTeamRating = p_ArenaRating;
             l_GroupQueue->m_ArenaMatchmakerRating = p_MatchmakerRating;
             l_GroupQueue->m_OpponentsTeamRating = 0;
@@ -202,6 +202,15 @@ namespace MS
                     l_PlayerQueue.Infos.emplace_back(PlayerQueueInfo::Pair{ l_LastOnlineTime, l_GroupQueue });
 
                     l_GroupQueue->m_Players[l_Member->GetGUID()] = &l_PlayerQueue;
+
+					if (l_GroupQueue->m_Team != l_Member->GetTeam())
+					{
+						if (l_Member->GetTeam() == ALLIANCE)
+							l_Member->CastSpell(l_Member, SPELL_MERCENARY_CONTRACT_HORDE);
+						else
+							l_Member->CastSpell(l_Member, SPELL_MERCENARY_CONTRACT_ALLIANCE);
+					}
+
                 }
             }
             else

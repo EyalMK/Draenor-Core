@@ -328,6 +328,7 @@ class AuraEffect
         void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+		void HandleSwitchTeam(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;

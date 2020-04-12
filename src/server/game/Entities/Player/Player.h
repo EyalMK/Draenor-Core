@@ -2809,6 +2809,11 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetTeam() const { return m_team; }
         TeamId GetTeamId() const { if (m_team == ALLIANCE) return TEAM_ALLIANCE; if (m_team == HORDE) return TEAM_HORDE; return TEAM_NEUTRAL; }
         void setFactionForRace(uint8 race);
+		void SwitchToOppositeTeam(bool apply);
+		uint32 GetBgQueueTeam() const;
+
+		uint32 GetNativeTeam() const { return TeamForRace(getRace()); }
+		//TeamId GetNativeTeamId() const { return TeamIdForRace(getRace()); }
 
         void InitDisplayIds();
 

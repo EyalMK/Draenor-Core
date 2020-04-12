@@ -869,13 +869,23 @@ void Battleground::RewardHonorToTeam(uint32 p_Honor, uint32 TeamID, MS::Battlegr
 
 void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID)
 {
-    if (IsRatedBG())
-        return;
+	FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
+	if (!factionEntry)
+		return;
+	for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+	{
+		Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam");
+		if (!player)
+			continue;
 
-    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id))
-        for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-            if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam"))
-                player->GetReputationMgr().ModifyReputation(factionEntry, Reputation);
+		if (player->GetNativeTeam() != TeamID)
+			continue;
+
+		uint32 repGain = Reputation;
+		AddPct(repGain, player->GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
+		AddPct(repGain, player->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction_id));
+		player->GetReputationMgr().ModifyReputation(factionEntry, repGain);
+	}
 }
 
 void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
@@ -1247,6 +1257,10 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
+		player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+		player->RemoveAurasByType(SPELL_AURA_SWITCH_TEAM);
+		player->RemoveAurasByType(SPELL_AURA_MOD_FACTION);
+
         if (!player->isAlive())                              // resurrect on exit
         {
             player->ResurrectPlayer(1.0f);
@@ -1555,6 +1569,17 @@ void Battleground::AddPlayer(Player* player)
             SendCountdownTimer();
         }
 
+		if (player->HasAura(SPELL_MERCENARY_CONTRACT_HORDE))
+		{
+			player->CastSpell(player, SPELL_MERCENARY_HORDE_1, true);
+			player->CastSpell(player, SPELL_MERCENARY_HORDE_2, true);
+		}
+		else if (player->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE))
+		{
+			player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_1, true);
+			player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_2, true);
+		}
+
         // Set arena faction client-side to display arena unit frame
         player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 3, player->GetBGTeam() == HORDE ? 0 : 1);
 
@@ -1578,6 +1603,7 @@ void Battleground::AddPlayer(Player* player)
             SendCountdownTimer();
         }
     }
+
 
     player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
     player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);

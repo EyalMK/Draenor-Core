@@ -532,11 +532,11 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_483
     &AuraEffect::HandleNULL,                                      //484 SPELL_AURA_484
     &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_485
-    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_486
-    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_487
-    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_488
-    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_489
-    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_490
+    &AuraEffect::HandleNULL,                                      //486 SPELL_AURA_486
+    &AuraEffect::HandleNULL,                                      //487 SPELL_AURA_487
+	&AuraEffect::HandleNULL,                                      //488 SPELL_AURA_FORGET_LANGUAGE
+	&AuraEffect::HandleSwitchTeam,                                //489 SPELL_AURA_SWITCH_TEAM
+    &AuraEffect::HandleNULL,                                      //490 SPELL_AURA_490
 };
 
 AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* /*caster*/):
@@ -8703,3 +8703,15 @@ void AuraEffect::HandleAuraIncreaseDualWieldDamage(AuraApplication const* p_AurA
             l_Player->UpdateDamagePhysical(WeaponAttackType::OffAttack);
     }
 }
+
+void AuraEffect::HandleSwitchTeam(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+	if (!(mode & AURA_EFFECT_HANDLE_REAL))
+		return;
+
+	Unit* target = aurApp->GetTarget();
+
+	if (Player* player = target->ToPlayer())
+		player->SwitchToOppositeTeam(apply);
+}
+

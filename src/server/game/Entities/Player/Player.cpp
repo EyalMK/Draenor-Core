@@ -9017,6 +9017,25 @@ uint32 Player::TeamForRace(uint8 race)
     return ALLIANCE;
 }
 
+void Player::SwitchToOppositeTeam(bool apply)
+{
+	m_team = GetNativeTeam();
+
+	if (apply)
+		m_team = (m_team == ALLIANCE) ? HORDE : ALLIANCE;
+}
+
+uint32 Player::GetBgQueueTeam() const
+{
+	if (HasAura(SPELL_MERCENARY_CONTRACT_HORDE))
+		return HORDE;
+
+	if (HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE))
+		return ALLIANCE;
+
+	return GetTeam();
+}
+
 void Player::setFactionForRace(uint8 race)
 {
     // temporary hack for rated bg factions

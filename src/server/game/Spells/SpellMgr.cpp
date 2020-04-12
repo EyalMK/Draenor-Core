@@ -3776,6 +3776,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
                 spellInfo->Effects[EFFECT_2].Effect = 0;
                 break;
+			// 195838, 195843
+			case 195838:
+			case 195843:
+				spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+				spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+				spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
+				break;
             case 175643: ///< Spinning Blade (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
