@@ -2,7 +2,7 @@
 SET @NPC := 260793;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0, `MovementType`=2, `position_x`=-2369.16, `position_y`=-876.936, `position_z`=-9.42208 WHERE `guid`=@NPC;
-UPDATE `creature_template_addon` SET `path_id`=@PATH WHERE `guid`=@NPC;
+UPDATE `creature_template_addon` SET `path_id`=@PATH WHERE `entry`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) 
 VALUES 
