@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `conditions` (
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Condition System';
 
--- Dumping data for table worldlive.conditions: 8,437 rows
+-- Dumping data for table worldlive.conditions: 8,438 rows
 DELETE FROM `conditions`;
 /*!40000 ALTER TABLE `conditions` DISABLE KEYS */;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -8470,7 +8470,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(13, 1, 62792, 0, 0, 31, 0, 3, 33336, 0, 0, 0, '', 'Gorat\'s Bowshoot Only Hit\'s Gorat\'s Target Bunny'),
 	(22, 1, 24718, 0, 0, 31, 0, 3, 24823, 0, 0, 0, '', 'event require npc 24823'),
 	(13, 1, 44562, 0, 0, 31, 0, 3, 24718, 0, 0, 0, '', 'Bluff target'),
-	(13, 1, 43990, 0, 2, 31, 0, 3, 24647, 0, 0, 0, '', 'Target Quest Trigger');
+	(13, 1, 43990, 0, 2, 31, 0, 3, 24647, 0, 0, 0, '', 'Target Quest Trigger'),
+	(15, 2871, 0, 0, 0, 9, 0, 4921, 0, 0, 0, 0, '', 'Show gossip menu option 2871 only if Quest 4921 is taken (active)');
 /*!40000 ALTER TABLE `conditions` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
