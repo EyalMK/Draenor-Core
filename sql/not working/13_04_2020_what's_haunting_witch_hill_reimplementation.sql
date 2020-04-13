@@ -4,7 +4,7 @@ UPDATE `creature_template` SET `ScriptName`='mobs_risen_husk_spirit' WHERE `entr
 
 
 -- SmartAI removal
-UPDATE `creature_template` SET `SmartAI`='' WHERE `entry` IN (23861, 23554, 23555);
+UPDATE `creature_template` SET `AIName`='' WHERE `entry` IN (23861, 23554, 23555);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (23861, 23554, 23555);
 
 -- Npc flag fix

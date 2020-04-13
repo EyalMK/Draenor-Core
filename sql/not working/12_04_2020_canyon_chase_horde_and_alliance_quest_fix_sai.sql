@@ -69,20 +69,20 @@ VALUES
 UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 26978;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = 26978;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryorguid` = 2697800;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
 VALUES
-(26978,0,0,0,19,0,100,0,12143,0,0,0,0,80,2697800,2,0,0,0,0,1,0,0,0,0,0,0,0,0,'Duane - On Quest ''Canyon Chase'' Accepted - Call Action List'),
+(26978,0,0,0,19,0,100,0,12143,0,0,0,80,2697800,2,0,0,0,0,1,0,0,0,0,0,0,0,'Duane - On Quest ''Canyon Chase'' Accepted - Call Action List'),
 
-(2697800,9,0,0,0,0,100,0,500,500,0,0,0,12,27171,3,46000,0,0,0,8,0,0,0,0,4554.83,15.5639,69.1968,0,'Duane - On Script - Summon Creature ''Chilltusk Forager'''),
-(2697800,9,1,0,0,0,100,0,0,0,0,0,0,45,1,1,0,0,0,0,9,27171,1,50,0,0,0,0,0,'Duane - On Script - Set Data 1 1 (Chilltusk Forager)'),
-(2697800,9,2,0,0,0,100,0,1000,1000,0,0,0,12,27171,3,45000,0,0,0,8,0,0,0,0,4554.83,15.5639,69.1968,0,'Duane - On Script - Summon Creature ''Chilltusk Forager''');
+(2697800,9,0,0,0,0,100,0,500,500,0,0,12,27171,3,46000,0,0,0,8,0,0,0,4554.83,15.5639,69.1968,0,'Duane - On Script - Summon Creature ''Chilltusk Forager'''),
+(2697800,9,1,0,0,0,100,0,0,0,0,0,45,1,1,0,0,0,0,9,27171,1,50,0,0,0,0,'Duane - On Script - Set Data 1 1 (Chilltusk Forager)'),
+(2697800,9,2,0,0,0,100,0,1000,1000,0,0,12,27171,3,45000,0,0,0,8,0,0,0,4554.83,15.5639,69.1968,0,'Duane - On Script - Summon Creature ''Chilltusk Forager''');
 
 -- Creature texts for Icefist, Chilltusk, Icefist Forager and Chilltusk Forager
 DELETE FROM `creature_text` WHERE `entry` IN (27004,27005,27123,27171);
 INSERT INTO `creature_text` (`entry`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `comment`)
 VALUES
-(27004,0,0,'Hah! My slaves brought back a real meal this time!',14,0,100,0,0,0,26162,0,'Icefist'),
-(27005,0,0,'Hah! My slaves brought back a real meal this time!',14,0,100,0,0,0,26188,0,'Chilltusk'),
+(27004,0,0,'Hah! My slaves brought back a real meal this time!',14,0,100,0,0,0,'Icefist'),
+(27005,0,0,'Hah! My slaves brought back a real meal this time!',14,0,100,0,0,0,'Chilltusk'),
 (27123,0,0,'Run away!',12,0,100,0,0,0,'Icefist Forager'),
 (27123,0,1,'I don''t wanna die!',12,0,100,0,0,0,'Icefist Forager'),
 (27123,0,2,'Big guy will save us!',12,0,100,0,0,0,'Icefist Forager'),

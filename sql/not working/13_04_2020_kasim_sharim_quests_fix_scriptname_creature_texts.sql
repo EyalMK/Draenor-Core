@@ -1,5 +1,5 @@
 -- Scriptname & Delete SmartAI
-UPDATE `creature_template` SET `ScriptName`='npc_kasim_sharim', `SmartAI`='' WHERE `entry`=42298;
+UPDATE `creature_template` SET `ScriptName`='npc_kasim_sharim', `AIName`='' WHERE `entry`=42298;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=42298;
 
 -- Creature Texts
