@@ -265,15 +265,11 @@ public:
 						{
 							// Buff
 							/// Keeps reapplying the buff even though player has aura after he applies it for the first time.
-							if (!p_Player->HasAura(SPELL_DEMONS_RESOLVE))
-							{
+							if (p_Player->HasAura(SPELL_DEMONS_RESOLVE) == false)
 								me->CastSpell(p_Player, SPELL_DEMONS_RESOLVE);
-							}
 
 							if (Creature* razelikh = me->FindNearestCreature(NPC_RAZELIKH_DEMON, 10.0f, true))
-							{
 								me->AI()->DoAction(StartEvent);
-							}	
 						}
 				}
 			}
@@ -314,9 +310,7 @@ public:
 
 						/// This isn't working
 						if (Creature* razelikh = me->FindNearestCreature(NPC_RAZELIKH_DEMON, 15.0f, true))
-						{
 							razelikh->GetAI()->DoAction(StartEvent);
-						}
 					});
 
 					break;
@@ -607,14 +601,14 @@ public:
 				{
 					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-						
-							DoCast(me, SPELL_DEATH);
-							me->RemoveAllAuras();
-							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-							me->CombatStop(true);
 
+							me->RemoveAllAuras();
+							DoCast(me, SPELL_DEATH);
+							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+							me->CombatStop(true);
 							Talk(1); // Quickly! Use the knife on me!
-						
 					});
 					break;
 				}
