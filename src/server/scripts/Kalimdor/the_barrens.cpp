@@ -22,6 +22,253 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
+
+/*######
+## npc_beaten_corpse
+######*/
+
+enum BeatenCorpse
+{
+	GOSSIP_OPTION_ID_BEATEN_CORPSE = 0,
+	GOSSIP_MENU_OPTION_INSPECT_BODY = 2871
+};
+
+class npc_beaten_corpse : public CreatureScript
+{
+public:
+	npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
+
+	struct npc_beaten_corpseAI : public ScriptedAI
+	{
+		npc_beaten_corpseAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
+
+		void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+		{
+			if (menuId == GOSSIP_MENU_OPTION_INSPECT_BODY && gossipListId == GOSSIP_OPTION_ID_BEATEN_CORPSE)
+			{
+				player->CLOSE_GOSSIP_MENU();
+				player->TalkedToCreature(me->GetEntry(), me->GetGUID());
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new npc_beaten_corpseAI(creature);
+	}
+};
+
+/*######
+# npc_gilthares
+######*/
+
+enum Gilthares
+{
+	SAY_GIL_START = 0,
+	SAY_GIL_AT_LAST = 1,
+	SAY_GIL_PROCEED = 2,
+	SAY_GIL_FREEBOOTERS = 3,
+	SAY_GIL_AGGRO = 4,
+	SAY_GIL_ALMOST = 5,
+	SAY_GIL_SWEET = 6,
+	SAY_GIL_FREED = 7,
+
+	AREA_BARRENS_MERCHANT_COAST	= 391,
+		
+	QUEST_FREE_FROM_HOLD = 898,
+	FACTION_ESCORTEE = 232    // Possibly not needed for the quest
+};
+
+class npc_gilthares : public CreatureScript
+{
+public:
+	npc_gilthares() : CreatureScript("npc_gilthares") { }
+
+	bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
+	{
+		if (quest->GetQuestId() == QUEST_FREE_FROM_HOLD)
+		{
+			creature->setFaction(FACTION_ESCORTEE);
+			creature->SetStandState(UNIT_STAND_STATE_STAND);
+
+			creature->AI()->Talk(SAY_GIL_START);
+
+			creature->GetMotionMaster()->MovePath(346500, false); // Start Path from Waypoint_data
+			if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, creature->AI()))
+				pEscortAI->Start(false, false, player->GetGUID(), quest);
+		}
+		return true;
+	}
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new npc_giltharesAI(creature);
+	}
+
+	struct npc_giltharesAI : public npc_escortAI
+	{
+		npc_giltharesAI(Creature* creature) : npc_escortAI(creature) { }
+
+		void Reset() override { }
+
+		void WaypointReached(uint32 waypointId) override
+		{
+			Player* player = GetPlayerForEscort();
+			if (!player)
+				return;
+
+			switch (waypointId)
+			{
+			case 16:
+				Talk(SAY_GIL_AT_LAST);
+				break;
+			case 17:
+				Talk(SAY_GIL_PROCEED);
+				break;
+			case 18:
+				Talk(SAY_GIL_FREEBOOTERS);
+				break;
+			case 37:
+				Talk(SAY_GIL_ALMOST);
+				break;
+			case 47:
+				Talk(SAY_GIL_SWEET);
+				break;
+			case 53:
+				Talk(SAY_GIL_FREED);
+				player->GroupEventHappens(QUEST_FREE_FROM_HOLD, me);
+				break;
+			}
+		}
+
+		void EnterCombat(Unit* who) override
+		{
+			//not always used
+			if (rand32() % 4)
+				return;
+
+			//only aggro text if not player and only in this area
+			if (who->GetTypeId() != TYPEID_PLAYER && me->GetAreaId() == AREA_BARRENS_MERCHANT_COAST)
+			{
+				// Random text from groupid 4
+				Talk(SAY_GIL_AGGRO);
+			}
+		}
+	};
+
+};
+
+/*######
+## npc_taskmaster_fizzule
+######*/
+
+enum TaskmasterFizzule
+{
+	FACTION_FRIENDLY_F = 35,
+	SPELL_FLARE = 10113,
+	SPELL_FOLLY = 10137,
+};
+
+class npc_taskmaster_fizzule : public CreatureScript
+{
+public:
+	npc_taskmaster_fizzule() : CreatureScript("npc_taskmaster_fizzule") { }
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new npc_taskmaster_fizzuleAI(creature);
+	}
+
+	struct npc_taskmaster_fizzuleAI : public ScriptedAI
+	{
+		npc_taskmaster_fizzuleAI(Creature* creature) : ScriptedAI(creature)
+		{
+			Initialize();
+			factionNorm = creature->getFaction();
+		}
+
+		void Initialize()
+		{
+			IsFriend = false;
+			ResetTimer = 120000;
+			FlareCount = 0;
+		}
+
+		uint32 factionNorm;
+		bool IsFriend;
+		uint32 ResetTimer;
+		uint8 FlareCount;
+
+		void Reset() override
+		{
+			Initialize();
+			me->setFaction(factionNorm);
+		}
+
+		void DoFriend()
+		{
+			me->RemoveAllAuras();
+			me->DeleteThreatList();
+			me->CombatStop(true);
+
+			me->StopMoving();
+			me->GetMotionMaster()->MoveIdle();
+
+			me->setFaction(FACTION_FRIENDLY_F);
+			me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+		}
+
+		void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+		{
+			if (spell->Id == SPELL_FLARE || spell->Id == SPELL_FOLLY)
+			{
+				++FlareCount;
+
+				if (FlareCount >= 2)
+					IsFriend = true;
+			}
+		}
+
+		void EnterCombat(Unit* /*who*/) override { }
+
+		void UpdateAI(uint32 diff) override
+		{
+			if (IsFriend)
+			{
+				if (ResetTimer <= diff)
+				{
+					EnterEvadeMode();
+					return;
+				}
+				else ResetTimer -= diff;
+			}
+
+			if (!UpdateVictim())
+				return;
+
+			DoMeleeAttackIfReady();
+		}
+
+		void ReceiveEmote(Player* /*player*/, uint32 emote) override
+		{
+			if (emote == TEXT_EMOTE_SALUTE)
+			{
+				if (FlareCount >= 2)
+				{
+					if (me->getFaction() == FACTION_FRIENDLY_F)
+						return;
+
+					DoFriend();
+				}
+			}
+		}
+	};
+
+};
+
+
 /*#####
 ## npc_wizzlecrank_shredder
 #####*/
@@ -188,6 +435,9 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_the_barrens()
 {
+	new npc_beaten_corpse();
+	new npc_gilthares();
+	new npc_taskmaster_fizzule();
     new npc_wizzlecrank_shredder();
 }
 #endif
