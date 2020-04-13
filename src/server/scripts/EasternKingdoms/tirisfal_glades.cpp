@@ -81,6 +81,7 @@ public:
 				case eAction::StartQuest:
 				{
 					
+					// Rigor Mortis is removed automatically by a PlayerScript in spell_generic.cpp
 					AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						if (m_PlayerGuid)
@@ -88,17 +89,6 @@ public:
 							if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
 							{
 								me->CastSpell(l_Player, SPELL_REVIVE_COSMETIC, false);
-							}
-						}
-					});
-
-					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						if (m_PlayerGuid)
-						{
-							if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
-							{
-								l_Player->RemoveAura(SPELL_RIGOR_MORTIS); // Rigor Mortis
 							}
 						}
 					});
@@ -152,6 +142,7 @@ public:
 		void Reset() override
 		{
 			CanWalk = true;
+			me->GetMotionMaster()->MovePath(5037200, true); // Aradne Path
 		}
 
 		void WaypointReached(uint32 waypointId)
@@ -316,6 +307,7 @@ public:
 	enum eNpc
 	{
 		NPC_ARADNE		 = 50372,
+		SPELL_ENRAGE	 = 44427,
 		EVENT_START_ANIM = 901,
 		EVENT_SHOW_DEAD,
 		EVENT_SHOW_LIFE,
@@ -417,6 +409,7 @@ public:
 						m_events.ScheduleEvent(EVENT_SHOW_RUNNING3, 6000);
 						break;
 					case EVENT_SHOW_RUNNING3:
+						me->CastSpell(me, SPELL_ENRAGE, true);
 						Talk(1); // enrages and transforms into a mindless zombie
 						me->HandleEmoteCommand(EMOTE_ONESHOT_CRY);
 						me->GetMotionMaster()->MovePath(5037402, false); // Risen Dead Path 3
@@ -479,8 +472,8 @@ public:
 		void Reset()  override
 		{
 			m_targetGUID = 0;
-			m_events.RescheduleEvent(EVENT_START_ANIM, urand(60000, 80000));
-			m_events.RescheduleEvent(EVENT_MASTER_RESET, 160000);
+			m_events.RescheduleEvent(EVENT_START_ANIM, urand(45000, 60000));
+			m_events.RescheduleEvent(EVENT_MASTER_RESET, 120000);
 		}
 
 		void UpdateAI(uint32 diff) override
@@ -505,7 +498,7 @@ public:
 								Position pos;
 
 								m_targetGUID = target->GetGUID();
-								me->GetNearPosition(pos, 1.5f, 1.72f);
+								me->GetNearPosition(pos, 1.5f, 0.3f); // to test angle dist
 								target->GetMotionMaster()->MovePoint(0, pos, true);
 								m_events.ScheduleEvent(EVENT_START_TALK, 1000);
 							}
@@ -519,7 +512,7 @@ public:
 					{
 						Talk(0); // Let's see, I just saw a corpse with a jaw...
 						m_events.ScheduleEvent(EVENT_ANIM_PART_01, 3000);
-						m_events.RescheduleEvent(EVENT_MASTER_RESET, 150000);
+						m_events.RescheduleEvent(EVENT_MASTER_RESET, 120000);
 						break;
 					}
 					case EVENT_ANIM_PART_01:
@@ -972,6 +965,69 @@ public:
 };
 
 
+
+
+
+/// Mindless Zombie - 1501
+class npc_mindless_zombie : public CreatureScript
+{
+public:
+	npc_mindless_zombie() : CreatureScript("npc_mindless_zombie") { }
+
+
+	enum eSpells
+	{
+		SPELL_ENRAGE = 44427
+	};
+
+	struct npc_mindless_zombieAI : public ScriptedAI
+	{
+		npc_mindless_zombieAI(Creature *c) : ScriptedAI(c) { }
+
+		uint32 Timer;
+		uint32 Step;
+
+		void Reset()
+		{
+			me->RemoveAllAuras();
+			Timer = urand(20000, 45000);
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (!me->isInCombat()) // Check if not in combat
+			{
+				if (Timer <= diff)
+				{
+					Timer = urand(18000, 43000); // Change timer before calling function in order to reset it.
+					Crazed();
+				}
+				else Timer -= diff;
+			}
+			DoMeleeAttackIfReady();
+		}
+
+		void Crazed()
+		{
+			if (Player* p_Player = me->FindNearestPlayer(15.0f, true))
+			{
+				me->SetFacingToObject(p_Player);
+				me->CastSpell(me, SPELL_ENRAGE, true);
+				me->SetWalk(false); // Activate Run
+				me->GetMotionMaster()->MovePoint(0, p_Player->GetPositionX(), p_Player->GetPositionY(), p_Player->GetPositionZ());
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* pCreature) const
+	{
+		return new npc_mindless_zombieAI(pCreature);
+	}
+};
+
+
+
+
 /// The Wakening Quest - 24960
 /// Marshal Redpath - 49230
 class npc_marshal_redpath_49230 : public CreatureScript
@@ -982,20 +1038,14 @@ public:
 	enum eData
 	{
 		QUEST_THE_WAKENING = 24960,
-		MENU_ID_1		   = 12485,
 		MENU_ID_2		   = 12486,
-		NPC_TEXT_1		   = 17566,
-		NPC_TEXT_2		   = 17567
 	};
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
 		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-		{
-			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_1, MENU_ID_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
-		}
-		p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
+			return false;
+
 		return true;
 	}
 
@@ -1003,19 +1053,16 @@ public:
 	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
 	{
 
-		if (action == GOSSIP_ACTION_INFO_DEF)
+		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
 		{
-			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_2, MENU_ID_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_2, p_Creature->GetGUID());
+			uint32 ID = p_Player->PlayerTalkClass->GetGossipMenu().GetMenuId();
+			if (ID == MENU_ID_2 && p_Player->GetQuestObjectiveCounter(256142) != 1)
+			{
+				p_Player->CLOSE_GOSSIP_MENU();
+				CAST_AI(npc_marshal_redpath_49230AI, p_Creature->AI())->StartAnim(p_Player);
+			}
 		}
-		else if (action == GOSSIP_ACTION_INFO_DEF + 1)
-		{
-			p_Player->KilledMonsterCredit(49230);
-			CAST_AI(npc_marshal_redpath_49230AI, p_Creature->AI())->StartAnim(p_Player);
-		}
-		p_Player->PlayerTalkClass->ClearMenus();
-		p_Player->PlayerTalkClass->SendCloseGossip();
-		return true;
+		return false;
 	}
 
 
@@ -1072,7 +1119,7 @@ public:
 				m_phase = 3;
 				break;
 			case 3:
-				me->GetMotionMaster()->MovePath(49230, false); // PathID 49230 in Waypoints table.
+				me->GetMotionMaster()->MovePath(49230 * 100, false); // PathID 4923000 in Waypoints table.
 				m_timer = 10000;
 				m_phase = 4;
 				break;
@@ -1100,22 +1147,14 @@ public:
 	enum eData
 	{
 		QUEST_THE_WAKENING = 24960,
-		MENU_ID_1		   = 12487,
-		MENU_ID_2		   = 12488,
-		MENU_ID_3		   = 12489,
-		NPC_TEXT_1		   = 17569,
-		NPC_TEXT_2		   = 17570,
-		NPC_TEXT_3	       = 17571
+		MENU_ID_3		   = 12489
 	};
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
 		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-		{
-			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_1, MENU_ID_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
-		}
-		p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
+			return false;
+
 		return true;
 	}
 
@@ -1123,26 +1162,16 @@ public:
 	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
 	{
 
-		if (action == GOSSIP_ACTION_INFO_DEF)
+		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
 		{
-			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_2, MENU_ID_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_2, p_Creature->GetGUID());
+			uint32 ID = p_Player->PlayerTalkClass->GetGossipMenu().GetMenuId();
+			if (ID == MENU_ID_3 && p_Player->GetQuestObjectiveCounter(256143) != 1)
+			{
+				p_Player->CLOSE_GOSSIP_MENU();
+				CAST_AI(npc_valdred_moray_49231AI, p_Creature->AI())->StartAnim(p_Player);
+			}
 		}
-		else if (action == GOSSIP_ACTION_INFO_DEF + 1)
-		{
-			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_3, MENU_ID_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_3, p_Creature->GetGUID());
-
-			
-		}
-		else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-		{
-			p_Player->KilledMonsterCredit(49230);
-			CAST_AI(npc_valdred_moray_49231AI, p_Creature->AI())->StartAnim(p_Player);
-		}
-		p_Player->PlayerTalkClass->ClearMenus();
-		p_Player->PlayerTalkClass->SendCloseGossip();
-		return true;
+		return false;
 	}
 
 	struct npc_valdred_moray_49231AI : public ScriptedAI
@@ -1155,6 +1184,7 @@ public:
 
 		void Reset()  override
 		{
+			me->CastSpell(me, 68442);
 			m_timer = 0;
 			m_phase = 0;
 			m_player = nullptr;
@@ -1185,6 +1215,7 @@ public:
 			switch (m_phase)
 			{
 			case 1:
+				me->RemoveAurasDueToSpell(68442, me->GetGUID());
 				Talk(0); // I see. Well then, let's get to work
 				m_timer = 2000;
 				m_phase = 2;
@@ -1226,20 +1257,14 @@ public:
 	enum eData
 	{
 		QUEST_THE_WAKENING	= 24960,
-		MENU_ID_1			= 12483,
 		MENU_ID_2			= 12484,
-		NPC_TEXT_1			= 17564,
-		NPC_TEXT_2		    = 17565
 	};
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
 		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-		{
-			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_1, MENU_ID_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
-		}
-		p_Player->SEND_GOSSIP_MENU(NPC_TEXT_1, p_Creature->GetGUID());
+			return false;
+
 		return true;
 	}
 
@@ -1247,19 +1272,16 @@ public:
 	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
 	{
 
-		if (action == GOSSIP_ACTION_INFO_DEF)
+		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
 		{
-			p_Player->ADD_GOSSIP_ITEM_DB(MENU_ID_2, MENU_ID_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-			p_Player->SEND_GOSSIP_MENU(NPC_TEXT_2, p_Creature->GetGUID());
+			uint32 ID = p_Player->PlayerTalkClass->GetGossipMenu().GetMenuId();
+			if (ID == MENU_ID_2 && p_Player->GetQuestObjectiveCounter(256141) != 1)
+			{
+				p_Player->CLOSE_GOSSIP_MENU();
+				CAST_AI(npc_lilian_voss_38895AI, p_Creature->AI())->StartAnim(p_Player);
+			}
 		}
-		else if (action == GOSSIP_ACTION_INFO_DEF + 1)
-		{
-			p_Player->KilledMonsterCredit(38895);
-			CAST_AI(npc_lilian_voss_38895AI, p_Creature->AI())->StartAnim(p_Player);
-		}
-		p_Player->PlayerTalkClass->ClearMenus();
-		p_Player->PlayerTalkClass->SendCloseGossip();
-		return true;
+		return false;
 	}
 
 
@@ -2394,6 +2416,8 @@ public:
 		EVENT_CHECK_SANDERS = 101,
 	};
 
+	// OnQuestAccept - cast spell on players to summon Vengeful	Forsaken (done in SmartAI)
+
 	struct npc_lieutenant_sanders_noose_38936AI : public ScriptedAI
 	{
 		npc_lieutenant_sanders_noose_38936AI(Creature* creature) : ScriptedAI(creature) { }
@@ -2630,7 +2654,7 @@ public:
 					Talk(0);
 					me->GetMotionMaster()->Clear();
 					me->SetWalk(true);
-					me->GetMotionMaster()->MovePath(3903801, false);
+					me->GetMotionMaster()->MovePath(3903801, false); // Implemented in DB
 					m_events.ScheduleEvent(EVENT_TALK_PART + 1, 6000);
 					break;
 				}
@@ -2674,6 +2698,8 @@ public:
 				}
 				case EVENT_TALK_PART + 4:
 				{
+					if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+						me->SetFacingToObject(father);
 					Talk(2);
 					m_events.ScheduleEvent(EVENT_TALK_PART + 5, 6000);
 					break;
@@ -2719,7 +2745,7 @@ public:
 				}
 				case EVENT_TALK_PART + 11:
 				{
-					me->GetMotionMaster()->MovePath(3903802, false);
+					me->GetMotionMaster()->MovePath(3903802, false); // Need to implement Path - jumping on wall, falling and then walking outside
 					m_events.ScheduleEvent(EVENT_TALK_PART + 12, 9000);
 					break;
 				}
@@ -2871,9 +2897,10 @@ void AddSC_tirisfal_glades()
 	new npc_risen_dead();
 	new npc_undertaker_mordo();
 	new npc_darnell_49141();
-	// new npc_marshal_redpath_49230();
-	// new npc_valdred_moray_49231();
-	// new npc_lilian_voss_38895();
+	new npc_mindless_zombie();
+	new npc_marshal_redpath_49230();
+	new npc_valdred_moray_49231();
+	new npc_lilian_voss_38895();
 	new npc_deathguard_saltain();
 	new npc_scarlet_corpse_49340();
 	new npc_darnell_49337();
