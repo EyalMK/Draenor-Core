@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `vehicle_template_accessory` (
   PRIMARY KEY (`entry`,`seat_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
--- Dumping data for table worldlive.vehicle_template_accessory: 183 rows
+-- Dumping data for table worldlive.vehicle_template_accessory: 185 rows
 DELETE FROM `vehicle_template_accessory`;
 /*!40000 ALTER TABLE `vehicle_template_accessory` DISABLE KEYS */;
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
@@ -209,7 +209,9 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 	(47204, 47203, 3, 0, 'Oeuf de rampant sur Ours infesté', 6, 5000),
 	(47204, 47203, 4, 0, 'Oeuf de rampant sur Ours infesté', 6, 5000),
 	(47204, 47203, 5, 0, 'Oeuf de rampant sur Ours infesté', 6, 5000),
-	(30134, 30107, 0, 1, 'Brann flying machine', 8, 0);
+	(30134, 30107, 0, 1, 'Brann flying machine', 8, 0),
+	(52358, 52359, 0, 1, 'Craggle Wobbletop - Toy Cart', 8, 0),
+	(52359, 52361, 0, 1, 'Toy Cart - Toy Cart Bunny', 8, 0);
 /*!40000 ALTER TABLE `vehicle_template_accessory` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

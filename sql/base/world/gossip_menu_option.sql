@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `gossip_menu_option` (
   PRIMARY KEY (`menu_id`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.gossip_menu_option: 6,338 rows
+-- Dumping data for table worldlive.gossip_menu_option: 6,339 rows
 DELETE FROM `gossip_menu_option`;
 /*!40000 ALTER TABLE `gossip_menu_option` DISABLE KEYS */;
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
@@ -47,7 +47,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(0, 13, 1, 'I want to browse your goods', 15, 4096, 0, 0, 0, 0, ''),
 	(0, 14, 0, 'How do I reset my Talents?', 16, 16, 4461, 0, 0, 0, ''),
 	(0, 15, 2, 'I wish to unlearn my pet\'s skills', 17, 16, 0, 0, 0, 0, ''),
-	(0, 16, 2, 'Purchase a Dual Talent Specialization', 18, 16, 0, 0, 0, 100000, 'Are you sure you wish to purchase a Dual Talent Specialization?'),
+	(0, 16, 2, 'Purchase a Dual Talent Specialization', 18, 16, 0, 0, 0, 1000, 'Are you sure you wish to purchase a Dual Talent Specialization?'),
 	(0, 17, 0, 'GOSSIP_OPTION_OUTDOORPVP', 19, 536870912, 0, 0, 0, 0, ''),
 	(21167, 1, 0, 'How do the Argent Crusade riders fight?', 1, 1, 21168, 0, 0, 0, NULL),
 	(11846, 1, 0, 'Dwarven District Stable Master', 1, 1, 1007, 544, 0, 0, ''),
@@ -2086,7 +2086,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(9693, 1, 0, 'I wish to unlearn my talents.', 1, 1, 9791, 0, 0, 0, ''),
 	(9693, 2, 0, 'I wish to know about Dual Talent Specialization.', 1, 1, 10371, 0, 0, 0, ''),
 	(9791, 0, 0, 'Yes. I do.', 16, 16, 0, 0, 0, 0, ''),
-	(10371, 0, 0, 'Purchase a Dual Talent Specialization.', 18, 16, 0, 0, 0, 100000, 'Are you sure you would like to purchase your second talent specialization?'),
+	(10371, 0, 0, 'Purchase a Dual Talent Specialization.', 18, 16, 0, 0, 0, 1000, 'Are you sure you would like to purchase your second talent specialization?'),
 	(10027, 0, 3, 'I require training, Highlord.', 5, 16, 0, 0, 0, 0, ''),
 	(3701, 0, 0, 'You may speak frankly, Neeru...', 1, 1, 21272, 0, 0, 0, NULL),
 	(21272, 0, 0, 'It is good to see the Burning Blade is taking over where the Shadow Council once failed.', 1, 1, 21273, 0, 0, 0, NULL),
@@ -2249,7 +2249,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(4353, 0, 3, 'Train me.', 5, 16, 0, 0, 0, 0, ''),
 	(9823, 0, 0, 'I\'ve lost my key to Scholomance.', 1, 1, 0, 0, 0, 0, ''),
 	(9823, 4, 0, 'I\'ve lost my Shadowforge Key.', 1, 1, 0, 0, 0, 0, ''),
-	(1541, 0, 0, 'I wish to face the Defiler.', 1, 1, 0, 0, 0, 0, ''),
+	(8539, 0, 0, 'I am ready, Anchorite.  Let us begin the exorcism.', 1, 1, 0, 0, 0, 0, NULL),
 	(9735, 0, 1, 'Yes, Hargus. I wish to purchase supplies.', 3, 128, 0, 0, 0, 0, ''),
 	(9769, 0, 0, 'I missed the gate to Acherus, Orbaz. Could you please open another?', 1, 1, 0, 0, 0, 0, ''),
 	(9795, 0, 0, 'I am ready, Highlord. Let the siege of Light\'s Hope begin!', 1, 1, 0, 0, 0, 0, ''),
@@ -4485,7 +4485,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(12746, 1, 0, 'I wish to unlearn my talents.', 0, 0, 0, 0, 0, 0, ''),
 	(12746, 2, 0, 'I wish to know about Dual Talent Specialization.', 0, 0, 0, 0, 0, 0, ''),
 	(12941, 1, 0, 'Has anyone suspicious tried to list a crate of goods recently?', 0, 0, 0, 0, 0, 0, ''),
-	(1541, 1, 0, 'We wish to face the Defiler.', 0, 0, 0, 0, 0, 0, ''),
+	(1541, 0, 0, 'I wish to face the Defiler.', 1, 1, 0, 0, 0, 0, ''),
 	(435, 14, 0, 'Profession Trainer', 1, 1, 421, 0, 0, 0, ''),
 	(3301, 0, 0, 'This is an atrocity.', 0, 0, 0, 0, 0, 0, ''),
 	(3302, 0, 0, 'How can I help?', 0, 0, 0, 0, 0, 0, ''),
@@ -6368,7 +6368,8 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(17148, 2, 0, 'Now show me "Magnuum!"', 2, 1, 0, 0, 0, 0, ''),
 	(12744, 0, 0, 'Im ready. Lets go', 1, 1, 0, 0, 0, 0, ''),
 	(12754, 0, 0, 'Im ready to ride', 1, 1, 0, 0, 0, 0, ''),
-	(11611, 0, 0, 'I wish to ride the Stormwind charger, sir.', 1, 1, 0, 0, 0, 0, NULL);
+	(11611, 0, 0, 'I wish to ride the Stormwind charger, sir.', 1, 1, 0, 0, 0, 0, NULL),
+	(2871, 0, 0, 'I inspect the body further.', 1, 1, 2872, 0, 0, 0, '');
 /*!40000 ALTER TABLE `gossip_menu_option` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

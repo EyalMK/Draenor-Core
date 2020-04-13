@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `creature_queststarter` (
   PRIMARY KEY (`id`,`quest`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
 
--- Dumping data for table worldlive.creature_queststarter: 12,178 rows
+-- Dumping data for table worldlive.creature_queststarter: 12,181 rows
 DELETE FROM `creature_queststarter`;
 /*!40000 ALTER TABLE `creature_queststarter` DISABLE KEYS */;
 INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
@@ -842,6 +842,7 @@ INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
 	(4944, 27291),
 	(4944, 27425),
 	(4948, 27286),
+	(4949, 4974),
 	(4949, 7784),
 	(4968, 27239),
 	(4968, 27240),
@@ -1033,6 +1034,8 @@ INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
 	(8586, 14435),
 	(8719, 29399),
 	(8965, 26508),
+	(9077, 4903),
+	(9077, 4941),
 	(9116, 28102),
 	(9116, 28152),
 	(9117, 24720),

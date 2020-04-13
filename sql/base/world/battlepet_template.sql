@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `battlepet_template` (
   PRIMARY KEY (`species`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.battlepet_template: ~603 rows (approximately)
+-- Dumping data for table worldlive.battlepet_template: ~441 rows (approximately)
 DELETE FROM `battlepet_template`;
 /*!40000 ALTER TABLE `battlepet_template` DISABLE KEYS */;
 INSERT INTO `battlepet_template` (`species`, `breed`, `quality`, `level`) VALUES

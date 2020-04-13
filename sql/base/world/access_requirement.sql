@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `access_requirement` (
   PRIMARY KEY (`mapId`,`difficulty`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Access Requirements';
 
--- Dumping data for table worldlive.access_requirement: 235 rows
+-- Dumping data for table worldlive.access_requirement: 234 rows
 DELETE FROM `access_requirement`;
 /*!40000 ALTER TABLE `access_requirement` DISABLE KEYS */;
 INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max`, `item`, `item2`, `quest_done_A`, `quest_done_H`, `completed_achievement`, `leader_achievement`, `itemlevel_min`, `itemlevel_max`, `quest_failed_text`, `comment`) VALUES
@@ -47,8 +47,7 @@ INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max
 	(209, 1, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Zul\'Farrak Entrance'),
 	(229, 1, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Blackrock Spire - Searing Gorge Instance (Inside)'),
 	(230, 1, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Blackrock Mountain '),
-	(249, 3, 61, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Onyxia\'s Lair Entrance'),
-	(249, 4, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Onyxia\'s Lair Entrance'),
+	(249, 9, 61, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Onyxia\'s Lair Entrance'),
 	(269, 1, 65, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Caverns Of Time,Black Morass (Entrance)'),
 	(1009, 5, 90, 0, 0, 0, 0, 0, 0, 0, 470, 0, '', 'Heart of Fear 10H'),
 	(1009, 6, 90, 0, 0, 0, 0, 0, 0, 0, 470, 0, '', 'Heart of Fear 25H'),
@@ -60,7 +59,7 @@ INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max
 	(329, 1, 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Stratholme - Eastern Plaguelands Instance'),
 	(349, 1, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Maraudon'),
 	(389, 1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Ragefire Chasm - Ogrimmar Instance'),
-	(409, 9, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'The Molten Bridge'),
+	(409, 9, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Molten Core - 40 man'),
 	(429, 1, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Dire Maul'),
 	(469, 9, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Blackwing Lair - Blackrock Mountain - Eastern Kingdoms'),
 	(509, 3, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Ruins Of Ahn\'Qiraj (Outside)'),
