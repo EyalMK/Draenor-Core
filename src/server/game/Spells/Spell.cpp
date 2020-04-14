@@ -3068,8 +3068,22 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150, unitTarget->GetGUID()))
         return;
 
+	bool enablePvP = false;
+
     if (spellHitTarget)
     {
+		/// if target is flagged for pvp also flag caster if a player
+		if (unit->IsPvP() && m_caster->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->HasAura(AuraType::SPELL_AURA_CLONE_CASTER))
+			enablePvP = true;
+
+		/// Chi Wave
+		if (m_spellInfo->Id == 132467 || m_spellInfo->Id == 132466)
+			enablePvP = false;
+
+		/// Renewing Mist
+		if (m_spellInfo->SpellIconID == 6355)
+			enablePvP = false;
+
         SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
         if (missInfo2 != SPELL_MISS_NONE)
         {
@@ -3266,9 +3280,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
         DoTriggersOnSpellHit(spellHitTarget, mask);
 
-        // if target is fallged for pvp also flag caster if a player
-        if (unit->IsPvP() && m_caster->IsPlayer())
-            m_caster->ToPlayer()->UpdatePvP(true);
+		// if target is fallged for pvp also flag caster if a player
+		if (enablePvP)
+			m_caster->ToPlayer()->UpdatePvP(true);
 
         CallScriptAfterHitHandlers();
     }
