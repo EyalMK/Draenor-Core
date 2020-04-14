@@ -3351,8 +3351,15 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
             {
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
                 //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
-                if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
-                    unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131361);
+				if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
+				{
+					unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131361);
+
+					/// Special case for Vanish - Shadow Sight, it doesn't break Vanish
+					/// First 0.5 second gives immunity to these spells, but after - it should be breakable, except Shadow Sight, it doesn't break Vanish
+					if (unit->HasAura(11327) && m_spellInfo->Id != 34709)
+						unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+				}
             }
             if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_BINARY) && !m_spellInfo->IsChanneled())
                 if (m_originalCaster && m_originalCaster->IsSpellResisted(unit, m_spellSchoolMask, m_spellInfo))
@@ -3423,6 +3430,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         if (!m_caster->HasAura(54934)) // Glyph of Exorcism
             aura_effmask &= ~(1 << EFFECT_1);
     }
+
+	/// Avenging Wrath and Glyph of the Falling Avenger
+	if (m_spellInfo->Id == 31884 && !m_caster->HasAura(115931))
+		effectMask &= ~(1 << EFFECT_3);
+
+	/// Death Grip and Glyph of Tranquil Grip
+	if (m_spellInfo->Id == 49560 && m_caster->HasAura(63335))
+		effectMask &= ~(1 << EFFECT_1 | 1 << EFFECT_2);
 
     if (aura_effmask)
     {
