@@ -493,10 +493,12 @@ SpellValue::SpellValue(SpellInfo const* proto)
     MaxAffectedTargets = proto->MaxAffectedTargets;
     RadiusMod = 1.0f;
     AuraStackAmount = 1;
+	IsCrit = false;
+	isInstantCast = false;
 }
 
 Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID, bool skipCheck) :
-m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, caster)),
+m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, caster)), m_spellCastTimeMS(getMSTime()),
 m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster)
 , m_spellValue(new SpellValue(m_spellInfo)), m_preGeneratedPath(PathGenerator(m_caster))
 {
@@ -580,7 +582,9 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = nullptr;
     isStolen = false;
-
+	isPOMUsed = false;
+	isMoltenCoreUsed = false;
+	isMindParalysis = false;
     m_CustomCritChance = -1.0f;
 
     //Auto Shot & Shoot (wand)
@@ -2948,6 +2952,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
 
     target->processed = true;                               // Target checked in apply effects procedure
+	uint32 now = getMSTime();
 
     // Get mask of effects for target
     uint32 mask = target->effectMask;
@@ -3043,12 +3048,42 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             m_caster->ToCreature()->AI()->SpellMissTarget(unit, m_spellInfo, missInfo);
     }
 
+	///< Shadowmeld
+	if (unitTarget->HasAura(58984) && m_spellInfo->Id != 58984 && !m_caster->IsFriendlyTo(unitTarget))
+	{
+		if (Aura* l_Shadowmeld = unitTarget->GetAura(58984))
+		{
+			uint32 diffMSTime = now - l_Shadowmeld->GetApplyTimeMS();
+
+			/// Consume spell only if Shadowmeld was immediately used
+			if (diffMSTime < 500)
+			{
+				l_Shadowmeld->Remove();
+				return;
+			}
+		}
+	}
+
     /// Custom WoD Script - Death from Above should give immunity to all spells while rogue is in jump effect
     if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150, unitTarget->GetGUID()))
         return;
 
+	bool enablePvP = false;
+
     if (spellHitTarget)
     {
+		/// if target is flagged for pvp also flag caster if a player
+		if (unit->IsPvP() && m_caster->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->HasAura(AuraType::SPELL_AURA_CLONE_CASTER))
+			enablePvP = true;
+
+		/// Chi Wave
+		if (m_spellInfo->Id == 132467 || m_spellInfo->Id == 132466)
+			enablePvP = false;
+
+		/// Renewing Mist
+		if (m_spellInfo->SpellIconID == 6355)
+			enablePvP = false;
+
         SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
         if (missInfo2 != SPELL_MISS_NONE)
         {
@@ -3245,9 +3280,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
         DoTriggersOnSpellHit(spellHitTarget, mask);
 
-        // if target is fallged for pvp also flag caster if a player
-        if (unit->IsPvP() && m_caster->IsPlayer())
-            m_caster->ToPlayer()->UpdatePvP(true);
+		// if target is fallged for pvp also flag caster if a player
+		if (enablePvP)
+			m_caster->ToPlayer()->UpdatePvP(true);
 
         CallScriptAfterHitHandlers();
     }
@@ -3316,8 +3351,15 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
             {
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
                 //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
-                if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
-                    unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131361);
+				if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
+				{
+					unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131361);
+
+					/// Special case for Vanish - Shadow Sight, it doesn't break Vanish
+					/// First 0.5 second gives immunity to these spells, but after - it should be breakable, except Shadow Sight, it doesn't break Vanish
+					if (unit->HasAura(11327) && m_spellInfo->Id != 34709)
+						unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+				}
             }
             if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_BINARY) && !m_spellInfo->IsChanneled())
                 if (m_originalCaster && m_originalCaster->IsSpellResisted(unit, m_spellSchoolMask, m_spellInfo))
@@ -3388,6 +3430,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         if (!m_caster->HasAura(54934)) // Glyph of Exorcism
             aura_effmask &= ~(1 << EFFECT_1);
     }
+
+	/// Avenging Wrath and Glyph of the Falling Avenger
+	if (m_spellInfo->Id == 31884 && !m_caster->HasAura(115931))
+		effectMask &= ~(1 << EFFECT_3);
+
+	/// Death Grip and Glyph of Tranquil Grip
+	if (m_spellInfo->Id == 49560 && m_caster->HasAura(63335))
+		effectMask &= ~(1 << EFFECT_1 | 1 << EFFECT_2);
 
     if (aura_effmask)
     {
@@ -3806,6 +3856,20 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     if (IsDarkSimulacrum() || (m_triggeredByAuraSpell && m_triggeredByAuraSpell->Id == 101056))
         isStolen = true;
 
+	// Stampede pets can't use spells
+	if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->isPet() && m_spellInfo->Id != 130201)
+	{
+		if (Pet* pet = m_caster->ToPet())
+		{
+			if (pet->m_Stampeded)
+			{
+				SendCastResult(SPELL_FAILED_DONT_REPORT);
+				finish(false);
+				return;
+			}
+		}
+	}
+
     if (m_caster->IsPlayer())
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     // Fill cost data (not use power for item casts
@@ -3847,6 +3911,50 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         return;
     }
 
+	///< Fix exploit: save potionId right after CheckCast call instead of SendSpellCooldown.
+	///< Because SendSpellCooldown is delayed
+	if (m_caster->IsPlayer() && m_CastItem && m_CastItem->IsPotion())
+		m_caster->ToPlayer()->SetLastPotionSpellID(m_CastItem->GetEntry());
+
+	// Check for spells which have problems with instant cast effects, when effect procs while caster is casting
+	// Starsurge - 78674, Incinerate - 29722, Pyroblast - 11366, Avenger's Shield - 31935, Hamsting - 1715
+	if (m_caster->IsPlayer() && (GetSpellInfo()->Id == 78674 || GetSpellInfo()->Id == 29722 || GetSpellInfo()->Id == 114654 || GetSpellInfo()->Id == 11366
+		|| GetSpellInfo()->Id == 31935 || GetSpellInfo()->Id == 51505 || GetSpellInfo()->Id == 1715))
+	{
+		int instantAura = 0;
+		int instantAura2 = 0;
+		switch (GetSpellInfo()->Id)
+		{
+		case 78674:
+			instantAura = 93400;
+			break;
+		case 29722:
+		case 114654:
+			instantAura = 34936;
+			instantAura2 = 140076;
+			break;
+		case 11366:
+			instantAura = 48108;
+			break;
+		case 31935:
+			instantAura = 85416;
+			break;
+		case 51505:
+			instantAura = 77762;
+			break;
+		case 1715:
+			instantAura = 115945;
+			break;
+		default:
+			break;
+		}
+
+		m_caster->ToPlayer()->SetAuraBeforeInstantCast(false);
+
+		if ((m_caster->HasAura(instantAura) || m_caster->HasAura(instantAura2)) && !m_caster->ToPlayer()->GetAuraBeforeInstantCast())
+			m_caster->ToPlayer()->SetAuraBeforeInstantCast(true);
+	}
+
     // Prepare data for triggers
     prepareDataForTriggerSystem(triggeredByAura);
 
@@ -3854,6 +3962,26 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
     m_casttime = m_spellInfo->CalcCastTime(m_caster, this);
+
+	if (GetSpellValue(SpellValueMod::SPELLVALUE_INSTANT_CAST))
+		m_casttime = 0;
+	else
+		m_casttime = m_spellInfo->CalcCastTime(m_caster, this);
+
+	if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) // _UNIT actually means creature. for some reason.
+		if (!(IsNextMeleeSwingSpell() || IsAutoRepeat()))
+		{
+			if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
+				m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
+			else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+				m_caster->ToCreature()->FocusTarget(this, nullptr);
+		}
+
+	m_spellCastTimeMS += m_casttime;
+
+	isPOMUsed = m_caster->HasAura(12043);
+	isMindParalysis = m_caster->HasAura(115194);
+	isMoltenCoreUsed = m_caster->HasAura(122355) || m_caster->HasAura(140074);
 
     // Unstable Afflication (30108) with Soulborn: Soul Swap (141931)
     if (m_spellInfo && m_spellInfo->Id == 30108 && _triggeredCastFlags == TRIGGERED_FULL_MASK)
@@ -3872,17 +4000,26 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
              m_casttime = 0;
     }
 
-    // don't allow channeled spells / spells with cast time to be casted while moving
-    // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
-    // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKINGeffect
-    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->IsPlayer() && m_caster->IsMoving() &&
-        m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
-        !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
-    {
-        SendCastResult(SPELL_FAILED_MOVING);
-        finish(false);
-        return;
-    }
+	// don't allow channeled spells / spells with cast time to be casted while moving
+	// exception are only channeled spells that have no casttime and SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING
+	// (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
+	// don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
+	if (((_triggeredCastFlags & TRIGGERED_CAST_DIRECTLY) == 0) && ((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->IsMoving() &&
+		m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
+	{
+		// Glyph of Water Elemental.
+		bool l_GlyphOfWaterElemental = false;
+
+		if (m_spellInfo->Id == 31707 && m_caster->HasAura(63090))
+			l_GlyphOfWaterElemental = true;
+
+		if (!(m_spellInfo->IsChanneled() && !m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING)) && !l_GlyphOfWaterElemental)
+		{
+			SendCastResult(SPELL_FAILED_MOVING);
+			finish(false);
+			return;
+		}
+	}
 
     // set timer base at cast time
     ReSetTimer();
@@ -4126,6 +4263,13 @@ void Spell::cast(bool skipCheck)
 
     SelectSpellTargets();
 
+	// if the spell allows the creature to turn while casting, then adjust server-side orientation to face the target now
+	// client-side orientation is handled by the client itself, as the cast target is targeted due to Creature::FocusTarget
+	if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+		if (!m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+			if (WorldObject* objTarget = m_targets.GetObjectTarget())
+				m_caster->SetInFront(objTarget);
+
     // Spell may be finished after target map check
     if (m_spellState == SPELL_STATE_FINISHED)
     {
@@ -4233,6 +4377,18 @@ void Spell::cast(bool skipCheck)
     }
 
     CallScriptAfterCastHandlers();
+
+	/// Ice Floes - 108839
+	if (m_caster->IsPlayer() && m_caster->getClass() == CLASS_MAGE && GetCastTime() > 0 && GetCastTime() < 4000)
+	{
+		if (Aura* l_IceFloes = m_caster->GetAura(108839))
+		{
+			if (l_IceFloes->GetStackAmount() - 1 > 0)
+				l_IceFloes->SetStackAmount(l_IceFloes->GetStackAmount() - 1);
+			else
+				l_IceFloes->DropCharge();
+		}
+	}
 
     /// Trigger all effects if this spell should do that after cast
     if (IsSpellTriggeredAfterCast())
@@ -4463,17 +4619,37 @@ void Spell::_handle_finish_phase()
         // Take for real after all targets are processed
         if (m_needComboPoints || m_spellInfo->Id == 127538)
         {
-            m_caster->ClearComboPoints();
 
-            /// Anticipation for                  Kidney Shot -- 408     &&     Rupture -- 1943    &&   Eviscerate -- 2098     &&     Envenom -- 32645 && Crimson Tempest -- 121411 && Death from Above-- 152150
-            if (m_caster->HasAura(115189) && (m_spellInfo->IsOffensiveFinishingMove()))
-            {
-                int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
-                m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);
+			bool hit = true;
 
-                if (basepoints0)
-                    m_caster->RemoveAura(115189);
-            }
+			if (uint64 targetGUI = m_targets.GetUnitTargetGUID())
+			{
+				for (const TargetInfo& info : m_UniqueTargetInfo)
+				{
+					if (info.targetGUID == targetGUI)
+					{
+						if (info.missCondition != SPELL_MISS_NONE)
+							hit = false;
+
+						break;
+					}
+				}
+			}
+			/// Only clears combo points on hit
+			if (hit)
+			{
+				m_caster->ClearComboPoints();
+
+				/// Anticipation for                  Kidney Shot -- 408     &&     Rupture -- 1943    &&   Eviscerate -- 2098     &&     Envenom -- 32645 && Crimson Tempest -- 121411 && Death from Above-- 152150
+				if (m_caster->HasAura(115189) && (m_spellInfo->IsOffensiveFinishingMove()))
+				{
+					int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
+					m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);
+
+					if (basepoints0)
+						m_caster->RemoveAura(115189);
+				}
+			}
         }
 
         // Real add combo points from effects
@@ -4522,7 +4698,18 @@ void Spell::SendSpellCooldown()
     if (m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
         return;
 
-    l_Player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : m_CastItemEntry, this);
+	if (!(_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
+	{
+		// Heroic Strike and Cleave share cooldowns, prevent cheat by using macro for bypass cooldown
+		if (m_spellInfo->Id == 78)
+			l_Player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(845), 0, this);
+		else if (m_spellInfo->Id == 845)
+			l_Player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(78), 0, this);
+		else if (m_spellInfo->Id == 53301 && m_caster->HasAura(56453))
+			return;
+
+		l_Player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : 0, this);
+	}
 }
 
 void Spell::update(uint32 difftime)
@@ -4595,6 +4782,12 @@ void Spell::update(uint32 difftime)
                 // check if there are alive targets left
                 if (!UpdateChanneledTargetList())
                 {
+					/// Remove applied auras
+					auto targets = m_UniqueTargetInfo;
+					for (auto const& l_Target : targets)
+						if (Unit* l_Unit = m_caster->GetGUID() == l_Target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, l_Target.targetGUID))
+							l_Unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
+
                     SendChannelUpdate(0);
                     finish();
                 }
@@ -9034,6 +9227,12 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
         case SPELLVALUE_AURA_STACK:
             m_spellValue->AuraStackAmount = uint8(value);
             break;
+		case SPELLVALUE_ALWAYS_CRIT:
+			m_spellValue->IsCrit = bool(value);
+			break;
+		case SPELLVALUE_INSTANT_CAST:
+			m_spellValue->isInstantCast = bool(value);
+			break;
     }
 }
 
@@ -9059,6 +9258,10 @@ int32 Spell::GetSpellValue(SpellValueMod p_Mod) const
             return m_spellValue->MaxAffectedTargets;
         case SPELLVALUE_AURA_STACK:
             return m_spellValue->AuraStackAmount;
+		case SPELLVALUE_ALWAYS_CRIT:
+			return m_spellValue->IsCrit;
+		case SPELLVALUE_INSTANT_CAST:
+			return m_spellValue->isInstantCast;
         default:
             return 0;
     }

@@ -334,6 +334,8 @@ struct SpellValue
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
+	bool      IsCrit;
+	bool      isInstantCast;
 };
 
 enum SpellState
@@ -654,6 +656,9 @@ public:
     int8 m_comboPointGain;
     SpellCustomErrors m_customError;
     bool isStolen;
+	bool isPOMUsed;
+	bool isMindParalysis;
+	bool isMoltenCoreUsed;
 
     UsedSpellMods m_appliedMods;
 
@@ -929,6 +934,8 @@ protected:
 
     typedef std::map<uint32, SpellLogHelper> LogHelperMap;
     LogHelperMap m_effectExecuteData;
+
+	uint32 m_spellCastTimeMS;
 
     bool m_redirected;
     uint32 m_SpellVisualID;
