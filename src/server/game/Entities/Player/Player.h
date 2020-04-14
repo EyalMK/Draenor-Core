@@ -3729,6 +3729,10 @@ class Player : public Unit, public GridObject<Player>
         void ResetBossLooted() { m_BossLooted.clear(); }
         BossLooted const GetBossLooted() const { return m_BossLooted; }
 
+		// for instant procs from spells, that can proc while spell is casting
+		void SetAuraBeforeInstantCast(bool auraBeforeInstantCast) { m_hasAuraBeforeInstantCast = auraBeforeInstantCast; }
+		bool GetAuraBeforeInstantCast() { return m_hasAuraBeforeInstantCast; }
+
         void SetCharacterWorldState(uint32 p_Index, uint64 p_Value)
         {
             CharacterWorldState l_WorldState;
@@ -3883,6 +3887,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_demonicFuryPowerRegenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
+
+		bool m_hasAuraBeforeInstantCast;
 
         std::set<uint64> m_ActiveMovementForces;
 
