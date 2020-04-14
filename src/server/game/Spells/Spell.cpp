@@ -4234,6 +4234,18 @@ void Spell::cast(bool skipCheck)
 
     CallScriptAfterCastHandlers();
 
+	/// Ice Floes - 108839
+	if (m_caster->IsPlayer() && m_caster->getClass() == CLASS_MAGE && GetCastTime() > 0 && GetCastTime() < 4000)
+	{
+		if (Aura* l_IceFloes = m_caster->GetAura(108839))
+		{
+			if (l_IceFloes->GetStackAmount() - 1 > 0)
+				l_IceFloes->SetStackAmount(l_IceFloes->GetStackAmount() - 1);
+			else
+				l_IceFloes->DropCharge();
+		}
+	}
+
     /// Trigger all effects if this spell should do that after cast
     if (IsSpellTriggeredAfterCast())
     {
