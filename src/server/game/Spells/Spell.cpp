@@ -2952,6 +2952,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
 
     target->processed = true;                               // Target checked in apply effects procedure
+	uint32 now = getMSTime();
 
     // Get mask of effects for target
     uint32 mask = target->effectMask;
@@ -3046,6 +3047,22 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
             m_caster->ToCreature()->AI()->SpellMissTarget(unit, m_spellInfo, missInfo);
     }
+
+	///< Shadowmeld
+	if (unitTarget->HasAura(58984) && m_spellInfo->Id != 58984 && !m_caster->IsFriendlyTo(unitTarget))
+	{
+		if (Aura* l_Shadowmeld = unitTarget->GetAura(58984))
+		{
+			uint32 diffMSTime = now - l_Shadowmeld->GetApplyTimeMS();
+
+			/// Consume spell only if Shadowmeld was immediately used
+			if (diffMSTime < 500)
+			{
+				l_Shadowmeld->Remove();
+				return;
+			}
+		}
+	}
 
     /// Custom WoD Script - Death from Above should give immunity to all spells while rogue is in jump effect
     if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150, unitTarget->GetGUID()))
@@ -4248,9 +4265,6 @@ void Spell::cast(bool skipCheck)
             m_caster->RemoveAurasDueToSpell(77616);
 
     CallScriptOnCastHandlers();
-
-	if (isMindParalysis && !m_spellInfo->HasAura(SPELL_AURA_MOUNTED) && m_cast_count)
-		m_caster->RemoveAura(115194);
 
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client

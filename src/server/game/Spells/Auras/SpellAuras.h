@@ -122,6 +122,7 @@ class Aura
         void Update(uint32 diff, Unit* caster);
 
         time_t GetApplyTime() const { return m_applyTime; }
+		uint32 GetApplyTimeMS() const { return m_applyTimeMS; }
         int32 GetMaxDuration() const { return m_maxDuration; }
         void SetMaxDuration(int32 duration) { m_maxDuration = duration; }
         int32 CalcMaxDuration() const { return CalcMaxDuration(GetCaster()); }
@@ -249,6 +250,7 @@ class Aura
         uint64 const m_castItemGuid;                        // it is NOT safe to keep a pointer to the item because it may get deleted
         int32 m_castItemLevel;
         time_t const m_applyTime;
+		uint32 m_applyTimeMS;
         WorldObject* const m_owner;                        //
 
         int32 m_maxDuration;                                // Max aura duration
