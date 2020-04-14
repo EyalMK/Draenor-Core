@@ -4619,17 +4619,37 @@ void Spell::_handle_finish_phase()
         // Take for real after all targets are processed
         if (m_needComboPoints || m_spellInfo->Id == 127538)
         {
-            m_caster->ClearComboPoints();
 
-            /// Anticipation for                  Kidney Shot -- 408     &&     Rupture -- 1943    &&   Eviscerate -- 2098     &&     Envenom -- 32645 && Crimson Tempest -- 121411 && Death from Above-- 152150
-            if (m_caster->HasAura(115189) && (m_spellInfo->IsOffensiveFinishingMove()))
-            {
-                int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
-                m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);
+			bool hit = true;
 
-                if (basepoints0)
-                    m_caster->RemoveAura(115189);
-            }
+			if (uint64 targetGUI = m_targets.GetUnitTargetGUID())
+			{
+				for (const TargetInfo& info : m_UniqueTargetInfo)
+				{
+					if (info.targetGUID == targetGUI)
+					{
+						if (info.missCondition != SPELL_MISS_NONE)
+							hit = false;
+
+						break;
+					}
+				}
+			}
+			/// Only clears combo points on hit
+			if (hit)
+			{
+				m_caster->ClearComboPoints();
+
+				/// Anticipation for                  Kidney Shot -- 408     &&     Rupture -- 1943    &&   Eviscerate -- 2098     &&     Envenom -- 32645 && Crimson Tempest -- 121411 && Death from Above-- 152150
+				if (m_caster->HasAura(115189) && (m_spellInfo->IsOffensiveFinishingMove()))
+				{
+					int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
+					m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);
+
+					if (basepoints0)
+						m_caster->RemoveAura(115189);
+				}
+			}
         }
 
         // Real add combo points from effects
