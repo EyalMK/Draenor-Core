@@ -4782,6 +4782,12 @@ void Spell::update(uint32 difftime)
                 // check if there are alive targets left
                 if (!UpdateChanneledTargetList())
                 {
+					/// Remove applied auras
+					auto targets = m_UniqueTargetInfo;
+					for (auto const& l_Target : targets)
+						if (Unit* l_Unit = m_caster->GetGUID() == l_Target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, l_Target.targetGUID))
+							l_Unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
+
                     SendChannelUpdate(0);
                     finish();
                 }
