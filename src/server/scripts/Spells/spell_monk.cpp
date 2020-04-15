@@ -2307,6 +2307,15 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                     if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
                         return true;
 
+					bool casterIsPvP = l_Caster->IsPvP();
+					bool targetIsPvP = p_Object->ToUnit()->IsPvP();
+
+					if (casterIsPvP == false && targetIsPvP == true)
+						return true;
+
+					if (casterIsPvP == true && targetIsPvP == false)
+						return true;
+
                     return false;
                 });
 				bool hasAll = false;
