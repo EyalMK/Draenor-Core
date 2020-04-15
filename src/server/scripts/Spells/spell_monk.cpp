@@ -2244,7 +2244,8 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
             uint32 update;
             uint8  spreadCount;
-			
+			Unit* oldTarget;
+
             enum eSpells
             {
                 GlyphofRenewedTea = 159496,
@@ -2255,6 +2256,8 @@ class spell_monk_renewing_mist: public SpellScriptLoader
             {
                 update = 0;
                 spreadCount = 1;
+				oldTarget = nullptr;
+
 
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_HOT))
                     return false;
@@ -2279,6 +2282,9 @@ class spell_monk_renewing_mist: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
+
+				if (oldTarget != nullptr)
+					l_Target = oldTarget;
 
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
@@ -2370,6 +2376,9 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 l_Caster->CastSpell(newTarget, GetSpellInfo()->Id, true);
                 if (Aura* l_RenewingMistHot = newTarget->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
                     l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(1);
+
+				oldTarget = newTarget;
+
                 aurEff->GetBase()->GetEffect(EFFECT_1)->SetAmount(aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() - 1);
 
             }
