@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `spell_script_names` (
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.spell_script_names: 3,561 rows
+-- Dumping data for table worldlive.spell_script_names: 3,565 rows
 DELETE FROM `spell_script_names`;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -1283,6 +1283,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(72959, 'spell_gen_dungeon_credit'),
 	(72999, 'spell_blood_council_shadow_prison_damage'),
 	(73001, 'spell_blood_council_shadow_prison'),
+	(73108, 'spell_murloc_leash_73108'),
+	(73307, 'spell_lilians_brain_burst_73307'),
+	(73308, 'spell_lilians_shadow_hop_73308'),
+	(73309, 'spell_lilians_death_grip_73309'),
 	(73325, 'spell_pri_body_and_soul'),
 	(73325, 'spell_pri_leap_of_faith'),
 	(73488, 'spell_the_lich_king_life_siphon'),

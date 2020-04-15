@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `_custom_items` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive._custom_items: ~970 rows (approximately)
+-- Dumping data for table fixeslive._custom_items: ~677 rows (approximately)
 DELETE FROM `_custom_items`;
 /*!40000 ALTER TABLE `_custom_items` DISABLE KEYS */;
 INSERT INTO `_custom_items` (`ID`) VALUES

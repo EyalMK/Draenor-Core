@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `spell_effect_group_size` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1795 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.spell_effect_group_size: ~1,370 rows (approximately)
+-- Dumping data for table fixeslive.spell_effect_group_size: ~1,411 rows (approximately)
 DELETE FROM `spell_effect_group_size`;
 /*!40000 ALTER TABLE `spell_effect_group_size` DISABLE KEYS */;
 INSERT INTO `spell_effect_group_size` (`ID`, `SpellEffectID`, `Coefficient`, `BuildVerified`) VALUES

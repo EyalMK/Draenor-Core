@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `garr_ability` (
   `BuildVerified` int(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.garr_ability: ~211 rows (approximately)
+-- Dumping data for table fixeslive.garr_ability: ~227 rows (approximately)
 DELETE FROM `garr_ability`;
 /*!40000 ALTER TABLE `garr_ability` DISABLE KEYS */;
 INSERT INTO `garr_ability` (`ID`, `field1`, `Name`, `Descripion`, `field4`, `field5`, `Category`, `newField`, `BuildVerified`) VALUES

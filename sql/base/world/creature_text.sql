@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_text: 13,124 rows
+-- Dumping data for table worldlive.creature_text: 13,136 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -13155,7 +13155,19 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(3518, 0, 2, 'Warm, wholesome bread!', 12, 0, 100, 0, 0, 0, 'Thomas Miller'),
 	(3518, 0, 3, 'Rolls, buns and bread. Baked fresh!', 12, 0, 100, 0, 0, 0, 'Thomas Miller'),
 	(3465, 1, 0, 'At last! Free from Northwatch Hold! I need a moment to catch my breath...', 12, 0, 100, 0, 0, 0, 'Gilthares - At Last'),
-	(3465, 0, 0, 'Stay close, $n. I\'ll need all the help I can get to break out of here. Let\'s go!', 12, 0, 100, 0, 0, 0, 'Gilthares - Start');
+	(3465, 0, 0, 'Stay close, $n. I\'ll need all the help I can get to break out of here. Let\'s go!', 12, 0, 100, 0, 0, 0, 'Gilthares - Start'),
+	(66185, 0, 0, 'Father!', 12, 0, 100, 0, 0, 0, 'Vengeful Forsaken (Lilian Voss)'),
+	(66185, 1, 0, 'Shut up.', 12, 0, 100, 0, 0, 0, 'Vengeful Forsaken (Lilian Voss)'),
+	(66185, 2, 0, 'You raised me to be a killer.  How am I doing, daddy?', 12, 0, 100, 0, 0, 0, 'Vengeful Forsaken (Lilian Voss)'),
+	(66185, 3, 0, 'But wait... I remember now. You taught me to only kill the undead. So you do want me to kill myself, daddy?', 12, 0, 100, 0, 0, 0, 'Vengeful Forsaken (Lilian Voss)'),
+	(66185, 4, 0, 'Then again, why kill myself... when I can kill YOU instead!', 12, 0, 100, 0, 0, 0, 'Vengeful Forsaken (Lilian Voss)'),
+	(66185, 5, 0, 'Thanks for everything... father.', 12, 0, 100, 0, 0, 0, 'Vengeful Forsaken (Lilian Voss)'),
+	(48037, 0, 0, 'Battle result: embarrassing failure. Incorporating new methods into battle regimen.', 12, 0, 100, 0, 0, 0, 'Chiseled Golem - Golem Training Text 1'),
+	(48037, 0, 1, 'Beatdown received. Optimizing strategy for next battle...', 12, 0, 100, 0, 0, 0, 'Chiseled Golem - Golem Training Text 2'),
+	(48037, 0, 2, 'Defeated. Shame level: High. Adjusting strategy for future battles.', 12, 0, 100, 0, 0, 0, 'Chiseled Golem - Golem Training Text 3'),
+	(48037, 0, 3, 'Pummeling received. Adjusting battle parameters...', 12, 0, 100, 0, 0, 0, 'Chiseled Golem - Golem Training Text 4'),
+	(48037, 1, 0, 'Self-training complete!', 12, 0, 100, 0, 0, 0, 'Chiseled Golem - Golem Training Text 5'),
+	(48037, 2, 0, 'Training level sufficient. Returning to guard duty. Thank you.', 12, 0, 100, 0, 0, 0, 'Chiseled Golem - Golem Training Text 6');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `item_effect` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25037 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.item_effect: ~21,291 rows (approximately)
+-- Dumping data for table fixeslive.item_effect: ~21,629 rows (approximately)
 DELETE FROM `item_effect`;
 /*!40000 ALTER TABLE `item_effect` DISABLE KEYS */;
 INSERT INTO `item_effect` (`ID`, `ItemID`, `EffectIndex`, `SpellID`, `SpellTrigger`, `SpellCharge`, `SpellCooldown`, `SpellCategory`, `SpellCategoryCooldown`, `ChrSpecializationID`, `BuildVerified`) VALUES
