@@ -1873,14 +1873,22 @@ float Creature::GetAttackDistance(Unit const* player) const
 		aggroRadius += GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
     }
 
-    // "Minimum Aggro Radius for a mob seems to be combat range (5 yards)"
-    if (aggroRadius < 5)
-		aggroRadius = 5;
+    // The aggro range of creatures with higher levels than the total player level for the expansion should get the maxlevel treatment
+    // This makes sure that creatures such as bosses wont have a bigger aggro range than the rest of the npc's
+    // The following code is used for blizzlike behaivior such as skippable bosses
+    if (getLevel() > expansionMaxLevel)
+        aggroRadius = baseAggroDistance + float(expansionMaxLevel - player->getLevel());
+
+    // Make sure that we wont go over the total range limits
+    if (aggroRadius > maxRadius)
+        aggroRadius = maxRadius;
+    else if (aggroRadius < minRadius)
+        aggroRadius = minRadius;
 
     if (IsAIEnabled)
         AI()->OnCalculateAttackDistance(aggroRadius);
 
-    return (aggroRadius*aggroRate);
+    return (aggroRadius * aggroRate);
 }
 
 void Creature::setDeathState(DeathState s)
