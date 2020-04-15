@@ -1852,39 +1852,35 @@ float Creature::GetAttackDistance(Unit const* player) const
     if (aggroRate == 0)
         return 0.0f;
 
-    uint32 playerlevel   = player->getLevelForTarget(this);
-    uint32 creaturelevel = getLevelForTarget(player);
+	// WoW Wiki: the minimum radius seems to be 5 yards, while the maximum range is 45 yards
+	float maxRadius = (45.0f * sWorld->getRate(RATE_CREATURE_AGGRO));
+	float minRadius = (5.0f * sWorld->getRate(RATE_CREATURE_AGGRO));
 
-    int32 leveldif       = int32(playerlevel) - int32(creaturelevel);
+	uint8 expansionMaxLevel = uint8(GetMaxLevelForExpansion(GetCreatureTemplate()->expansion));
+	int32 levelDifference = getLevel() - player->getLevel();
 
-    // "The maximum Aggro Radius has a cap of 25 levels under. Example: A level 30 char has the same Aggro Radius of a level 5 char on a level 60 mob."
-    if (leveldif < - 25)
-        leveldif = -25;
+	// The aggro radius for creatures with equal level as the player is 20 yards.
+	// The combatreach should not get taken into account for the distance so we drop it from the range (see Supremus as expample)
+	float baseAggroDistance = 20.0f;
 
-    // "The aggro radius of a mob having the same level as the player is roughly 20 yards"
-    float RetDistance = 20;
+	// + - 1 yard for each level difference between player and creature
+	float aggroRadius = baseAggroDistance + float(levelDifference);
 
-    // "Aggro Radius varies with level difference at a rate of roughly 1 yard/level"
-    // radius grow if playlevel < creaturelevel
-    RetDistance -= (float)leveldif;
-
-    if (creaturelevel+5 <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+	// detect range auras
+	if (float(getLevel() + 5) <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
-        // detect range auras
-        RetDistance += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
-
-        // detected range auras
-        RetDistance += player->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
+		aggroRadius += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
+		aggroRadius += GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
     }
 
     // "Minimum Aggro Radius for a mob seems to be combat range (5 yards)"
-    if (RetDistance < 5)
-        RetDistance = 5;
+    if (aggroRadius < 5)
+		aggroRadius = 5;
 
     if (IsAIEnabled)
-        AI()->OnCalculateAttackDistance(RetDistance);
+        AI()->OnCalculateAttackDistance(aggroRadius);
 
-    return (RetDistance*aggroRate);
+    return (aggroRadius*aggroRate);
 }
 
 void Creature::setDeathState(DeathState s)
