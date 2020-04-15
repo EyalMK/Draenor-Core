@@ -766,29 +766,6 @@ uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
     return mapid;
 }
 
-uint32 GetMaxLevelForExpansion(uint32 p_Expansion)
-{
-    switch (p_Expansion)
-    {
-        case CONTENT_1_60:
-            return 60;
-        case CONTENT_61_70:
-            return 70;
-        case CONTENT_71_80:
-            return 80;
-        case CONTENT_81_85:
-            return 85;
-        case CONTENT_86_90:
-            return 90;
-        case CONTENT_91_100:
-            return 100;
-        default:
-            break;
-
-    }
-    return 0;
-}
-
 /*
 Used only for calculate xp gain by content lvl.
 Calculation on Gilneas and group maps of LostIslands calculated as CONTENT_1_60.

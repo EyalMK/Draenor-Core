@@ -121,6 +121,8 @@ enum SpecIndex
 #define EFFECT_ALL 255
 
 
+
+
 // loot modes for creatures and gameobjects, bitmask!
 enum LootModes
 {
@@ -4471,6 +4473,28 @@ enum TotemCategory
     TC_JEWELERS_KIT                = 238,
     TC_ULTIMATE_GNOMISH_ARMY_KNIFE = 250        // 6.0.1
 };
+
+inline uint32 GetMaxLevelForExpansion(uint32 expansion)
+{
+	switch (expansion)
+	{
+	case EXPANSION_VANILLA:
+		return 60;
+	case EXPANSION_THE_BURNING_CRUSADE:
+		return 70;
+	case EXPANSION_WRATH_OF_THE_LICH_KING:
+		return 80;
+	case EXPANSION_CATACLYSM:
+		return 85;
+	case EXPANSION_MISTS_OF_PANDARIA:
+		return 90;
+	case EXPANSION_WARLORDS_OF_DRAENOR:      ///<    Not sure
+		return 100;
+	default:
+		break;
+	}
+	return 0;
+}
 
 /// CGUnit_C::OnDynamicFlagsChanged on Internal client
 enum UnitDynFlags
