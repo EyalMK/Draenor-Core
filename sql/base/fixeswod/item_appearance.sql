@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `item_appearance` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25540 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.item_appearance: ~24,344 rows (approximately)
+-- Dumping data for table fixeslive.item_appearance: ~23,780 rows (approximately)
 DELETE FROM `item_appearance`;
 /*!40000 ALTER TABLE `item_appearance` DISABLE KEYS */;
 INSERT INTO `item_appearance` (`ID`, `DisplayID`, `Unk`, `BuildVerified`) VALUES

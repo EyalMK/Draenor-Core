@@ -60,7 +60,6 @@ INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEn
 	(599, 0, 7275, NULL, 'Shadowpriest Sezz\'ziz'),
 	(552, 0, 7291, NULL, 'Galgann Firehammer'),
 	(1663, 0, 7357, NULL, 'Mordresh Fire Eye'),
-	(1666, 0, 7358, NULL, 'Amnennar the Coldbringer'),
 	(379, 0, 7361, NULL, 'Grubbis'),
 	(593, 0, 7795, NULL, 'Hydromancer Velratha'),
 	(598, 0, 7796, NULL, 'Nekrum Gutchewer'),

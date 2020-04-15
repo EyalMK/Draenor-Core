@@ -47,7 +47,7 @@ INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max
 	(209, 1, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Zul\'Farrak Entrance'),
 	(229, 1, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Blackrock Spire - Searing Gorge Instance (Inside)'),
 	(230, 1, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Blackrock Mountain '),
-	(249, 9, 61, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Onyxia\'s Lair Entrance'),
+	(249, 9, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Onyxia\'s Lair Entrance'),
 	(269, 1, 65, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Caverns Of Time,Black Morass (Entrance)'),
 	(1009, 5, 90, 0, 0, 0, 0, 0, 0, 0, 470, 0, '', 'Heart of Fear 10H'),
 	(1009, 6, 90, 0, 0, 0, 0, 0, 0, 0, 470, 0, '', 'Heart of Fear 25H'),

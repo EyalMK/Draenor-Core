@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `quest_package_item` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3964 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.quest_package_item: ~2,362 rows (approximately)
+-- Dumping data for table fixeslive.quest_package_item: ~2,507 rows (approximately)
 DELETE FROM `quest_package_item`;
 /*!40000 ALTER TABLE `quest_package_item` DISABLE KEYS */;
 INSERT INTO `quest_package_item` (`ID`, `PackageID`, `ItemId`, `Count`, `Type`, `BuildVerified`) VALUES

@@ -9,11 +9,7 @@
 /* ScriptData
 SDName: Boss_Onyxia
 SD%Complete: 95
-@Todo : Please script this shit !
-SDComment: <Known bugs>
-Ground visual for Deep Breath effect;
-Not summoning whelps on phase 3 (lacks info)
-</Known bugs>
+Dev: Hazor https://hellscream.org
 SDCategory: Onyxia's Lair
 EndScriptData */
 
@@ -150,7 +146,8 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
-            me->SetInCombatWithZone();
+			//Disabled not Blizzlike 0.1.7
+            //me->SetInCombatWithZone();
 
             events.ScheduleEvent(EVENT_FLAME_BREATH, urand (10000, 20000));
             events.ScheduleEvent(EVENT_TAIL_SWEEP,   urand (15000, 20000));
@@ -173,7 +170,8 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            summoned->SetInCombatWithZone();
+			//Disabled not Blizzlike 0.1.7
+            //summoned->SetInCombatWithZone();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summoned->AI()->AttackStart(target);
 
