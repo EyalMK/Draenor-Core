@@ -335,64 +335,74 @@ public:
     //add move for creature
     static bool HandleNpcAddMoveCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)
-            return false;
+		ObjectGuid npcGuid;
 
-        char* guidStr = strtok((char*)args, " ");
-        char* waitStr = strtok((char*)NULL, " ");
+		Creature* creature = handler->getSelectedCreature();
 
-        uint32 lowGuid = atoi((char*)guidStr);
+		if (!creature)
+		{
+			// number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
+			char* cId = handler->extractKeyFromLink((char*)args, "Hcreature");
+			if (!cId)
+				return false;
 
-        Creature* creature = NULL;
+			// Attempting creature load from DB data
+			CreatureData const* data = sObjectMgr->GetCreatureData(npcGuid);
+			if (!data)
+			{
+				handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, std::to_string(npcGuid).c_str());
+				handler->SetSentErrorMessage(true);
+				return false;
+			}
 
-        /* @todo : impossible without entry
-        if (lowguid)
-            creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
-        */
+			uint32 map_id = data->mapid;
 
-        // attempt check creature existence by DB data
-        if (!creature)
-        {
-            CreatureData const* data = sObjectMgr->GetCreatureData(lowGuid);
-            if (!data)
-            {
-                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowGuid);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-        }
-        else
-        {
-            // obtain real GUID for DB operations
-            lowGuid = creature->GetDBTableGUIDLow();
-        }
+			if (handler->GetSession()->GetPlayer()->GetMapId() != map_id)
+			{
+				handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, std::to_string(npcGuid).c_str());
+				handler->SetSentErrorMessage(true);
+				return false;
+			}
+		}
+		else
+		{
+			npcGuid = creature->GetGUIDLow();
+		}
 
-        int wait = waitStr ? atoi(waitStr) : 0;
+		float x = handler->GetSession()->GetPlayer()->GetPositionX();
+		float y = handler->GetSession()->GetPlayer()->GetPositionY();
+		float z = handler->GetSession()->GetPlayer()->GetPositionZ();
+		float o = handler->GetSession()->GetPlayer()->GetOrientation();
 
-        if (wait < 0)
-            wait = 0;
+		if (creature)
+		{
+			if (CreatureData const* data = sObjectMgr->GetCreatureData(creature->GetGUID()))
+			{
+				const_cast<CreatureData*>(data)->posX = x;
+				const_cast<CreatureData*>(data)->posY = y;
+				const_cast<CreatureData*>(data)->posZ = z;
+				const_cast<CreatureData*>(data)->orientation = o;
+			}
+			creature->SetPosition(x, y, z, o);
+			creature->GetMotionMaster()->Initialize();
+			if (creature->isAlive())                            // dead creature will reset movement generator at respawn
+			{
+				creature->setDeathState(JUST_DIED);
+				creature->Respawn();
+			}
+		}
 
-        // Update movement type
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_POSITION);
 
-        stmt->setUInt8(0, uint8(WAYPOINT_MOTION_TYPE));
-        stmt->setUInt32(1, lowGuid);
+		stmt->setFloat(0, x);
+		stmt->setFloat(1, y);
+		stmt->setFloat(2, z);
+		stmt->setFloat(3, o);
+		stmt->setUInt64(4, npcGuid);
 
-        WorldDatabase.Execute(stmt);
+		WorldDatabase.Execute(stmt);
 
-        if (creature && creature->GetWaypointPath())
-        {
-            creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
-            creature->GetMotionMaster()->Initialize();
-            if (creature->isAlive())                            // dead creature will reset movement generator at respawn
-            {
-                creature->setDeathState(JUST_DIED);
-                creature->Respawn(true);
-            }
-            creature->SaveToDB();
-        }
-
-        handler->SendSysMessage(LANG_WAYPOINT_ADDED);
+		handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
 
         return true;
     }
@@ -774,85 +784,76 @@ public:
     //move selected creature
     static bool HandleNpcMoveCommand(ChatHandler* handler, const char* args)
     {
-        uint32 lowguid = 0;
+		ObjectGuid npcGuid;
 
-        Creature* creature = handler->getSelectedCreature();
+		Creature* creature = handler->getSelectedCreature();
 
-        if (!creature)
-        {
-            // number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
-            char* cId = handler->extractKeyFromLink((char*)args, "Hcreature");
-            if (!cId)
-                return false;
+		if (!creature)
+		{
+			// number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
+			char* cId = handler->extractKeyFromLink((char*)args, "Hcreature");
+			if (!cId)
+				return false;
 
-            lowguid = atoi(cId);
+			// Attempting creature load from DB data
+			CreatureData const* data = sObjectMgr->GetCreatureData(npcGuid);
+			if (!data)
+			{
+				handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, std::to_string(npcGuid).c_str());
+				handler->SetSentErrorMessage(true);
+				return false;
+			}
 
-            /* FIXME: impossible without entry
-            if (lowguid)
-                creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
-            */
+			uint32 map_id = data->mapid;
 
-            // Attempting creature load from DB data
-            if (!creature)
-            {
-                CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
-                if (!data)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowguid);
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
+			if (handler->GetSession()->GetPlayer()->GetMapId() != map_id)
+			{
+				handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, std::to_string(npcGuid).c_str());
+				handler->SetSentErrorMessage(true);
+				return false;
+			}
+		}
+		else
+		{
+			npcGuid = creature->GetGUIDLow();
+		}
 
-                uint32 map_id = data->mapid;
+		float x = handler->GetSession()->GetPlayer()->GetPositionX();
+		float y = handler->GetSession()->GetPlayer()->GetPositionY();
+		float z = handler->GetSession()->GetPlayer()->GetPositionZ();
+		float o = handler->GetSession()->GetPlayer()->GetOrientation();
 
-                if (handler->GetSession()->GetPlayer()->GetMapId() != map_id)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, lowguid);
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
-            }
-            else
-            {
-                lowguid = creature->GetDBTableGUIDLow();
-            }
-        }
-        else
-        {
-            lowguid = creature->GetDBTableGUIDLow();
-        }
+		if (creature)
+		{
+			if (CreatureData const* data = sObjectMgr->GetCreatureData(creature->GetGUID()))
+			{
+				const_cast<CreatureData*>(data)->posX = x;
+				const_cast<CreatureData*>(data)->posY = y;
+				const_cast<CreatureData*>(data)->posZ = z;
+				const_cast<CreatureData*>(data)->orientation = o;
+			}
+			creature->SetPosition(x, y, z, o);
+			creature->GetMotionMaster()->Initialize();
+			if (creature->isAlive())                            // dead creature will reset movement generator at respawn
+			{
+				creature->setDeathState(JUST_DIED);
+				creature->Respawn();
+			}
+		}
 
-        float x = handler->GetSession()->GetPlayer()->GetPositionX();
-        float y = handler->GetSession()->GetPlayer()->GetPositionY();
-        float z = handler->GetSession()->GetPlayer()->GetPositionZ();
-        float o = handler->GetSession()->GetPlayer()->GetOrientation();
+		PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_POSITION);
 
-        if (creature)
-        {
-            if (CreatureData const* data = sObjectMgr->GetCreatureData(creature->GetDBTableGUIDLow()))
-            {
-                const_cast<CreatureData*>(data)->posX = x;
-                const_cast<CreatureData*>(data)->posY = y;
-                const_cast<CreatureData*>(data)->posZ = z;
-                const_cast<CreatureData*>(data)->orientation = o;
-            }
+		stmt->setFloat(0, x);
+		stmt->setFloat(1, y);
+		stmt->setFloat(2, z);
+		stmt->setFloat(3, o);
+		stmt->setUInt64(4, npcGuid);
 
-            creature->SetPosition(x, y, z, o);
-            creature->Relocate(x, y, z, o);
+		WorldDatabase.Execute(stmt);
 
-            Position l_NewPosition;
-            creature->GetPosition(&l_NewPosition);
-            creature->SendTeleportPacket(l_NewPosition);
+		handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
 
-            if (creature->isAlive())                            // dead creature will reset movement generator at respawn
-            {
-                creature->setDeathState(JUST_DIED);
-                creature->Respawn();
-            }
-        }
-
-        handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
-        return true;
+		return true;
     }
 
     //play npc emote
