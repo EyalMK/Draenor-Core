@@ -77,7 +77,6 @@ enum MonkSpells
     SPELL_MONK_CREATE_CHI_SPHERE                = 121286,
     SPELL_MONK_GLYPH_OF_ZEN_FLIGHT              = 125893,
     SPELL_MONK_ZEN_FLIGHT                       = 125883,
-    ITEM_MONK_T14_TANK_4P                       = 123159,
     MONK_NPC_BLACK_OX_STATUE                    = 61146,
     SPELL_MONK_GUARD                            = 115295,
     SPELL_MONK_ITEM_2_S12_MISTWEAVER            = 131561,
@@ -110,7 +109,18 @@ enum MonkSpells
     SPELL_MONK_STANCE_OF_THE_WISE_SERPENT       = 115070,
     SPELL_MONL_SOOTHING_MIST                    = 115175,
     SPELL_MONK_CHI_EXPLOSION_WINWALKER          = 152174,
-    SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION      = 159407
+    SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION      = 159407,
+
+	// Tier Bonuses
+	ITEM_MONK_BM_T14_4P							= 123159,
+
+	// Tier 18
+	ITEM_MONK_BW_T18_2P							= 185398,						
+	ITEM_MONK_BW_T18_4P							= 185399,
+	ITEM_MONK_MW_T18_2P							= 185126,
+	ITEM_MONK_MW_T18_4P							= 185258,
+	ITEM_MONK_WW_T18_2P							= 185542,
+	ITEM_MONK_WW_T18_4P							= 185543
 };
 
 /// Last Update 6.2.3
@@ -170,27 +180,33 @@ class spell_monk_combo_breaker: public SpellScriptLoader
 
 				if (l_Caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
 				{
-					if (l_Caster->HasAura(185543) && (roll_chance_i(23))) // T18 4P Windwalker
+					if (l_Caster->HasAura(ITEM_MONK_WW_T18_4P))
 					{
-						if (urand(0, 1))
-							l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
-						else
-							if (l_Caster->HasSpell(SPELL_MONK_CHI_EXPLOSION_WINWALKER))
-								l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION, true);
+						if (roll_chance_i(23)) // 8% + 15% from tier
+						{
+							if (urand(0, 1))
+								l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
 							else
-								l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+								if (l_Caster->HasSpell(SPELL_MONK_CHI_EXPLOSION_WINWALKER))
+									l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION, true);
+								else
+									l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+						}
 					}
 
-					else if (roll_chance_i(8))
+					if (!l_Caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
 					{
-						if (urand(0, 1))
-							l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
-						else
-							if (l_Caster->HasSpell(SPELL_MONK_CHI_EXPLOSION_WINWALKER))
-								l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION, true);
+						if (roll_chance_i(8))
+						{
+							if (urand(0, 1))
+								l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
 							else
-								l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
-					}	
+								if (l_Caster->HasSpell(SPELL_MONK_CHI_EXPLOSION_WINWALKER))
+									l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION, true);
+								else
+									l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+						}
+					}
 				}
 			}
 
@@ -2268,7 +2284,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
             {
                update += diff;
 
-                if (update >= 1500)
+                if (update >= 1000) // We're setting the min GCD
                 {
                     if (GetCaster())
                         if (Player* _player = GetCaster()->ToPlayer())
@@ -2414,12 +2430,12 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 		{	
 			PrepareSpellScript(spell_monk_renewing_mist_SpellScript);
 
-			void HandleOnHit()
+			void HandleOnCast()
 			{
 				Unit* l_Caster = GetCaster();
 				Unit* l_Target = GetHitUnit();
 
-				if (l_Caster->HasAura(185126))
+				if (l_Caster->HasAura(ITEM_MONK_MW_T18_2P))
 				{
 					l_Caster->CastSpell(l_Target, 185158, true); // Extend Life
 				}
@@ -2427,7 +2443,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
 			void Register()
 			{
-				OnHit += SpellHitFn(spell_monk_renewing_mist_SpellScript::HandleOnHit);
+				OnCast += SpellCastFn(spell_monk_renewing_mist_SpellScript::HandleOnCast);
 			}
 		};
 
@@ -4638,7 +4654,7 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
 				{
 					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
 					{
-						l_Caster->CastCustomSpell(l_Target, 107428, NULL, NULL, NULL, true); // Rising Sun Kick (Free)
+						l_Caster->CastCustomSpell(l_Target, 185099, NULL, NULL, NULL, true); // Rising Sun Kick (Free)
 					}
 				}
             }
@@ -4890,7 +4906,7 @@ class spell_monk_blackout_kick: public SpellScriptLoader
 				{
 					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
 					{
-						l_Caster->CastSpell(l_Target, 107428); // Rising Sun Kick (Free)
+						l_Caster->CastSpell(l_Target, 185099); // Rising Sun Kick (Free)
 					}
 				}
 			}
@@ -5357,7 +5373,7 @@ enum RisingSunKickSpells
 };
 
 /// last update : 6.2.3
-/// Rising Sun Kick - 185099
+/// Rising Sun Kick - 107428
 class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
     public:
@@ -5369,7 +5385,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
             enum eSpells
             {
-                RisingSunKick = 185099,
+                RisingSunKick = 107428,
                 JadeMists     = 165397
             };
 
@@ -5379,10 +5395,9 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 				Unit* l_Target = GetHitUnit();
 				Player* l_Player = GetCaster()->ToPlayer();
 
-				
-				if (l_Caster->HasAura(185543) && (l_Caster->HasAura(185542))) // T18 4P Windwalker and T18 2P Windwalker
+				if (l_Caster->HasAura(ITEM_MONK_WW_T18_2P) && (l_Caster->HasAura(ITEM_MONK_WW_T18_4P)))
 				{
-					if (roll_chance_i(45))
+					if (roll_chance_i(45)) // 30% from T18 (2) p + 15% from T18 (4) p
 					{
 						if (urand(0, 1))
 							l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
@@ -5393,7 +5408,8 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 								l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
 					}
 				}
-				else if (l_Caster->HasAura(185542)) // T18 2P Windwalker
+
+				if (l_Caster->HasAura(ITEM_MONK_WW_T18_2P))
 				{
 					if (roll_chance_i(30))
 					{
@@ -5428,7 +5444,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 				{
 					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
 					{
-						l_Caster->CastSpell(l_Target, 107428); // Rising Sun Kick (Free)
+						l_Caster->CastSpell(l_Target, 185099); // Rising Sun Kick (Free)
 					}
 				}
             }
@@ -5457,71 +5473,24 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
                 SetHitDamage(l_Bp);
 
-                /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
-                l_Caster->CastSpell(l_Caster, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
+				/// Causing all enemies within 8 yards to take 20% (+6% if the caster has MW - Tier 18 (2) bonus) increased damage from your abilities for 15 sec.	   
+				if (l_Caster->HasAura(ITEM_MONK_MW_T18_2P))
+					if (AuraEffect* l_DirectBonusIncrease = l_Caster->GetAuraEffect(SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, EFFECT_0))
+					{
+						l_DirectBonusIncrease->SetAmount(l_DirectBonusIncrease->GetAmount() + 6);
+
+						l_Caster->CastSpell(l_Caster, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
+					}
+				else
+					l_Caster->CastSpell(l_Caster, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
 
             }
-
-			void HandleOnHit()
-			{
-				Player* l_Player = GetCaster()->ToPlayer();
-
-				if (l_Player == nullptr) ///Prevent crash on next if statement due to RSK being used with Storm, Earth, and Fire
-					return;
-
-				if (l_Player->GetSpecializationId(l_Player->GetActiveSpec() == SPEC_MONK_MISTWEAVER))
-				{
-					Unit* l_Caster = GetCaster();
-					Unit* l_Target = GetHitUnit();
-
-					if (l_Caster->HasAura(185258) && roll_chance_i(50)) // T18 4P Mistweaver
-					{
-						float l_Radius = 20.0f;
-						if (l_Caster->HasAura(123334)) // Glyph of Renewing Mist
-							l_Radius = 40.0f;
-
-						/// Get friendly unit on range
-						std::list<Unit*> l_FriendlyUnitList;
-						JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
-						JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
-						l_Target->VisitNearbyObject(l_Radius, l_Searcher);
-
-						/// Remove friendly unit with already renewing mist apply
-						l_FriendlyUnitList.remove_if(JadeCore::UnitAuraCheck(true, 119611)); // Renewing Mist DoT
-
-						l_FriendlyUnitList.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
-						{
-							if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
-								return true;
-
-							if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
-								return true;
-
-							return false;
-						});
-
-						/// Sort friendly unit by pourcentage of health and get the most injured
-						if (l_FriendlyUnitList.size() > 1)
-						{
-							l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
-							l_FriendlyUnitList.resize(1);
-						}
-
-						/// Cast Renewing Mist on him
-						for (auto l_Itr : l_FriendlyUnitList)
-						{
-							l_Caster->CastSpell(l_Itr, 115151, true); // Renewing Mist 
-						}
-					}
-				}
-			}
 
             void Register() override
             {
                 AfterCast += SpellCastFn(spell_monk_rising_sun_kick_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_rising_sun_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
 				OnCast += SpellCastFn(spell_monk_rising_sun_kick_SpellScript::HandleOnCast);
-				OnHit += SpellHitFn(spell_monk_rising_sun_kick_SpellScript::HandleOnHit);
             }
         };
 
@@ -5531,7 +5500,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
         }
 };
 
-/// Rising Sun Kick Free - 107428
+/// Rising Sun Kick Free - 185099
 class spell_monk_rising_sun_kick_free : public SpellScriptLoader
 {
 public:
