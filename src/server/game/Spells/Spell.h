@@ -673,6 +673,7 @@ public:
     bool IsAutoActionResetSpell() const;
     bool IsCritForTarget(Unit* target) const;
 
+	bool IsFocusDisabled() const;
     bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
     void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
     bool IsInterruptable() const { return !m_executedCurrently; }

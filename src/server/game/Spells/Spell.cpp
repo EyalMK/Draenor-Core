@@ -4975,6 +4975,11 @@ void Spell::finish(bool ok)
     }
 }
 
+bool Spell::IsFocusDisabled() const
+{
+	return ((_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING) || (m_spellInfo->IsChanneled() && !m_spellInfo->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET)));
+}
+
 void Spell::SendCastResult(SpellCastResult result)
 {
     if (result == SPELL_CAST_OK)
