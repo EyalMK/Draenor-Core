@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `spell_casting_requirements` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16444 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.spell_casting_requirements: ~10,721 rows (approximately)
+-- Dumping data for table fixeslive.spell_casting_requirements: ~11,439 rows (approximately)
 DELETE FROM `spell_casting_requirements`;
 /*!40000 ALTER TABLE `spell_casting_requirements` DISABLE KEYS */;
 INSERT INTO `spell_casting_requirements` (`ID`, `FacingCasterFlags`, `MinFactionId`, `MinReputation`, `AreaGroupId`, `RequiredAuraVision`, `RequiresSpellFocus`, `BuildVerified`) VALUES
