@@ -1638,57 +1638,6 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
         }
 };
 
-// Called by Uplift - 116670 and Uplift - 130316
-// Thunder Focus Tea - 116680
-/*class spell_monk_thunder_focus_tea: public SpellScriptLoader
-{
-    public:
-        spell_monk_thunder_focus_tea() : SpellScriptLoader("spell_monk_thunder_focus_tea") { }
-
-        class spell_monk_thunder_focus_tea_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_thunder_focus_tea_SpellScript)
-
-            void FilterTargets(std::list<WorldObject*>& unitList)
-            {
-                unitList.remove_if(JadeCore::UnitAuraCheck(false, SPELL_MONK_RENEWING_MIST_HOT, GetCaster()->GetGUID()));
-            }
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(SPELL_MONK_THUNDER_FOCUS_TEA))
-                        {
-                            std::list<Unit*> groupList;
-
-                            _player->GetRaidMembers(groupList);
-
-                            for (auto itr : groupList)
-                                if (Aura* renewingMistGroup = itr->GetAura(SPELL_MONK_RENEWING_MIST_HOT, _player->GetGUID()))
-                                    renewingMistGroup->RefreshDuration();
-
-                            _player->RemoveAura(SPELL_MONK_THUNDER_FOCUS_TEA);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_thunder_focus_tea_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
-                OnHit += SpellHitFn(spell_monk_thunder_focus_tea_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_thunder_focus_tea_SpellScript();
-        }
-};*/
-
 /// last update : 6.1.2 19802
 /// Eminence - 126890 and Eminence (status) - 117895
 class spell_monk_eminence_heal : public SpellScriptLoader
@@ -6818,7 +6767,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_power_strikes();
     new spell_monk_crackling_jade_lightning();
     new spell_monk_touch_of_karma();
-/*new spell_monk_thunder_focus_tea();*/
     new spell_monk_jade_serpent_statue();
     new spell_monk_mana_tea();
     new spell_monk_mana_tea_stacks();
