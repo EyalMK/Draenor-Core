@@ -2401,81 +2401,6 @@ public:
 	}
 };
 
-/// Lieutenant Sanders Noose - 38936
-class npc_lieutenant_sanders_noose_38936 : public CreatureScript
-{
-public:
-	npc_lieutenant_sanders_noose_38936() : CreatureScript("npc_lieutenant_sanders_noose_38936") { }
-
-	enum eNPC
-	{
-		NPC_LEUTNANT_SANDERS = 13158,
-		NPC_LEUTNANT_SANDERS_NOSE_FOCUS = 39093,
-		SPELL_SANDERS_HANGING = 73443,
-		SPELL_SANDERS_FOOT_NOSE = 73444,
-		EVENT_CHECK_SANDERS = 101,
-	};
-
-	// OnQuestAccept - cast spell on players to summon Vengeful	Forsaken (done in SmartAI)
-
-	struct npc_lieutenant_sanders_noose_38936AI : public ScriptedAI
-	{
-		npc_lieutenant_sanders_noose_38936AI(Creature* creature) : ScriptedAI(creature) { }
-
-		EventMap m_events;
-
-		void Reset() override
-		{
-			m_events.Reset();
-			m_events.ScheduleEvent(EVENT_CHECK_SANDERS, 250);
-			me->SetUInt32Value(3, UNIT_BYTE1_FLAG_HOVER);
-			me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
-			me->SetDisableGravity(true);
-		}
-
-		void UpdateAI(uint32 diff) override
-		{
-			m_events.Update(diff);
-
-			while (uint32 eventId = m_events.ExecuteEvent())
-			{
-				switch (eventId)
-				{
-				case EVENT_CHECK_SANDERS:
-				{
-					if (!me->HasAura(SPELL_SANDERS_HANGING))
-						me->CastSpell(me, SPELL_SANDERS_HANGING, true);
-
-					if (Vehicle* vehicle = me->GetVehicleKit())
-						if (Unit* sanders = vehicle->GetPassenger(0))
-						{
-							if (!sanders->HasAura(SPELL_SANDERS_FOOT_NOSE))
-								me->CastSpell(2533.339f, -920.6719f, 60.98916f, SPELL_SANDERS_FOOT_NOSE, true);
-						}
-						else
-							if (Creature* sanders = me->FindNearestCreature(NPC_LEUTNANT_SANDERS, 10.0f))
-							{
-								sanders->SetDisableGravity(true);
-								sanders->EnterVehicle(me, 0);
-							}
-
-					m_events.ScheduleEvent(EVENT_CHECK_SANDERS, 1000);
-					break;
-				}
-				}
-			}
-			if (!UpdateVictim())
-				return;
-			else
-				DoMeleeAttackIfReady();
-		}
-	};
-
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new npc_lieutenant_sanders_noose_38936AI(creature);
-	}
-};
 
 /// Lilian Voss - 39038
 class npc_lilian_voss_39038 : public CreatureScript
@@ -2497,7 +2422,7 @@ public:
 		SPELL_LILIANS_BRAIN_BURST = 73307,
 		SPELL_LILIANS_SHADOW_HOP = 73308,
 		SPELL_LILIANS_DEATH_GRIP = 73309,
-		SPELL_STEALTH = 73392,
+		SPELL_STRANGULATE = 78037,
 		EVENT_CD_73308 = 101,
 		EVENT_CD_73309,
 		EVENT_CHECK_ATTACK,
@@ -2539,7 +2464,10 @@ public:
 		void Reset() override
 		{
 			if (Player* player = sObjectAccessor->GetPlayer(*me, m_playerGUID))
-				me->GetMotionMaster()->MoveFollow(player, 4.0f, 3.14f);
+			{
+				me->SetSpeed(UnitMoveType::MOVE_RUN, player->GetSpeedRate(UnitMoveType::MOVE_RUN), true); // Set speed same as player's
+				me->GetMotionMaster()->MoveFollow(player, 2.0f, 3.14f);
+			}	
 			me->SetReactState(REACT_DEFENSIVE);
 		}
 
@@ -2575,14 +2503,6 @@ public:
 			if (victim->GetCreatureType() == CREATURE_TYPE_HUMANOID)
 				me->AddAura(SPELL_SHADOWY_AURA, victim);
 
-			if (victim->GetEntry() == NPC_BENEDICTUS)
-				if (Player* player = sObjectAccessor->GetPlayer(*me, m_playerGUID))
-				{
-					player->KilledMonsterCredit(NPC_BENEDICTUS_CREDIT);
-					m_events.ScheduleEvent(EVENT_TALK_PART + 11, 1000);
-				}
-			if (victim->GetEntry() == NPC_BODYGUARD || victim->GetEntry() == NPC_MELRACHE)
-				m_events.ScheduleEvent(EVENT_TALK_PART + 3, 500);
 		}
 
 		void UpdateAI(uint32 diff) override
@@ -2593,167 +2513,238 @@ public:
 			{
 				switch (eventId)
 				{
-				case EVENT_CD_73308:
-				{
-					cd_73308 = false;
-					break;
-				}
-				case EVENT_CD_73309:
-				{
-					cd_73309 = false;
-					break;
-				}
-				case EVENT_CHECK_ATTACK:
-				{
-					if (!cd_73309 && !cd_73308)
-						if (Player* player = sObjectAccessor->GetPlayer(*me, m_playerGUID))
-							if (player->isInCombat())
-								if (me->isInCombat())
-								{
-									if (Unit* unit = me->SelectVictim())
-										if (Creature* target = unit->ToCreature())
-											if (target->GetEntry() == NPC_SCARLET_FRIAR || target->GetEntry() == NPC_SCARLET_NEOPHYTE || target->GetEntry() == NPC_SCARLET_VANGUARD)
-												CastSpell_LiliansShadowHop(target);
-								}
-								else
-								{
-									printf("EVENT_CHECK_ATTACK player is in combat, ich nicht...\n");
-								}
-
-					m_events.ScheduleEvent(EVENT_CHECK_ATTACK, 1000);
-					break;
-				}
-				case EVENT_CHECK_FATHER_SEQUENCE:
-				{
-					std::list<Creature*> m_guard;
-					for (auto itr : m_father)
+					case EVENT_CD_73308:
 					{
-						Creature* creature = me->FindNearestCreature(itr, 30.0f, true);
-						if (creature)
-							m_guard.push_back(creature);
+						cd_73308 = false;
+						break;
 					}
-
-					if (m_guard.size() > 0)
-						for (std::list<Creature*>::iterator itr = m_guard.begin(); itr != m_guard.end(); ++itr)
-							(*itr)->SetReactState(REACT_PASSIVE);
-
-					Creature* father = me->FindNearestCreature(NPC_BENEDICTUS, 23.0f);
-					if (father)
+					case EVENT_CD_73309:
 					{
-						me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-						m_fatherGUID = father->GetGUID();
-						m_events.ScheduleEvent(EVENT_START_FATHER_SEQUENCE, 200);
+						cd_73309 = false;
+						break;
 					}
-					else
-						m_events.ScheduleEvent(EVENT_CHECK_FATHER_SEQUENCE, 1000);
-
-					break;
-				}
-				case EVENT_START_FATHER_SEQUENCE:
-				{
-					Talk(0);
-					me->GetMotionMaster()->Clear();
-					me->SetWalk(true);
-					me->GetMotionMaster()->MovePath(3903801, false); // Implemented in DB
-					m_events.ScheduleEvent(EVENT_TALK_PART + 1, 6000);
-					break;
-				}
-				case EVENT_TALK_PART + 1:
-				{
-					if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
-						father->AI()->Talk(0);
-					m_events.ScheduleEvent(EVENT_TALK_PART + 2, 6000);
-					break;
-				}
-				case EVENT_TALK_PART + 2:
-				{
-					Talk(1);
-					m_events.ScheduleEvent(EVENT_TALK_PART + 3, 6000);
-					break;
-				}
-				case EVENT_TALK_PART + 3:
-				{
-					std::list<Creature*> m_guard;
-					for (auto itr : m_father)
+					case EVENT_CHECK_ATTACK: // Check spell cds and targets, if both are good to go - cast spell on them.
 					{
-						Creature* creature = me->FindNearestCreature(itr, 20.0f, true);
-						if (creature)
-							m_guard.push_back(creature);
+						if (!cd_73309 && !cd_73308)
+							if (Player* player = sObjectAccessor->GetPlayer(*me, m_playerGUID))
+								if (player->isInCombat())
+									if (me->isInCombat())
+									{
+										if (Unit* unit = me->SelectVictim())
+											if (Creature* target = unit->ToCreature())
+												if (target->GetEntry() == NPC_SCARLET_FRIAR || target->GetEntry() == NPC_SCARLET_NEOPHYTE || target->GetEntry() == NPC_SCARLET_VANGUARD)
+													CastSpell_LiliansShadowHop(target);
+									}
+								
+
+						m_events.ScheduleEvent(EVENT_CHECK_ATTACK, 1000);
+						break;
 					}
-					if (m_guard.size() > 0)
-						for (std::list<Creature*>::iterator itr = m_guard.begin(); itr != m_guard.end(); ++itr)
-							if ((*itr)->isAlive())
-								if ((*itr)->GetEntry() != NPC_BENEDICTUS)
-								{
-									me->CastSpell((*itr), SPELL_LILIANS_SHADOW_HOP, true);
-									return;
-								}
-
-					if (!m_fatherSequence1)
+					case EVENT_CHECK_FATHER_SEQUENCE: // Check if Benedictus is around in order to start the event and talk sequence.
 					{
+						std::list<Creature*> m_guard;
+						for (auto itr : m_father)
+						{
+							Creature* creature = me->FindNearestCreature(itr, 30.0f, true);
+							if (creature)
+								m_guard.push_back(creature);
+						}
+
+						if (m_guard.size() > 0)
+							for (std::list<Creature*>::iterator itr = m_guard.begin(); itr != m_guard.end(); ++itr)
+								(*itr)->SetReactState(REACT_PASSIVE);
+
+						Creature* father = me->FindNearestCreature(NPC_BENEDICTUS, 20.0f, true);
+						Creature* Melrache = me->FindNearestCreature(NPC_MELRACHE, 20.0f, true);
+						Creature* Bodyguard = me->FindNearestCreature(NPC_BODYGUARD, 20.0f, true);
+
+						if (father)
+						{
+							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+							father->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE && UNIT_FLAG_IMMUNE_TO_NPC); // To ensure Benedictus won't aggro
+							m_fatherGUID = father->GetGUID();
+							m_events.ScheduleEvent(EVENT_START_FATHER_SEQUENCE, 200);
+
+							if (Melrache)
+								Melrache->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE && UNIT_FLAG_IMMUNE_TO_NPC);
+							if (Bodyguard)
+								Bodyguard->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE && UNIT_FLAG_IMMUNE_TO_NPC);
+						}
+						else
+							m_events.ScheduleEvent(EVENT_CHECK_FATHER_SEQUENCE, 1000);
+
+						break;
+					}
+					case EVENT_START_FATHER_SEQUENCE:
+					{
+						Talk(0); // Father!
+						me->GetMotionMaster()->Clear(); // Stop following player
+
+						me->SetWalk(true);
+						me->GetMotionMaster()->MovePath(3903801, false); // Implemented in DB
+						m_events.ScheduleEvent(EVENT_TALK_PART + 1, 3000);
+						break;
+					}
+					case EVENT_TALK_PART + 1:
+					{
+						if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+						{
+							me->SetFacingToObject(father);
+							father->AI()->Talk(0); // Lilian... you're... it's so nice to see you well.
+						}
+						m_events.ScheduleEvent(EVENT_TALK_PART + 2, 5000);
+						break;
+					}
+					case EVENT_TALK_PART + 2:
+					{
+						Talk(1); // Shut up.
+						m_events.ScheduleEvent(EVENT_TALK_PART + 3, 3000);
+						break;
+					}
+					case EVENT_TALK_PART + 3:
+					{
+						Creature* Melrache = me->FindNearestCreature(NPC_MELRACHE, 20.0f, true);
+						if (Melrache)
+							me->CastSpell(Melrache, SPELL_LILIANS_SHADOW_HOP, true);
+
 						m_events.ScheduleEvent(EVENT_TALK_PART + 4, 1000);
-						m_fatherSequence1 = true;
+						break;
 					}
-					break;
-				}
-				case EVENT_TALK_PART + 4:
-				{
-					if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
-						me->SetFacingToObject(father);
-					Talk(2);
-					m_events.ScheduleEvent(EVENT_TALK_PART + 5, 6000);
-					break;
-				}
-				case EVENT_TALK_PART + 5:
-				{
-					if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
-						father->AI()->Talk(1);
-					m_events.ScheduleEvent(EVENT_TALK_PART + 6, 6000);
-					break;
-				}
-				case EVENT_TALK_PART + 6:
-				{
-					Talk(3);
-					m_events.ScheduleEvent(EVENT_TALK_PART + 7, 6000);
-					break;
-				}
-				case EVENT_TALK_PART + 7:
-				{
-					if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
-						father->AI()->Talk(2);
-					m_events.ScheduleEvent(EVENT_TALK_PART + 8, 6000);
-					break;
-				}
-				case EVENT_TALK_PART + 8:
-				{
-					Talk(4);
-					m_events.ScheduleEvent(EVENT_TALK_PART + 9, 6000);
-					break;
-				}
-				case EVENT_TALK_PART + 9:
-				{
-					Talk(5);
-					m_events.ScheduleEvent(EVENT_TALK_PART + 10, 6000);
-					break;
-				}
-				case EVENT_TALK_PART + 10:
-				{
-					if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
-						me->CastSpell(father, SPELL_LILIANS_SHADOW_HOP, true);
+					case EVENT_TALK_PART + 4:
+					{
+						Creature* Bodyguard = me->FindNearestCreature(NPC_BODYGUARD, 20.0f, true);
+						if (Bodyguard)
+							me->CastSpell(Bodyguard, SPELL_LILIANS_SHADOW_HOP, true);
 
-					break;
-				}
-				case EVENT_TALK_PART + 11:
-				{
-					me->GetMotionMaster()->MovePath(3903802, false); // Need to implement Path - jumping on wall, falling and then walking outside
-					m_events.ScheduleEvent(EVENT_TALK_PART + 12, 9000);
-					break;
-				}
-				case EVENT_TALK_PART + 12:
-				{
-					me->DespawnOrUnsummon(1);
-					break;
-				}
+						if (!m_fatherSequence1)
+						{
+							m_events.ScheduleEvent(EVENT_TALK_PART + 5, 750);
+							m_fatherSequence1 = true;
+						}
+						break;
+
+					}
+					case EVENT_TALK_PART + 5:
+					{
+
+						if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+							me->SetFacingToObject(father);
+						Talk(2); // You raised me to be a killer. How am I doing, daddy?
+						m_events.ScheduleEvent(EVENT_TALK_PART + 6, 4000);
+						break;
+					}
+					case EVENT_TALK_PART + 6:
+					{
+						if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+							father->AI()->Talk(1); // I... ah...
+						m_events.ScheduleEvent(EVENT_TALK_PART + 7, 2000);
+						break;
+					}
+					case EVENT_TALK_PART + 7:
+					{
+						Talk(3); // But wait... I remember now.
+						m_events.ScheduleEvent(EVENT_TALK_PART + 8, 4000);
+						break;
+					}
+					case EVENT_TALK_PART + 8:
+					{
+						if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+							father->AI()->Talk(2); // Lilian, I  ...
+						m_events.ScheduleEvent(EVENT_TALK_PART + 9, 1000);
+						break;
+					}
+					case EVENT_TALK_PART + 9:
+					{
+						me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+						Talk(4); // Then again, why kill myself...
+						m_events.ScheduleEvent(EVENT_TALK_PART + 10, 3000);
+						break;
+					}
+					case EVENT_TALK_PART + 10:
+					{
+						if (Player* player = sObjectAccessor->GetPlayer(*me, m_playerGUID))
+						{
+							player->KilledMonsterCredit(NPC_BENEDICTUS_CREDIT);
+						}
+
+						if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+						{
+							father->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE && UNIT_FLAG_IMMUNE_TO_NPC);
+
+							me->CastSpell(father, SPELL_LILIANS_SHADOW_HOP, true); // SpellScript is made to kill the target after effect is over unless it is Benedictus.
+							father->CastSpell(father, SPELL_STRANGULATE, true);
+							m_events.ScheduleEvent(EVENT_TALK_PART + 11, 1000);
+						}
+						break;
+					}
+					case EVENT_TALK_PART + 11:
+					{
+						if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+						{
+							me->SetDisableGravity(true);
+							me->GetMotionMaster()->MoveJump(3084.2200, -551.0807, 139.7045, 10.0f, 20.0f, 3.887897); // Jump Point 1 on wall
+							father->GetMotionMaster()->MoveJump(3084.0496, -551.2206, 139.2565, 10.0f, 20.0f, 3.887897); // Jump Point 1 on wall
+							
+						}
+						m_events.ScheduleEvent(EVENT_TALK_PART + 12, 2500);
+						break;
+					}
+					case EVENT_TALK_PART + 12:
+					{
+						if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+						{
+							me->GetMotionMaster()->MoveJump(3071.0488, -566.4577, 140.2362, 10.0f, 20.0f, 1.021084); // Jump Point 2 on wall
+							father->GetMotionMaster()->MoveJump(3071.0684, -566.4397, 139.5825, 10.0f, 20.0f, 1.021084); // Jump Point 2 on wall
+						}
+						
+						m_events.ScheduleEvent(EVENT_TALK_PART + 13, 4000);
+						break;
+					}
+					case EVENT_TALK_PART + 13:
+					{
+						if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+						{
+							me->GetMotionMaster()->Clear();
+							father->GetMotionMaster()->Clear();
+
+							me->GetMotionMaster()->MoveFall(0);
+							father->GetMotionMaster()->MoveFall(0);
+
+							me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+							father->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+							me->SetCanFly(false);
+							father->SetCanFly(false);
+
+							me->CastSpell(father, SPELL_LILIANS_BRAIN_BURST, true); // Kill Benedictus
+						}	
+
+						m_events.ScheduleEvent(EVENT_TALK_PART + 14, 1500);
+						break;
+							
+					}
+					case EVENT_TALK_PART + 14:
+					{
+						if (Creature* father = sObjectAccessor->GetCreature(*me, m_fatherGUID))
+						{
+							me->Kill(father);
+							me->AddAura(SPELL_SHADOWY_AURA, father);
+						}
+						m_events.ScheduleEvent(EVENT_TALK_PART + 15, 5000);
+						break;
+					}
+					case EVENT_TALK_PART + 15:
+					{
+						me->SetWalk(false);
+						me->GetMotionMaster()->MovePath(3903803, false); // Exit tower
+						m_events.ScheduleEvent(EVENT_TALK_PART + 16, 7000);
+						break;
+					}
+					case EVENT_TALK_PART + 16:
+					{
+						me->DespawnOrUnsummon(1);
+						break;
+					}
+						
 				}
 			}
 			if (!UpdateVictim())
@@ -2765,7 +2756,7 @@ public:
 		void CastSpell_LiliansDeathGrip()
 		{
 			me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_LILIANS_DEATH_GRIP, true);
-			m_events.ScheduleEvent(EVENT_CD_73309, 30000);
+			m_events.ScheduleEvent(EVENT_CD_73309, 10000);
 			cd_73309 = true;
 		}
 
@@ -2833,7 +2824,8 @@ public:
 			if (!GetCaster() || !GetTarget())
 				return;
 
-			GetCaster()->CastSpell(GetTarget(), SPELL_LILIANS_BRAIN_BURST, true);
+			if (GetTarget()->ToCreature()->GetEntry() != 39097) // If Benedictus, don't kill
+				GetCaster()->CastSpell(GetTarget(), SPELL_LILIANS_BRAIN_BURST, true);
 		}
 
 		void Register() override
@@ -2916,7 +2908,6 @@ void AddSC_tirisfal_glades()
 	new npc_captured_vile_fin_minor_oracle_39078();
 	new npc_sedrick_calston_38925();
 	new npc_shadow_priestess_malia_39117();
-	new npc_lieutenant_sanders_noose_38936();
 	new npc_lilian_voss_39038();
 	new spell_lilians_brain_burst_73307();
 	new spell_lilians_shadow_hop_73308();
