@@ -129,7 +129,18 @@ enum PriestSpells
     PRIEST_SPELL_SHADOW_POWER                       = 171150,
     PRIEST_SPELL_WOD_PVP_DISCIPLINE_2P_BONUS        = 171124,
     PRIEST_SPELL_WOD_PVP_SHADOW_4P_BONUS            = 171151,
-    PRIEST_SPELL_WOD_PVP_SHADOW_4P_BONUS_EFFECT     = 171153
+    PRIEST_SPELL_WOD_PVP_SHADOW_4P_BONUS_EFFECT     = 171153,
+	PRIEST_SPELL_PENANCE_TRIGGERED					= 186723,
+
+	// Tier list
+
+	// Tier 18
+	ITEM_PRIEST_DISCI_T18_2P						= 186477,
+	ITEM_PRIEST_DISCI_T18_4P						= 186492,
+	/*ITEM_PRIEST_HOLY_T18_2P							= 123123,
+	ITEM_PRIEST_HOLY_T18_4P							= 123123,
+	ITEM_PRIEST_SHADOW_T18_2P						= 123123,
+	ITEM_PRIEST_SHADOW_T18_4P						= 123123*/
 };
 
 // Shadow Orb - 77487 & Glyph of Shadow ravens - 57985
@@ -2678,9 +2689,6 @@ class spell_pri_penance: public SpellScriptLoader
 			enum eSpell
 			{
 				T17Discipline2P = 165614,
-				T18Discipline2P = 186477,
-				T18Discipline4P = 186492,
-				Penance4P = 186723,
 				WordOfMendingAura = 152117,
 				WordOfMendingProc = 155363,
 				WordOfMendingStack = 155362
@@ -2762,46 +2770,12 @@ class spell_pri_penance: public SpellScriptLoader
 				}
 			}
 
-			void HandleOnHit()
-			{
-				Unit* l_Caster = GetCaster();
-				Unit* l_Target = GetHitUnit();
-
-				if (l_Caster->HasAura(186492)) // T18 Discipline 4P
-				{
-					if (roll_chance_i(100))
-					{
-						float l_Radius = 40.0f;
-
-						std::list<Unit*> l_FriendlyUnitList;
-						JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
-						JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
-						l_Target->VisitNearbyObject(l_Radius, l_Searcher);
-
-						/// Sort friendly unit by pourcentage of health and get the most injured
-						if (l_FriendlyUnitList.size() > 1)
-						{
-							l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
-							l_FriendlyUnitList.resize(1);
-						}
-
-						/// Cast penance from T18 4P on him
-						for (auto l_Itr : l_FriendlyUnitList)
-						{
-							if (l_Itr)
-							l_Caster->CastSpell(l_Itr, 186723, true);
-						}
-					}
-				}
-			}
-
 			void Register()
 			{
 				// add dummy effect spell handler to Penance
 				OnEffectHitTarget += SpellEffectFn(spell_pri_penance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
 				OnCheckCast += SpellCheckCastFn(spell_pri_penance_SpellScript::CheckCast);
 				OnCast += SpellCastFn(spell_pri_penance_SpellScript::HandleOnCast);
-				OnHit += SpellHitFn(spell_pri_penance_SpellScript::HandleOnHit);
 			}
 		};
 
@@ -2809,6 +2783,150 @@ class spell_pri_penance: public SpellScriptLoader
         {
             return new spell_pri_penance_SpellScript;
         }
+};
+
+/// last update : 6.2.3
+/// These are the channeled spells
+/// Penance (heal) - 47757, Penance (damage) - 47758
+class spell_pri_penance_aura : public SpellScriptLoader
+{
+	public:
+		spell_pri_penance_aura() : SpellScriptLoader("spell_pri_penance_aura") { }
+
+		class spell_pri_penance_aura_AuraScript : public AuraScript
+		{
+			PrepareAuraScript(spell_pri_penance_aura_AuraScript);
+
+			enum eSpells
+			{
+				PriestWoDPvPDiscipline2PBonus = 171124,
+				BonusHeal = 171130,
+				BonusDamage = 171131
+			};
+
+			void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+			{
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetTarget();
+
+				if (l_Caster == nullptr)
+					return;
+
+				if (l_Caster->HasAura(eSpells::PriestWoDPvPDiscipline2PBonus))
+				{
+					if (l_Target->IsFriendlyTo(l_Caster))
+						l_Caster->CastSpell(l_Target, eSpells::BonusHeal, true);
+					else
+						l_Caster->CastSpell(l_Target, eSpells::BonusDamage, true);
+				}
+			}
+
+			void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+			{
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetTarget();
+
+				if (l_Caster == nullptr)
+					return;
+
+				if (l_Target->HasAura(eSpells::BonusHeal, l_Caster->GetGUID()))
+					l_Target->RemoveAura(eSpells::BonusHeal, l_Caster->GetGUID());
+				if (l_Target->HasAura(eSpells::BonusDamage, l_Caster->GetGUID()))
+					l_Target->RemoveAura(eSpells::BonusDamage, l_Caster->GetGUID());
+			}
+
+			void Register()
+			{
+				OnEffectApply += AuraEffectRemoveFn(spell_pri_penance_aura_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+				OnEffectRemove += AuraEffectRemoveFn(spell_pri_penance_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+			}
+		};
+
+		AuraScript* GetAuraScript() const
+		{
+			return new spell_pri_penance_aura_AuraScript();
+		}
+};
+
+/// These are the individual bolts
+/// Penance (heal) - 47750, Penance (damage) - 47666
+class spell_pri_penance_damage_heal : public SpellScriptLoader
+{
+public:
+	spell_pri_penance_damage_heal() : SpellScriptLoader("spell_pri_penance_damage_heal") { }
+
+	class spell_pri_penance_damage_heal_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_pri_penance_damage_heal_SpellScript);
+
+		void HandleOnHit()
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetHitUnit();
+
+			if (l_Caster == nullptr)
+				return;
+
+			if (l_Caster->HasAura(ITEM_PRIEST_DISCI_T18_4P))
+			{
+				if (roll_chance_i(50))
+				{
+					float l_Radius = 40.0f;
+
+					std::list<Unit*> l_FriendlyUnitList;
+					JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
+					JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
+					l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+					/// Sort friendly unit by pourcentage of health and get the most injured
+					if (l_FriendlyUnitList.size() > 1)
+					{
+						l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+						l_FriendlyUnitList.resize(1);
+					}
+
+					/// Cast triggered Penance on him
+					for (auto l_Itr : l_FriendlyUnitList)
+					{
+						l_Caster->CastSpell(l_Itr, PRIEST_SPELL_PENANCE_TRIGGERED, true);
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnHit += SpellHitFn(spell_pri_penance_damage_heal_SpellScript::HandleOnHit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_pri_penance_damage_heal_SpellScript();
+	}
+};
+
+/// Triggered from T18 (4) part
+/// Penance (heal) - 186723
+class spell_pri_penance_triggered : public SpellScriptLoader
+{
+public:
+	spell_pri_penance_triggered() : SpellScriptLoader("spell_pri_penance_triggered") { }
+
+	class spell_pri_penance_triggered_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_pri_penance_triggered_SpellScript);
+
+		void Register()
+		{
+			
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_pri_penance_triggered_SpellScript();
+	}
 };
 
 // Vampiric Touch - 34914
@@ -4421,68 +4539,6 @@ class spell_pri_focused_will : public SpellScriptLoader
         }
 };
 
-/// last update : 6.2.3
-/// Penance (heal) - 47757, Penance (damage) - 47758
- class spell_pri_penance_aura : public SpellScriptLoader
-{
-    public:
-        spell_pri_penance_aura() : SpellScriptLoader("spell_pri_penance_aura") { }
-
-        class spell_pri_penance_aura_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_penance_aura_AuraScript);
-
-            enum eSpells
-            {
-                PriestWoDPvPDiscipline2PBonus = 171124,
-                BonusHeal = 171130,
-                BonusDamage = 171131
-            };
-
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetTarget();
-
-                if (l_Caster == nullptr)
-                    return;
-
-                if (l_Caster->HasAura(eSpells::PriestWoDPvPDiscipline2PBonus))
-                {
-                    if (l_Target->IsFriendlyTo(l_Caster))
-                        l_Caster->CastSpell(l_Target, eSpells::BonusHeal, true);
-                    else
-                        l_Caster->CastSpell(l_Target, eSpells::BonusDamage, true);
-                }
-            }
-
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetTarget();
-
-                if (l_Caster == nullptr)
-                    return;
-
-                if (l_Target->HasAura(eSpells::BonusHeal, l_Caster->GetGUID()))
-                    l_Target->RemoveAura(eSpells::BonusHeal, l_Caster->GetGUID());
-                if (l_Target->HasAura(eSpells::BonusDamage, l_Caster->GetGUID()))
-                    l_Target->RemoveAura(eSpells::BonusDamage, l_Caster->GetGUID());
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectRemoveFn(spell_pri_penance_aura_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pri_penance_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_penance_aura_AuraScript();
-        }
-};
-
 /// Last Update 6.2.3
 /// Word of Mending - 152117
 class PlayerScript_word_of_mending : public PlayerScript
@@ -4940,7 +4996,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_spectral_guise();
     new spell_pri_glyph_of_shadowy_friend();
     new spell_pri_shadowform();
-    new spell_pri_penance_aura();
     new spell_pri_focused_will();
     new spell_pri_dispel_mass();
     new spell_pri_shadowy_apparition();
@@ -4995,6 +5050,9 @@ void AddSC_priest_spell_scripts()
     new spell_pri_psychic_horror();
     new spell_pri_guardian_spirit();
     new spell_pri_penance();
+	new spell_pri_penance_aura();
+	new spell_pri_penance_damage_heal();
+	new spell_pri_penance_triggered();
     new spell_pri_vampiric_touch();
     new spell_pri_renew();
     new spell_pri_evangelism();
