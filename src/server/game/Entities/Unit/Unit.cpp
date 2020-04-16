@@ -22463,6 +22463,31 @@ void Unit::SetFacingTo(float ori)
     SetOrientation(ori);
 }
 
+bool Unit::IsFocusing(Spell const* focusSpell, bool withDelay)
+{
+	if (!isAlive()) // dead creatures cannot focus
+	{
+		ReleaseFocus(nullptr);
+		return false;
+	}
+
+	if (focusSpell && (focusSpell != m_focusSpell))
+		return false;
+
+	if (!m_focusSpell)
+	{
+		if (!withDelay || !m_focusDelay)
+			return false;
+		if (GetMSTimeDiffToNow(m_focusDelay) > 1000) // @todo figure out if we can get rid of this magic number somehow
+		{
+			m_focusDelay = 0; // save checks in the future
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void Unit::SetFacingToObject(WorldObject* object)
 {
     // never face when already moving
@@ -22478,17 +22503,72 @@ void Unit::SetFacingToObject(WorldObject* object)
 
 void Unit::FocusTarget(Spell const* p_FocusSpell, WorldObject* p_Target)
 {
-    // already focused
-    if (_focusSpell)
-        return;
+	// already focused
+	if (p_FocusSpell)
+		return;
 
-    _focusSpell = p_FocusSpell;
-    SetGuidValue(UNIT_FIELD_TARGET, p_Target->GetGUID());
-    if (p_FocusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
-        AddUnitState(UNIT_STATE_ROTATING);
+	// some spells shouldn't track targets
+	if (p_FocusSpell->IsFocusDisabled())
+		return;
 
-    // Set server side orientation if needed (needs to be after attribute check)
-    SetInFront(p_Target);
+	SpellInfo const* spellInfo = p_FocusSpell->GetSpellInfo();
+
+	// don't use spell focus for vehicle spells
+	if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+		return;
+
+	if ((!p_Target || p_Target == this) && !p_FocusSpell->GetCastTime()) // instant cast, untargeted (or self-targeted) spell doesn't need any facing updates
+		return;
+
+	// store pre-cast values for target and orientation (used to later restore)
+	if (!IsFocusing(nullptr, true))
+	{ // only overwrite these fields if we aren't transitioning from one spell focus to another
+		m_suppressedTarget = GetUInt64Value(UNIT_FIELD_TARGET);
+		m_suppressedOrientation = GetOrientation();
+	}
+
+	m_focusSpell = p_FocusSpell;
+
+	// set target, then force send update packet to players if it changed to provide appropriate facing
+	ObjectGuid newTarget = p_Target ? p_Target->GetGUID() : 0LL;
+	if (GetUInt64Value(UNIT_FIELD_TARGET) != newTarget)
+	{
+		SetUInt64Value(UNIT_FIELD_TARGET, newTarget);
+
+		if ( // here we determine if the (relatively expensive) forced update is worth it, or whether we can afford to wait until the scheduled update tick
+			( // only require instant update for spells that actually have a visual
+			(spellInfo->GetSpellVisualID(this))
+				) && (
+					!p_FocusSpell->GetCastTime() || // if the spell is instant cast
+					spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST) // client gets confused if we attempt to turn at the regularly scheduled update packet
+					)
+			)
+		{
+			std::list<Player*> playersNearby;
+			GetPlayerListInGrid(playersNearby, GetVisibilityRange());
+			for (Player* player : playersNearby)
+			{
+				// only update players that are known to the client (have already been created)
+				if (player->HaveAtClient(this))
+					SendUpdateToPlayer(player);
+			}
+		}
+	}
+
+	bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+
+	if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+	{
+		// Face the target - we need to do this before the unit state is modified for no-turn spells
+		if (p_Target)
+			SetFacingToObject(p_Target);
+		else if (noTurnDuringCast)
+			if (Unit* victim = getVictim())
+				SetFacingToObject(victim); // ensure orientation is correct at beginning of cast
+	}
+
+	if (noTurnDuringCast)
+		AddUnitState(UNIT_STATE_ROTATING);
 }
 
 void Unit::ReleaseFocus(Spell const* focusSpell)

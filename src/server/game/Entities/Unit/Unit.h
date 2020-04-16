@@ -2666,6 +2666,8 @@ class Unit : public WorldObject
                 SetGuidValue(UNIT_FIELD_TARGET, guid);
         }
 
+		bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
+
         // Handling caster facing during spell cast
         void FocusTarget(Spell const* p_FocusSpell, WorldObject* p_Target);
         void ReleaseFocus(Spell const* focusSpell);
@@ -2928,6 +2930,13 @@ class Unit : public WorldObject
         void SetFeared(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
+
+		/* Spell focus system */
+		Spell const* m_focusSpell;     // Locks the target during spell cast for proper facing
+		uint32 m_focusDelay;
+		bool m_shouldReacquireTarget;
+		uint64 m_suppressedTarget;     // Stores the creature's "real" target while casting
+		float m_suppressedOrientation; // Stores the creature's "real" orientation while casting
 
     private:
         class AINotifyTask;
