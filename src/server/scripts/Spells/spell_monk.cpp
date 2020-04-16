@@ -28,7 +28,8 @@ enum MonkSpells
     SPELL_MONK_ZEN_PILGRIMAGE_RETURN            = 126895,
     SPELL_MONK_DISABLE_ROOT                     = 116706,
     SPELL_MONK_DISABLE                          = 116095,
-    SPELL_MONK_SOOTHING_MIST_VISUAL             = 125955,
+    SPELL_MONK_SOOTHING_MIST_VISUAL             = 116346,
+	SPELL_MONK_SOOTHING_MIST_VISUAL_STATUE		= 125962,
     SPELL_MONK_SOOTHING_MIST_ENERGIZE           = 116335,
     SPELL_MONK_BREATH_OF_FIRE_DOT               = 123725,
     SPELL_MONK_BREATH_OF_FIRE_CONFUSED          = 123393,
@@ -57,6 +58,8 @@ enum MonkSpells
     SPELL_MONK_ZEN_SPHERE_DETONATE_DAMAGE       = 125033,
     SPELL_MONK_HEALING_ELIXIRS_AURA             = 134563,
     SPELL_MONK_HEALING_ELIXIRS_RESTORE_HEALTH   = 122281,
+	SPELL_MONK_RENEWING_MIST_VISUAL				= 119647,
+	SPELL_MONK_RENEWING_MIST					= 115151,
     SPELL_MONK_RENEWING_MIST_HOT                = 119611,
     SPELL_MONK_RENEWING_MIST_JUMP_AURA          = 119607,
     SPELL_MONK_GLYPH_OF_RENEWING_MIST           = 123334,
@@ -107,9 +110,13 @@ enum MonkSpells
     SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION      = 146950,
     SPELL_MONK_CRANES_ZEAL                      = 127722,
     SPELL_MONK_STANCE_OF_THE_WISE_SERPENT       = 115070,
-    SPELL_MONL_SOOTHING_MIST                    = 115175,
+	SPELL_MONK_SOOTHING_MIST					= 115175,
     SPELL_MONK_CHI_EXPLOSION_WINWALKER          = 152174,
     SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION      = 159407,
+	SPELL_MONK_EMINENCE_VISUAL					= 126888,
+	SPELL_MONK_EMINENCE_VISUAL_STATUE			= 126891,
+	SPELL_MONK_EXTEND_LIFE_AURA					= 185158,
+	SPELL_MONK_EXTEND_LIFE_HEAL					= 185208,
 
 	// Tier Bonuses
 	ITEM_MONK_BM_T14_4P							= 123159,
@@ -1639,7 +1646,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Eminence - 126890 and Eminence (status) - 117895
+/// Eminence - 126890
 class spell_monk_eminence_heal : public SpellScriptLoader
 {
     public:
@@ -1655,9 +1662,9 @@ class spell_monk_eminence_heal : public SpellScriptLoader
 
             for (std::list<WorldObject*>::iterator l_Itr = p_Targets.begin(); l_Itr != p_Targets.end();)
             {
-                if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) ||
-                    ((*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() && GetSpellInfo()->Id != SPELL_MONK_EMINENCE_HEAL) ||
-                    l_Caster->IsHostileTo((*l_Itr)->ToUnit()) || (*l_Itr)->ToUnit()->isStatue() || (*l_Itr)->ToUnit()->isTotem())
+                if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) || !(*l_Itr)->ToUnit()->IsInPartyWith(l_Caster) ||
+                    ((*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() && GetSpellInfo()->Id != SPELL_MONK_EMINENCE_HEAL) || l_Caster->IsHostileTo((*l_Itr)->ToUnit()) || 
+					(*l_Itr)->ToUnit()->isStatue() || (*l_Itr)->ToUnit()->isTotem())
                     l_Itr = p_Targets.erase(l_Itr);
                else
                    l_Itr++;
@@ -1670,9 +1677,21 @@ class spell_monk_eminence_heal : public SpellScriptLoader
             }
         }
 
+		void HandleOnHit()
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Itr = GetHitPlayer();
+
+			if (l_Itr != l_Caster)
+			{
+				l_Caster->CastSpell(l_Itr, SPELL_MONK_EMINENCE_VISUAL, true);
+			}
+		}
+
         void Register()
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_eminence_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+			OnHit += SpellHitFn(spell_monk_eminence_heal_SpellScript::HandleOnHit);
         }
     };
 
@@ -1682,7 +1701,7 @@ class spell_monk_eminence_heal : public SpellScriptLoader
     }
 };
 
-/// Eminence - 126890 and Eminence (status) - 117895
+/// Eminence (statue) - 117895
 class spell_monk_eminence_heal_statue : public SpellScriptLoader
 {
 public:
@@ -1713,9 +1732,21 @@ public:
 			}
 		}
 
+		void HandleOnHit()
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Itr = GetHitPlayer();
+
+			if (l_Itr != l_Caster)
+			{
+				l_Caster->CastSpell(l_Itr, SPELL_MONK_EMINENCE_VISUAL_STATUE, true);
+			}
+		}
+
 		void Register()
 		{
 			OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_eminence_heal_statue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+			OnHit += SpellHitFn(spell_monk_eminence_heal_statue_SpellScript::HandleOnHit);
 		}
 	};
 
@@ -1987,36 +2018,6 @@ class spell_monk_enveloping_mist: public SpellScriptLoader
                 }
             }
 
-			/*void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-			{
-				Unit* l_Caster = GetCaster();
-				Unit* l_Target = GetHitUnit();
-				Player* l_Player = GetCaster()->ToPlayer();
-				std::vector<ObjectGuid> _appliedExtendLife;
-
-				uint64 l_TargetGUID = l_Target->GetGUID();
-				if (!l_TargetGUID)
-					return;
-
-				if (l_Caster->HasAura(185258)) // T18 4P Mistweaver
-				{
-
-					HealInfo* healInfo = eventInfo.GetHealInfo();
-					int32 heal = CalculatePct(healInfo->GetHeal(), aurEff->GetAmount());
-					_appliedExtendLife.erase(std::remove_if(_appliedExtendLife.begin(), _appliedExtendLife.end(), [this, heal](ObjectGuid const& l_TargetGUID)
-					{
-						if (Unit* target = ObjectAccessor::GetUnit(*GetHitUnit(), l_TargetGUID))
-						{
-							if (target->GetExactDist(GetHitUnit()) < GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue() / 2)
-								GetHitUnit()->CastCustomSpell(185208, SPELLVALUE_BASE_POINT0, heal, target, true); // Extend Life healing
-
-							return false;
-						}
-						return true;
-					}), _appliedExtendLife.end());
-				}
-			}*/
-
             void Register()
             {
                 AfterCast += SpellCastFn(spell_monk_enveloping_mist_SpellScript::HandleAfterCast);
@@ -2135,15 +2136,15 @@ class spell_monk_surging_mist: public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Renewing Mist (heal) - 115151
-class spell_monk_renewing_mist_hot: public SpellScriptLoader
+/// Renewing Mist - 115151
+class spell_monk_renewing_mist: public SpellScriptLoader
 {
     public:
-        spell_monk_renewing_mist_hot() : SpellScriptLoader("spell_monk_renewing_mist_hot") { }
+        spell_monk_renewing_mist() : SpellScriptLoader("spell_monk_renewing_mist") { }
 
-        class spell_monk_renewing_mist_hot_SpellScript : public SpellScript
+        class spell_monk_renewing_mist_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_monk_renewing_mist_hot_SpellScript);
+            PrepareSpellScript(spell_monk_renewing_mist_SpellScript);
 
             enum eSpells
             {
@@ -2183,29 +2184,41 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 }
             }
 
+			void HandleOnHit()
+			{
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetHitUnit();
+
+				if (l_Caster->HasAura(ITEM_MONK_MW_T18_2P))
+				{
+					l_Caster->CastSpell(l_Target, SPELL_MONK_EXTEND_LIFE_AURA, true); // Extend Life
+				}
+			}
+
             void Register()
             {
-                AfterCast += SpellCastFn(spell_monk_renewing_mist_hot_SpellScript::HandleAfterCast);
-                OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_hot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                AfterCast += SpellCastFn(spell_monk_renewing_mist_SpellScript::HandleAfterCast);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+				OnHit += SpellHitFn(spell_monk_renewing_mist_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_monk_renewing_mist_hot_SpellScript();
+            return new spell_monk_renewing_mist_SpellScript();
         }
 };
 
 /// last update : 6.1.2 19802
-/// Renewing Mist - 119611
-class spell_monk_renewing_mist: public SpellScriptLoader
+/// Renewing Mist Hot - 119611
+class spell_monk_renewing_mist_hot: public SpellScriptLoader
 {
     public:
-        spell_monk_renewing_mist() : SpellScriptLoader("spell_monk_renewing_mist") { }
+        spell_monk_renewing_mist_hot() : SpellScriptLoader("spell_monk_renewing_mist_hot") { }
 
-        class spell_monk_renewing_mist_AuraScript : public AuraScript
+        class spell_monk_renewing_mist_hot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_monk_renewing_mist_AuraScript);
+            PrepareAuraScript(spell_monk_renewing_mist_hot_AuraScript);
 
             uint32 update;
             uint8  spreadCount;
@@ -2222,7 +2235,6 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 update = 0;
                 spreadCount = 1;
 				oldTarget = nullptr;
-
 
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_HOT))
                     return false;
@@ -2277,6 +2289,9 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
                     if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
                         return true;
+
+					if (p_Object->ToUnit()->isStatue() || p_Object->ToUnit()->isTotem())
+						return true;
 
 					bool casterIsPvP = l_Caster->IsPvP();
 					bool targetIsPvP = p_Object->ToUnit()->IsPvP();
@@ -2337,7 +2352,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 					return;
 
                 /// Spread renewing mist on him
-				l_Target->CastSpell(newTarget, 119647, true); // Renewing Mist Jump visual
+				l_Target->CastSpell(newTarget, SPELL_MONK_RENEWING_MIST_VISUAL, true);
                 l_Caster->CastSpell(newTarget, GetSpellInfo()->Id, true);
                 if (Aura* l_RenewingMistHot = newTarget->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
                     l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(1);
@@ -2369,42 +2384,16 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_renewing_mist_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                OnEffectUpdate += AuraEffectUpdateFn(spell_monk_renewing_mist_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                OnEffectRemove += AuraEffectApplyFn(spell_monk_renewing_mist_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_renewing_mist_hot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectUpdate += AuraEffectUpdateFn(spell_monk_renewing_mist_hot_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_monk_renewing_mist_hot_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
             }
         };
-		
-		class spell_monk_renewing_mist_SpellScript : public SpellScript
-		{	
-			PrepareSpellScript(spell_monk_renewing_mist_SpellScript);
-
-			void HandleOnCast()
-			{
-				Unit* l_Caster = GetCaster();
-				Unit* l_Target = GetHitUnit();
-
-				if (l_Caster->HasAura(ITEM_MONK_MW_T18_2P))
-				{
-					l_Caster->CastSpell(l_Target, 185158, true); // Extend Life
-				}
-			}
-
-			void Register()
-			{
-				OnCast += SpellCastFn(spell_monk_renewing_mist_SpellScript::HandleOnCast);
-			}
-		};
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_monk_renewing_mist_AuraScript();
+            return new spell_monk_renewing_mist_hot_AuraScript();
         }
-
-		SpellScript* GetSpellScript() const
-		{
-			return new spell_monk_renewing_mist_SpellScript();
-		}
 };
 
 // Healing Elixirs (aura) - 134563
@@ -3380,9 +3369,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 Unit* l_Target = GetTarget();
 
                 if (l_Target == nullptr || l_Caster == nullptr)
-                    return;
-
-                l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
+                    return; 
 
                 Unit* l_JadeStatue = GetStatueOfUnit(l_Caster);
 
@@ -3418,14 +3405,17 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
 			{
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetTarget();
+
+				l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
+
 	            /// Every time your Soothing Mist heals a target your multistrike chance is increased by 5%.
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (l_Caster->HasAura(eSpells::T17Mistweaver2P))
                         l_Caster->CastSpell(l_Caster, eSpells::Mistweaving, true);
                 }
-
-				Unit* l_Target = GetTarget();
 
 				if (Unit* l_Caster = GetCaster())
 				{
@@ -3441,9 +3431,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
-
-                if (l_Target->HasAura(SPELL_MONK_SOOTHING_MIST_VISUAL))
-                    l_Target->RemoveAura(SPELL_MONK_SOOTHING_MIST_VISUAL);
 
                 if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST_AURA))
                 {
@@ -5371,23 +5358,55 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 								l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
 					}
 				}
+
+				if (l_Caster->HasAura(ITEM_MONK_MW_T18_4P))
+				{
+					if (roll_chance_i(50))
+					{
+						if (l_Caster == nullptr)
+							return;
+
+						float l_Radius = 20.0f;
+						if (l_Caster->HasAura(123334)) // Glyph of Renewing Mist
+							l_Radius = 40.0f;
+
+						/// Get friendly unit on range
+						std::list<Unit*> targetList;
+						JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+						JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, targetList, l_Check);
+						l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+						if (targetList.size() > 1)
+						{
+							targetList.sort(JadeCore::HealthPctOrderPred());
+							targetList.resize(1);
+						}
+
+						for (auto itr : targetList)
+						{
+							// We don't use Renewing Mist directly since that way we avoid adding Extend Life from Tier 18, which shouldn't happen in any case
+							l_Caster->CastSpell(itr, SPELL_MONK_RENEWING_MIST_HOT, true);
+							l_Caster->CastSpell(itr, SPELL_MONK_RENEWING_MIST_VISUAL, true);
+						}
+					}
+				}
 			}
 
-            void HandleAfterCast()
-            {
+			void HandleAfterCast()
+			{
 				Unit* l_Caster = GetCaster();
 				Unit* l_Target = GetHitUnit();
 				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184908); // Furious Sun (Sacred Draenic Incense)
-                Player* l_Player = GetCaster()->ToPlayer();
-                if (l_Player == nullptr)
-                    return;
+				Player* l_Player = GetCaster()->ToPlayer();
+				if (l_Player == nullptr)
+					return;
 
-                /// Your Rising Sun Kick have a chance equal to your multistrike chance to not go on cooldown when used
-                if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
-                {
-                    if (SpellInfo const* l_RisingSunKick = sSpellMgr->GetSpellInfo(eSpells::RisingSunKick))
-                            l_Player->RestoreCharge(l_RisingSunKick->ChargeCategoryEntry);
-                }
+				/// Your Rising Sun Kick have a chance equal to your multistrike chance to not go on cooldown when used
+				if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+				{
+					if (SpellInfo const* l_RisingSunKick = sSpellMgr->GetSpellInfo(eSpells::RisingSunKick))
+						l_Player->RestoreCharge(l_RisingSunKick->ChargeCategoryEntry);
+				}
 
 				if (l_Caster->HasAura(184908)) // Furious Sun - WW (Sacred Draenic Incense)
 				{
@@ -5396,7 +5415,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 						l_Caster->CastSpell(l_Target, 185099); // Rising Sun Kick (Free)
 					}
 				}
-            }
+			}
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
@@ -5424,12 +5443,15 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
 				/// Causing all enemies within 8 yards to take 20% (+6% if the caster has MW - Tier 18 (2) bonus) increased damage from your abilities for 15 sec.	   
 				if (l_Caster->HasAura(ITEM_MONK_MW_T18_2P))
-					if (AuraEffect* l_DirectBonusIncrease = l_Caster->GetAuraEffect(SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, EFFECT_0))
+				{ 
+					if (Aura* l_TierAura = l_Caster->GetAura(ITEM_MONK_MW_T18_2P, l_Caster->GetGUID()))
 					{
-						l_DirectBonusIncrease->SetAmount(l_DirectBonusIncrease->GetAmount() + 6);
+						if (Aura* l_DamageBonus = l_Target->GetAura(SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, l_Caster->GetGUID()))
+							l_DamageBonus->GetEffect(EFFECT_0)->SetAmount(l_DamageBonus->GetEffect(EFFECT_0)->GetAmount() + l_TierAura->GetEffect(EFFECT_1)->GetAmount());
 
 						l_Caster->CastSpell(l_Caster, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
 					}
+				}
 				else
 					l_Caster->CastSpell(l_Caster, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
 
@@ -5552,36 +5574,37 @@ class spell_monk_stance_of_tiger: public SpellScriptLoader
         }
 };
 
-// Extend Life - 185208
-class spell_monk_extend_life : public SpellScriptLoader
+// Called by Enveloping Mist - 132120, Uplift - 116670
+// Extend Life - 185258
+class spell_monk_extend_life : public AuraScript
 {
-public:
-	spell_monk_extend_life() : SpellScriptLoader("spell_monk_extend_life") { }
+	PrepareAuraScript(spell_monk_extend_life);
 
-	class spell_monk_extend_life_SpellScript : public SpellScript
+	void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
 	{
-		PrepareSpellScript(spell_monk_extend_life_SpellScript);
+		Unit* l_Caster = GetCaster();
 
-		void CorrectTarget(std::list<WorldObject*>& p_Targets)
-		{
-			std::list<WorldObject*> l_TempTargets = p_Targets;
-			for (auto itr : l_TempTargets)
-			{
-				if (itr->ToUnit() == nullptr || !itr->ToUnit()->HasAura(185158)) // Extend Life buff
-					p_Targets.remove(itr);
-			}
-		}
+		if (l_Caster == nullptr || !l_Caster->IsPlayer() || !l_Caster->HasAura(ITEM_MONK_MW_T18_4P))
+			return;
 
-		void Register()
-		{
-			OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_extend_life_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-			OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_extend_life_SpellScript::CorrectTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
-		}
-	};
+		uint32 healdone = eventInfo.GetHealInfo() ? eventInfo.GetHealInfo()->GetHeal() : 0;
+		int32 base = aurEff->GetBaseAmount();
 
-	SpellScript* GetSpellScript() const
+		uint32 heal = CalculatePct(healdone, base);
+
+		std::list<Unit*> targetList;
+		JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, 100.0f);
+		JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, targetList, l_Check);
+		l_Caster->VisitNearbyObject(100.0f, l_Searcher);
+
+		for (Unit* unit : targetList)
+			if (unit->HasAura(SPELL_MONK_EXTEND_LIFE_AURA, l_Caster->GetGUID()))
+				l_Caster->CastCustomSpell(SPELL_MONK_EXTEND_LIFE_HEAL, SPELLVALUE_BASE_POINT0, heal, unit, TRIGGERED_FULL_MASK);
+	}
+
+	void Register() override
 	{
-		return new spell_monk_extend_life_SpellScript();
+		OnEffectProc += AuraEffectProcFn(spell_monk_extend_life::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
 	}
 };
 
@@ -5620,7 +5643,7 @@ class spell_monk_uplift : public SpellScriptLoader
 
 /// Last Update 6.2.3
 /// Call by Roll - 107427 and Chi Torpedo - 115008
-/// Glyph of rapid rolling - 146951
+/// Glyph of Rapid Rolling - 146951
 class spell_monk_glyph_of_rapid_rolling : public SpellScriptLoader
 {
     public:
@@ -5753,7 +5776,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
+                if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONK_SOOTHING_MIST)
                 {
                     TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
                     GetSpell()->setTriggerCastFlags(l_Flags);
