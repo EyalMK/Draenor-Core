@@ -107,12 +107,11 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
         return NULL;
 
     Map* map = NULL;
-    uint32 newInstanceId = 0;                       // instanceId of the resulting map
+    uint32 newInstanceId = 0;                       // instanceId of the resulting map.
 
     if (IsBattlegroundOrArena())
     {
-        // instantiate or find existing bg map for player
-        // the instance id is set in battlegroundid
+		// Instantiate or find existing bg map for player. The instance id is set in battlegroundid.
         newInstanceId = player->GetBattlegroundId();
         if (!newInstanceId)
             return NULL;
@@ -136,13 +135,13 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
 
         bool l_IsGarrisonTransfet = i_mapEntry && (i_mapEntry->Flags & MapFlags::MAP_FLAG_GARRISON) != 0;
 
-        // the player's permanent player bind is taken into consideration first
-        // then the player's group bind and finally the solo bind.
+		// The player's permanent player bind is taken into consideration first, then the player's group bind and finally the solo bind.
         if (!pBind || !pBind->perm)
         {
             InstanceGroupBind* groupBind = NULL;
             Group* group = player->GetGroup();
-            // use the player's difficulty setting (it may not be the same as the group's)
+
+			// Use the player's difficulty setting (it may not be the same as the group's).
             if (group && !l_IsGarrisonTransfet)
             {
                 groupBind = group->GetBoundInstance(this);
@@ -152,14 +151,20 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
         }
         if (pSave)
         {
-            // solo/perm/group
+            // Solo / permanent / group lock exists.
             newInstanceId = pSave->GetInstanceId();
             map = FindInstanceMap(newInstanceId);
 
 			// Shared locks: create an instance to match the current player raid difficulty, if the save and player difficulties don't match.
 			// We must check for save difficulty going original diff -> new one, and map spawn mode going new -> original, to make sure all cases are handled.
-			if (IsRaid() && (player->GetDifficulty(IsRaid()) != pSave->GetDifficulty() || map && map->GetSpawnMode() != player->GetDifficulty(IsRaid())))
-				map = CreateInstance(newInstanceId, pSave, player->GetDifficulty(IsRaid()));
+			// Although Heroic 10 / 25 Man also theoretically share a cooldown, if you kill a boss on 10 / 25 Heroic you cannot enter any other Heroic size version of the raid (cannot switch).
+			// Heroic size switching is already handled with no checks needed. The map is created on the save difficulty and you can only switch difficulty dynamically, from inside.
+			if (IsRaid() && (pSave->GetDifficulty() == Difficulty10N || pSave->GetDifficulty() == Difficulty25N))
+			{
+				// Normal. The map is created on the player difficulty.
+				if (player->GetDifficulty(IsRaid()) != pSave->GetDifficulty() || map && map->GetSpawnMode() != player->GetDifficulty(IsRaid()))
+					map = CreateInstance(newInstanceId, pSave, player->GetDifficulty(IsRaid()));
+			}
 
 			// It is possible that the save exists but the map doesn't, create it.
             if (!map)
@@ -167,13 +172,13 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
         }
         else
         {
-            // if no instanceId via group members or instance saves is found
-            // the instance will be created for the first time
+			// If no instanceId via group members or instance saves is found, the instance will be created for the first time.
             newInstanceId = sMapMgr->GenerateInstanceId();
 
             Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficultyID(GetEntry()) : player->GetDifficultyID(GetEntry());
             //Seems it is now possible, but I do not know if it should be allowed
             //ASSERT(!FindInstanceMap(NewInstanceId));
+
             map = FindInstanceMap(newInstanceId);
             if (!map)
                 map = CreateInstance(newInstanceId, NULL, diff);
@@ -209,7 +214,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
         if (entry->MaxPlayers == 40)
             difficulty = Difficulty40;
 
-    sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
+    sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save ? "" :"new ", InstanceId, GetId(), (difficulty == DifficultyHeroic || difficulty == Difficulty10HC || difficulty == Difficulty25HC) ? "heroic" : "normal");
 
     InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
     ASSERT(map->IsDungeon());

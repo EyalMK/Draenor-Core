@@ -230,7 +230,31 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         }
     }
 
-    //Get instance where player's group is bound & its map
+	// If the player or group leader defeats any bosses on Normal and goes out, switches diff and tries to enter on Heroic difficulty, he can't. Or the other way around.
+	// He can do it only by using Dynamic Difficulty, inside the instance.
+	uint32 boundDifficultyToCheck = 0;
+	switch (targetDifficulty)
+	{
+		case Difficulty10N:
+			boundDifficultyToCheck = Difficulty25N;
+			break;
+
+		case Difficulty25N:
+			boundDifficultyToCheck = Difficulty10N;
+			break;
+
+		case Difficulty10HC:
+			boundDifficultyToCheck = Difficulty25HC;
+			break;
+
+		case Difficulty25HC:
+			boundDifficultyToCheck = Difficulty10HC;
+			break;
+
+		default: break;
+	}
+
+    // Get instance where player's group is bound & it's map.
     if (group)
     {
         InstanceGroupBind* boundInstance = group->GetBoundInstance(entry);
@@ -238,9 +262,65 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             if (Map* boundMap = sMapMgr->FindMap(mapid, boundInstance->save->GetInstanceId()))
                 if (!loginCheck && !boundMap->CanEnter(player))
                     return false;
-    }
 
-    // players are only allowed to enter 5 instances per hour
+	// Player permanently bound to different instance than group leader one.
+	if (group->GetLeaderGUID())
+		if (Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID()))
+		{
+			InstancePlayerBind* leaderBoundInstance = leader->GetBoundInstance(mapid, leader->GetDifficulty(entry->IsRaid()));
+			InstancePlayerBind* playerBoundInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry->IsRaid())); // Player inherits leader difficulty.
+
+			// The leader / players cannot enter a raid if a boss is killed on Normal and alive on Heroic (unless using Dynamic Difficulty), and viceversa.
+			if (leader->GetBoundInstance(mapid, Difficulty(boundDifficultyToCheck)))
+			{
+				player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY);
+				return false;
+			}
+
+			// The leader and the player are both bound to an instance, check if it's the same.
+			if (leaderBoundInstance && playerBoundInstance)
+			{
+				if (playerBoundInstance->perm && playerBoundInstance->save && leaderBoundInstance->perm && leaderBoundInstance->save)
+				{
+					// Different save instance id's.
+					if (playerBoundInstance->save->GetInstanceId() != leaderBoundInstance->save->GetInstanceId())
+					{
+						player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE);
+						return false;
+					}
+					// Different save defeated encounters. If the player has more, error. Else he inherits them on entrance.
+					if (playerBoundInstance->save->GetEncounterMask() > leaderBoundInstance->save->GetEncounterMask())
+					{
+						player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER);
+						return false;
+					}
+				}
+			}
+			// The player is bound to an instance to which the leader is not (reverse doesn't count as the player gets the leader bind on entrance).
+			if (!leaderBoundInstance && playerBoundInstance)
+			{
+				player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER);
+				return false;
+			}
+		}
+		// Group check for max players in instance.
+		if (!group->CanEnterInInstance())
+		{
+			player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_MAX_PLAYERS);
+			return false;
+		}
+	}
+	else
+	{
+		// The player cannot enter a raid if a boss is killed on Normal and alive on Heroic (unless using Dynamic Difficulty), and viceversa.
+		if (player->GetBoundInstance(mapid, Difficulty(boundDifficultyToCheck)))
+		{
+			player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY);
+			return false;
+		}
+	}
+
+    // As of Patch 5.4.7, players are limited to entering 10 instances per hour (modifiable by config).
     if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
     {
         uint32 instaceIdToCheck = 0;

@@ -2846,15 +2846,8 @@ bool InstanceMap::CanEnter(Player* player)
 */
 bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
 {
-    // TODO: Not sure about checking player level: already done in HandleAreaTriggerOpcode
-    // GMs still can teleport player in instance.
-    // Is it needed?
-
     {
         TRINITY_GUARD(ACE_Thread_Mutex, Lock);
-        // Check moved to void WorldSession::HandleMoveWorldportAckOpcode()
-        //if (!CanEnter(player))
-            //return false;
 
         // Dungeon only code
         if (IsDungeon())

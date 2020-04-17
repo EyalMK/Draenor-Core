@@ -1343,7 +1343,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES] = ConfigMgr::GetBoolDefault("DBC.EnforceItemAttributes", true);
 
     // Max instances per hour
-    m_int_configs[CONFIG_MAX_INSTANCES_PER_HOUR] = ConfigMgr::GetIntDefault("AccountInstancesPerHour", 5);
+    m_int_configs[CONFIG_MAX_INSTANCES_PER_HOUR] = ConfigMgr::GetIntDefault("AccountInstancesPerHour", 10);
 
     m_int_configs[CONFIG_AUTO_SERVER_RESTART_HOUR] = ConfigMgr::GetIntDefault("Server.Auto.RestartHour", 4);
     if (m_int_configs[CONFIG_AUTO_SERVER_RESTART_HOUR] > 23)
