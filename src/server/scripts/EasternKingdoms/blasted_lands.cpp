@@ -23,6 +23,89 @@ EndContentData */
 #include "MapManager.h"
 #include "../Draenor/TanaanIntro/tanaan_jungle.h"
 
+/// Phase handler
+class playerScript_old_blasted_lands_phase_handler : public PlayerScript
+{
+public:
+	playerScript_old_blasted_lands_phase_handler() : PlayerScript("playerScript_old_blasted_lands_phase_handler") { }
+
+	void UpdatePhaseMask(Player* p_Player)
+	{
+		/// UPDATE PHASEMASK DEPENDING OF QUESTS
+		uint32 l_PhaseMask = p_Player->GetPhaseMask();
+		uint32 p_NewAreaId = p_Player->GetAreaId();
+
+		if (p_NewAreaId == 1440) // Serpent's Coil
+		{
+			if (p_Player->GetQuestStatus(26157) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // Kasim Sharim quest
+			{
+				l_PhaseMask |= 2; // Loramus inside cave
+			}
+
+			if (p_Player->GetQuestStatus(26163) == QUEST_STATUS_REWARDED) // Time is short
+			{
+				l_PhaseMask &= ~2; // Loramus not inside cave - set phase back to 1
+			}
+
+			if (p_Player->GetQuestStatus(26162) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // Altar of the Storms
+			{
+				l_PhaseMask |= 2; // Loramus inside cave
+			}
+
+			
+
+
+			p_Player->SetPhaseMask(l_PhaseMask, true);
+		}
+	}
+
+	void OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId) override
+	{
+		if (p_NewAreaId == 1440) // Serpent's Coil
+		{
+			uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+			if (p_Player->GetQuestStatus(26157) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // Kasim Sharim quest
+			{
+				l_PhaseMask |= 2; // Loramus inside cave
+			}
+
+			if (p_Player->GetQuestStatus(26163) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // Time is short
+			{
+				l_PhaseMask == 1; // Loramus not inside cave
+			}
+
+			if (p_Player->GetQuestStatus(26162) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // Altar of the Storms
+			{
+				l_PhaseMask |= 2; // Loramus inside cave
+			}
+
+			
+			p_Player->SetPhaseMask(l_PhaseMask, true);
+		}
+	}
+
+	void OnLogin(Player* p_Player) override
+	{
+		if (p_Player->GetZoneId() == 4)
+			UpdatePhaseMask(p_Player);
+	}
+
+	void OnQuestAbandon(Player* p_Player, const Quest* /*p_Quest*/) override
+	{
+		if (p_Player->GetZoneId() == 4)
+			UpdatePhaseMask(p_Player);
+	}
+
+	void OnQuestComplete(Player* p_Player, const Quest* p_Quest) override
+	{
+		if (p_Player->GetZoneId() == 4)
+			UpdatePhaseMask(p_Player);
+	}
+};
+
+
+
 // Zone 4
 class zone_blasted_lands : public ZoneScript
 {
@@ -661,9 +744,16 @@ public:
 
 	enum eData
 	{
+		// Gossip Menu
+		KASIM_GOSSIP_MENU	 = 11613,
+		KASIM_GOSSIP_OPTION	 = 0,
+		KASIM_GOSSIP_OPTION2 = 1,
+		KASIM_NPC_TEXT		 = 16214,
+
 		// Quests
 		QUEST_BLOOD_RITUAL	= 26160,
 		QUEST_FINAL_RITUAL	= 26170,
+		QUEST_TIME_IS_SHORT	= 26163,
 
 		// Spells
 		SPELL_BLOOD_RITUAL	= 77573,
@@ -675,42 +765,49 @@ public:
 		BEGIN_FINAL_RITUAL	= 1
 	};
 
-	#define	GOSSIP_ITEM_BEGIN "I would like to start the Blood Ritual, Kasim."
-	#define	GOSSIP_ITEM_BEGIN_FINAL "I would like to start the Amulet Ritual, Kasim."
+	bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest* p_Quest)
+	{
+		if (p_Quest->GetQuestId() == QUEST_TIME_IS_SHORT)
+			p_Creature->AI()->Talk(4); // Quickly, <name>! We haven't much time
+	}
 
-	bool OnGossipHello(Player* p_Player, Creature* p_Creature, Quest* p_Quest)
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
 	{
 		if (p_Player->GetQuestStatus(QUEST_BLOOD_RITUAL) == QUEST_STATUS_INCOMPLETE)
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEGIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(KASIM_GOSSIP_MENU, KASIM_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(KASIM_NPC_TEXT, p_Creature->GetGUID());
+		}
 
-		if (p_Player->GetQuestStatus(QUEST_FINAL_RITUAL) == QUEST_STATUS_INCOMPLETE)
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEGIN_FINAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-		p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
-
+		else if (p_Player->GetQuestStatus(QUEST_FINAL_RITUAL) == QUEST_STATUS_INCOMPLETE)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(KASIM_GOSSIP_MENU, KASIM_GOSSIP_OPTION2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+			p_Player->SEND_GOSSIP_MENU(KASIM_NPC_TEXT, p_Creature->GetGUID());
+		}
+		else {
+			if (p_Creature->isQuestGiver())
+				p_Player->PrepareQuestMenu(p_Creature->GetGUID());
+			p_Player->SEND_GOSSIP_MENU(KASIM_NPC_TEXT, p_Creature->GetGUID());
+		}
 		return true;
 	}
 
-	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action) override
 	{
 		p_Player->PlayerTalkClass->ClearMenus();
 
 		if (action == GOSSIP_ACTION_INFO_DEF)
 		{
-			p_Player->CLOSE_GOSSIP_MENU();
-
 			p_Creature->AI()->DoAction(BEGIN_BLOOD_RITUAL); // Begin the ritual
-
-			p_Player->KilledMonsterCredit(QUEST_BLOOD_RITUAL, p_Player->GetGUID());
+			p_Player->CLOSE_GOSSIP_MENU();
+			p_Player->QuestObjectiveSatisfy(42298, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
 		}
 
 		if (action == GOSSIP_ACTION_INFO_DEF + 1)
 		{
-			p_Player->CLOSE_GOSSIP_MENU();
-
 			p_Creature->AI()->DoAction(BEGIN_FINAL_RITUAL); // Begin the ritual
-
-			p_Player->KilledMonsterCredit(BEGIN_FINAL_RITUAL, p_Player->GetGUID());
+			p_Player->CLOSE_GOSSIP_MENU();
+			p_Player->QuestObjectiveSatisfy(42298, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Player->GetGUID());
 		}
 
 		return true;
@@ -720,9 +817,10 @@ public:
 	{
 		npc_kasim_sharimAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-		void Reset()
+
+		void UpdateAI(const uint32 p_Diff) override
 		{
-			ClearDelayedOperations();
+			UpdateOperations(p_Diff);
 		}
 
 
@@ -731,37 +829,36 @@ public:
 			switch (p_Action)
 			{
 				case BEGIN_BLOOD_RITUAL:
-				
-					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-						Talk(0); // Very well. Stand back...	
-					});
+						AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							Talk(0); // Very well. Stand back...	
+						});
 
-					AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->CastSpell(me, SPELL_BLOOD_RITUAL, true);
-					});
+						AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							me->CastSpell(me, SPELL_BLOOD_RITUAL, true);
+						});
 
-					AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						Talk(1); // The blood ritual is complete...
-					});
-
-					break;
-
+						AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							Talk(1); // The blood ritual is complete...
+						});
+						break;
+					}
 				case BEGIN_FINAL_RITUAL:
-					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-						Talk(2); // With the power within the amulets of Razelikh...
-					});
+						AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							Talk(2); // With the power within the amulets of Razelikh...
+						});
 
-					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						Talk(3); // ... I bind you to his lair!
-					});
-
-					break;
-
+						AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							Talk(3); // ... I bind you to his lair!
+						});
+						break;
+					}
 				default:
 					break;
 			}
@@ -1340,6 +1437,9 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_blasted_lands()
 {
+	/// Phase Handlers
+	new playerScript_old_blasted_lands_phase_handler();
+
 	/// Old Blasted Lands Scripts
 	new npc_blasted_lands_zidormi();
 	new npc_deathly_usher();
