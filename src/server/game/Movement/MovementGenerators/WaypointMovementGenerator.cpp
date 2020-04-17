@@ -150,13 +150,13 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     init.MoveTo(node->x, node->y, node->z);
 
     //! Accepts angles such as 0.00001 and -0.00001, 0 must be ignored, default value in waypoint table
-    if (node->orientation > 0.f && node->delay)
+    if (node->orientation /*> 0.f*/ && node->delay)
         init.SetFacing(node->orientation);
-	else
+	/*else
 	{
 		// Smoothing out waypoint transition
 		uint32 nextNodeId = (i_currentNode + 1) % i_path->size();
-		WaypointData const* nextWaypoint = i_path->at(nextNodeId);
+		WaypointData const& nextWaypoint = i_path->size[nextNodeId];
 
 		// We are going to build a path that consists of the default path + the first point of the next waypoint path
 		_transitionPointId = init.Path().size() - 1;
@@ -164,16 +164,16 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 		// Relocate the owner serverside so we can get the path from our next waypoint to our 2nd next one
 		Position originalPos;
 		creature->GetPosition(&originalPos);
-		creature->Relocate(nextWaypoint->x, nextWaypoint->y, nextWaypoint->z);
+		creature->Relocate(nextWaypoint.x, nextWaypoint.y, nextWaypoint.z);
 
 		// Now we are going to pick the first actual spline vertex and add it to out current path
 		Movement::MoveSplineInit smoothInit(creature);
-		smoothInit.MoveTo(nextWaypoint->x, nextWaypoint->y, nextWaypoint->z);
+		smoothInit.MoveTo(nextWaypoint.x, nextWaypoint.y, nextWaypoint.z);
 		init.Path().push_back(smoothInit.Path().at(1)); // 0 is going to be normalized as starting vertex, we want the real one, so we go with 1
 
 		// Everything is done and in place, so time to put our owner serverside position back to it's original place
 		creature->Relocate(originalPos);
-	}
+	}*/
 
     switch (node->move_type)
     {
@@ -229,8 +229,10 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
 
         if (creature->IsStopped())
             Stop(STOP_TIME_FOR_PLAYER);
-		// If it's moving or has not reached its real final waypoint spline point yet
-        else if (creature->movespline->currentPathIdx() < _transitionPointId)
+		else if (creature->movespline->Finalized())
+
+		/* If it's moving or has not reached its real final waypoint spline point yet
+        else if (creature->movespline->currentPathIdx() < _transitionPointId)*/
         {
             OnArrived(creature);
             return StartMove(creature);
