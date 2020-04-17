@@ -21,7 +21,9 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "GameObjectAI.h"
 
+/// Quest Status Handler
 class playerScript_quest_status_handler : public PlayerScript
 {
 public:
@@ -29,15 +31,24 @@ public:
 
 	void OnQuestComplete(Player* p_Player, const Quest* p_Quest) override
 	{
-		if (p_Quest->GetQuestId() == 14050) // Gazlowe's Fortune
-			if (p_Player->GetQuestStatus(14050) == QUEST_STATUS_COMPLETE)
+		if (p_Player->GetZoneId() == 14) // Northern Barrens
+		{
+			if (p_Quest->GetQuestId() == 14050) // Gazlowe's Fortune
 			{
-				Position posBaron = { -1163.2906f, -3638.6038f, 95.6738f };
-				p_Player->SummonCreature(3467, posBaron, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000); // Baron Longshore
+				Position const BaronPos = { -1163.2906f, -3638.6038f, 95.6738f, 1.391242f };
+				Position const CutthroatPos = { -1166.0581f, -3638.5015f, 95.4870f, 1.391242f };
 
-				Position posCutThroat = { -1166.0581f, -3638.5015f, 95.4870f };
-				p_Player->SummonCreature(3383, posCutThroat, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000); // Southsea Cutthroat
-			}	
+				Creature* Baron = p_Player->SummonCreature(3467, BaronPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // Baron Longshore
+				Creature* Cutthroat = p_Player->SummonCreature(3383, CutthroatPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // Southsea Cutthroat
+				if (Baron && Cutthroat)
+				{
+					Baron->setFaction(14); // Hostile Faction
+					Baron->CombatStart(p_Player, true);
+					Cutthroat->CombatStart(p_Player);
+				}
+
+			}
+		}
 	}
 };
 
@@ -462,8 +473,10 @@ public:
 	enum eData
 	{
 		// Quests
-		QUEST_THE_BARONS_DEMANDS = 14046,
-		QUEST_GAZLOWES_FORTUNE	 = 14050,
+		QUEST_THE_BARONS_DEMANDS	= 14046,
+		QUEST_GAZLOWES_FORTUNE		= 14050,
+		QUEST_FIND_BARON_LONGSHORE	= 14045,
+		QUEST_MOST_UNUSUAL_MAP		= 14049,
 
 		// Kill credit
 		NPC_BARON_LONGSHORE_KILLCREDIT = 34769,
@@ -474,8 +487,8 @@ public:
 		GOSSIP_OPTION_1	  = 1,
 
 		// Npc texts
-		NPC_TEXT_BARON_1  = 14623, // no quest
-		NPC_TEXT_BARON_2  = 14624, // After freeing
+		NPC_TEXT_BARON_1  = 14623, // No quest
+		NPC_TEXT_BARON_2  = 14624, // Come on then, $r. Do ye trust me?
 		NPC_TEXT_BARON_3  = 14625, // Well? Don't ye...
 		NPC_TEXT_BARON_4  = 14626, // Suit yerself...
 	};
@@ -483,29 +496,49 @@ public:
 
 	bool OnGossipHello(Player* player, Creature* creature)
 	{
-		if (player->GetQuestStatus(QUEST_THE_BARONS_DEMANDS) == QUEST_STATUS_INCOMPLETE)
+		if (player->HasQuest(QUEST_FIND_BARON_LONGSHORE))
+		{
+			if (creature->isQuestGiver())
+				player->PrepareQuestMenu(creature->GetGUID());
+			player->SEND_GOSSIP_MENU(NPC_TEXT_BARON_1, creature->GetGUID());
+		}
+
+		else if (player->HasQuest(QUEST_MOST_UNUSUAL_MAP))
+		{
+			if (creature->isQuestGiver())
+				player->PrepareQuestMenu(creature->GetGUID());
+			player->SEND_GOSSIP_MENU(NPC_TEXT_BARON_3, creature->GetGUID());
+		}
+
+		else if (player->GetQuestStatus(QUEST_THE_BARONS_DEMANDS) == QUEST_STATUS_INCOMPLETE)
 		{
 			player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_BARON, GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 			player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_BARON, GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 			player->SEND_GOSSIP_MENU(NPC_TEXT_BARON_2, creature->GetGUID());
-			return true;
 		}
-		player->SEND_GOSSIP_MENU(NPC_TEXT_BARON_1, creature->GetGUID());
+		else {
+			if (creature->isQuestGiver())
+				player->PrepareQuestMenu(creature->GetGUID());
+			player->SEND_GOSSIP_MENU(NPC_TEXT_BARON_1, creature->GetGUID());
+		}
+
 		return true;
 	}
 
 	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
 	{
+		player->PlayerTalkClass->ClearMenus();
 		switch (action)
 		{
 			case GOSSIP_ACTION_INFO_DEF + 1:
+				player->CLOSE_GOSSIP_MENU();
 				player->SEND_GOSSIP_MENU(NPC_TEXT_BARON_4, creature->GetGUID());
 				break;
 			case GOSSIP_ACTION_INFO_DEF + 2:
+				player->CLOSE_GOSSIP_MENU();
 				creature->AI()->Talk(0); // Har! Pleasure doin' business...
 				player->KilledMonsterCredit(NPC_BARON_LONGSHORE_KILLCREDIT, player->GetGUID());
 		}
-		player->CLOSE_GOSSIP_MENU();
 
 		return true;
 	}
@@ -514,26 +547,21 @@ public:
 	{
 		npc_baron_longshoreAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
 
-		void JustSummoned(Creature* summon) override
-		{
-			if (summon->ToTempSummon())
-			{
-				summon->setFaction(103); // Hostile Faction
-			}
-		}
-
-		void IsSummonedBy(Unit* summoner) override
-		{
-			if (Player* player = summoner->ToPlayer())
-			{
-				if (player->GetQuestStatus(QUEST_GAZLOWES_FORTUNE) == QUEST_STATUS_COMPLETE)
-					me->CombatStart(player, true);
-			}
-		}
-
 		void JustDied(Unit* /*killer*/) override
 		{
 			me->setFaction(35);
+		}
+
+		void Reset() override
+		{
+			if (me->GetGUIDLow() == 265594) // Baron the Merchant Coast
+				me->CastSpell(me, 104980); // Sit aura
+		}
+
+		void EnterCombat(Unit* who) override
+		{
+			if (who->GetGUIDLow() == 265594) // Baron the Merchant Coast
+				who->RemoveAurasDueToSpell(104980); // Remove sit aura
 		}
 
 	};
@@ -569,15 +597,14 @@ public:
 		ActionCompletedQuest = 0,
 	};
 
+	uint64 m_GagsprocketGUID = 265164;
+
 	bool OnQuestComplete(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
 	{
 		if (p_Quest->GetQuestId() == QUEST_UNUSUAL_MAP)
 		{
-			Creature* Gagsprocket = p_Creature->FindNearestCreature(NPC_GAGSPROCKET, 20.0f, true);
-			if (Gagsprocket)
-			{
+			if (Creature* Gagsprocket = sObjectAccessor->GetCreature(*p_Creature, m_GagsprocketGUID))
 				p_Creature->GetAI()->DoAction(ActionCompletedQuest);
-			}
 		}
 		return false;
 	}
@@ -585,6 +612,8 @@ public:
 	struct npc_gazlowe_3391AI : public ScriptedAI
 	{
 		npc_gazlowe_3391AI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+
+		uint64 m_GagsprocketGUID = 265164;
 
 		void DoAction(int32 const p_Action) override
 		{
@@ -598,16 +627,14 @@ public:
 					});
 					AddTimedDelayedOperation(2.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-						Creature* Gagsprocket = me->FindNearestCreature(NPC_GAGSPROCKET, 20.0f, true);
-						if (Gagsprocket)
+						if(Creature* Gagsprocket = sObjectAccessor->GetCreature(*me, m_GagsprocketGUID))
 							Gagsprocket->AI()->Talk(GAGSPROCKET_TEXT_1);
 					});
 					AddTimedDelayedOperation(3.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->AI()->Talk(GAZLOWE_TEXT_2);
+						ClearDelayedOperations();
 					});
-
-					ClearDelayedOperations();
 					break;
 				}
 
@@ -621,10 +648,13 @@ public:
 	}
 
 };
-
 #ifndef __clang_analyzer__
 void AddSC_the_barrens()
 {
+	/// Handlers
+	new playerScript_quest_status_handler();
+
+	/// Scripts
 	new npc_beaten_corpse();
 	new npc_gilthares();
 	new npc_taskmaster_fizzule();

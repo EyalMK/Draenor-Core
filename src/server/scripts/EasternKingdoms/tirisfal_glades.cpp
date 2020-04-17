@@ -2289,7 +2289,6 @@ public:
 		void Reset() override
 		{
 			m_events.Reset();
-			me->Respawn(true, true, 5000);
 			m_playerGUID = 0;
 			m_spiritAgamand = 0;
 			m_shadowAgamand1 = 0;
@@ -2349,6 +2348,7 @@ public:
 				if (Creature* shadow = sObjectAccessor->GetCreature(*me, m_shadowAgamand2))
 					shadow->DespawnOrUnsummon(1); // Despawn Shadow of Devlin - Passive
 				me->SetFacingTo(0.383972f);
+				me->Respawn(true, true, 1000);
 				Reset();
 			}	
 		}
