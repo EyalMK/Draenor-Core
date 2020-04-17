@@ -27,6 +27,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "GameObjectAI.h"
 
 /*######
 ## npc_aeranas
@@ -1145,6 +1146,65 @@ public:
 	}
 };
 
+/// Force-Commander Gorax - 19264
+class npc_force_commander_gorax : public CreatureScript
+{
+public:
+	npc_force_commander_gorax() : CreatureScript("npc_force_commander_gorax") { }
+	
+	enum eData
+	{
+		// Spell
+		SPELL_SUMMON_CORPSE	= 39012,
+		SPELL_INVISIBILITY	= 70414,
+
+		// Gameobject ID
+		GOBJECT_GORAX_CORPSE = 185223,
+	};
+
+	struct npc_force_commander_goraxAI : public ScriptedAI
+	{
+		npc_force_commander_goraxAI(Creature* creature) : ScriptedAI(creature) { }
+		
+		void JustDied(Unit* /*killer*/) override
+		{
+			
+			me->CastSpell(me, SPELL_SUMMON_CORPSE, true);
+			me->SetCorpseDelay(300); // 5 minutes to match the temporary summon of gameobject corpse
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_force_commander_goraxAI(p_Creature);
+	}
+
+};
+
+
+/// Force Commander Gorax's Corpse - 185223
+class gob_force_commander_gorax_corpse_185223 : public GameObjectScript
+{
+public:
+	gob_force_commander_gorax_corpse_185223() : GameObjectScript("gob_force_commander_gorax_corpse_185223") { }
+
+	struct gob_force_commander_gorax_corpse_185223AI : public GameObjectAI
+	{
+		gob_force_commander_gorax_corpse_185223AI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+		void Reset() override
+		{
+			go->SetPhaseMask(42, true); // Random Phase - collision is set true by default in this function
+		}
+	};
+
+	GameObjectAI* GetAI(GameObject* p_GameObject) const
+	{
+		return new gob_force_commander_gorax_corpse_185223AI(p_GameObject);
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_hellfire_peninsula()
 {
@@ -1159,5 +1219,7 @@ void AddSC_hellfire_peninsula()
 	new npc_magister_aledis();
 	new npc_colonel_jules();
 	new npc_barada();
+	new npc_force_commander_gorax();
+	new gob_force_commander_gorax_corpse_185223();
 }
 #endif
