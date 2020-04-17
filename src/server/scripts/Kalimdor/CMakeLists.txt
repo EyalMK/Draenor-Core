@@ -149,8 +149,6 @@ set(scripts_STAT_SRCS
   Kalimdor/ashenvale.cpp
   Kalimdor/teldrassil.cpp
   Kalimdor/OnyxiasLair/boss_onyxia.cpp
-  Kalimdor/OnyxiasLair/onyxias_lair.h
-  Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
   Kalimdor/southern_barrens.cpp
   Kalimdor/uldum.cpp
   Kalimdor/RagefireChasm/instance_ragefire_chasm.cpp

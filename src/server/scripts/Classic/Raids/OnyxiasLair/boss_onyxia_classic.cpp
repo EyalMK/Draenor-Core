@@ -10,7 +10,9 @@
 SDName: Boss_Onyxia
 SD%Complete: 95
 Dev: Hazor https://hellscream.org
-SDCategory: Onyxia's Lair
+SDCategory: Onyxia's Lair 1-60 version
+Spells: changed to classic spells values
+Spawns: only whelps no lair guards.
 EndScriptData */
 
 #include "ScriptMgr.h"
@@ -39,7 +41,11 @@ enum Spells
     SPELL_WING_BUFFET           = 18500,
     SPELL_FLAME_BREATH          = 18435,
     SPELL_CLEAVE                = 68868,
-    SPELL_TAIL_SWEEP            = 68867,
+
+	//Disabled for 1-60 version
+    //SPELL_TAIL_SWEEP          = 68867,
+
+	SPELL_TAIL_SWEEP            = 15847,
 
     // Phase 2 spells
     SPELL_DEEP_BREATH           = 23461,
@@ -73,8 +79,9 @@ enum Events
     EVENT_DEEP_BREATH    = 6,
     EVENT_MOVEMENT       = 7,
     EVENT_FIREBALL       = 8,
-    EVENT_LAIR_GUARD     = 9,
-    EVENT_WHELP_SPAWN    = 10
+	//Disabled for 1-60 version.
+   // EVENT_LAIR_GUARD     = 9,
+    EVENT_WHELP_SPAWN    = 9
 };
 
 
@@ -111,12 +118,12 @@ Position const SpawnLocations[3]=
     {-145.950f, -212.831f, -68.659f, 0.0f}
 };
 
-class boss_onyxia : public CreatureScript
+class boss_onyxia_classic : public CreatureScript
 {
 public:
-    boss_onyxia() : CreatureScript("boss_onyxia") { }
+    boss_onyxia_classic() : CreatureScript("boss_onyxia_classic") { }
 
-    struct boss_onyxiaAI : public BossAI
+    struct boss_onyxia_classicAI : public BossAI
     {
         boss_onyxiaAI(Creature* creature) : BossAI(creature, DATA_ONYXIA), Summons(me)
         {
@@ -170,8 +177,8 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-			//Disabled not Blizzlike 0.1.7
-            //summoned->SetInCombatWithZone();
+			
+            summoned->SetInCombatWithZone();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summoned->AI()->AttackStart(target);
 
@@ -180,9 +187,9 @@ public:
             case NPC_WHELP:
                 ++SummonWhelpCount;
                 break;
-            case NPC_LAIRGUARD:
-                summoned->setActive(true);
-                break;
+            //case NPC_LAIRGUARD:
+            //    summoned->setActive(true);
+            //    break;
             }
             Summons.Summon(summoned);
         }
@@ -240,7 +247,7 @@ public:
                     if (instance)
                         instance->SetData(DATA_ONYXIA_PHASE, Phase);
                     events.ScheduleEvent(EVENT_WHELP_SPAWN, 5000);
-                    events.ScheduleEvent(EVENT_LAIR_GUARD, 15000);
+                    //events.ScheduleEvent(EVENT_LAIR_GUARD, 15000);
                     break;
                 case 11:
                     if (PointData)
@@ -321,7 +328,7 @@ public:
                         events.ScheduleEvent(EVENT_DEEP_BREATH, 85000);
                         events.ScheduleEvent(EVENT_MOVEMENT,    14000);
                         events.ScheduleEvent(EVENT_FIREBALL,    15000);
-                        events.ScheduleEvent(EVENT_LAIR_GUARD,  60000);
+                       // events.ScheduleEvent(EVENT_LAIR_GUARD,  60000);
                         events.ScheduleEvent(EVENT_WHELP_SPAWN, 60000);
                         me->GetMotionMaster()->MovePoint(10, Phase2Location);
                         return;
@@ -382,6 +389,7 @@ public:
                     IsMoving = false;
                     me->GetMotionMaster()->MovePoint(9, me->GetHomePosition());
                     events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
+					events.ScheduleEvent(EVENT_WHELP_SPAWN, 5000);
                     return;
                 }
                 events.Update(Diff);
@@ -424,10 +432,11 @@ public:
                                 events.ScheduleEvent(EVENT_FIREBALL, 8000);
                             }
                             break;
-                        case EVENT_LAIR_GUARD:       // Phase PHASE_BREATH
-                             me->SummonCreature(NPC_LAIRGUARD, SpawnLocations[2], TEMPSUMMON_CORPSE_DESPAWN);
-                            events.ScheduleEvent(EVENT_LAIR_GUARD, 30000);
-                            break;
+							//Disabled for 1-60 version.
+                        //case EVENT_LAIR_GUARD:       // Phase PHASE_BREATH
+                        //     me->SummonCreature(NPC_LAIRGUARD, SpawnLocations[2], TEMPSUMMON_CORPSE_DESPAWN);
+                        //    events.ScheduleEvent(EVENT_LAIR_GUARD, 30000);
+                        //    break;
                         case EVENT_WHELP_SPAWN:      // Phase PHASE_BREATH
                             me->SummonCreature(NPC_WHELP, SpawnLocations[0], TEMPSUMMON_CORPSE_DESPAWN);
                             me->SummonCreature(NPC_WHELP, SpawnLocations[1], TEMPSUMMON_CORPSE_DESPAWN);
@@ -456,13 +465,13 @@ public:
     };
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_onyxiaAI(creature);
+        return new boss_onyxia_classicAI(creature);
     }
 };
 
 #ifndef __clang_analyzer__
 void AddSC_boss_onyxia()
 {
-    new boss_onyxia();
+    new boss_onyxia_classic();
 }
 #endif
