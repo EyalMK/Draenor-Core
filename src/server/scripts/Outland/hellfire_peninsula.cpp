@@ -1195,7 +1195,7 @@ public:
 
 		void Reset() override
 		{
-			go->SetPhaseMask(42, true); // Random Phase - collision is set true by default in this function
+			go->EnableCollision(true);
 		}
 	};
 
