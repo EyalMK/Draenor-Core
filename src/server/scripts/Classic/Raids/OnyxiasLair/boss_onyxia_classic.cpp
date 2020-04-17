@@ -125,7 +125,7 @@ public:
 
     struct boss_onyxia_classicAI : public BossAI
     {
-        boss_onyxiaAI(Creature* creature) : BossAI(creature, DATA_ONYXIA), Summons(me)
+        boss_onyxia_classicAI(Creature* creature) : BossAI(creature, DATA_ONYXIA), Summons(me)
         {
             Reset();
         }
@@ -470,7 +470,7 @@ public:
 };
 
 #ifndef __clang_analyzer__
-void AddSC_boss_onyxia()
+void AddSC_boss_onyxia_classic()
 {
     new boss_onyxia_classic();
 }
