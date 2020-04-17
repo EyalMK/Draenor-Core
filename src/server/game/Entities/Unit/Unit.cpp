@@ -14137,6 +14137,11 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
 void Unit::ClearInCombat()
 {
     m_CombatTimer = 0;
+
+	// Set last combat time.
+	if (isInCombat() && (GetTypeId() == TYPEID_PLAYER))
+		SetLastCombatTime(time(NULL));
+
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
     // Player's state will be cleared in Player::UpdateContestedPvP

@@ -404,6 +404,7 @@ class Map : public GridRefManager<NGridType>
 
         uint32 Expansion() const { return i_mapEntry ? i_mapEntry->Expansion() : 0; }
 
+		bool HasDynamicDifficulty() const { return i_mapEntry && i_mapEntry->HasDynamicDifficulty(); }
         bool GetEntrancePos(int32 &mapid, float &x, float &y)
         {
             if (!i_mapEntry)

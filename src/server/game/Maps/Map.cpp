@@ -2890,7 +2890,6 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
                         sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d, %d, %d, %d but he is in group %d and is bound to instance %d, %d, %d, %d, %d, %d!", player->GetName(), player->GetGUIDLow(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset(), GUID_LOPART(group->GetLeaderGUID()), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset());
                         if (groupBind)
                             sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: the group is bound to the instance %d, %d, %d, %d, %d, %d", groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficultyID(), groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount(), groupBind->save->CanReset());
-                        //ASSERT(false);
                         return false;
                     }
                     // bind to the group or keep using the group save
@@ -2927,7 +2926,6 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
                     else
                         if (playerBind->save != mapSave)
                             return false;
-                        //ASSERT(playerBind->save == mapSave);
                 }
             }
 

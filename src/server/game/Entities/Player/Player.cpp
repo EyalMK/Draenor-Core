@@ -428,6 +428,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_LegacyRaidDifficulty = Difficulty10N;
     m_PrevMapDifficulty = DifficultyRaidNormal;
 
+	isOnDynamicDifficultyMap = false;
+
     m_LastPotion.m_LastPotionItemID = 0;
     m_LastPotion.m_LastPotionSpellID = 0;
 
@@ -2063,10 +2065,11 @@ void Player::Update(uint32 p_time)
         m_needSummonPetAfterStopFlying = false;
     }
 
-    //we should execute delayed teleports only for alive(!) players
-    //because we don't want player's ghost teleported from graveyard
+	// We should execute delayed teleports only for alive(!) players because we don't want the player's ghost to be teleported from the graveyard.
     if (IsHasDelayedTeleport())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
+	UpdateDynamicDifficultyMapState();
 
 #ifndef CROSS
     m_GarrisonUpdateTimer.Update(p_time);
@@ -22094,6 +22097,59 @@ bool Player::isAllowedToLoot(const Creature* creature)
 
     return false;
 }
+
+// Dynamic Difficulty raid map system.
+
+void Player::AddDynamicDifficultyMap(uint32 mapId)
+{
+	PreparedStatement* dynDiffMapInsStmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DYN_DIFFICULTY_MAP);
+	dynDiffMapInsStmt->setUInt32(0, GetGUIDLow());
+	dynDiffMapInsStmt->setUInt32(1, mapId);
+	CharacterDatabase.Execute(dynDiffMapInsStmt);
+}
+
+void Player::DeleteDynamicDifficultyMap(uint32 mapId)
+{
+	PreparedStatement* dynDiffMapDelStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DYN_DIFFICULTY_MAP);
+	dynDiffMapDelStmt->setUInt32(0, GetGUIDLow());
+	dynDiffMapDelStmt->setUInt32(1, mapId);
+	CharacterDatabase.Execute(dynDiffMapDelStmt);
+}
+
+bool Player::HasDynamicDifficultyMap(uint32 mapId)
+{
+	if (!mapId)
+		return false;
+
+	PreparedStatement* dynDiffMapStmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_DYN_DIFFICULTY_MAP);
+	dynDiffMapStmt->setUInt32(0, GetGUIDLow());
+	dynDiffMapStmt->setUInt32(1, mapId);
+
+	PreparedQueryResult dynDiffMapResult = CharacterDatabase.Query(dynDiffMapStmt);
+	if (dynDiffMapResult)
+		return true;
+
+	return false;
+}
+
+void Player::UpdateDynamicDifficultyMapState()
+{
+	if (Map* map = GetMap())
+	{
+		if (map->IsRaid() && map->HasDynamicDifficulty() && HasDynamicDifficultyMap(map->GetId()))
+		{
+			if (!IsOnDynamicDifficultyMap())
+				SetOnDynamicDifficultyMap(true);
+		}
+		else
+		{
+			if (IsOnDynamicDifficultyMap())
+				SetOnDynamicDifficultyMap(false);
+		}
+	}
+}
+
+// End of Dynamic Difficulty system.
 
 void Player::_LoadActions(PreparedQueryResult result)
 {

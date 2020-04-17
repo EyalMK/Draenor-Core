@@ -167,6 +167,7 @@ enum Opcodes
         SMSG_SET_PLAY_HOVER_ANIM                    = 0x12E4, ///< 6.2.3 20726
         SMSG_SET_MOVEMENT_ANIM_KIT                  = 0x1A5B, ///< 6.2.3 20726
         SMSG_PLAYER_BOUND                           = 0x12CB, ///< 6.2.3 20726
+		SMSG_PLAYER_DIFFICULTY_CHANGE_RESULT		= 0x1F1A, ///< 5.4.7 18019 Not implemented - CHECK!
         SMSG_OVERRIDE_LIGHT                         = 0x13CC, ///< 6.2.3 20726
         SMSG_PRINT_NOTIFICATION                     = 0x03FC, ///< 6.2.3 20726
         SMSG_SPECIAL_MOUNT_ANIM                     = 0x0274, ///< 6.2.3 20726
@@ -1938,7 +1939,7 @@ enum Opcodes
     SMSG_OPEN_CONTAINER                                 = 0x0000,
     SMSG_OPEN_LFG_DUNGEON_FINDER                        = 0x0000,
     SMSG_PAUSE_MIRROR_TIMER                             = 0x0000,
-    SMSG_CHANGE_PLAYER_DIFFICULTY_RESULT                = 0x0000,
+    SMSG_CHANGE_PLAYER_DIFFICULTY_RESULT                = 0x1F1A, ///< 5.4.7 18019 Not implemented - CHECK!
     SMSG_PLAYER_SKINNED                                 = 0x0000,
     SMSG_PLAY_TIME_WARNING                              = 0x0000,
     SMSG_PROPOSE_LEVEL_GRANT                            = 0x0000,

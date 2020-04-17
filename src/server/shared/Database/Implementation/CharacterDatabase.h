@@ -699,6 +699,11 @@ enum CharacterDatabaseStatements
     /// Armory stats
     CHAR_REP_STATS,
 
+	// Dynamic Difficulty raid map system.
+	CHAR_INS_DYN_DIFFICULTY_MAP,
+	CHAR_DEL_DYN_DIFFICULTY_MAP,
+	CHAR_SEL_DYN_DIFFICULTY_MAP,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 
