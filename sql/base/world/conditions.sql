@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `conditions` (
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Condition System';
 
--- Dumping data for table worldlive.conditions: 8,438 rows
+-- Dumping data for table worldlive.conditions: 8,442 rows
 DELETE FROM `conditions`;
 /*!40000 ALTER TABLE `conditions` DISABLE KEYS */;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -8471,7 +8471,11 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(22, 1, 24718, 0, 0, 31, 0, 3, 24823, 0, 0, 0, '', 'event require npc 24823'),
 	(13, 1, 44562, 0, 0, 31, 0, 3, 24718, 0, 0, 0, '', 'Bluff target'),
 	(13, 1, 43990, 0, 2, 31, 0, 3, 24647, 0, 0, 0, '', 'Target Quest Trigger'),
-	(15, 2871, 0, 0, 0, 9, 0, 4921, 0, 0, 0, 0, '', 'Show gossip menu option 2871 only if Quest 4921 is taken (active)');
+	(15, 2871, 0, 0, 0, 9, 0, 4921, 0, 0, 0, 0, '', 'Show gossip menu option 2871 only if Quest 4921 is taken (active)'),
+	(22, 11, 22258, 0, 0, 9, 0, 10838, 0, 0, 0, 0, '', 'Demoniac Scryer - Only run SAI if player has the Demoniac Scryer Taken'),
+	(22, 11, 22258, 0, 0, 2, 0, 31607, 1, 0, 1, 0, '', 'Demoniac Scryer - Only run SAI if player does not have Demoniac Scryer Reading'),
+	(22, 11, 22258, 0, 0, 1, 0, 38708, 0, 0, 1, 0, '', 'Demoniac Scryer - Only run SAI if player does not have Aura Demonaic Visitation'),
+	(22, 11, 22258, 0, 0, 1, 1, 38672, 0, 0, 1, 0, '', 'Demoniac Scryer - Only run SAI if Demoniac Scryer does not have Aura Magic Sucker Device timer');
 /*!40000 ALTER TABLE `conditions` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

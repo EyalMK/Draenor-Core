@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `spell_aura_restrictions` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9832 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.spell_aura_restrictions: ~3,901 rows (approximately)
+-- Dumping data for table fixeslive.spell_aura_restrictions: ~3,327 rows (approximately)
 DELETE FROM `spell_aura_restrictions`;
 /*!40000 ALTER TABLE `spell_aura_restrictions` DISABLE KEYS */;
 INSERT INTO `spell_aura_restrictions` (`ID`, `CasterAuraState`, `TargetAuraState`, `CasterAuraStateNot`, `TargetAuraStateNot`, `CasterAuraSpell`, `TargetAuraSpell`, `ExcludeCasterAuraSpell`, `ExcludeTargetAuraSpell`, `BuildVerified`) VALUES

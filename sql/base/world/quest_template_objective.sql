@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `quest_template_objective` (
   KEY `idx_QuestID` (`QuestID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2787045 DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.quest_template_objective: ~20,047 rows (approximately)
+-- Dumping data for table worldlive.quest_template_objective: ~19,128 rows (approximately)
 DELETE FROM `quest_template_objective`;
 /*!40000 ALTER TABLE `quest_template_objective` DISABLE KEYS */;
 INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
@@ -20551,6 +20551,7 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(400001, 37935, 0, 1, 90374, 1, 2, 0, 'Plant the flag to build the base\r\n', NULL, 1),
 	(400002, 38445, 0, 0, 91932, 1, 0, 0, 'Follow Naielle', NULL, 1),
 	(400003, 38445, 0, 0, 90374, 1, 0, 0, 'Plant the flag to build the base\r\n', NULL, 1),
+	(2657548, 36881, 1, 0, 18423, 1, 0, 0, 'Collect Onyxia\'s Head', NULL, 1),
 	(2786100, 27861, 0, 0, 46944, 1, 0, 0, '', '', 1),
 	(2786200, 27862, 0, 0, 46944, 1, 0, 0, '', '', 1),
 	(2786300, 27863, 0, 0, 46944, 1, 0, 0, '', '', 1),

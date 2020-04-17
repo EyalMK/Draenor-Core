@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_difficulty` (
   PRIMARY KEY (`entry`,`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.creature_template_difficulty: ~4,838 rows (approximately)
+-- Dumping data for table worldlive.creature_template_difficulty: ~5,289 rows (approximately)
 DELETE FROM `creature_template_difficulty`;
 /*!40000 ALTER TABLE `creature_template_difficulty` DISABLE KEYS */;
 INSERT INTO `creature_template_difficulty` (`entry`, `difficulty`, `difficulty_entry`) VALUES
