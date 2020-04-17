@@ -864,11 +864,12 @@ public:
 			}
 		}
 		
-		CreatureAI* GetAI(Creature* p_Creature) const
-		{
-			return new npc_kasim_sharimAI(p_Creature);
-		}
 	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_kasim_sharimAI(p_Creature);
+	}
 };
 
 

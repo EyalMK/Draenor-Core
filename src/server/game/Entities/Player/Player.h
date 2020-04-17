@@ -2619,6 +2619,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type);
 
+		Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
+
         Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
         Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
         Difficulty GetRaidDifficultyID() const { return m_raidDifficulty; }
@@ -3292,7 +3294,7 @@ class Player : public Unit, public GridObject<Player>
         bool m_InstanceValid;
         // permanent binds and solo binds by difficulty
         BoundInstancesMap m_boundInstances[Difficulty::MaxDifficulties];
-        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty);
+        InstancePlayerBind* GetBoundInstance(uint32 mapId, Difficulty difficulty);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty) { return m_boundInstances[difficulty]; }
         InstanceSave* GetInstanceSave(uint32 mapid);
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
