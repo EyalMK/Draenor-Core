@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_text: 13,164 rows
+-- Dumping data for table worldlive.creature_text: 13,181 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -13195,7 +13195,24 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(22431, 4, 0, 'I... must not...falter!', 12, 0, 100, 0, 0, 0, 'Anchorite Barada - Text 5'),
 	(22431, 5, 0, 'The power of Light compels you! Back to your pit!', 12, 0, 100, 0, 0, 0, 'Anchorite Barada - Text 6'),
 	(22431, 6, 0, 'Be cleansed with Light, human! Let not the demonic corruption overwhelm you.', 12, 0, 100, 0, 0, 0, 'Anchorite Barada - Text 7'),
-	(22431, 7, 0, 'Back! I cast you back... corruptor of faith! Author of pain! Do not return, or suffer the same fate as you did here today!', 12, 0, 100, 0, 0, 0, 'Anchorite Barada - Text 8');
+	(22431, 7, 0, 'Back! I cast you back... corruptor of faith! Author of pain! Do not return, or suffer the same fate as you did here today!', 12, 0, 100, 0, 0, 0, 'Anchorite Barada - Text 8'),
+	(22374, 0, 0, 'Who dares slay one of my Kargath\'s commanders? You will pay for this... in flesh!', 14, 0, 100, 0, 0, 0, 'Hand of Kargath - Text On Spawn'),
+	(8506, 0, 0, 'My eyes! It burns... it burns...', 15, 0, 100, 0, 0, 0, 'Eranikus the Chained'),
+	(8506, 0, 1, 'Torture me no more! Release me, mortal! The Swamp of Sorrows... mortal... please...', 15, 0, 100, 0, 0, 0, 'Eranikus the Chained'),
+	(8506, 0, 2, 'Foolish mortal, I will rend your soul in two once I am released!', 15, 0, 100, 0, 0, 0, 'Eranikus the Chained'),
+	(8506, 0, 3, 'You are an agent of their wicked god, fool. I will see you destroyed!', 15, 0, 100, 0, 0, 0, 'Eranikus the Chained'),
+	(8506, 0, 4, 'My soul is not a trinket! Mortal, you must release me from these chains!', 15, 0, 100, 0, 0, 0, 'Eranikus the Chained'),
+	(8506, 0, 5, 'It hurts so much... Itharius, my old friend... Please help me...', 15, 0, 100, 0, 0, 0, 'Eranikus the Chained'),
+	(8506, 0, 6, 'Will the nightmare ever end?! I cannot force myself awake!', 15, 0, 100, 0, 0, 0, 'Eranikus the Chained'),
+	(8506, 0, 7, 'My charge to watch the temple has failed... my corrupted soul knows no peace...', 15, 0, 100, 0, 0, 0, 'Eranikus the Chained'),
+	(3391, 0, 0, 'Gagsprocket! Shave this for me - pronto!', 12, 0, 100, 0, 0, 0, 'Gazlowe - A Most Unusual Map Text 1'),
+	(3391, 1, 0, 'Thanks.', 12, 0, 100, 0, 0, 0, 'Gazlowe - A Most Unusual Map Text 2'),
+	(3495, 0, 0, 'Sure thing, boss.', 12, 0, 100, 0, 0, 0, 'Gagsprocket - A Most Unusual Map Text 1'),
+	(3467, 0, 0, 'Har! Pleasure doin\' business with ye, $n.', 12, 0, 100, 0, 0, 0, 'Baron Longshore - The Baron\'s Demands Text'),
+	(3467, 1, 0, 'Hold it, $r! I promised told ye where the treasure is, but never promised ye could keep it!', 14, 0, 100, 0, 0, 0, 'Baron Longshore - Gazlowe\'s Fortune Text'),
+	(3382, 1, 0, 'It\'s the gallows for me...', 12, 0, 100, 0, 0, 0, 'Southsea Cannoneer - Text 1'),
+	(3383, 0, 0, '%s whistles at Charlie the dog.', 16, 0, 100, 0, 0, 0, 'Southsea Cutthroat - Text 1'),
+	(3383, 1, 0, '...we\'ve got a nice bone for you, puppy.', 12, 0, 100, 0, 0, 0, 'Southsea Cutthroat - Text 1');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

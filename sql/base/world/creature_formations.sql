@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `creature_formations` (
   PRIMARY KEY (`memberGUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_formations: 223 rows
+-- Dumping data for table worldlive.creature_formations: 225 rows
 DELETE FROM `creature_formations`;
 /*!40000 ALTER TABLE `creature_formations` DISABLE KEYS */;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
@@ -249,7 +249,9 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 	(184715, 184715, 0, 0, 2, 0, 0),
 	(276909, 276909, 0, 0, 515, 0, 0),
 	(276909, 276910, 3, 135, 515, 0, 0),
-	(276909, 276911, 3, 225, 515, 0, 0);
+	(276909, 276911, 3, 225, 515, 0, 0),
+	(320690, 320690, 0, 0, 2, 0, 0),
+	(320690, 320691, 10, 360, 2, 0, 0);
 /*!40000 ALTER TABLE `creature_formations` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

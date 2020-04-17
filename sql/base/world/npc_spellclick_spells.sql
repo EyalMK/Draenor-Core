@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `npc_spellclick_spells` (
   PRIMARY KEY (`npc_entry`,`spell_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.npc_spellclick_spells: 754 rows
+-- Dumping data for table worldlive.npc_spellclick_spells: 755 rows
 DELETE FROM `npc_spellclick_spells`;
 /*!40000 ALTER TABLE `npc_spellclick_spells` DISABLE KEYS */;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
@@ -777,7 +777,8 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 	(30134, 43671, 1, 1),
 	(39270, 73705, 1, 1),
 	(52359, 46598, 0, 0),
-	(52358, 46598, 0, 0);
+	(52358, 46598, 0, 0),
+	(47278, 58961, 1, 0);
 /*!40000 ALTER TABLE `npc_spellclick_spells` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
