@@ -791,6 +791,7 @@ class spell_pri_shadowfiend: public SpellScriptLoader
                         {
                             pet->InitCharmInfo();
                             pet->SetReactState(REACT_AGGRESSIVE);
+							pet->AddAura(34429, pet); // Shadow visual
 
                             if (pet->IsValidAttackTarget(target))
                                 pet->ToCreature()->AI()->AttackStart(target);
