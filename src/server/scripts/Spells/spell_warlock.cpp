@@ -4642,7 +4642,7 @@ public:
         if (p_After)
             return;
 
-        ///< Works only in Afflication spec and if warlock doesn't have Glyph of Subtlety
+        ///< Works only in Affliction spec and if warlock doesn't have Glyph of Subtlety
         if (p_Power == POWER_SOUL_SHARDS && p_Player->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
         {
             p_Player->RemoveAura(eSpells::OneMainSoulShard);  ///< 1 center shard visual
