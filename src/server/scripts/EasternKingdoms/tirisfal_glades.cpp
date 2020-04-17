@@ -2173,46 +2173,96 @@ public:
 	}
 };
 
+
+
 /// Quest: The Grasp Weakens
 /// Shadow Priestess Malia - 39117
+
+enum eMoves
+{
+	MaxMaliaMovesUpstairs = 7,
+	MaxMaliaMovesDownstairs = 6,
+};
+
+static std::array<G3D::Vector3, eMoves::MaxMaliaMovesUpstairs> g_MaliaUpstairsMoves =
+{
+	{
+		{ 2242.7346f, 232.5853f, 34.5100f },
+		{ 2239.8813f, 232.0589f, 35.0564f },
+		{ 2236.0791f, 230.8876f, 37.8736f },
+		{ 2233.6135f, 230.2802f, 38.2311f },
+		{ 2234.5481f, 227.9291f, 38.2307f },
+		{ 2235.6494f, 225.7424f, 38.2285f },
+		{ 2243.6428f, 228.1870f, 41.8121f }
+	}
+};
+
+static std::array<G3D::Vector3, eMoves::MaxMaliaMovesDownstairs> g_MaliaDownstairsMoves =
+{
+	{
+		{ 2239.9856f, 227.4472f, 40.5082f },
+		{ 2235.3118f, 226.0666f, 38.2310f },
+		{ 2234.1028f, 230.0383f, 38.2217f },
+		{ 2238.0427f, 231.7776f, 36.3362f },
+		{ 2241.3320f, 233.3963f, 34.5099f },
+		{ 2242.28f, 230.375f, 34.5098f	  }
+	}
+};
+
 class npc_shadow_priestess_malia_39117 : public CreatureScript
 {
 public:
 	npc_shadow_priestess_malia_39117() : CreatureScript("npc_shadow_priestess_malia_39117") { }
 
-	enum eNPC
+	enum eData
 	{
+		// Quest
 		QUEST_THE_GRASP_WEAKENS = 25006,
+
+		// Npcs
 		NPC_SPIRIT_OF_DEVLIN_AGAMAND_38980 = 38980,
 		NPC_SHADOW_OF_AGAMAND_38981 = 38981,
 		NPC_SHADOW_OF_AGAMAND_38983 = 38983,
+
+		// Data
 		PLAYER_GUID = 99999,
-		WAYPOINT_UPSTARS = 3702201,
-		WAYPOINT_DOWNSTARS = 3702202,
+
+		// Waypoints in Waypoint_data
+		WAYPOINT_UPSTAIRS = 3702201,
+		WAYPOINT_DOWNSTAIRS = 3702202,
+
+		// Actions and events
 		ACTION_START_ANIM = 100,
-		EVENT_CHECK_MasterReset = 101,
+		EVENT_CHECK_MASTERRESET = 101,
 		EVENT_START_ANIM,
 		EVENT_ANIM,
+
+		// Gossip Menu
+		MALIA_GOSSIP_MENU		= 11156,
+		MALIA_GOSSIP_OPTION		= 0,
+		MALIA_NPC_TEXT_NO_QUEST	= 15526,
+		MALIA_NPC_TEXT_QUEST	= 15527,
+
+
 	};
 
 	bool OnGossipHello(Player* player, Creature* creature)
 	{
 		if (player->GetQuestStatus(QUEST_THE_GRASP_WEAKENS) == QUEST_STATUS_INCOMPLETE)
 		{
-			player->ADD_GOSSIP_ITEM_DB(11156, 0, GOSSIP_SENDER_MAIN, 1001);
-			player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
+			player->ADD_GOSSIP_ITEM_DB(MALIA_GOSSIP_MENU, MALIA_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+			player->SEND_GOSSIP_MENU(MALIA_NPC_TEXT_QUEST, creature->GetGUID());
 			return true;
 		}
-
-		return false;
+		player->SEND_GOSSIP_MENU(MALIA_NPC_TEXT_NO_QUEST, creature->GetGUID());
+		return true;
 	}
 
 	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
 	{
 		switch (action)
 		{
-		case 1001:
+		case GOSSIP_ACTION_INFO_DEF + 1:
 			creature->AI()->SetGUID(player->GetGUID(), PLAYER_GUID);
 			creature->AI()->DoAction(ACTION_START_ANIM);
 			break;
@@ -2253,57 +2303,65 @@ public:
 		{
 			switch (summon->GetEntry())
 			{
-			case NPC_SPIRIT_OF_DEVLIN_AGAMAND_38980:
-			{
-				m_spiritAgamand = summon->GetGUID();
-				break;
-			}
-			case NPC_SHADOW_OF_AGAMAND_38981: // attacker
-			{
-				m_shadowAgamand1 = summon->GetGUID();
-				summon->SetReactState(REACT_AGGRESSIVE);
-				summon->SetWalk(true);
-				if (Player* player = sObjectAccessor->GetPlayer(*me, m_playerGUID))
-					summon->Attack(player, true);
-				break;
-			}
-			case NPC_SHADOW_OF_AGAMAND_38983: // shadow
-			{
-				m_shadowAgamand2 = summon->GetGUID();
-				summon->SetReactState(REACT_PASSIVE);
-				break;
-			}
+				case NPC_SPIRIT_OF_DEVLIN_AGAMAND_38980: // Spirit of Devlin
+				{
+					m_spiritAgamand = summon->GetGUID();
+					break;
+				}
+				case NPC_SHADOW_OF_AGAMAND_38981: // Shadow of Devlin - Attacker
+				{
+					m_shadowAgamand1 = summon->GetGUID();
+					summon->SetReactState(REACT_AGGRESSIVE);
+					summon->SetWalk(true);
+					if (Player* player = sObjectAccessor->GetPlayer(*me, m_playerGUID))
+						summon->Attack(player, true);
+					break;
+				}
+				case NPC_SHADOW_OF_AGAMAND_38983: // Shadow of Devlin - Passive
+				{
+					m_shadowAgamand2 = summon->GetGUID();
+					summon->SetReactState(REACT_PASSIVE);
+					summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); // Can't select Passive
+					summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC); // Don't assist Shadow of Devlin - Attacker
+					break;
+				}
 			}
 		}
 
 		void SummonedCreatureDies(Creature* summon, Unit* killer) override
 		{
-			if (summon->GetGUID() == m_shadowAgamand1)
+			if (summon->GetGUID() == m_shadowAgamand1) // Shadow of Devlin - Attacker
 				if (killer->GetGUID() == m_playerGUID)
-					m_events.ScheduleEvent(EVENT_ANIM + 6, 7000);
+					m_events.ScheduleEvent(EVENT_ANIM + 7, 4000);
 		}
 
 		void MovementInform(uint32 type, uint32 id) override
 		{
-			if (type == WAYPOINT_MOTION_TYPE && id == 9 && m_phase == 1)
+
+			if (type == EFFECT_MOTION_TYPE && id == MaxMaliaMovesUpstairs)
+			{
+				me->SetFacingTo(6.260189f);
 				m_events.ScheduleEvent(EVENT_ANIM + 2, 1000);
-			if (type == WAYPOINT_MOTION_TYPE && id == 10 && m_phase == 2)
+			}
+			if (type == EFFECT_MOTION_TYPE && id == MaxMaliaMovesDownstairs)
 			{
 				if (Creature* shadow = sObjectAccessor->GetCreature(*me, m_shadowAgamand2))
-					shadow->DespawnOrUnsummon(1);
+					shadow->DespawnOrUnsummon(1); // Despawn Shadow of Devlin - Passive
+				me->SetFacingTo(0.383972f);
+				me->Respawn(true, true, 1000);
 				Reset();
-			}
+			}	
 		}
 
 		void SetGUID(uint64 guid, int32 id) override
 		{
 			switch (id)
 			{
-			case PLAYER_GUID:
-			{
-				m_playerGUID = guid;
-				break;
-			}
+				case PLAYER_GUID:
+				{
+					m_playerGUID = guid;
+					break;
+				}
 			}
 		}
 
@@ -2324,67 +2382,74 @@ public:
 			{
 				switch (eventId)
 				{
-				case EVENT_CHECK_MasterReset:
-				{
-					me->DespawnOrUnsummon(1);
-					break;
-				}
-				case EVENT_START_ANIM:
-				{
-					Talk(m_sayPriestess);
-					m_sayPriestess++;
-					m_events.ScheduleEvent(EVENT_ANIM + 1, 2000);
-					m_events.ScheduleEvent(EVENT_CHECK_MasterReset, 120000);
-					break;
-				}
-				case EVENT_ANIM + 1:
-				{
-					m_phase = 1;
-					me->GetMotionMaster()->MovePath(WAYPOINT_UPSTARS, false);
-					break;
-				}
-				case EVENT_ANIM + 2: // priestess is telling the story
-				{
-					Talk(m_sayPriestess);
-					m_sayPriestess++;
-					if (m_sayPriestess < 5)
-						m_events.ScheduleEvent(EVENT_ANIM + 2, 5000);
-					else
-						m_events.ScheduleEvent(EVENT_ANIM + 3, 5000);
-					break;
-				}
-				case EVENT_ANIM + 3:
-				{
-					me->SummonCreature(NPC_SPIRIT_OF_DEVLIN_AGAMAND_38980, 2247.13f, 228.04f, 44.2511f, 1.95477f, TEMPSUMMON_TIMED_DESPAWN, 120000);
-					m_events.ScheduleEvent(EVENT_ANIM + 4, 3000);
-					break;
-				}
-				case EVENT_ANIM + 4: // agamand is telling the story
-				{
-					if (Creature* agamand = sObjectAccessor->GetCreature(*me, m_spiritAgamand))
-						agamand->AI()->Talk(m_sayAgamand);
-					m_sayAgamand++;
-					if (m_sayAgamand < 7)
-						m_events.ScheduleEvent(EVENT_ANIM + 4, 5000);
-					else
-						m_events.ScheduleEvent(EVENT_ANIM + 5, 1000); // say immediately: die wretches
-					break;
-				}
-				case EVENT_ANIM + 5:
-				{
-					me->SummonCreature(NPC_SHADOW_OF_AGAMAND_38981, 2247.13f, 228.04f, 44.2511f, 1.95477f, TEMPSUMMON_TIMED_DESPAWN, 60000); // attacker of agamand
-					me->SummonCreature(NPC_SHADOW_OF_AGAMAND_38983, 2247.13f, 228.04f, 44.2511f, 1.95477f, TEMPSUMMON_TIMED_DESPAWN, 60000); // shadow of agamand
-					if (Creature* agamand = sObjectAccessor->GetCreature(*me, m_spiritAgamand))
-						agamand->DespawnOrUnsummon(1);
-					break;
-				}
-				case EVENT_ANIM + 6:
-				{
-					Talk(m_sayPriestess);
-					m_phase = 2;
-					me->GetMotionMaster()->MovePath(WAYPOINT_DOWNSTARS, false);
-					break;
-				}
+					case EVENT_CHECK_MASTERRESET: // Reset event by despawning NPC
+					{
+						me->DespawnOrUnsummon(1);
+						break;
+					}
+					case EVENT_START_ANIM: // Start the event (triggered by gossip selection)
+					{
+						Talk(m_sayPriestess); // Talk (0) - Very well. Follow me.
+						m_sayPriestess++; // Next line will be Talk(1)
+						m_events.ScheduleEvent(EVENT_ANIM + 1, 2000); // Schedule event to start waypath
+						m_events.ScheduleEvent(EVENT_CHECK_MASTERRESET, 120000); // Schedule event to despawn and reset event (whole event will take 2 minutes)
+						break;
+					}
+					case EVENT_ANIM + 1:
+					{
+						m_phase = 1;
+						me->GetMotionMaster()->MoveSmoothPath(MaxMaliaMovesUpstairs, g_MaliaUpstairsMoves.data(), g_MaliaUpstairsMoves.size(), true); // Path
+						break;
+					}
+					case EVENT_ANIM + 2: // Priestess talk(1)
+					{
+						Talk(m_sayPriestess); // Talk(1) - Now it is time for us to begin
+						m_sayPriestess++; // Next line will be Talk(2)
+						if (m_sayPriestess < 5) // If didn't say all lines, keep talking, on 4th line (5th is not played here), move on to next event
+							m_events.ScheduleEvent(EVENT_ANIM + 2, 4000);
+						else
+							m_events.ScheduleEvent(EVENT_ANIM + 3, 3000);
+						break;
+					}
+					case EVENT_ANIM + 3:
+					{
+						me->SummonCreature(NPC_SPIRIT_OF_DEVLIN_AGAMAND_38980, 2247.13f, 228.04f, 44.2511f, 1.95477f, TEMPSUMMON_TIMED_DESPAWN, 120000); // Summon creature temporarily
+						m_events.ScheduleEvent(EVENT_ANIM + 4, 2000); 
+						break;
+					}
+					case EVENT_ANIM + 4: // Devlin tells the story
+					{
+						if (Creature* agamand = sObjectAccessor->GetCreature(*me, m_spiritAgamand))
+							agamand->AI()->Talk(m_sayAgamand); // Talk(0) - What's going on here?
+							m_sayAgamand++;
+						if (m_sayAgamand < 7) // Keep talking till variable is 6 - Talk(0) up to Talk(6) - All lines - when the counter is done, the next event will be scheduled.
+							m_events.ScheduleEvent(EVENT_ANIM + 4, 3000);
+						else
+							m_events.ScheduleEvent(EVENT_ANIM + 5, 1000); // Final line is DIE, YOU WRETCHES! and then next event is triggered
+						break;
+					}
+					case EVENT_ANIM + 5:
+					{
+						me->SummonCreature(NPC_SHADOW_OF_AGAMAND_38981, 2247.13f, 228.04f, 44.2511f, 1.95477f, TEMPSUMMON_TIMED_DESPAWN, 60000); // Shadow of Devlin - Attacker
+						me->SummonCreature(NPC_SHADOW_OF_AGAMAND_38983, 2247.13f, 228.04f, 44.2511f, 1.95477f, TEMPSUMMON_TIMED_DESPAWN, 60000); // Shadow of Devlin - Passive
+						m_events.ScheduleEvent(EVENT_ANIM + 6, 2000);
+						break;
+					}
+					case EVENT_ANIM + 6:
+					{
+						if (Creature* ShadowPassive = me->FindNearestCreature(NPC_SHADOW_OF_AGAMAND_38983, 10.0f, true))
+							ShadowPassive->DespawnOrUnsummon(); // Despawn Shadow of Devlin Passive
+						if (Creature* agamand = sObjectAccessor->GetCreature(*me, m_spiritAgamand))
+							agamand->DespawnOrUnsummon(); // Despawn Devlin Agamand and keep the Shadows of Agamand.
+						break;
+					}
+					case EVENT_ANIM + 7:
+					{
+						Talk(m_sayPriestess); // Talk(5) - I better return to my post...
+						m_phase = 2;
+						me->GetMotionMaster()->MoveSmoothPath(MaxMaliaMovesDownstairs, g_MaliaDownstairsMoves.data(), g_MaliaDownstairsMoves.size(), true); // Path 2
+						break;
+					}
 				}
 			}
 

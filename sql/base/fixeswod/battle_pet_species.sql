@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `battle_pet_species` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1657 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.battle_pet_species: ~889 rows (approximately)
+-- Dumping data for table fixeslive.battle_pet_species: ~964 rows (approximately)
 DELETE FROM `battle_pet_species`;
 /*!40000 ALTER TABLE `battle_pet_species` DISABLE KEYS */;
 INSERT INTO `battle_pet_species` (`ID`, `Entry`, `IconID`, `SpellID`, `Type`, `ObtainmentCategoryDescription`, `Flags`, `Source`, `Description`, `BuildVerified`) VALUES

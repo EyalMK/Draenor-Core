@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `spell_script_names` (
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.spell_script_names: 3,565 rows
+-- Dumping data for table worldlive.spell_script_names: 3,569 rows
 DELETE FROM `spell_script_names`;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -613,8 +613,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(47585, 'spell_pri_dispersion'),
 	(47585, 'spell_pri_item_s12_2p_shadow'),
 	(47666, 'spell_pri_atonement'),
-	(47666, 'spell_pri_penance_effect'),
-	(47750, 'spell_pri_penance_effect'),
+	(47666, 'spell_pri_penance_damage_heal'),
+	(47750, 'spell_pri_penance_damage_heal'),
 	(47757, 'spell_pri_penance_aura'),
 	(47758, 'spell_pri_penance_aura'),
 	(47788, 'spell_pri_guardian_spirit'),
@@ -1815,6 +1815,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(107343, 'spell_gadok_strafing'),
 	(107351, 'spell_brew_explosion_hozen'),
 	(107427, 'spell_monk_glyph_of_rapid_rolling'),
+	(107428, 'spell_monk_rising_sun_kick'),
 	(107439, 'spell_warmaster_blackhorn_twilight_barrage_dmg'),
 	(107536, 'spell_perotharn_punishing_flames_dmg'),
 	(107566, 'spell_warr_staggering_shout'),
@@ -2056,6 +2057,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(115078, 'spell_monk_paralysis'),
 	(115080, 'spell_monk_touch_of_death'),
 	(115098, 'spell_monk_chi_wave'),
+	(115151, 'spell_monk_renewing_mist'),
 	(115151, 'spell_monk_renewing_mist_hot'),
 	(115175, 'spell_monk_soothing_mist'),
 	(115181, 'spell_monk_breath_of_fire'),
@@ -2115,7 +2117,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(116556, 'spell_energizing_visual'),
 	(116583, 'spell_mogu_wildfire_spark'),
 	(116605, 'spell_energized'),
-	(116670, 'spell_monk_thunder_focus_tea'),
 	(116670, 'spell_monk_uplift'),
 	(116680, 'spell_monk_healing_elixirs'),
 	(116680, 'spell_monk_item_s12_4p_mistweaver'),
@@ -2160,6 +2161,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(117833, 'spell_crazy_thought'),
 	(117874, 'spell_touch_of_titans'),
 	(117895, 'spell_monk_eminence_heal'),
+	(117895, 'spell_monk_eminence_heal_statue'),
 	(117905, 'spell_superior_corrupted_essence'),
 	(117921, 'spell_massive_attacks'),
 	(117952, 'spell_monk_crackling_jade_lightning'),
@@ -2219,6 +2221,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(119582, 'spell_monk_purifying_brew'),
 	(119593, 'spell_ominous_cackle_cast'),
 	(119611, 'spell_monk_renewing_mist'),
+	(119611, 'spell_monk_renewing_mist_hot'),
 	(119626, 'spell_sha_of_anger_aggressive_behaviour'),
 	(119678, 'spell_warl_soul_swap_soulburn'),
 	(119743, 'spell_item_pot_of_fire'),
@@ -2411,7 +2414,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(126746, 'spell_hun_glyph_of_fetch'),
 	(126748, 'spell_mage_conjure_familiar_glyph'),
 	(126825, 'spell_item_sonic_disruption'),
-	(126890, 'spell_monk_eminence'),
 	(126890, 'spell_monk_eminence_heal'),
 	(126892, 'spell_monk_zen_pilgrimage'),
 	(126895, 'spell_monk_zen_pilgrimage'),
@@ -3560,8 +3562,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(184989, 'spell_dru_starfall_update'),
 	(185002, 'spell_dru_starfall_update'),
 	(185099, 'spell_monk_rising_sun_kick'),
+	(185099, 'spell_monk_rising_sun_kick_free'),
 	(185915, 'spell_garrison_shipyard'),
 	(186007, 'spell_garrison_shipyard'),
+	(186723, 'spell_pri_penance_triggered'),
 	(187150, 'spell_gen_jewel_of_hellfire_trigger'),
 	(187150, 'spell_item_jewel_of_hellfire'),
 	(187159, 'spell_hellfire_flameorb_periodic'),

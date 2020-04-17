@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `creature_equip_template` (
   PRIMARY KEY (`entry`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_equip_template: 16,569 rows
+-- Dumping data for table worldlive.creature_equip_template: 16,570 rows
 DELETE FROM `creature_equip_template`;
 /*!40000 ALTER TABLE `creature_equip_template` DISABLE KEYS */;
 INSERT INTO `creature_equip_template` (`entry`, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES
@@ -3083,7 +3083,7 @@ INSERT INTO `creature_equip_template` (`entry`, `id`, `itemEntry1`, `itemEntry2`
 	(7775, 1, 3346, 0, 0),
 	(7776, 1, 3433, 0, 0),
 	(7778, 1, 2558, 0, 0),
-	(7783, 1, 12482, 12502, 0),
+	(7783, 0, 12482, 12502, 0),
 	(7787, 1, 1910, 0, 0),
 	(7788, 1, 3346, 0, 0),
 	(7789, 1, 12751, 0, 0),
@@ -9791,7 +9791,7 @@ INSERT INTO `creature_equip_template` (`entry`, `id`, `itemEntry1`, `itemEntry2`
 	(44321, 1, 2176, 0, 0),
 	(44323, 1, 13622, 0, 0),
 	(44324, 1, 13861, 0, 0),
-	(44326, 1, 1896, 0, 0),
+	(44331, 0, 1896, 0, 0),
 	(44328, 1, 1896, 0, 0),
 	(44336, 1, 1117, 0, 0),
 	(44337, 1, 45123, 0, 0),
@@ -9832,7 +9832,7 @@ INSERT INTO `creature_equip_template` (`entry`, `id`, `itemEntry1`, `itemEntry2`
 	(44443, 1, 41176, 0, 0),
 	(44444, 1, 58838, 58837, 0),
 	(44445, 1, 2827, 2827, 0),
-	(44447, 1, 1896, 0, 0),
+	(44447, 0, 1896, 0, 0),
 	(44451, 1, 2179, 0, 42775),
 	(44452, 1, 35939, 0, 0),
 	(44453, 1, 35561, 35561, 0),
@@ -16593,7 +16593,8 @@ INSERT INTO `creature_equip_template` (`entry`, `id`, `itemEntry1`, `itemEntry2`
 	(81672, 1, 0, 0, 128194),
 	(76085, 1, 0, 0, 55317),
 	(951, 1, 0, 0, 60219),
-	(11502, 1, 71352, 0, 0);
+	(11502, 1, 71352, 0, 0),
+	(44326, 0, 1896, 0, 0);
 /*!40000 ALTER TABLE `creature_equip_template` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
