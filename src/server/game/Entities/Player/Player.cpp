@@ -23249,18 +23249,49 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
     }
 }
 
-InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty)
+InstancePlayerBind* Player::GetBoundInstance(uint32 mapId, Difficulty difficulty)
 {
-    // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(mapid, difficulty);
+    // Some instances only have one difficulty.
+    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(mapId, difficulty);
     if (!mapDiff)
         return NULL;
 
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
-    if (itr != m_boundInstances[difficulty].end())
-        return &itr->second;
-    else
-        return NULL;
+	// Since Cataclysm, 10 and 25 man raids share a lock.
+	uint32 retrievalDifficulty = 0;
+	switch (difficulty)
+	{
+		case Difficulty10N:
+			retrievalDifficulty = Difficulty25N;
+			break;
+
+		case Difficulty25N:
+			retrievalDifficulty = Difficulty10N;
+			break;
+
+		case Difficulty10HC:
+			retrievalDifficulty = Difficulty25HC;
+			break;
+
+		case Difficulty25HC:
+			retrievalDifficulty = Difficulty10HC;
+			break;
+
+	default: break;
+	}
+
+	// Try to find an instance bind corresponding to the current difficulty.
+	BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapId);
+	if (itr != m_boundInstances[difficulty].end())
+		return &itr->second;
+	else
+	{
+		// If one doesn't exist and it's a raid, try to get the difficulty corresponding to the other version lock.
+		BoundInstancesMap::iterator itr2 = m_boundInstances[Difficulty(retrievalDifficulty)].find(mapId);
+		if (itr2 != m_boundInstances[Difficulty(retrievalDifficulty)].end())
+			return &itr2->second;
+		else
+			return NULL;
+	}
 }
 
 InstanceSave* Player::GetInstanceSave(uint32 p_MapID)

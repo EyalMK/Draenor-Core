@@ -155,7 +155,13 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             // solo/perm/group
             newInstanceId = pSave->GetInstanceId();
             map = FindInstanceMap(newInstanceId);
-            // it is possible that the save exists but the map doesn't
+
+			// Shared locks: create an instance to match the current player raid difficulty, if the save and player difficulties don't match.
+			// We must check for save difficulty going original diff -> new one, and map spawn mode going new -> original, to make sure all cases are handled.
+			if (IsRaid() && (player->GetDifficulty(IsRaid()) != pSave->GetDifficulty() || map && map->GetSpawnMode() != player->GetDifficulty(IsRaid())))
+				map = CreateInstance(newInstanceId, pSave, player->GetDifficulty(IsRaid()));
+
+			// It is possible that the save exists but the map doesn't, create it.
             if (!map)
                 map = CreateInstance(newInstanceId, pSave, pSave->GetDifficultyID());
         }
