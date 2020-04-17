@@ -43,6 +43,7 @@ if(SCRIPTS)
   include(Firestorm/CMakeLists.txt)
   include(Toys/CMakeLists.txt)
   include(Draenor/CMakeLists.txt)
+  include(Classic/CMakeLists.txt)
 endif()
 
 

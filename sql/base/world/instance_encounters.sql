@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `instance_encounters` (
   `comment` varchar(2295) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.instance_encounters: ~459 rows (approximately)
+-- Dumping data for table worldlive.instance_encounters: ~297 rows (approximately)
 DELETE FROM `instance_encounters`;
 /*!40000 ALTER TABLE `instance_encounters` DISABLE KEYS */;
 INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`) VALUES
@@ -39,7 +39,7 @@ INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEn
 	(444, 0, 3983, NULL, 'Interrogator Vishas'),
 	(449, 0, 4542, NULL, 'High Inquisitor Fairbanks'),
 	(553, 0, 4854, NULL, 'Grimlok'),
-	(493, 0, 5709, NULL, 'Shade of Eranikus'),
+	(493, 0, 5709, 28, 'Shade of Eranikus'),
 	(488, 0, 5710, NULL, 'Jammal\'an the Prophet'),
 	(490, 0, 5719, NULL, 'Morphaz'),
 	(487, 0, 5720, NULL, 'Weaver'),

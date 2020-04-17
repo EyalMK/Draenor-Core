@@ -421,8 +421,11 @@ void AddSC_boss_landslide();
 void AddSC_boss_noxxion();
 void AddSC_boss_ptheradras();
 
+/// Onyxia's Lair Classic
+void AddSC_boss_onyxia_classic();
+
 /// Onyxia's Lair
-void AddSC_boss_onyxia();
+//void AddSC_boss_onyxia();
 void AddSC_instance_onyxias_lair();
 
 /// Razorfen Downs
@@ -1568,7 +1571,8 @@ void AddKalimdorScripts()
     AddSC_boss_landslide();
     AddSC_boss_noxxion();
     AddSC_boss_ptheradras();
-    AddSC_boss_onyxia();
+    AddSC_boss_onyxia_classic();
+   // AddSC_boss_onyxia();
     AddSC_instance_onyxias_lair();
     AddSC_boss_amnennar_the_coldbringer();
     AddSC_razorfen_downs();

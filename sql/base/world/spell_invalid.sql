@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `spell_invalid` (
   `spellid` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.spell_invalid: ~549 rows (approximately)
+-- Dumping data for table worldlive.spell_invalid: ~517 rows (approximately)
 DELETE FROM `spell_invalid`;
 /*!40000 ALTER TABLE `spell_invalid` DISABLE KEYS */;
 INSERT INTO `spell_invalid` (`spellid`) VALUES

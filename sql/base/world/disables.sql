@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `disables` (
   PRIMARY KEY (`sourceType`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.disables: 151 rows
+-- Dumping data for table worldlive.disables: 152 rows
 DELETE FROM `disables`;
 /*!40000 ALTER TABLE `disables` DISABLE KEYS */;
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
@@ -176,7 +176,8 @@ INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, 
 	(1, 26947, 0, '', '', 'Deprecated quest: A Woodsman\'s Training'),
 	(1, 26948, 0, '', '', 'Deprecated quest: Moonfire'),
 	(1, 26949, 0, '', '', 'Deprecated quest: Learning the Word'),
-	(0, 126892, 7, '', '', '1-60 spell 126892/zen-pilgrimage');
+	(0, 126892, 7, '', '', '1-60 spell 126892/zen-pilgrimage'),
+	(1, 7632, 0, '', '', 'Quest - The Ancient Leaf - Deprecated in 4.0.3');
 /*!40000 ALTER TABLE `disables` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -55,7 +55,7 @@ uint8 gExpansionPerClass[] =
     EXPANSION_VANILLA,                  ///< CLASS_SHAMAN
     EXPANSION_VANILLA,                  ///< CLASS_MAGE
     EXPANSION_VANILLA,                  ///< CLASS_WARLOCK
-    EXPANSION_MISTS_OF_PANDARIA,        ///< CLASS_MONK
+	EXPANSION_VANILLA,                  ///< CLASS_MONK
     EXPANSION_VANILLA,                  ///< CLASS_DRUID
 };
 
