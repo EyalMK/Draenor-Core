@@ -84,7 +84,7 @@ public:
             player->AddQuest(quest, NULL);
 
             if (player->CanCompleteQuest(entry))
-                player->CompleteQuest(entry);
+                player->CompleteQuest(entry, false);
         }
 
         return true;
@@ -230,7 +230,7 @@ public:
             }
         }
 
-        l_Player->CompleteQuest(entry);
+        l_Player->CompleteQuest(entry, false);
         return true;
     }
 

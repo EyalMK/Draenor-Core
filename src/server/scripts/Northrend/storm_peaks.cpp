@@ -184,7 +184,7 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
                 player->CLOSE_GOSSIP_MENU();
-                player->CompleteQuest(QUEST_SIBLING_RIVALRY);
+                player->CompleteQuest(QUEST_SIBLING_RIVALRY, false);
                 break;
         }
         return true;
@@ -348,7 +348,7 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
                 player->CLOSE_GOSSIP_MENU();
-                player->CompleteQuest(QUEST_HYLDSMEET);
+                player->CompleteQuest(QUEST_HYLDSMEET, false);
                 break;
         }
         return true;

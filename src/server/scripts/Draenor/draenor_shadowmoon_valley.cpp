@@ -225,7 +225,7 @@ public:
 						{
 							if (l_Player->HasQuest(eQuests::QuestFindingAFoothold))
 								l_Player->QuestObjectiveSatisfy(79697, 1);
-							l_Player->CompleteQuest(eQuests::QuestFindingAFoothold);
+							l_Player->CompleteQuest(eQuests::QuestFindingAFoothold, false);
 						}
 					}
 				});
@@ -1031,7 +1031,7 @@ public:
 									{
 										if (l_Player->HasQuest(eQuests::QuestForTheAlliance))
 											l_Player->QuestObjectiveSatisfy(79433, 1);
-										l_Player->CompleteQuest(eQuests::QuestForTheAlliance);
+										l_Player->CompleteQuest(eQuests::QuestForTheAlliance, false);
 									}
 								}
 

@@ -143,7 +143,7 @@ namespace MS {
 				if (const Quest* l_Quest = sObjectMgr->GetQuestTemplate(l_QuestEntry))
 				{
 					m_Owner->AddQuest(l_Quest, m_Owner);
-					m_Owner->CompleteQuest(l_QuestEntry);
+					m_Owner->CompleteQuest(l_QuestEntry, false);
 				}
 			}
 
@@ -499,7 +499,7 @@ namespace MS {
 					if (const Quest* l_Quest = sObjectMgr->GetQuestTemplate(l_QuestEntry))
 					{
 						m_Owner->AddQuest(l_Quest, m_Owner);
-						m_Owner->CompleteQuest(l_QuestEntry);
+						m_Owner->CompleteQuest(l_QuestEntry, false);
 					}
 				}
 

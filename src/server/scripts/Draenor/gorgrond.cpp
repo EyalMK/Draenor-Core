@@ -2714,7 +2714,7 @@ public:
 							if (Player* p_Player = me->GetPlayer(*me, m_PlayerGUID))
 							{
 								if (p_Player->HasQuest(eQuests::Quest_LostMoleMachines))
-									p_Player->CompleteQuest(eQuests::Quest_LostMoleMachines);
+									p_Player->CompleteQuest(eQuests::Quest_LostMoleMachines, false);
 							}
 						}
 					});

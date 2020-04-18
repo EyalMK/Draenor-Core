@@ -337,7 +337,7 @@ namespace MS { namespace Garrison
                         uint32 l_Quest = p_Player->GetTeamId() == TEAM_ALLIANCE ? Quests::Alliance_WarlordOfDraenor : Quests::Horde_WarlordOfDraenor;
 
                         if (p_Player->GetQuestStatus(l_Quest) == QUEST_STATUS_INCOMPLETE)
-                            p_Player->CompleteQuest(l_Quest);
+                            p_Player->CompleteQuest(l_Quest, false);
                     }
                     break;
                 default:

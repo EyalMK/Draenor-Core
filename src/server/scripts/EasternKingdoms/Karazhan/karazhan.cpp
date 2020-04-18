@@ -606,7 +606,7 @@ class npc_image_of_medivh : public CreatureScript
                                 if (i->getSource()->isAlive())
                                 {
                                     if (i->getSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
-                                        i->getSource()->CompleteQuest(9645);
+                                        i->getSource()->CompleteQuest(9645, false);
                                 }
                             }
                         }

@@ -1113,7 +1113,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         {
             this->AddQuest(quest, NULL);
             if (CanCompleteQuest(quest->GetQuestId()))
-                CompleteQuest(quest->GetQuestId());
+                CompleteQuest(quest->GetQuestId(), false);
         }
     }
 
@@ -18867,7 +18867,7 @@ void Player::HandleAutoCompleteQuest(Quest const* p_Quest)
             }
         }
 
-        CompleteQuest(p_Quest->GetQuestId());
+        CompleteQuest(p_Quest->GetQuestId(), false);
     }
 }
 
@@ -18952,7 +18952,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     sScriptMgr->OnQuestAccept(this, quest);
 
     if (quest->QuestObjectives.empty())
-        CompleteQuest(quest->GetQuestId());
+        CompleteQuest(quest->GetQuestId(), false);
 
     HandleAutoCompleteQuest(quest);
 }
@@ -20218,7 +20218,7 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
             }
         }
         if (CanCompleteQuest(questId))
-            CompleteQuest(questId);
+            CompleteQuest(questId, false);
     }
 }
 
@@ -20298,7 +20298,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 }
 
                 if (CanCompleteQuest(questid))
-                    CompleteQuest(questid);
+                    CompleteQuest(questid, false);
 
                 return;
             }
@@ -20411,7 +20411,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
                         sScriptMgr->OnObjectiveValidate(this, questid, l_Objective.ID);
 
                     if (CanCompleteQuest(questid))
-                        CompleteQuest(questid);
+                        CompleteQuest(questid, false);
 
                     break;
                 }
@@ -20451,7 +20451,7 @@ void Player::KilledPlayerCredit()
                     }
 
                     if (CanCompleteQuest(questid))
-                        CompleteQuest(questid);
+                        CompleteQuest(questid, false);
 
                     break;
                 }
@@ -20488,7 +20488,7 @@ void Player::MoneyChanged(uint64 count)
                 if (int32(count) >= -qInfo->GetRewMoney())
                 {
                     if (CanCompleteQuest(questid))
-                        CompleteQuest(questid);
+                        CompleteQuest(questid, false);
                 }
             }
             else if (q_status.Status == QUEST_STATUS_COMPLETE)
@@ -20535,7 +20535,7 @@ void Player::ReputationChangedQuestCheck(FactionEntry const* factionEntry)
                 {
                     if (GetReputationMgr().GetReputation(factionEntry) >= l_Objective.Amount)
                         if (CanCompleteQuest(questId))
-                            CompleteQuest(questId);
+                            CompleteQuest(questId, false);
                 }
                 else if (questStatus.Status == QUEST_STATUS_COMPLETE)
                 {
@@ -20583,7 +20583,7 @@ void Player::QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type, u
                 SendQuestUpdateAddCredit(quest, l_Objective, guid, currentCounter, amount);
 
                 if (CanCompleteQuest(questId))
-                    CompleteQuest(questId);
+                    CompleteQuest(questId, false);
 
                 break;
             }

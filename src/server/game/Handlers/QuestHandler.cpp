@@ -199,7 +199,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             }
 
             if (m_Player->CanCompleteQuest(questId))
-                m_Player->CompleteQuest(questId);
+                m_Player->CompleteQuest(questId, false);
 
             switch (object->GetTypeId())
             {
@@ -291,7 +291,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
 
                 m_Player->AddQuest(quest, object);
                 if (m_Player->CanCompleteQuest(l_QuestId))
-                    m_Player->CompleteQuest(l_QuestId);
+                    m_Player->CompleteQuest(l_QuestId, false);
             }
             else
                 m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID());
@@ -391,7 +391,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
                                 m_Player->AddQuest(l_NextQuest, l_Object);
 
                                 if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
-                                    m_Player->CompleteQuest(l_NextQuest->GetQuestId());
+                                    m_Player->CompleteQuest(l_NextQuest->GetQuestId(), false);
                             }
 
                             m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
@@ -424,7 +424,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
                                 m_Player->AddQuest(l_NextQuest, l_Object);
 
                                 if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
-                                    m_Player->CompleteQuest(l_NextQuest->GetQuestId());
+                                    m_Player->CompleteQuest(l_NextQuest->GetQuestId(), false);
                             }
 
                             m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
@@ -465,7 +465,7 @@ void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
         return;
 
     if (m_Player->CanCompleteQuest(questId))
-        m_Player->CompleteQuest(questId);
+        m_Player->CompleteQuest(questId, false);
 
     if (m_Player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE)
         return;

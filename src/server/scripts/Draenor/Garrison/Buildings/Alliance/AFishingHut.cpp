@@ -331,7 +331,7 @@ namespace MS { namespace Garrison
                 if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Quest_FishFight))
                 {
                     p_Player->AddQuest(l_Quest, p_Creature);
-                    p_Player->CompleteQuest(l_Quest->GetQuestId());
+                    p_Player->CompleteQuest(l_Quest->GetQuestId(), false);
                     p_Player->RewardQuest(l_Quest, 0, p_Creature, false);
                 }
 

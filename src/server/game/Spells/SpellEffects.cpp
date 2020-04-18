@@ -5896,7 +5896,7 @@ void Spell::EffectQuestComplete(SpellEffIndex effIndex)
         if (logSlot < MAX_QUEST_LOG_SIZE)
             player->AreaExploredOrEventHappens(questId);
         else if (player->CanTakeQuest(quest, false))    // never rewarded before
-            player->CompleteQuest(questId);             // quest not in log - for internal use
+            player->CompleteQuest(questId, false);             // quest not in log - for internal use
     }
 }
 
@@ -8054,12 +8054,12 @@ void Spell::EffectCreateGarrison(SpellEffIndex /*p_EffIndex*/)
     if (l_TeamID == TEAM_ALLIANCE)
     {
         l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A), l_TargetPlayer);
-        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
+        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A, false);
     }
     else if (l_TeamID == TEAM_HORDE)
     {
         l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H), l_TargetPlayer);
-        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
+        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H, false);
     }
 
     /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide

@@ -234,7 +234,7 @@ namespace MS {
 
 				p_Owner->AddMovieDelayedTeleport(l_Entry->MovieID, l_Entry->MapID, 1759.94f, 184.86f, 71.50f, 0.57f);
 				p_Owner->SendMovieStart(l_Entry->MovieID);
-				p_Owner->CompleteQuest(Quests::Alliance_BiggerIsBetter);
+				p_Owner->CompleteQuest(Quests::Alliance_BiggerIsBetter, false);
 			}
 
 			//////////////////////////////////////////////////////////////////////////

@@ -22,7 +22,7 @@ class npc_ashran_commander_anne_dunworthy : public CreatureScript
         bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eQuest::WelcomeToAshran) == QuestStatus::QUEST_STATUS_INCOMPLETE)
-                p_Player->CompleteQuest(eQuest::WelcomeToAshran);
+                p_Player->CompleteQuest(eQuest::WelcomeToAshran, false);
 
             return false;
         }
@@ -42,7 +42,7 @@ class npc_ashran_general_ushet_wolfbarger : public CreatureScript
         bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eDatas::WelcomeToAshran) == QuestStatus::QUEST_STATUS_INCOMPLETE)
-                p_Player->CompleteQuest(eDatas::WelcomeToAshran);
+                p_Player->CompleteQuest(eDatas::WelcomeToAshran, false);
 
             return false;
         }

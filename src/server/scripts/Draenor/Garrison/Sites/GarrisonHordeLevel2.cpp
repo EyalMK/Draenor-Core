@@ -106,10 +106,10 @@ namespace MS { namespace Garrison { namespace Sites
                 p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Plot Finalize
                 p_Owner->QuestObjectiveSatisfy(78466, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());           ///< Follow Gazlowe
 
-                p_Owner->CompleteQuest(Quests::Horde_BuildYourBarracks);
+                p_Owner->CompleteQuest(Quests::Horde_BuildYourBarracks, false);
             }
 
-            p_Owner->CompleteQuest(Quests::Horde_BuildYourBarracks);
+            p_Owner->CompleteQuest(Quests::Horde_BuildYourBarracks, false);
         }
 
         if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) != QUEST_STATUS_REWARDED)
@@ -127,7 +127,7 @@ namespace MS { namespace Garrison { namespace Sites
             p_Owner->QuestObjectiveSatisfy(80225, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());
             p_Owner->QuestObjectiveSatisfy(86775, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());
 
-            p_Owner->CompleteQuest(Quests::QUEST_WHAT_WE_GOT);
+            p_Owner->CompleteQuest(Quests::QUEST_WHAT_WE_GOT, false);
         }
     }
 

@@ -512,7 +512,7 @@ public:
                         if (who->HasAura(SPELL_CRATES_CARRIED))
                         {
                             owner->CastSpell(owner, SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
-                            CAST_PLR(owner)->CompleteQuest(QUEST_LOADER_UP);
+                            CAST_PLR(owner)->CompleteQuest(QUEST_LOADER_UP, false);
                             CAST_CRE(who)->DisappearAndDie();
                         }
                     }

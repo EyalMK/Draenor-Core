@@ -489,7 +489,7 @@ public:
         {
             if (KillCount >= 3 && PlayerGUID)
                 if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
-                    player->CompleteQuest(QUEST_UNEXPECTED_RESULT);
+                    player->CompleteQuest(QUEST_UNEXPECTED_RESULT, false);
 
             if (Summon)
             {
@@ -590,7 +590,7 @@ public:
                 Completed = true;
                 if (PlayerGUID)
                     if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
-                        CAST_PLR(player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
+                        CAST_PLR(player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES, false);
 
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();

@@ -125,13 +125,13 @@ namespace MS {
 				{
 					p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
 					p_Player->QuestObjectiveSatisfy(79757, 1);
-					p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
+					p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_A, false);
 				}
 				else if (l_TeamID == TEAM_HORDE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_H) != QUEST_STATUS_REWARDED)
 				{
 					p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
 					p_Player->QuestObjectiveSatisfy(233664, 1);
-					p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
+					p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_H, false);
 				}
 
 				/*We're removing these since introductions are completed

@@ -113,10 +113,10 @@ namespace MS {
 						p_Owner->QuestObjectiveSatisfy(36175, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Start Construction
 						p_Owner->QuestObjectiveSatisfy(36173, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Plot Finalize
 
-						p_Owner->CompleteQuest(Quests::Alliance_BuildYourBarracks);
+						p_Owner->CompleteQuest(Quests::Alliance_BuildYourBarracks, false);
 					}
 
-					p_Owner->CompleteQuest(Quests::Alliance_BuildYourBarracks);
+					p_Owner->CompleteQuest(Quests::Alliance_BuildYourBarracks, false);
 				}
 			}
 
