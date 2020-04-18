@@ -2477,9 +2477,11 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
             else if (index == GAMEOBJECT_FIELD_FLAGS)
             {
                 uint32 flags = m_uint32Values[GAMEOBJECT_FIELD_FLAGS];
-                if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
-                    if ((GetGOInfo()->chest.usegrouplootrules || GetGOInfo()->GetTrackingQuestId()) && !IsLootAllowedFor(target))
-                        flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
+				if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
+				{
+					if ((GetGOInfo()->chest.usegrouplootrules || GetGOInfo()->GetTrackingQuestId()) && (!IsLootAllowedFor(target) || GetOwner() && GetOwner()->ToCreature() && !target->CanLootWeeklyBoss(GetOwner()->ToCreature())))
+						flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
+				}
 
                 fieldBuffer << flags;
             }

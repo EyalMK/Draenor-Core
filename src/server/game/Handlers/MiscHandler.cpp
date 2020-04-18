@@ -2068,7 +2068,7 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 	time_t now = time(NULL);
 
 	// If recently changed difficulty using this system, there is a 5 min cooldown.
-	uint32 lastDifficultyChangeTimePassed = timeLastDifficultyChange ? uint32(now - timeLastDifficultyChange) : 0;
+	uint32 lastDifficultyChangeTimePassed = m_TimeLastDifficultyChange ? uint32(now - timeLastDifficultyChange) : 0;
 	if (lastDifficultyChangeTimePassed && lastDifficultyChangeTimePassed <= 5 * MINUTE)
 		result = DIFF_CHANGE_FAIL_COOLDOWN;
 
@@ -2280,10 +2280,10 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 
 						groupGuy->SendInitialPacketsAfterAddToMap();
 
-						if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(map->GetId(), oldDifficulty))
+						if (time_t timeReset = uint64(sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME)))
 						{
 							uint32 timeleft = uint32(timeReset - time(NULL));
-							groupGuy->SendRaidInstanceMessage(map->GetId(), oldDifficulty, timeleft);
+							groupGuy->SendRaidInstanceMessage(map->GetId(), Difficulty(difficulty), timeleft);
 						}
 
 						// Send the difficulty change result to all players to remove their loading screen.

@@ -369,19 +369,56 @@ void WorldSession::DoLootRelease(uint64 lguid)
             // locked doors are opened with spelleffect openlock, prevent remove its as looted
             go->UseDoorOrButton();
         }
-        else if (loot->isLooted() || go->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE)
-        {
-            if (go->GetGoType() == GAMEOBJECT_TYPE_FISHINGHOLE)
-            {                                               // The fishing hole used once more
-                go->AddUse();                               // if the max usage is reached, will be despawned in next tick
+		else if (loot->isLooted() || go->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE)
+		{
+			if (go->GetGoType() == GAMEOBJECT_TYPE_FISHINGHOLE)
+			{                                               // The fishing hole used once more
+				go->AddUse();                               // if the max usage is reached, will be despawned in next tick
 
-                if (go->GetUseCount() >= urand(go->GetGOInfo()->fishinghole.minRestock, go->GetGOInfo()->fishinghole.maxRestock))
-                    go->SetLootState(GO_JUST_DEACTIVATED);
-                else
-                    go->SetLootState(GO_READY);
-            }
-            else
-                go->SetLootState(GO_JUST_DEACTIVATED);
+				if (go->GetUseCount() >= urand(go->GetGOInfo()->fishinghole.minRestock, go->GetGOInfo()->fishinghole.maxRestock))
+					go->SetLootState(GO_JUST_DEACTIVATED);
+				else
+					go->SetLootState(GO_READY);
+			}
+			else
+			{
+				// Some bosses spawn a chest when they die and loot is handled through that. We can manage weekly boss loot allowance when the chest is looted.
+				if (go->GetOwner())
+				{
+					if (Creature* creature = go->GetOwner()->ToCreature())
+					{
+						// New Loot-based Lockout system. Check and allow the player / group to loot the weekly boss just once, if it wasn't looted before.
+						if (Group* group = player->GetGroup())
+						{
+							for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+							{
+								if (Player* groupGuy = itr->getSource())
+								{
+									// Raid bosses don't have a quest for Normal and a separate one for Heroic, just a LFR one. Handle them here.
+									if (!creature->HasWeeklyBossLootQuestId() && creature->GetCreatureTemplate()->rank == CREATURE_ELITE_WORLDBOSS && creature->GetMap()->GetInstanceLockType() == INSTANCE_LOCK_LOOT_BASED && creature->GetMap()->GetDifficultyID() != DifficultyRaidTool && groupGuy->CanLootWeeklyBoss(creature))
+										groupGuy->SetWeeklyBossLooted(creature, true);
+
+									// LFR bosses and world bosses have specific quests.
+									if (player->IsInMap(groupGuy) && creature->HasWeeklyBossLootQuestId() && !groupGuy->IsFirstWeeklyBossKill(creature) && groupGuy->CanLootWeeklyBoss(creature))
+										groupGuy->SetWeeklyBossLooted(creature, true);
+								}
+							}
+						}
+						else
+						{
+							// Raid bosses don't have a quest for Normal and a separate one for Heroic, just a LFR one. Handle them here.
+							if (!creature->HasWeeklyBossLootQuestId() && creature->GetCreatureTemplate()->rank == CREATURE_ELITE_WORLDBOSS && creature->GetMap()->GetInstanceLockType() == INSTANCE_LOCK_LOOT_BASED && creature->GetMap()->GetDifficultyID() != DifficultyRaidTool && player->CanLootWeeklyBoss(creature))
+								player->SetWeeklyBossLooted(creature, true);
+
+							// LFR bosses and world bosses have specific quests.
+							if (creature->HasWeeklyBossLootQuestId() && !player->IsFirstWeeklyBossKill(creature) && player->CanLootWeeklyBoss(creature))
+								player->SetWeeklyBossLooted(creature, true);
+						}
+					}
+				}
+				go->SetLootState(GO_JUST_DEACTIVATED);
+
+			}
 
             loot->clear();
         }
@@ -463,17 +500,31 @@ void WorldSession::DoLootRelease(uint64 lguid)
                 creature->AllLootRemovedFromCorpse();
 
 			// New Loot-based Lockout system. Check and allow the player / group to loot the weekly boss just once, if it wasn't looted before.
-			if (Group* group = GetPlayer()->GetGroup())
+			if (Group* group = player->GetGroup())
 			{
 				for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+				{
 					if (Player* groupGuy = itr->getSource())
-						if (GetPlayer()->IsInMap(groupGuy) && creature->HasWeeklyBossLootQuestId() && !groupGuy->IsFirstWeeklyBossKill(creature) && groupGuy->CanLootWeeklyBoss(creature))
+					{
+						// Raid bosses don't have a quest for Normal and a separate one for Heroic, just a LFR one. Handle them here.
+						if (!creature->HasWeeklyBossLootQuestId() && creature->GetCreatureTemplate()->rank == CREATURE_ELITE_WORLDBOSS && creature->GetMap()->GetInstanceLockType() == INSTANCE_LOCK_LOOT_BASED && creature->GetMap()->GetDifficultyID() != DifficultyRaidTool && groupGuy->CanLootWeeklyBoss(creature))
 							groupGuy->SetWeeklyBossLooted(creature, true);
+
+						// LFR bosses and world bosses have specific quests.
+						if (player->IsInMap(groupGuy) && creature->HasWeeklyBossLootQuestId() && !groupGuy->IsFirstWeeklyBossKill(creature) && groupGuy->CanLootWeeklyBoss(creature))
+							groupGuy->SetWeeklyBossLooted(creature, true);
+					}
+				}
 			}
 			else
 			{
-				if (creature->HasWeeklyBossLootQuestId() && !GetPlayer()->IsFirstWeeklyBossKill(creature) && GetPlayer()->CanLootWeeklyBoss(creature))
-					GetPlayer()->SetWeeklyBossLooted(creature, true);
+				// Raid bosses don't have a quest for Normal and a separate one for Heroic, just a LFR one. Handle them here.
+				if (!creature->HasWeeklyBossLootQuestId() && creature->GetCreatureTemplate()->rank == CREATURE_ELITE_WORLDBOSS && creature->GetMap()->GetInstanceLockType() == INSTANCE_LOCK_LOOT_BASED && creature->GetMap()->GetDifficultyID() != DifficultyRaidTool && player->CanLootWeeklyBoss(creature))
+					player->SetWeeklyBossLooted(creature, true);
+
+				// LFR bosses and world bosses have specific quests.
+				if (creature->HasWeeklyBossLootQuestId() && !player->IsFirstWeeklyBossKill(creature) && player->CanLootWeeklyBoss(creature))
+					player->SetWeeklyBossLooted(creature, true);
 			}
 
             creature->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);

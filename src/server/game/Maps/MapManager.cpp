@@ -270,8 +270,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 			InstancePlayerBind* leaderBoundInstance = leader->GetBoundInstance(mapid, leader->GetDifficulty(entry->IsRaid()));
 			InstancePlayerBind* playerBoundInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry->IsRaid())); // Player inherits leader difficulty.
 
-			// The leader / players cannot enter a raid if a boss is killed on Normal and alive on Heroic (unless using Dynamic Difficulty), and viceversa.
-			if (leader->GetBoundInstance(mapid, Difficulty(boundDifficultyToCheck)))
+			// The leader / players cannot enter a raid if a boss is killed and they used Dynamic Difficulty for it, unless they use it from inside.
+			if (player->GetBoundInstance(mapid, Difficulty(boundDifficultyToCheck)) && player->HasDynamicDifficultyMap(mapid))
 			{
 				player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY);
 				return false;
