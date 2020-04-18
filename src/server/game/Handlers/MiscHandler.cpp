@@ -2068,7 +2068,7 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 	time_t now = time(NULL);
 
 	// If recently changed difficulty using this system, there is a 5 min cooldown.
-	uint32 lastDifficultyChangeTimePassed = m_TimeLastDifficultyChange ? uint32(now - timeLastDifficultyChange) : 0;
+	uint32 lastDifficultyChangeTimePassed = m_TimeLastDifficultyChange ? uint32(now - m_TimeLastDifficultyChange) : 0;
 	if (lastDifficultyChangeTimePassed && lastDifficultyChangeTimePassed <= 5 * MINUTE)
 		result = DIFF_CHANGE_FAIL_COOLDOWN;
 
@@ -2241,13 +2241,16 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 	}
 	if (result == DIFF_CHANGE_SUCCESS)  // It finally worked! Update everything.
 	{
-		timeLastDifficultyChange = now;
+		m_TimeLastDifficultyChange = now;
 		if (group)
 		{
 			if (group->IsLeader(player->GetGUID()))
 			{
 				// Set raid difficulty.
 				group->SetRaidDifficultyID(Difficulty(difficulty));
+
+				// Update only the leader's map. All group members will be added to it and on the same instance map.
+				Map* map2 = sMapMgr->CreateMap(map->GetId(), player);
 
 				for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next()) // Remove the loading screen and update the zone for all players here.
 				{
