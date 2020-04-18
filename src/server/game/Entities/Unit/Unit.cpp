@@ -19051,13 +19051,13 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                 /// There is no lockout scheduled in challenge mode
                 if (l_InstanceMap->IsRaidOrHeroicDungeon() && !l_InstanceMap->IsChallengeMode())
                 {
-                    if (l_KilledCreature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                        ((InstanceMap*)l_InstanceMap)->PermBindAllPlayers(l_KillerPlayer);
+					// Weekly loot lock maps do not permanently bind players, they can kill the bosses any number of times.
+					if (l_KilledCreature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND && l_InstanceMap->GetInstanceLockType() != INSTANCE_LOCK_LOOT_BASED)
+						((InstanceMap*)l_InstanceMap)->PermBindAllPlayers(l_KillerPlayer);
                 }
                 else
                 {
-                    /// the reset time is set but not added to the scheduler
-                    /// until the players leave the instance
+					// The reset time is set but not added to the scheduler until the players leave the instance.
                     time_t l_ResetTime = l_KilledCreature->GetRespawnTimeEx() + 2 * HOUR;
 
                     if (InstanceSave* l_Save = sInstanceSaveMgr->GetInstanceSave(l_KilledCreature->GetInstanceId()))
