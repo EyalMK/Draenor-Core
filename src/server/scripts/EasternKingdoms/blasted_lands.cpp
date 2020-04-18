@@ -237,23 +237,20 @@ public:
 		ITEM_STONE_KNIFE				= 56012
 	};
 
-	bool OnGossipHello(Player* p_Player, Creature* p_Creature, Quest* p_Quest)
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
 	{
-		if (p_Player->getFaction() == TEAM_ALLIANCE && (p_Player->HasQuest(ALLIANCE_DEMON_QUEST) && p_Player->GetQuestStatus(ALLIANCE_DEMON_QUEST) == QUEST_STATUS_INCOMPLETE && p_Player->HasItemCount(ITEM_STONE_KNIFE)))
-		{
+		if (p_Player->GetTeamId() == TEAM_ALLIANCE && p_Player->GetQuestStatus(ALLIANCE_DEMON_QUEST) == QUEST_STATUS_INCOMPLETE && p_Player->HasItemCount(ITEM_STONE_KNIFE))
 				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_USHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-		}
-		else if (p_Player->getFaction() == TEAM_HORDE && p_Player->HasQuest(HORDE_DEMON_QUEST) && p_Player->GetQuestStatus(HORDE_DEMON_QUEST) == QUEST_STATUS_INCOMPLETE && p_Player->HasItemCount(ITEM_STONE_KNIFE))
-		{
+
+		if (p_Player->GetTeamId() == TEAM_HORDE && p_Player->GetQuestStatus(HORDE_DEMON_QUEST) == QUEST_STATUS_INCOMPLETE && p_Player->HasItemCount(ITEM_STONE_KNIFE))
 				p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_USHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-		}
 
 		p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(p_Creature), p_Creature->GetGUID());
 
 		return true;
 	}
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -318,7 +315,7 @@ public:
 		EventMap m_CosmeticEvents;
 		EventMap m_Events;
 
-		void Reset()
+		void Reset() override
 		{
 			m_Events.Reset();
 			ClearDelayedOperations();
@@ -440,10 +437,10 @@ public:
 	};
 
 	
-		CreatureAI* GetAI(Creature* p_Creature) const
-		{
-			return new npc_loramus_thalipedesAI(p_Creature);
-		}
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_loramus_thalipedesAI(p_Creature);
+	}
 };
 
 
@@ -491,7 +488,7 @@ public:
 
 		Player* l_Target;
 
-		void Reset()
+		void Reset() override
 		{
 			ClearDelayedOperations();
 			l_Target = nullptr;
@@ -589,7 +586,7 @@ public:
 		}
 
 
-		void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
+		void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/) override
 		{
 			if (me->GetHealthPct() <= 25.0f)
 			{
@@ -601,7 +598,7 @@ public:
 
 
 	};
-	CreatureAI* GetAI(Creature* p_Creature) const
+	CreatureAI* GetAI(Creature* p_Creature) const override
 	{
 		return new npc_razelikh_the_defilerAI(p_Creature);
 	}
@@ -653,7 +650,7 @@ public:
 
 		Player* l_Target;
 
-		void SpellHit(Unit* /*who*/, SpellInfo const* spellInfo)
+		void SpellHit(Unit* /*who*/, SpellInfo const* spellInfo) override
 		{
 			if (spellInfo->Id == SPELL_KNIFE)
 				if (me->GetHealth() == 1.0f)
@@ -661,7 +658,7 @@ public:
 		}
 
 
-		void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
+		void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/) override
 		{
 
 			if (me->GetHealthPct() == 25.0f)
@@ -728,11 +725,12 @@ public:
 					break;
 			}
 		}
-		CreatureAI* GetAI(Creature* p_Creature) const
-		{
-			return new npc_loramus_the_defiledAI(p_Creature);
-		}
 	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_loramus_the_defiledAI(p_Creature);
+	}
 };
 
 
@@ -830,17 +828,17 @@ public:
 			{
 				case BEGIN_BLOOD_RITUAL:
 					{
-						AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 						{
 							Talk(0); // Very well. Stand back...	
 						});
 
-						AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 						{
 							me->CastSpell(me, SPELL_BLOOD_RITUAL, true);
 						});
 
-						AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 						{
 							Talk(1); // The blood ritual is complete...
 						});
@@ -848,12 +846,12 @@ public:
 					}
 				case BEGIN_FINAL_RITUAL:
 					{
-						AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 						{
 							Talk(2); // With the power within the amulets of Razelikh...
 						});
 
-						AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						AddTimedDelayedOperation(3.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 						{
 							Talk(3); // ... I bind you to his lair!
 						});
