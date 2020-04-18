@@ -1191,6 +1191,7 @@ enum Opcodes
     CMSG_GOSSIP_HELLO                           = 0x0A19, ///< 6.2.3 20726
     CMSG_GOSSIP_SELECT_OPTION                   = 0x0A59, ///< 6.2.3 20726
     CMSG_TOGGLE_PVP                             = 0x08AC, ///< 6.2.3 20726
+	CMSG_TOGGLE_DIFFICULTY						= 0x107F, ///< 6.2.3 20726
     CMSG_TUTORIAL                               = 0x0164, ///< 6.2.3 20726
     CMSG_SET_SPECIALIZATION                     = 0x1C82, ///< 6.2.3 20726
     CMSG_SET_WATCHED_FACTION                    = 0x1905, ///< 6.2.3 20726
