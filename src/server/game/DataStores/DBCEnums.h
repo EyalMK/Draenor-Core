@@ -121,6 +121,8 @@ enum AreaFlags2
 
 enum Difficulty
 {
+	// Pre-5.4 patch difficulties
+
     DifficultyNone          = 0,  ///< difficulty_entry_0
     DifficultyNormal        = 1,  ///< difficulty_entry_1
     DifficultyHeroic        = 2,  ///< difficulty_entry_2
@@ -134,6 +136,8 @@ enum Difficulty
 
     DifficultyHCScenario    = 11, ///< difficulty_entry_11
     DifficultyNScenario     = 12, ///< difficulty_entry_12
+
+	// Post-5.4 patch difficulties (SoO and any WoD raid)
 
     DifficultyRaidNormal    = 14, ///< difficulty_entry_14
     DifficultyRaidHeroic    = 15, ///< difficulty_entry_15
@@ -224,6 +228,18 @@ enum MapFlags
     MAP_FLAG_UNK_28                 = 0x08000000,
     MAP_FLAG_UNK_29                 = 0x10000000,
     MAP_FLAG_UNK_30                 = 0x20000000
+};
+
+enum MapEntryNames
+{
+	MAP_EASTERN_KINGDOMS			= 0,
+	MAP_KALIMDOR					= 1,
+	MAP_OUTLAND						= 530,
+	MAP_NORTHREND					= 571,
+	MAP_PANDARIA					= 870,
+
+	// Instance maps.
+	MAP_SIEGE_ORGRIMMAR				= 1136
 };
 
 enum FactionTemplateFlags

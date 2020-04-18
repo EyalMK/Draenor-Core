@@ -1401,6 +1401,9 @@ class ObjectMgr
 #endif /* CROSS */
         uint64 GenerateVoidStorageItemId();
 
+		// New Loot-based Lockout system.
+		uint32 GetWeeklyBossLootQuestId(uint32 creatureEntry, uint32 difficulty);
+
 #ifdef CROSS
         uint32 GenerateLocalRealmLowGuid(HighGuid p_GuidHigh, uint32 p_RealmID);
 

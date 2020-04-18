@@ -495,10 +495,11 @@ void Unit::UpdateSplineMovement(uint32 p_Diff)
     movespline->updateState(p_Diff);
     l_Arrived = movespline->Finalized();
 
-    if (l_Arrived)
-        DisableSpline();
+	if (l_Arrived && m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FORWARD))
+		m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
 
     m_movesplineTimer.Update(p_Diff);
+
     if (m_movesplineTimer.Passed() || l_Arrived)
         UpdateSplinePosition();
 
@@ -10809,7 +10810,8 @@ void Unit::CombatStop(bool includingCast)
     RemoveAllAttackers();
     if (IsPlayer())
         ToPlayer()->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
-    ClearInCombat();
+    
+	ClearInCombat();
 }
 
 void Unit::CombatStopWithPets(bool includingCast)

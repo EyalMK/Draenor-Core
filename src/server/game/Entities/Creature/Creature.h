@@ -776,6 +776,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id)  const override;
 
+		// New Loot-based Lockout system.
+		bool HasWeeklyBossLootQuestId();
+
         bool isRegeneratingHealth() { return m_regenHealth; }
         void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
 		float GetPetChaseDistance() const;

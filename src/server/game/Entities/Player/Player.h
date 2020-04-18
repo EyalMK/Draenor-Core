@@ -1982,9 +1982,9 @@ class Player : public Unit, public GridObject<Player>
         bool CanRewardQuest(Quest const* quest, uint32 reward, bool msg);
         void HandleAutoCompleteQuest(Quest const* quest);
         void AddQuest(Quest const* quest, Object* questGiver);
-        void CompleteQuest(uint32 quest_id);
+        void CompleteQuest(uint32 quest_id, bool p_NoRewards = false);
         void IncompleteQuest(uint32 quest_id);
-        void RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce = true);
+        void RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce = true, bool p_NoRewards = false);
         void FailQuest(uint32 quest_id);
         bool SatisfyQuestSkill(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestLevel(Quest const* qInfo, bool msg);
@@ -3369,6 +3369,14 @@ class Player : public Unit, public GridObject<Player>
 		void ResetSpellQueue();
 		static bool QueueSystemEnabled();
 		Spell* GetQueuedSpell() const { return m_QueuedSpell; }
+
+		// New Loot-based Lockout system.
+		bool IsFirstWeeklyBossKill(Creature* creature);
+		bool CanLootWeeklyBoss(Creature* creature);
+		void SetWeeklyBossLooted(Creature* creature, bool looted);
+		std::set<uint32> GetKilledWeeklyBossMaps();
+		std::list<uint32> GetKilledWeeklyBosses(uint32 mapId, uint32 difficulty);
+		uint32 GetKilledWeeklyBossEncounterMask(uint32 mapId, uint32 difficulty);
 
 		// Dynamic Difficulty system.
 		void AddDynamicDifficultyMap(uint32 mapId);

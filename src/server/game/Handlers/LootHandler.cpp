@@ -462,6 +462,20 @@ void WorldSession::DoLootRelease(uint64 lguid)
             if (!creature->isAlive())
                 creature->AllLootRemovedFromCorpse();
 
+			// New Loot-based Lockout system. Check and allow the player / group to loot the weekly boss just once, if it wasn't looted before.
+			if (Group* group = GetPlayer()->GetGroup())
+			{
+				for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+					if (Player* groupGuy = itr->getSource())
+						if (GetPlayer()->IsInMap(groupGuy) && creature->HasWeeklyBossLootQuestId() && !groupGuy->IsFirstWeeklyBossKill(creature) && groupGuy->CanLootWeeklyBoss(creature))
+							groupGuy->SetWeeklyBossLooted(creature, true);
+			}
+			else
+			{
+				if (creature->HasWeeklyBossLootQuestId() && !GetPlayer()->IsFirstWeeklyBossKill(creature) && GetPlayer()->CanLootWeeklyBoss(creature))
+					GetPlayer()->SetWeeklyBossLooted(creature, true);
+			}
+
             creature->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             loot->clear();
 

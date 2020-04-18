@@ -140,6 +140,15 @@ struct LiquidData
     float  depth_level;
 };
 
+// Lock types since Cataclysm, updated. Check http://eu.battle.net/wow/en/forum/topic/12822112588 .
+enum InstanceLockTypes
+{
+	INSTANCE_LOCK_NONE = 0,
+	INSTANCE_LOCK_STRICT,        // Used for: Vanilla + TBC raids, WOTLK Heroic raids, MOP Heroic raids excluding SOO, Mythic diff raids in WOD.
+	INSTANCE_LOCK_FLEXIBLE,      // Used for: Normal WOTLK, MOP raids. SOO excluded.
+	INSTANCE_LOCK_LOOT_BASED     // Used for: All LFR raids, Flex raids, SOO, Normal / Heroic diff raids in WOD.
+};
+
 class GridMap
 {
     uint32  _flags;
@@ -405,12 +414,9 @@ class Map : public GridRefManager<NGridType>
         uint32 Expansion() const { return i_mapEntry ? i_mapEntry->Expansion() : 0; }
 
 		bool HasDynamicDifficulty() const { return i_mapEntry && i_mapEntry->HasDynamicDifficulty(); }
-        bool GetEntrancePos(int32 &mapid, float &x, float &y)
-        {
-            if (!i_mapEntry)
-                return false;
-            return i_mapEntry->GetEntrancePos(mapid, x, y);
-        }
+		bool GetEntrancePos(int32 &mapid, float &x, float &y) { return i_mapEntry && i_mapEntry->GetEntrancePos(mapid, x, y); }
+
+		InstanceLockTypes GetInstanceLockType();
 
         void AddObjectToRemoveList(WorldObject* obj);
         void AddObjectToSwitchList(WorldObject* obj, bool on);

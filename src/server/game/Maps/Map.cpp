@@ -2914,8 +2914,23 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
 
                         // if the group/leader is permanently bound to the instance
                         // players also become permanently bound when they enter
-                        if (groupBind->perm)
-                            player->SetPendingBind(mapSave->GetInstanceId(), 60000);
+						if (groupBind->perm)
+						{
+							uint32 TimeUntilLock = 60000; // Time until the player gets locked.
+							bool lockExtended = false;
+							bool warningOnly = false;
+
+							WorldPacket data(SMSG_PENDING_RAID_LOCK, 10);
+
+							data.WriteBit(warningOnly);  // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START.
+							data.WriteBit(lockExtended); // extended.
+							data.FlushBits();
+							data << uint32(i_data ? i_data->GetCompletedEncounterMask() : 0);
+							data << uint32(TimeUntilLock);
+
+							player->GetSession()->SendPacket(&data);
+							player->SetPendingBind(mapSave->GetInstanceId(), TimeUntilLock);
+						}
                     }
                 }
                 else
@@ -3222,6 +3237,25 @@ MapDifficulty const* Map::GetMapDifficulty() const
     return GetMapDifficultyData(GetId(), GetDifficultyID());
 }
 
+// Instance lock type for the map.
+InstanceLockTypes Map::GetInstanceLockType()
+{
+	// Siege of Orgrimmar, Flex mode, all LFR raids and Wod raids.
+	if (GetId() == MAP_SIEGE_ORGRIMMAR || IsRaid() && (GetDifficultyID() == DifficultyRaidNormal || GetDifficultyID() == DifficultyRaidTool))
+		return INSTANCE_LOCK_LOOT_BASED;
+
+	// Dungeons, Vanilla + TBC raids, WOTLK + MOP Heroic raids.
+	if (IsNonRaidDungeon() || IsRaid() && (Expansion() < EXPANSION_WRATH_OF_THE_LICH_KING || Expansion() >= EXPANSION_WRATH_OF_THE_LICH_KING && (GetDifficultyID() == Difficulty10HC || GetDifficultyID() == Difficulty25HC)))
+		return INSTANCE_LOCK_STRICT;
+
+	// Normal WOTLK, MOP raids.
+	if (IsRaid() && (Expansion() >= EXPANSION_WRATH_OF_THE_LICH_KING && (GetDifficultyID() == Difficulty10N || GetDifficultyID() == Difficulty25N)))
+		return INSTANCE_LOCK_FLEXIBLE;
+
+	// Not a raid / dungeon map.
+	return INSTANCE_LOCK_NONE;
+}
+
 bool Map::IsHeroic() const
 {
     if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
@@ -3239,7 +3273,7 @@ uint32 InstanceMap::GetMaxPlayers() const
     {
         if (mapDiff->MaxPlayers || GetDifficultyID() == DifficultyNormal)    // Normal case (expect that regular difficulty always have correct maxplayers)
             return mapDiff->MaxPlayers;
-        else                                                // DBC have 0 maxplayers for heroic instances with expansion < 2
+        else                                                // DBC have 0 maxplayers for heroic instances with expansion < EXP_WOTLK
         {                                                   // The heroic entry exists, so we don't have to check anything, simply return normal max players
             MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), DifficultyNormal);
             return normalDiff ? normalDiff->MaxPlayers : 0;
