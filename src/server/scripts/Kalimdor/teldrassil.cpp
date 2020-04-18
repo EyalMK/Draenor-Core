@@ -146,6 +146,7 @@ public:
 		std::list<Player*> PlayersInRange;
 		std::list<uint32> Quests;
 		std::list<uint32> ShadesOfKaldorei;
+		std::list<Player*> PlayersInAreaWithQuest;
 		
 		// Positions of Shades
 		Position const l_ShadeShadowGlen  = {	10702.7f, 761.221f, 1322.88f, 3.0f	};
@@ -229,10 +230,9 @@ public:
 
 				case EVENT_CHECK_WHERE_PLAYER:
 					// This event checks if the same player that the event was played for is still in the area. If it doesn't find said player, reset m_SummonedShade in order to play event for new players.
-					std::list<Player*> PlayersInAreaWithQuest;
 					me->GetPlayerListInGrid(PlayersInAreaWithQuest, 20.0f);
 					for (Player* p_Player : PlayersInAreaWithQuest)
-						if (!m_PlayerGuid == p_Player->GetGUID());
+						if (!m_PlayerGuid == p_Player->GetGUID())
 								m_SummonedShade = false;
 							
 					break;

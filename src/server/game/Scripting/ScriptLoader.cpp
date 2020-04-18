@@ -1097,7 +1097,7 @@ void AddSC_boss_iron_maidens();
 void AddSC_boss_blackhand();
 
 /// Hellfire Citadel
-void AddSC_instance_hellfire_citadel();
+/*void AddSC_instance_hellfire_citadel();
 void AddSC_hellfire_citadel();
 void AddSC_boss_hellfire_assault_hfc();
 void AddSC_boss_iron_reaver_hfc();
@@ -1111,7 +1111,7 @@ void AddSC_boss_zakuun_hfc();
 void AddSC_boss_xhulhorac_hfc();
 void AddSC_boss_velhari_hfc();
 void AddSC_boss_mannoroth_hfc();
-void AddSC_boss_archimonde_hfc();
+void AddSC_boss_archimonde_hfc();*/
 
 /* Iron Docks Dungeon */
 void AddSC_iron_docks();
@@ -2132,8 +2132,8 @@ void AddDraenorScripts()
     AddSC_boss_blackhand();
 
 	/// Hellfire Citadel
-/// Hellfire Citadel
-	AddSC_instance_hellfire_citadel();
+	/// Hellfire Citadel
+	/*AddSC_instance_hellfire_citadel();
 	AddSC_hellfire_citadel();
 	AddSC_boss_hellfire_assault_hfc();
 	AddSC_boss_iron_reaver_hfc();
@@ -2147,7 +2147,7 @@ void AddDraenorScripts()
 	AddSC_boss_xhulhorac_hfc();
 	AddSC_boss_velhari_hfc();
 	AddSC_boss_mannoroth_hfc();
-	AddSC_boss_archimonde_hfc();
+	AddSC_boss_archimonde_hfc();*/
 
     /// Instance Auchindoun
     AddSC_instance_auchindoun();
