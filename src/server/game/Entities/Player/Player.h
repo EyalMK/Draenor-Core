@@ -3379,14 +3379,6 @@ class Player : public Unit, public GridObject<Player>
 		std::list<uint32> GetKilledWeeklyBosses(uint32 mapId, uint32 difficulty);
 		uint32 GetKilledWeeklyBossEncounterMask(uint32 mapId, uint32 difficulty);
 
-		// Dynamic Difficulty system.
-		void AddDynamicDifficultyMap(uint32 mapId);
-		void DeleteDynamicDifficultyMap(uint32 mapId);
-		bool HasDynamicDifficultyMap(uint32 mapId);
-		void UpdateDynamicDifficultyMapState();
-		bool IsOnDynamicDifficultyMap() { return isOnDynamicDifficultyMap; }
-		void SetOnDynamicDifficultyMap(bool apply) { isOnDynamicDifficultyMap = apply; }
-
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
         uint8 GetRunesState() const { return m_runes.runeState; }
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes.runes[index].BaseRune); }
@@ -4048,8 +4040,6 @@ class Player : public Unit, public GridObject<Player>
         Difficulty m_raidDifficulty;
         Difficulty m_LegacyRaidDifficulty;
         Difficulty m_PrevMapDifficulty;
-
-		bool isOnDynamicDifficultyMap;
 
         uint32 m_atLoginFlags;
 

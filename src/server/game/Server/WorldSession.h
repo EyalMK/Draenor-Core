@@ -185,39 +185,6 @@ enum PartyResult
     ERR_PARTY_PRIVATE_GROUP_ONLY             = 37
 };
 
-enum ChangeDynamicDifficultyResult
-{
-	/* MOP events.
-	DIFFICULTY_COOLDOWN_COMBAT                                  = 0,
-	DIFFICULTY_COOLDOWN_DIFFICULTY_CHANGED,
-	PLAYER_DIFFICULTY_FAILED_CONDITION,
-	PLAYER_DIFFICULTY_PLAYER_BUSY,
-	PLAYER_DIFFICULTY_ALREADY_IN_PROGRESS
-	PLAYER_DIFFICULTY_COOLDOWN,
-	PLAYER_DIFFICULTY_PLAYER_ALREADY_LOCKED_OTHER_HEROIC,
-	PLAYER_DIFFICULTY_HEROIC_INSTANCE_ALREADY_RUNNING,
-	PLAYER_DIFFICULTY_ENCOUNTER_IN_PROGRESS,
-	PLAYER_DIFFICULTY_COMPLETE,
-	PLAYER_DIFFICULTY_START,
-	PLAYER_DIFFICULTY_DISABLED_IN_LFG,
-	PLAYER_DIFFICULTY_WORLD_STATE,
-	PLAYER_DIFFICULTY_PLAYER_IN_COMBAT
-	*/
-
-	DIFF_CHANGE_FAIL_SOMEONE_IN_COMBAT				= 0, // "Raid difficulty cannot be changed at this time. A player is in combat."
-	DIFF_CHANGE_FAIL_EVENT_IN_PROGRESS				= 2, // "Raid difficulty cannot be changed at this time. An event is in progress."
-	DIFF_CHANGE_FAIL_IN_LFR							= 4, // "Using Raid Finder to enter this instance disables dynamic difficulty selection"
-	DIFF_CHANGE_START								= 5, // This is sent where the change updates begin. Sends time in seconds and the loading screen.
-	DIFF_CHANGE_SUCCESS								= 6, // This is sent where the change is successful. Removes the loading screen.
-	DIFF_CHANGE_FAIL_ENCOUNTER_IN_PROGRESS			= 7, // "Raid difficulty cannot be changed at this time. An encounter is in progress."
-	DIFF_CHANGE_FAIL_ALREADY_HEROIC					= 8, // "Your heroic instance is already in running and in use by another party"
-	DIFF_CHANGE_FAIL_SOMEONE_LOCKED					= 9, // "Raid difficulty cannot be changed. %s is already locked to a different Heroic instance." where %s is the name of the player.
-	DIFF_CHANGE_FAIL_COOLDOWN						= 10, // "Raid difficulty has changed recently, and may not change again for %s." / "Raid was in combat recently and may not change difficulty again for %s.".
-	DIFF_CHANGE_FAIL_CHANGE_STARTED					= 11, // "A raid difficulty change is currently in progress."
-	DIFF_CHANGE_FAIL_SOMEONE_BUSY					= 13, // "Raid difficulty cannot be changed at this time. A player is busy."
-	DIFF_CHANGE_SHOW_AREA_TRIGGER_CANNOT_ENTER_TEXT = 15, // "You must complete / be level..." Shows the area trigger text in the chat box. Unique message / level req.
-};
-
 enum BFLeaveReason
 {
     BF_LEAVE_REASON_CLOSE     = 0x00000001,
@@ -1301,9 +1268,6 @@ class WorldSession
         static void BuildLfgListApplicantListUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, std::list<LFGListEntry::LFGListApplicationEntry const*> p_ApplicantList);
         static void BuilfLfgListApplicantGroupInvite(WorldPacket* p_Data, LFGListEntry::LFGListApplicationEntry const* p_Applicant);
 
-		// Dynamic Difficulty system.
-		void HandleChangePlayerDifficulty(WorldPacket& recvData);
-
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recvData);
 
@@ -1690,7 +1654,9 @@ class WorldSession
         time_t timeLastChangeSubGroupCommand;
         time_t m_TimeLastSellItemOpcode;
         time_t m_TimeLastUseItem;
+
 		time_t m_TimeLastDifficultyChange;
+
         uint32 m_uiAntispamMailSentCount;
         uint32 m_uiAntispamMailSentTimer;
 

@@ -2481,31 +2481,24 @@ InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
 	if (!mapDiff)
 		return NULL;
 
-	// Check for Dynamic Difficulty requirement.
-	bool onDynamicDifficultyMap = false;
-	for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
-		if (Player* player = itr->getSource())
-			if (player->IsOnDynamicDifficultyMap())
-				onDynamicDifficultyMap = true;
-
 	// Since Cataclysm, 10 and 25 man raids share a lock.
 	uint32 retrievalDifficulty = 0;
 	switch (difficulty)
 	{
 		case Difficulty10N:
-			retrievalDifficulty = !onDynamicDifficultyMap ? Difficulty25N : Difficulty10HC;
+			retrievalDifficulty = Difficulty25N;
 			break;
 
 		case Difficulty25N:
-			retrievalDifficulty = !onDynamicDifficultyMap ? Difficulty10N : Difficulty25HC;
+			retrievalDifficulty = Difficulty10N;
 			break;
 
 		case Difficulty10HC:
-			retrievalDifficulty = !onDynamicDifficultyMap ? Difficulty25HC : Difficulty10N;
+			retrievalDifficulty = Difficulty25HC;
 			break;
 
 		case Difficulty25HC:
-			retrievalDifficulty = !onDynamicDifficultyMap ? Difficulty10HC : Difficulty25N;
+			retrievalDifficulty = Difficulty10HC;
 			break;
 
 	default: break;

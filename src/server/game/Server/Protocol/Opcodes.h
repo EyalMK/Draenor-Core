@@ -167,7 +167,9 @@ enum Opcodes
         SMSG_SET_PLAY_HOVER_ANIM                    = 0x12E4, ///< 6.2.3 20726
         SMSG_SET_MOVEMENT_ANIM_KIT                  = 0x1A5B, ///< 6.2.3 20726
         SMSG_PLAYER_BOUND                           = 0x12CB, ///< 6.2.3 20726
-		SMSG_PLAYER_DIFFICULTY_CHANGE_RESULT		= 0x1F1A, ///< 5.4.7 18019 Not implemented - CHECK!
+
+		SMSG_PLAYER_DIFFICULTY_CHANGE_RESULT		= 0x066C, ///< 6.2.3 20726
+
         SMSG_OVERRIDE_LIGHT                         = 0x13CC, ///< 6.2.3 20726
         SMSG_PRINT_NOTIFICATION                     = 0x03FC, ///< 6.2.3 20726
         SMSG_SPECIAL_MOUNT_ANIM                     = 0x0274, ///< 6.2.3 20726
@@ -1191,6 +1193,7 @@ enum Opcodes
     CMSG_GOSSIP_HELLO                           = 0x0A19, ///< 6.2.3 20726
     CMSG_GOSSIP_SELECT_OPTION                   = 0x0A59, ///< 6.2.3 20726
     CMSG_TOGGLE_PVP                             = 0x08AC, ///< 6.2.3 20726
+	CMSG_TOGGLE_DIFFICULTY						= 0x107F, ///< 6.2.3 20726
     CMSG_TUTORIAL                               = 0x0164, ///< 6.2.3 20726
     CMSG_SET_SPECIALIZATION                     = 0x1C82, ///< 6.2.3 20726
     CMSG_SET_WATCHED_FACTION                    = 0x1905, ///< 6.2.3 20726
@@ -1784,7 +1787,7 @@ enum Opcodes
     CMSG_GHOST                                          = 0x0000,
     CMSG_GRANT_LEVEL                                    = 0x0000,
     CMSG_HEARTH_AND_RESURRECT                           = 0x0000,
-	CMSG_INSTANCE_LOCK_RESPONSE							= 0x067F, // 5.4.7 18019
+	CMSG_INSTANCE_LOCK_RESPONSE							= 0x1909, ///< 6.2.3 20726
     CMSG_MANEUVER_START                                 = 0x0000,
     CMSG_MEETINGSTONE_INFO                              = 0x0000,
     CMSG_MINIGAME_MOVE                                  = 0x0000,
@@ -1878,7 +1881,7 @@ enum Opcodes
     SMSG_LIST_TARGETS                                   = 0x0000,
     SMSG_MOVE_CHARACTER_CHEAT_FAILURE                   = 0x0000,
     SMSG_MOVE_CHARACTER_CHEAT_SUCCESS                   = 0x0000,
-    SMSG_PENDING_RAID_LOCK                              = 0x1C52, // 5.4.7 18019
+    SMSG_PENDING_RAID_LOCK                              = 0x0E64, ///< 6.2.3 20726
     SMSG_PLAYER_NOT_FOUND_FAILURE                       = 0x0000,
     SMSG_REFRESH_COMPONENT                              = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                          = 0x0000,
@@ -1939,7 +1942,7 @@ enum Opcodes
     SMSG_OPEN_CONTAINER                                 = 0x0000,
     SMSG_OPEN_LFG_DUNGEON_FINDER                        = 0x0000,
     SMSG_PAUSE_MIRROR_TIMER                             = 0x0000,
-    SMSG_CHANGE_PLAYER_DIFFICULTY_RESULT                = 0x1F1A, ///< 5.4.7 18019 Not implemented - CHECK!
+    SMSG_CHANGE_PLAYER_DIFFICULTY_RESULT                = 0x0000,
     SMSG_PLAYER_SKINNED                                 = 0x0000,
     SMSG_PLAY_TIME_WARNING                              = 0x0000,
     SMSG_PROPOSE_LEVEL_GRANT                            = 0x0000,
