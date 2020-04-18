@@ -4,10 +4,10 @@ UPDATE `creature_addon` SET `path_id`=120586 * 100 WHERE `guid` = 120586;
 
 -- Icefist / Chilltusk: Yell on aggro
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` IN (27004,27005) AND `id` = 2;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
 VALUES
-(27004,0,2,0,4,0,100,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Icefist - On Aggro - Say Line 0'),
-(27005,0,2,0,4,0,100,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Chilltusk - On Aggro - Say Line 0');
+(27004,0,2,0,4,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Icefist - On Aggro - Say Line 0'),
+(27005,0,2,0,4,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Chilltusk - On Aggro - Say Line 0');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceGroup` = 3 AND `SourceEntry` IN (27004,27005) AND `SourceId` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`)
@@ -19,51 +19,51 @@ VALUES
 UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 27123;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = 27123;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryorguid` IN (2712300,2712301);
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
 VALUES
-(27123,0,0,0,54,0,50,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Icefist Forager - On Just Summoned - Say Line 0'),
-(27123,0,1,2,54,0,100,0,0,0,0,0,0,48,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Icefist Forager - On Just Summoned - Set Active On'),
-(27123,0,2,3,61,0,100,0,0,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Icefist Forager - Linked - Set React State ''Passive'''),
-(27123,0,3,0,61,0,100,0,0,0,0,0,0,29,1,0,0,0,0,0,9,27123,1,50,0,0,0,0,0,'Icefist Forager - Linked - Follow ''Icefist Forager'''),
-(27123,0,4,0,38,0,100,0,1,1,0,0,0,53,1,2712300,0,0,0,0,1,0,0,0,0,0,0,0,0,'Icefist Forager - On Data Set 1 1 - Start Waypoint Movement'),
-(27123,0,5,0,40,0,100,0,22,2712300,0,0,0,80,2712300,2,0,0,0,0,1,0,0,0,0,0,0,0,0,'Icefist Forager - On Waypoint 22 Reached - Call Action List'),
-(27123,0,6,0,40,0,100,0,40,2712300,0,0,0,80,2712301,2,0,0,0,0,1,0,0,0,0,0,0,0,0,'Icefist Forager - On Waypoint 40 Reached - Call Action List'),
+(27123,0,0,0,54,0,50,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,'Icefist Forager - On Just Summoned - Say Line 0'),
+(27123,0,1,2,54,0,100,0,0,0,0,0,48,1,0,0,0,0,0,1,0,0,0,0,0,0,'Icefist Forager - On Just Summoned - Set Active On'),
+(27123,0,2,3,61,0,100,0,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,'Icefist Forager - Linked - Set React State ''Passive'''),
+(27123,0,3,0,61,0,100,0,0,0,0,0,29,1,0,0,0,0,0,9,27123,1,50,0,0,0,'Icefist Forager - Linked - Follow ''Icefist Forager'''),
+(27123,0,4,0,38,0,100,0,1,1,0,0,53,1,2712300,0,0,0,0,1,0,0,0,0,0,0,'Icefist Forager - On Data Set 1 1 - Start Waypoint Movement'),
+(27123,0,5,0,40,0,100,0,22,2712300,0,0,80,2712300,2,0,0,0,0,1,0,0,0,0,0,0,'Icefist Forager - On Waypoint 22 Reached - Call Action List'),
+(27123,0,6,0,40,0,100,0,40,2712300,0,0,80,2712301,2,0,0,0,0,1,0,0,0,0,0,0,'Icefist Forager - On Waypoint 40 Reached - Call Action List'),
 
-(2712300,9,0,0,0,0,100,0,500,500,0,0,0,12,27123,3,27000,0,0,0,8,0,0,0,0,4195.21,1011.01,59.8479,0,'Icefist Forager - On Script - Summon Creature ''Icefist Forager'''),
-(2712300,9,1,0,0,0,100,0,1000,1000,0,0,0,12,27123,3,26000,0,0,0,8,0,0,0,0,4188.77,1015.76,61.3748,0,'Icefist Forager - On Script - Summon Creature ''Icefist Forager'''),
-(2712301,9,0,0,0,0,100,0,500,500,0,0,0,12,27123,3,19000,0,0,0,8,0,0,0,0,4128.45,1118.02,58.9496,0,'Icefist Forager - On Script - Summon Creature ''Icefist Forager'''),
-(2712301,9,1,0,0,0,100,0,1000,1000,0,0,0,12,27123,3,18000,0,0,0,8,0,0,0,0,4126,1126.8,58.6246,0,'Icefist Forager - On Script - Summon Creature ''Icefist Forager''');
+(2712300,9,0,0,0,0,100,0,500,500,0,0,12,27123,3,27000,0,0,0,8,0,0,4195.21,1011.01,59.8479,0,'Icefist Forager - On Script - Summon Creature ''Icefist Forager'''),
+(2712300,9,1,0,0,0,100,0,1000,1000,0,0,12,27123,3,26000,0,0,0,8,0,0,4188.77,1015.76,61.3748,0,'Icefist Forager - On Script - Summon Creature ''Icefist Forager'''),
+(2712301,9,0,0,0,0,100,0,500,500,0,0,12,27123,3,19000,0,0,0,8,0,0,4128.45,1118.02,58.9496,0,'Icefist Forager - On Script - Summon Creature ''Icefist Forager'''),
+(2712301,9,1,0,0,0,100,0,1000,1000,0,0,12,27123,3,18000,0,0,0,8,0,0,4126,1126.8,58.6246,0,'Icefist Forager - On Script - Summon Creature ''Icefist Forager''');
 
 -- Chilltusk Forager: Run to Chilltusk; summon further Chilltusk Foragers and follow each other
 UPDATE `creature_template` SET `speed_run` = 2.14286, `AIName` = 'SmartAI' WHERE `entry` = 27171;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = 27171;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryorguid` IN (2717100,2717101);
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
 VALUES
-(27171,0,0,0,54,0,50,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Chilltusk Forager - On Just Summoned - Say Line 0'),
-(27171,0,1,2,54,0,100,0,0,0,0,0,0,48,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Chilltusk Forager - On Just Summoned - Set Active On'),
-(27171,0,2,3,61,0,100,0,0,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Chilltusk Forager - Linked - Set React State ''Passive'''),
-(27171,0,3,0,61,0,100,0,0,0,0,0,0,29,1,0,0,0,0,0,9,27171,1,50,0,0,0,0,0,'Chilltusk Forager - Linked - Follow ''Chilltusk Forager'''),
-(27171,0,4,0,38,0,100,0,1,1,0,0,0,53,1,2717100,0,0,0,0,1,0,0,0,0,0,0,0,0,'Chilltusk Forager - On Data Set 1 1 - Start Waypoint Movement'),
-(27171,0,5,0,40,0,100,0,36,2717100,0,0,0,80,2717100,2,0,0,0,0,1,0,0,0,0,0,0,0,0,'Chilltusk Forager - On Waypoint 22 Reached - Call Action List'),
-(27171,0,6,0,40,0,100,0,52,2717100,0,0,0,80,2717101,2,0,0,0,0,1,0,0,0,0,0,0,0,0,'Chilltusk Forager - On Waypoint 40 Reached - Call Action List'),
+(27171,0,0,0,54,0,50,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Chilltusk Forager - On Just Summoned - Say Line 0'),
+(27171,0,1,2,54,0,100,0,0,0,0,0,48,1,0,0,0,0,0,1,0,0,0,0,0,0,0,'Chilltusk Forager - On Just Summoned - Set Active On'),
+(27171,0,2,3,61,0,100,0,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Chilltusk Forager - Linked - Set React State ''Passive'''),
+(27171,0,3,0,61,0,100,0,0,0,0,0,29,1,0,0,0,0,0,9,27171,1,50,0,0,0,0,'Chilltusk Forager - Linked - Follow ''Chilltusk Forager'''),
+(27171,0,4,0,38,0,100,0,1,1,0,0,53,1,2717100,0,0,0,0,1,0,0,0,0,0,0,0,'Chilltusk Forager - On Data Set 1 1 - Start Waypoint Movement'),
+(27171,0,5,0,40,0,100,0,36,2717100,0,0,80,2717100,2,0,0,0,0,1,0,0,0,0,0,0,0,'Chilltusk Forager - On Waypoint 22 Reached - Call Action List'),
+(27171,0,6,0,40,0,100,0,52,2717100,0,0,80,2717101,2,0,0,0,0,1,0,0,0,0,0,0,0,'Chilltusk Forager - On Waypoint 40 Reached - Call Action List'),
 
-(2717100,9,0,0,0,0,100,0,500,500,0,0,0,12,27171,3,27000,0,0,0,8,0,0,0,0,4663.38,-192.147,78.6202,0,'Chilltusk Forager - On Script - Summon Creature ''Chilltusk Forager'''),
-(2717100,9,1,0,0,0,100,0,1000,1000,0,0,0,12,27171,3,26000,0,0,0,8,0,0,0,0,4636.91,-175.839,76.8374,0,'Chilltusk Forager - On Script - Summon Creature ''Chilltusk Forager'''),
-(2717101,9,0,0,0,0,100,0,500,500,0,0,0,12,27171,3,17000,0,0,0,8,0,0,0,0,4591.49,-305.193,83.6176,0,'Chilltusk Forager - On Script - Summon Creature ''Chilltusk Forager'''),
-(2717101,9,1,0,0,0,100,0,1000,1000,0,0,0,12,27171,3,16000,0,0,0,8,0,0,0,0,4588.68,-309.771,84.6019,0,'Chilltusk Forager - On Script - Summon Creature ''Chilltusk Forager''');
+(2717100,9,0,0,0,0,100,0,500,500,0,0,12,27171,3,27000,0,0,0,8,0,0,0,4663.38,-192.147,78.6202,0,'Chilltusk Forager - On Script - Summon Creature ''Chilltusk Forager'''),
+(2717100,9,1,0,0,0,100,0,1000,1000,0,0,12,27171,3,26000,0,0,0,8,0,0,0,4636.91,-175.839,76.8374,0,'Chilltusk Forager - On Script - Summon Creature ''Chilltusk Forager'''),
+(2717101,9,0,0,0,0,100,0,500,500,0,0,12,27171,3,17000,0,0,0,8,0,0,0,4591.49,-305.193,83.6176,0,'Chilltusk Forager - On Script - Summon Creature ''Chilltusk Forager'''),
+(2717101,9,1,0,0,0,100,0,1000,1000,0,0,12,27171,3,16000,0,0,0,8,0,0,0,4588.68,-309.771,84.6019,0,'Chilltusk Forager - On Script - Summon Creature ''Chilltusk Forager''');
 
 -- Kontokanis: Summon Icefist Foragers
 UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 26979;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` = 26979;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryorguid` = 2697900;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`)
 VALUES
-(26979,0,0,0,19,0,100,0,12145,0,0,0,0,80,2697900,2,0,0,0,0,1,0,0,0,0,0,0,0,0,'Kontokanis - On Quest ''Canyon Chase'' Accepted - Call Action List'),
+(26979,0,0,0,19,0,100,0,12145,0,0,0,80,2697900,2,0,0,0,0,1,0,0,0,0,0,0,0,'Kontokanis - On Quest ''Canyon Chase'' Accepted - Call Action List'),
 
-(2697900,9,0,0,0,0,100,0,500,500,0,0,0,12,27123,3,39000,0,0,0,8,0,0,0,0,4329.02,980.721,91.1397,0,'Kontokanis - On Script - Summon Creature ''Icefist Forager'''),
-(2697900,9,1,0,0,0,100,0,0,0,0,0,0,45,1,1,0,0,0,0,9,27123,1,50,0,0,0,0,0,'Kontokanis - On Script - Set Data 1 1 (Icefist Forager)'),
-(2697900,9,2,0,0,0,100,0,1000,1000,0,0,0,12,27123,3,38000,0,0,0,8,0,0,0,0,4328.75,977.255,90.4251,0,'Kontokanis - On Script - Summon Creature ''Icefist Forager''');
+(2697900,9,0,0,0,0,100,0,500,500,0,0,12,27123,3,39000,0,0,0,8,0,0,0,4329.02,980.721,91.1397,0,'Kontokanis - On Script - Summon Creature ''Icefist Forager'''),
+(2697900,9,1,0,0,0,100,0,0,0,0,0,45,1,1,0,0,0,0,9,27123,1,50,0,0,0,0,'Kontokanis - On Script - Set Data 1 1 (Icefist Forager)'),
+(2697900,9,2,0,0,0,100,0,1000,1000,0,0,12,27123,3,38000,0,0,0,8,0,0,0,4328.75,977.255,90.4251,0,'Kontokanis - On Script - Summon Creature ''Icefist Forager''');
 
 -- Duane: Summon Chilltusk Foragers
 UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 26978;
