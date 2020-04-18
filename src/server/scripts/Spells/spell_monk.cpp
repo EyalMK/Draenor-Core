@@ -111,6 +111,7 @@ enum MonkSpells
     SPELL_MONK_CRANES_ZEAL                      = 127722,
     SPELL_MONK_STANCE_OF_THE_WISE_SERPENT       = 115070,
 	SPELL_MONK_SOOTHING_MIST					= 115175,
+	SPELL_MONK_SOOTHING_MIST_STATUE				= 125950,
     SPELL_MONK_CHI_EXPLOSION_WINWALKER          = 152174,
     SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION      = 159407,
 	SPELL_MONK_EMINENCE_VISUAL					= 126888,
@@ -2354,13 +2355,13 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 /// Spread renewing mist on him
 				l_Target->CastSpell(newTarget, SPELL_MONK_RENEWING_MIST_VISUAL, true);
                 l_Caster->CastSpell(newTarget, GetSpellInfo()->Id, true);
-                if (Aura* l_RenewingMistHot = newTarget->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
-                    l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(1);
+
+				if (Aura* l_RenewingMistHot = newTarget->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+					l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(1);
 
 				oldTarget = newTarget;
 
                 aurEff->GetBase()->GetEffect(EFFECT_1)->SetAmount(aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() - 1);
-
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3287,7 +3288,7 @@ enum SoothingMist
     SPELL_MONK_GLYPH_OF_SHOOTING_MIST = 159537
 };
 
-// Soothing Mist - 115175
+// Soothing Mist (monk) - 115175
 class spell_monk_soothing_mist: public SpellScriptLoader
 {
     public:
@@ -3400,7 +3401,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (l_PartyListValid.size() > 1)
                     l_PartyListValid.sort(JadeCore::HealthPctOrderPred());
 
-                l_JadeStatue->CastSpell(l_PartyListValid.front(), GetSpellInfo()->Id, false);
+                l_JadeStatue->CastSpell(l_PartyListValid.front(), SPELL_MONK_SOOTHING_MIST_STATUE, false);
             }
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
@@ -3489,6 +3490,53 @@ class spell_monk_soothing_mist: public SpellScriptLoader
         {
             return new spell_monk_soothing_mist_AuraScript();
         }
+};
+
+// Soothing Mist (statue) - 125950
+class spell_monk_soothing_mist_statue : public SpellScriptLoader
+{
+public:
+	spell_monk_soothing_mist_statue() : SpellScriptLoader("spell_monk_soothing_mist_statue") { }
+
+	class spell_monk_soothing_mist_statue_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_monk_soothing_mist_statue_AuraScript);
+
+		void OnTick(AuraEffect const* /*p_AurEff*/)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetTarget();
+
+			l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL_STATUE, true);
+		}
+
+		void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster == nullptr)
+				return;
+
+			Unit* l_Owner = l_Caster->GetOwner();
+
+			if (l_Owner == nullptr)
+				return;
+
+			/// Apply amount with stats of owner
+			p_Amount = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) * p_AurEff->GetSpellEffectInfo()->BonusMultiplier;
+		}
+
+		void Register() override
+		{
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_soothing_mist_statue_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+			DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_soothing_mist_statue_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const override
+	{
+		return new spell_monk_soothing_mist_statue_AuraScript();
+	}
 };
 
 /// Soothing Breeze (healing) - 185098
@@ -6812,6 +6860,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_elusive_brew();
     new spell_monk_breath_of_fire();
     new spell_monk_soothing_mist();
+	new spell_monk_soothing_mist_statue();
     new spell_monk_disable();
     new spell_monk_zen_pilgrimage();
     new spell_monk_fortifying_brew();
