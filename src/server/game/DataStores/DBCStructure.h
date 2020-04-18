@@ -895,7 +895,7 @@ struct MapEntry
         return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571 || MapID == 860 || MapID == 870 || MapID == 1116;
     }
 
-	bool HasDynamicDifficulty() const { return (Flags & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
+    bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
 };
 
 struct MapDifficultyEntry

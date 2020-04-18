@@ -1616,9 +1616,6 @@ class Unit : public WorldObject
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
-		time_t GetLastCombatTime() const { return _lastCombatTime; }
-		void SetLastCombatTime(time_t val) { _lastCombatTime = val; }
-
         void AddUnitState(uint32 f) { m_state |= f; }
         bool HasUnitState(const uint32 f) const { return (m_state & f); }
         void ClearUnitState(uint32 f) { m_state &= ~f; }
@@ -2989,7 +2986,6 @@ class Unit : public WorldObject
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
 
         time_t _lastDamagedTime;
-		time_t _lastCombatTime;
 #ifdef CROSS
 
         int32 m_MapSwitchDestination;

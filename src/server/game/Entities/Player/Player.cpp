@@ -428,8 +428,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_LegacyRaidDifficulty = Difficulty10N;
     m_PrevMapDifficulty = DifficultyRaidNormal;
 
-	isOnDynamicDifficultyMap = false;
-
     m_LastPotion.m_LastPotionItemID = 0;
     m_LastPotion.m_LastPotionSpellID = 0;
 
@@ -2065,11 +2063,10 @@ void Player::Update(uint32 p_time)
         m_needSummonPetAfterStopFlying = false;
     }
 
-	// We should execute delayed teleports only for alive(!) players because we don't want the player's ghost to be teleported from the graveyard.
+    //we should execute delayed teleports only for alive(!) players
+    //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport())
         TeleportTo(m_teleport_dest, m_teleport_options);
-
-	UpdateDynamicDifficultyMapState();
 
 #ifndef CROSS
     m_GarrisonUpdateTimer.Update(p_time);
@@ -22113,6 +22110,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
     return false;
 }
 
+<<<<<<< HEAD
 // New Loot-based Lockout system.
 // Check http://eu.battle.net/wow/en/forum/topic/12822112588 .
 // Used for: All Raid Finder raids, MOP Siege of Orgrimmar Normal/Heroic, WOD raids Normal/Heroic. World bosses are also tracked in the "Raid Info" window since 5.4.
@@ -22358,6 +22356,8 @@ void Player::UpdateDynamicDifficultyMapState()
 
 // End of Dynamic Difficulty system.
 
+=======
+>>>>>>> parent of b6454443... [Core/Instance] Fully implemented Dynamic Difficulty raid system usage.
 void Player::_LoadActions(PreparedQueryResult result)
 {
     m_actionButtons.clear();

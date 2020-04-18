@@ -155,6 +155,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             newInstanceId = pSave->GetInstanceId();
             map = FindInstanceMap(newInstanceId);
 
+<<<<<<< HEAD
 			if (IsRaid())
 			{
 				if (player->IsOnDynamicDifficultyMap())
@@ -176,6 +177,17 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
 							map = CreateInstance(newInstanceId, pSave, player->GetDifficulty(IsRaid()));
 					}
 				}
+=======
+			// Shared locks: create an instance to match the current player raid difficulty, if the save and player difficulties don't match.
+			// We must check for save difficulty going original diff -> new one, and map spawn mode going new -> original, to make sure all cases are handled.
+			// Although Heroic 10 / 25 Man also theoretically share a cooldown, if you kill a boss on 10 / 25 Heroic you cannot enter any other Heroic size version of the raid (cannot switch).
+			// Heroic size switching is already handled with no checks needed. The map is created on the save difficulty and you can only switch difficulty dynamically, from inside.
+			if (IsRaid() && (pSave->GetDifficulty() == Difficulty10N || pSave->GetDifficulty() == Difficulty25N))
+			{
+				// Normal. The map is created on the player difficulty.
+				if (player->GetDifficulty(IsRaid()) != pSave->GetDifficulty() || map && map->GetSpawnMode() != player->GetDifficulty(IsRaid()))
+					map = CreateInstance(newInstanceId, pSave, player->GetDifficulty(IsRaid()));
+>>>>>>> parent of b6454443... [Core/Instance] Fully implemented Dynamic Difficulty raid system usage.
 			}
 
 			// It is possible that the save exists but the map doesn't, create it.

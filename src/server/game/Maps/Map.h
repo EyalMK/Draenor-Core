@@ -413,10 +413,19 @@ class Map : public GridRefManager<NGridType>
 
         uint32 Expansion() const { return i_mapEntry ? i_mapEntry->Expansion() : 0; }
 
+<<<<<<< HEAD
 		bool HasDynamicDifficulty() const { return i_mapEntry && i_mapEntry->HasDynamicDifficulty(); }
 		bool GetEntrancePos(int32 &mapid, float &x, float &y) { return i_mapEntry && i_mapEntry->GetEntrancePos(mapid, x, y); }
 
 		InstanceLockTypes GetInstanceLockType();
+=======
+        bool GetEntrancePos(int32 &mapid, float &x, float &y)
+        {
+            if (!i_mapEntry)
+                return false;
+            return i_mapEntry->GetEntrancePos(mapid, x, y);
+        }
+>>>>>>> parent of b6454443... [Core/Instance] Fully implemented Dynamic Difficulty raid system usage.
 
         void AddObjectToRemoveList(WorldObject* obj);
         void AddObjectToSwitchList(WorldObject* obj, bool on);

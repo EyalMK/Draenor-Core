@@ -39,7 +39,6 @@
 #include "ScriptMgr.h"
 #include "MapManager.h"
 #include "InstanceScript.h"
-#include "InstanceSaveMgr.h"
 #include "GameObjectAI.h"
 #include "Group.h"
 #include "AccountMgr.h"
@@ -2023,6 +2022,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
     }
 }
 
+<<<<<<< HEAD
 // Dynamic Difficulty system.
 void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 {
@@ -2359,6 +2359,8 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 	}
 }
 
+=======
+>>>>>>> parent of b6454443... [Core/Instance] Fully implemented Dynamic Difficulty raid system usage.
 void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
 {
     // If player is not mounted, so go out :)
