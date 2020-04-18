@@ -98,7 +98,19 @@ enum ShamanSpells
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD         = 157774,
     SPELL_SHA_UNLEASH_FLAME_AURA_ENCHANCEMENT   = 73683,
     SPELL_SHA_UNLEASH_FLAME_AURA_ELEMENTAL      = 165462,
-    SPELL_SHA_GLYPH_OF_LAVA_LASH                = 55444
+    SPELL_SHA_GLYPH_OF_LAVA_LASH                = 55444,
+	SPELL_SHA_MAELSTROM_AURA					= 53817,
+	SPELL_SHA_ELECTROCUTE_T18					= 189509,
+	SPELL_SHA_RIPTIDE_T18						= 185875, // This is the riptide triggered from T18
+														  // It doesn't reward Tidal Wave nor Resurgerence (blizzlike)
+
+	// Tier list
+
+	// T18
+	ITEM_SHA_ENH_T18_2P							= 185871,
+	ITEM_SHA_ENH_T18_4P							= 185872,
+	ITEM_SHA_RESTO_T18_2P						= 185873,
+	ITEM_SHA_RESTO_T18_4P						= 185874,
 };
 
 /// Called by Unleash Flame - 165462, Unleash Life - 73685 and Unleash Elements - 73680
@@ -2014,6 +2026,14 @@ class spell_sha_improved_chain_heal : public SpellScriptLoader
 
                 l_Heal += CalculatePct(l_Heal, l_SpellInfo->Effects[EFFECT_0].BasePoints);
                 SetHitHeal(l_Heal);
+
+				if (l_Caster->HasAura(ITEM_SHA_RESTO_T18_4P))
+				{
+					if (roll_chance_i(65))
+					{
+						l_Caster->CastSpell(l_ExplTarget, SPELL_SHA_RIPTIDE_T18, true);
+					}
+				}
             }
 
             void Register()
@@ -2885,7 +2905,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
         }
 };
 
-/// Las Update 6.2.3
+/// Last Update 6.2.3
 /// Riptide - 61295
 class spell_sha_riptide : public SpellScriptLoader
 {
@@ -2995,6 +3015,9 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
 
                 RemoveAllVisuals(l_Caster);
                 l_Caster->AddAura(g_MaelstromVisualSpellIds[aurEff->GetBase()->GetStackAmount() - 1], l_Caster);
+
+				if (l_Caster->HasAura(ITEM_SHA_ENH_T18_2P))
+					l_Caster->CastSpell(l_Caster, SPELL_SHA_ELECTROCUTE_T18, true);
             }
             
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3029,6 +3052,9 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
                 ///< Maelstrom Weapon now increases direct healing done by 5% while in PvP combat (down from a 10% increase to direct healing).
                 if ((l_Player->GetMap() && l_Player->GetMap()->IsBattlegroundOrArena()) || l_Player->IsInPvPCombat())
                     p_Amount /= 2;
+
+				if (l_Player->HasAura(ITEM_SHA_ENH_T18_4P))
+					p_Amount *= 1.12f;
             }
 
             void Register()
