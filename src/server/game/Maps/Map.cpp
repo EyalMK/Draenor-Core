@@ -3241,7 +3241,7 @@ MapDifficulty const* Map::GetMapDifficulty() const
 InstanceLockTypes Map::GetInstanceLockType()
 {
 	// Siege of Orgrimmar, Flex mode, all LFR raids and Wod raids.
-	if (GetId() == MAP_SIEGE_ORGRIMMAR || IsRaid() && (GetDifficultyID() == DifficultyRaidNormal || GetDifficultyID() == DifficultyRaidTool))
+	if (GetId() == MAP_SIEGE_ORGRIMMAR || IsRaid() && (GetDifficultyID() == DifficultyRaidNormal || GetDifficultyID() == DifficultyRaidHeroic || GetDifficultyID() == DifficultyRaidLFR || GetDifficultyID() == DifficultyRaidTool))
 		return INSTANCE_LOCK_LOOT_BASED;
 
 	// Dungeons, Vanilla + TBC raids, WOTLK + MOP Heroic raids.

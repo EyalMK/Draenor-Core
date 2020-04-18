@@ -2118,6 +2118,7 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 							groupBusy = true;                 // Someone is busy.
 					}
 				}
+
 				if (groupCombatCooldown)
 					result = DIFF_CHANGE_FAIL_COOLDOWN;
 				else if (groupInCombat)
@@ -2204,6 +2205,7 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 
 		uint8 bitOrder[8] = { 6, 0, 4, 5, 2, 1, 3, 7 };
 		uint8 byteOrder[8] = { 1, 6, 5, 0, 7, 2, 4, 3 };
+
 		data.WriteBitInOrder(lockedGuid, bitOrder);
 		data.FlushBits();
 		data.WriteBytesSeq(lockedGuid, byteOrder);
@@ -2300,6 +2302,7 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 						// Send the difficulty change result to all players to remove their loading screen.
 						WorldPacket data(SMSG_PLAYER_DIFFICULTY_CHANGE_RESULT, 1 + 4 + 4);
 						data.WriteBits(result, 4);
+
 						data << uint32(difficulty);
 						data << uint32(map->GetId());
 						groupGuy->GetSession()->SendPacket(&data);
@@ -2348,6 +2351,7 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 			// Send the difficulty change result to the player to remove his loading screen.
 			WorldPacket data(SMSG_PLAYER_DIFFICULTY_CHANGE_RESULT, 1 + 4 + 4);
 			data.WriteBits(result, 4);
+
 			data << uint32(difficulty);
 			data << uint32(map2->GetId());
 			SendPacket(&data);

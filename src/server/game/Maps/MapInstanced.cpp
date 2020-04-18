@@ -156,6 +156,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             map = FindInstanceMap(newInstanceId);
 
 			if (IsRaid())
+			{
 				if (player->IsOnDynamicDifficultyMap())
 				{
 					// Dynamic Difficulty lock: create an instance that matches the difficulty the player changes to.
@@ -175,6 +176,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
 							map = CreateInstance(newInstanceId, pSave, player->GetDifficulty(IsRaid()));
 					}
 				}
+			}
 
 			// It is possible that the save exists but the map doesn't, create it.
             if (!map)
