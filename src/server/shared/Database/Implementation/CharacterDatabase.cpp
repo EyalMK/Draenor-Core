@@ -655,7 +655,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     /// Black Market
     PREPARE_STATEMENT(CHAR_INS_BLACKMARKET_AUCTION, "INSERT INTO blackmarket VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_BLACKMARKET_AUCTION, "DELETE FROM blackmarket WHERE id = ?", CONNECTION_ASYNC);
-<<<<<<< HEAD
+
     PREPARE_STATEMENT(CHAR_UPD_BLACKMARKET_AUCTION, "UPDATE blackmarket SET bid = ?, bidder = ?, bidderCount = ? WHERE id = ?",						CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_BLACKMARKET_AUCTIONS, "SELECT id, templateId, startTime, bid, bidder, bidderCount FROM blackmarket",					CONNECTION_SYNCH);
 
@@ -666,15 +666,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 	PREPARE_STATEMENT(CHAR_SEL_WEEKLY_BOSS_KILL, "SELECT looted FROM character_weekly_boss_kills WHERE guid = ? AND entry = ? AND difficulty = ?", CONNECTION_SYNCH);
 	PREPARE_STATEMENT(CHAR_SEL_WEEKLY_BOSS_KILLS, "SELECT entry FROM character_weekly_boss_kills WHERE guid = ? AND mapId = ? AND difficulty = ?", CONNECTION_SYNCH);
 	PREPARE_STATEMENT(CHAR_SEL_WEEKLY_BOSS_MAPS, "SELECT DISTINCT mapId, difficulty FROM character_weekly_boss_kills WHERE guid = ?", CONNECTION_SYNCH);
-	
-	// Dynamic Difficulty raid map system.
-	PREPARE_STATEMENT(CHAR_INS_DYN_DIFFICULTY_MAP, "INSERT INTO character_dynamic_difficulty_maps (guid, mapId) VALUES (?, ?)",						CONNECTION_ASYNC);
-	PREPARE_STATEMENT(CHAR_DEL_DYN_DIFFICULTY_MAP, "DELETE FROM character_dynamic_difficulty_maps WHERE guid = ? AND mapId = ?",					CONNECTION_ASYNC);
-	PREPARE_STATEMENT(CHAR_SEL_DYN_DIFFICULTY_MAP, "SELECT mapId FROM character_dynamic_difficulty_maps WHERE guid = ? AND mapId = ?",				CONNECTION_SYNCH);
-=======
+
     PREPARE_STATEMENT(CHAR_UPD_BLACKMARKET_AUCTION, "UPDATE blackmarket SET bid = ?, bidder = ?, bidderCount = ? WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_BLACKMARKET_AUCTIONS, "SELECT id, templateId, startTime, bid, bidder, bidderCount FROM blackmarket", CONNECTION_SYNCH);
->>>>>>> parent of b6454443... [Core/Instance] Fully implemented Dynamic Difficulty raid system usage.
 
 #endif /* not CROSS */
     //////////////////////////////////////////////////////////////////////////

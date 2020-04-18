@@ -699,7 +699,6 @@ enum CharacterDatabaseStatements
     /// Armory stats
     CHAR_REP_STATS,
 
-<<<<<<< HEAD
 	// New Loot-based Lockout system.
 	CHAR_INS_WEEKLY_BOSS_KILL,
 	CHAR_UPD_WEEKLY_BOSS_KILL,
@@ -708,14 +707,7 @@ enum CharacterDatabaseStatements
 	CHAR_SEL_WEEKLY_BOSS_KILLS,
 	CHAR_SEL_WEEKLY_BOSS_MAPS,
 
-	// Dynamic Difficulty raid map system.
-	CHAR_INS_DYN_DIFFICULTY_MAP,
-	CHAR_DEL_DYN_DIFFICULTY_MAP,
-	CHAR_SEL_DYN_DIFFICULTY_MAP,
-
-=======
->>>>>>> parent of b6454443... [Core/Instance] Fully implemented Dynamic Difficulty raid system usage.
-    MAX_CHARACTERDATABASE_STATEMENTS
+	MAX_CHARACTERDATABASE_STATEMENTS
 };
 
 class CharacterDatabaseConnection : public MySQLConnection

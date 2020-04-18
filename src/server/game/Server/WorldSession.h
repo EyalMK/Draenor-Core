@@ -1654,11 +1654,9 @@ class WorldSession
         time_t timeLastChangeSubGroupCommand;
         time_t m_TimeLastSellItemOpcode;
         time_t m_TimeLastUseItem;
-<<<<<<< HEAD
-		time_t m_TimeLastDifficultyChange;
-=======
 
->>>>>>> parent of b6454443... [Core/Instance] Fully implemented Dynamic Difficulty raid system usage.
+		time_t m_TimeLastDifficultyChange;
+
         uint32 m_uiAntispamMailSentCount;
         uint32 m_uiAntispamMailSentTimer;
 

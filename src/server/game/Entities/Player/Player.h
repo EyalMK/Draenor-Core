@@ -3371,7 +3371,6 @@ class Player : public Unit, public GridObject<Player>
 		static bool QueueSystemEnabled();
 		Spell* GetQueuedSpell() const { return m_QueuedSpell; }
 
-<<<<<<< HEAD
 		// New Loot-based Lockout system.
 		bool IsFirstWeeklyBossKill(Creature* creature);
 		bool CanLootWeeklyBoss(Creature* creature);
@@ -3380,16 +3379,6 @@ class Player : public Unit, public GridObject<Player>
 		std::list<uint32> GetKilledWeeklyBosses(uint32 mapId, uint32 difficulty);
 		uint32 GetKilledWeeklyBossEncounterMask(uint32 mapId, uint32 difficulty);
 
-		// Dynamic Difficulty system.
-		void AddDynamicDifficultyMap(uint32 mapId);
-		void DeleteDynamicDifficultyMap(uint32 mapId);
-		bool HasDynamicDifficultyMap(uint32 mapId);
-		void UpdateDynamicDifficultyMapState();
-		bool IsOnDynamicDifficultyMap() { return isOnDynamicDifficultyMap; }
-		void SetOnDynamicDifficultyMap(bool apply) { isOnDynamicDifficultyMap = apply; }
-
-=======
->>>>>>> parent of b6454443... [Core/Instance] Fully implemented Dynamic Difficulty raid system usage.
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
         uint8 GetRunesState() const { return m_runes.runeState; }
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes.runes[index].BaseRune); }

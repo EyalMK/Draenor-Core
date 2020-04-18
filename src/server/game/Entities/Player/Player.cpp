@@ -22110,7 +22110,6 @@ bool Player::isAllowedToLoot(const Creature* creature)
     return false;
 }
 
-<<<<<<< HEAD
 // New Loot-based Lockout system.
 // Check http://eu.battle.net/wow/en/forum/topic/12822112588 .
 // Used for: All Raid Finder raids, MOP Siege of Orgrimmar Normal/Heroic, WOD raids Normal/Heroic. World bosses are also tracked in the "Raid Info" window since 5.4.
@@ -22142,7 +22141,7 @@ bool Player::CanLootWeeklyBoss(Creature* creature)
 	uint32 difficulty = creature->GetMap()->IsRaid() ? GetRaidDifficultyID() : DifficultyNone;
 
 	// If we've used Dynamic Difficulty get the right difficulty to use by checking for the bind difficulty.
-	if (creature->GetMap()->IsRaid() && HasDynamicDifficultyMap(creature->GetMapId()))
+	if (creature->GetMap()->IsRaid())
 	{
 		InstancePlayerBind* pBind = GetBoundInstance(creature->GetMapId(), GetDifficulty(creature->GetMap()->IsRaid()));
 		InstanceSave* pSave = pBind->save ? pBind->save : NULL;
@@ -22191,7 +22190,7 @@ void Player::SetWeeklyBossLooted(Creature* creature, bool looted)
 	uint32 difficulty = creature->GetMap()->IsRaid() ? GetRaidDifficultyID() : DifficultyNone;
 
 	// If we've used Dynamic Difficulty get the right difficulty to use by checking for the bind difficulty.
-	if (creature->GetMap()->IsRaid() && HasDynamicDifficultyMap(creature->GetMapId()))
+	if (creature->GetMap()->IsRaid())
 	{
 		InstancePlayerBind* pBind = GetBoundInstance(creature->GetMapId(), GetDifficulty(creature->GetMap()->IsRaid()));
 		InstanceSave* pSave = pBind->save ? pBind->save : NULL;
@@ -22303,61 +22302,6 @@ uint32 Player::GetKilledWeeklyBossEncounterMask(uint32 mapId, uint32 difficulty)
 
 // End of New Loot-based Lockout system.
 
-// Dynamic Difficulty raid map system.
-
-void Player::AddDynamicDifficultyMap(uint32 mapId)
-{
-	PreparedStatement* dynDiffMapInsStmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DYN_DIFFICULTY_MAP);
-	dynDiffMapInsStmt->setUInt32(0, GetGUIDLow());
-	dynDiffMapInsStmt->setUInt32(1, mapId);
-	CharacterDatabase.Execute(dynDiffMapInsStmt);
-}
-
-void Player::DeleteDynamicDifficultyMap(uint32 mapId)
-{
-	PreparedStatement* dynDiffMapDelStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DYN_DIFFICULTY_MAP);
-	dynDiffMapDelStmt->setUInt32(0, GetGUIDLow());
-	dynDiffMapDelStmt->setUInt32(1, mapId);
-	CharacterDatabase.Execute(dynDiffMapDelStmt);
-}
-
-bool Player::HasDynamicDifficultyMap(uint32 mapId)
-{
-	if (!mapId)
-		return false;
-
-	PreparedStatement* dynDiffMapStmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_DYN_DIFFICULTY_MAP);
-	dynDiffMapStmt->setUInt32(0, GetGUIDLow());
-	dynDiffMapStmt->setUInt32(1, mapId);
-
-	PreparedQueryResult dynDiffMapResult = CharacterDatabase.Query(dynDiffMapStmt);
-	if (dynDiffMapResult)
-		return true;
-
-	return false;
-}
-
-void Player::UpdateDynamicDifficultyMapState()
-{
-	if (Map* map = GetMap())
-	{
-		if (map->IsRaid() && map->HasDynamicDifficulty() && HasDynamicDifficultyMap(map->GetId()))
-		{
-			if (!IsOnDynamicDifficultyMap())
-				SetOnDynamicDifficultyMap(true);
-		}
-		else
-		{
-			if (IsOnDynamicDifficultyMap())
-				SetOnDynamicDifficultyMap(false);
-		}
-	}
-}
-
-// End of Dynamic Difficulty system.
-
-=======
->>>>>>> parent of b6454443... [Core/Instance] Fully implemented Dynamic Difficulty raid system usage.
 void Player::_LoadActions(PreparedQueryResult result)
 {
     m_actionButtons.clear();
@@ -23586,12 +23530,8 @@ InstanceSave* Player::GetInstanceSave(uint32 p_MapID)
 
 void Player::UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload)
 {
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
-    UnbindInstance(itr, difficulty, unload);
-
-	// Delete the Dynamic Difficulty Map if the player has one.
-	if (HasDynamicDifficultyMap(mapid))
-		DeleteDynamicDifficultyMap(mapid);
+	BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
+	UnbindInstance(itr, difficulty, unload);
 }
 
 void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficulty, bool unload)
