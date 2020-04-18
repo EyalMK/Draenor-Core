@@ -167,18 +167,21 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         targetDifficulty = Difficulty::DifficultyNormal;
 #endif
 
-    //The player has a heroic mode and tries to enter into instance which has no a heroic mode
+    //The player has a heroic mode and tries to enter into instance which doesn't have a normal / heroic mode.
     MapDifficulty const* mapDiff = GetMapDifficultyData(entry->MapID, targetDifficulty);
     if (!mapDiff)
     {
-        // Send aborted message for dungeons
+        // Send aborted message for dungeons / raids.
         if (entry->IsNonRaidDungeon())
         {
             player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, player->GetDungeonDifficultyID());
             return false;
         }
-        else    // attempt to downscale
-            mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty); ///< mapDiff is never read 01/18/16
+		else    // mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty); // Attempt to downscale.
+		{
+			player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, player->GetRaidDifficultyID());
+			return false;
+		}
     }
 
     //Bypass checks for GMs
@@ -222,9 +225,10 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     Group* group = player->GetGroup();
     if (entry->IsRaid() && entry->Expansion() >= EXPANSION_MISTS_OF_PANDARIA)
     {
-        // can only enter in a raid group except for raids before Mists of Pandaria
+		// Can only enter in a raid group except for any raid pre-WoD.
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
         {
+			player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_NEED_GROUP);
             sLog->outDebug(LOG_FILTER_MAPS, "MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName(), mapName);
             return false;
         }
@@ -257,6 +261,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     // Get instance where player's group is bound & it's map.
     if (group)
     {
+		// Check the map entrance and players inside.
         InstanceGroupBind* boundInstance = group->GetBoundInstance(entry);
         if (boundInstance && boundInstance->save)
             if (Map* boundMap = sMapMgr->FindMap(mapid, boundInstance->save->GetInstanceId()))
@@ -323,8 +328,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 	}
 	else
 	{
-		// The player cannot enter a raid if a boss is killed on Normal and alive on Heroic (unless using Dynamic Difficulty), and viceversa.
-		if (player->GetBoundInstance(mapid, Difficulty(boundDifficultyToCheck)))
+		// The leader / players cannot enter a raid if a boss is killed and they used Dynamic Difficulty for it, unless they use it from inside.
+		if (player->GetBoundInstance(mapid, Difficulty(boundDifficultyToCheck)) && player->HasDynamicDifficultyMap(mapid))
 		{
 			player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY);
 			return false;
