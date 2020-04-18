@@ -167,7 +167,7 @@ enum Opcodes
         SMSG_SET_PLAY_HOVER_ANIM                    = 0x12E4, ///< 6.2.3 20726
         SMSG_SET_MOVEMENT_ANIM_KIT                  = 0x1A5B, ///< 6.2.3 20726
         SMSG_PLAYER_BOUND                           = 0x12CB, ///< 6.2.3 20726
-		SMSG_PLAYER_DIFFICULTY_CHANGE_RESULT		= 0x1F1A, ///< 5.4.7 18019 Not implemented - CHECK!
+		SMSG_PLAYER_DIFFICULTY_CHANGE_RESULT		= 0x066C, ///< 6.2.3 20726
         SMSG_OVERRIDE_LIGHT                         = 0x13CC, ///< 6.2.3 20726
         SMSG_PRINT_NOTIFICATION                     = 0x03FC, ///< 6.2.3 20726
         SMSG_SPECIAL_MOUNT_ANIM                     = 0x0274, ///< 6.2.3 20726
