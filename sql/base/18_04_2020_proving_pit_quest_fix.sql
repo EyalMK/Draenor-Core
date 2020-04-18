@@ -1,0 +1,1 @@
+UPDATE `quest_template` SET `NextQuestIdChain`=26277 WHERE `ID`=26276;
