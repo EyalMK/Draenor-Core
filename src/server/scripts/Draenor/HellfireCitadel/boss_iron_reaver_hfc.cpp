@@ -65,7 +65,6 @@ public:
 		SlamCast					= 182066,
 		SlamDmg						= 182370,
 
-
 		IronReaverBonusLoot			= 188973
 	};
 

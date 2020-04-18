@@ -1096,6 +1096,23 @@ void AddSC_boss_operator_thogar();
 void AddSC_boss_iron_maidens();
 void AddSC_boss_blackhand();
 
+/// Hellfire Citadel
+void AddSC_instance_hellfire_citadel();
+void AddSC_hellfire_citadel();
+void AddSC_boss_hellfire_assault_hfc();
+void AddSC_boss_iron_reaver_hfc();
+void AddSC_boss_kormrok_hfc();
+void AddSC_boss_high_council_hfc();
+void AddSC_boss_kilrog_hfc();
+void AddSC_boss_gorefiend_hfc();
+void AddSC_boss_iskar_hfc();
+void AddSC_boss_socrethar_hfc();
+void AddSC_boss_zakuun_hfc();
+void AddSC_boss_xhulhorac_hfc();
+void AddSC_boss_velhari_hfc();
+void AddSC_boss_mannoroth_hfc();
+void AddSC_boss_archimonde_hfc();
+
 /* Iron Docks Dungeon */
 void AddSC_iron_docks();
 void AddSC_instance_iron_docks();
@@ -2115,15 +2132,22 @@ void AddDraenorScripts()
     AddSC_boss_blackhand();
 
 	/// Hellfire Citadel
-	/*AddSC_boss_kormrok();
-	AddSC_boss_hellfire_high_council();
-	AddSC_boss_kilrogg();
-	AddSC_boss_gorefiend();
-	AddSC_boss_iskar();
-	AddSC_boss_socrethar();
-	AddSC_boss_velhari();
-	AddSC_boss_zakuun();
-	AddSC_boss_xhulhorac();*/
+/// Hellfire Citadel
+	AddSC_instance_hellfire_citadel();
+	AddSC_hellfire_citadel();
+	AddSC_boss_hellfire_assault_hfc();
+	AddSC_boss_iron_reaver_hfc();
+	AddSC_boss_kormrok_hfc();
+	AddSC_boss_high_council_hfc();
+	AddSC_boss_kilrog_hfc();
+	AddSC_boss_gorefiend_hfc();
+	AddSC_boss_iskar_hfc();
+	AddSC_boss_socrethar_hfc();
+	AddSC_boss_zakuun_hfc();
+	AddSC_boss_xhulhorac_hfc();
+	AddSC_boss_velhari_hfc();
+	AddSC_boss_mannoroth_hfc();
+	AddSC_boss_archimonde_hfc();
 
     /// Instance Auchindoun
     AddSC_instance_auchindoun();
