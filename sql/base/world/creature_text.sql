@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_text: 13,181 rows
+-- Dumping data for table worldlive.creature_text: 13,193 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -13212,7 +13212,19 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(3467, 1, 0, 'Hold it, $r! I promised told ye where the treasure is, but never promised ye could keep it!', 14, 0, 100, 0, 0, 0, 'Baron Longshore - Gazlowe\'s Fortune Text'),
 	(3382, 1, 0, 'It\'s the gallows for me...', 12, 0, 100, 0, 0, 0, 'Southsea Cannoneer - Text 1'),
 	(3383, 0, 0, '%s whistles at Charlie the dog.', 16, 0, 100, 0, 0, 0, 'Southsea Cutthroat - Text 1'),
-	(3383, 1, 0, '...we\'ve got a nice bone for you, puppy.', 12, 0, 100, 0, 0, 0, 'Southsea Cutthroat - Text 1');
+	(3383, 1, 0, '...we\'ve got a nice bone for you, puppy.', 12, 0, 100, 0, 0, 0, 'Southsea Cutthroat - Text 1'),
+	(27004, 0, 0, 'Hah! My slaves brought back a real meal this time!', 14, 0, 100, 0, 0, 0, 'Icefist'),
+	(27005, 0, 0, 'Hah! My slaves brought back a real meal this time!', 14, 0, 100, 0, 0, 0, 'Chilltusk'),
+	(27123, 0, 0, 'Run away!', 12, 0, 100, 0, 0, 0, 'Icefist Forager'),
+	(27123, 0, 1, 'I don\'t wanna die!', 12, 0, 100, 0, 0, 0, 'Icefist Forager'),
+	(27123, 0, 2, 'Big guy will save us!', 12, 0, 100, 0, 0, 0, 'Icefist Forager'),
+	(27123, 0, 3, 'Ahh!!!', 12, 0, 100, 0, 0, 0, 'Icefist Forager'),
+	(27123, 0, 4, 'They\'re everywhere!', 12, 0, 100, 0, 0, 0, 'Icefist Forager'),
+	(27171, 0, 0, 'Run away!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager'),
+	(27171, 0, 1, 'I don\'t wanna die!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager'),
+	(27171, 0, 2, 'Big guy will save us!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager'),
+	(27171, 0, 3, 'Ahh!!!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager'),
+	(27171, 0, 4, 'They\'re everywhere!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

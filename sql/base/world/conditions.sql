@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `conditions` (
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Condition System';
 
--- Dumping data for table worldlive.conditions: 8,442 rows
+-- Dumping data for table worldlive.conditions: 8,444 rows
 DELETE FROM `conditions`;
 /*!40000 ALTER TABLE `conditions` DISABLE KEYS */;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -8475,7 +8475,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(22, 11, 22258, 0, 0, 9, 0, 10838, 0, 0, 0, 0, '', 'Demoniac Scryer - Only run SAI if player has the Demoniac Scryer Taken'),
 	(22, 11, 22258, 0, 0, 2, 0, 31607, 1, 0, 1, 0, '', 'Demoniac Scryer - Only run SAI if player does not have Demoniac Scryer Reading'),
 	(22, 11, 22258, 0, 0, 1, 0, 38708, 0, 0, 1, 0, '', 'Demoniac Scryer - Only run SAI if player does not have Aura Demonaic Visitation'),
-	(22, 11, 22258, 0, 0, 1, 1, 38672, 0, 0, 1, 0, '', 'Demoniac Scryer - Only run SAI if Demoniac Scryer does not have Aura Magic Sucker Device timer');
+	(22, 11, 22258, 0, 0, 1, 1, 38672, 0, 0, 1, 0, '', 'Demoniac Scryer - Only run SAI if Demoniac Scryer does not have Aura Magic Sucker Device timer'),
+	(22, 3, 27004, 0, 0, 9, 0, 12145, 0, 0, 0, 0, '', 'Icefist yell (SAI) needs quest \'Canyon Chase\''),
+	(22, 3, 27005, 0, 0, 9, 0, 12143, 0, 0, 0, 0, '', 'Chilltusk yell (SAI) needs quest \'Canyon Chase\'');
 /*!40000 ALTER TABLE `conditions` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

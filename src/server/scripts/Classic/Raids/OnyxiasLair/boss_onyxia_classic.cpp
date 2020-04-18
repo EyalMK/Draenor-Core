@@ -38,8 +38,8 @@ enum Yells
 enum Spells
 {
     // Phase 1 spells
-    SPELL_WING_BUFFET           = 18500,
-    SPELL_FLAME_BREATH          = 18435,
+    SPELL_WING_BUFFET           = 23339,
+    SPELL_FLAME_BREATH          = 38974,
     SPELL_CLEAVE                = 68868,
 
 	//Disabled for 1-60 version
@@ -321,7 +321,7 @@ public:
                 // Specific to PHASE_START || PHASE_END
                 if (Phase == PHASE_START)
                 {
-                    if (HealthBelowPct(60))
+                    if (HealthBelowPct(65))
                     {
                         SetCombatMovement(false);
                         Phase = PHASE_BREATH;

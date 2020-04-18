@@ -24,8 +24,8 @@ uint8 gExpansionPerRace[] =
     EXPANSION_VANILLA,                  ///< RACE_GNOME
     EXPANSION_VANILLA,                  ///< RACE_TROLL
     EXPANSION_CATACLYSM,                ///< RACE_GOBLIN
-    EXPANSION_THE_BURNING_CRUSADE,      ///< RACE_BLOODELF
-    EXPANSION_THE_BURNING_CRUSADE,      ///< RACE_DRAENEI
+	EXPANSION_VANILLA,                  ///< RACE_BLOODELF
+	EXPANSION_VANILLA,                  ///< RACE_DRAENEI
     MAX_EXPANSION,                      ///< RACE_FEL_ORC
     MAX_EXPANSION,                      ///< RACE_NAGA
     MAX_EXPANSION,                      ///< RACE_BROKEN
