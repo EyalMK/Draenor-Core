@@ -130,7 +130,7 @@ enum Difficulty
     Difficulty25N           = 4,  ///< difficulty_entry_4
     Difficulty10HC          = 5,  ///< difficulty_entry_5
     Difficulty25HC          = 6,  ///< difficulty_entry_6
-    DifficultyRaidTool      = 7,  ///< difficulty_entry_7
+    DifficultyRaidTool      = 7,  ///< difficulty_entry_7 (This was the initial flexible raid introduced in 5.4, which was later converted into difficulties 14 and 15)
     DifficultyChallenge     = 8,  ///< difficulty_entry_8
     Difficulty40            = 9,  ///< difficulty_entry_9
 

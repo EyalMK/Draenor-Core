@@ -144,9 +144,9 @@ struct LiquidData
 enum InstanceLockTypes
 {
 	INSTANCE_LOCK_NONE = 0,
-	INSTANCE_LOCK_STRICT,        // Used for: Vanilla + TBC raids, WOTLK Heroic raids, MOP Heroic raids excluding SOO, Mythic diff raids in WOD.
-	INSTANCE_LOCK_FLEXIBLE,      // Used for: Normal WOTLK, MOP raids. SOO excluded.
-	INSTANCE_LOCK_LOOT_BASED     // Used for: All LFR raids, Flex raids, SOO, Normal / Heroic diff raids in WOD.
+	INSTANCE_LOCK_STRICT,        // Used for: Vanilla + TBC raids, WOTLK Heroic raids, MOP Heroic raids excluding SoO, Mythic diff raids in WOD.
+	INSTANCE_LOCK_FLEXIBLE,      // Used for: Normal WotLK, MoP raids. SoO excluded.
+	INSTANCE_LOCK_LOOT_BASED     // Used for: LFR, Flex mode, SoO NM/HC, WoD NM/HC.
 };
 
 class GridMap
