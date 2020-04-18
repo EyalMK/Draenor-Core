@@ -8,6 +8,7 @@
 file(GLOB_RECURSE sources_Garrison Draenor/Garrison/*.hpp Draenor/Garrison/*.cpp Draenor/Garrison/*.hxx)
 #endif /* not CROSS */
 file(GLOB_RECURSE sources_Highmaul Draenor/Highmaul/*.hpp Draenor/Highmaul/*.cpp Draenor/Highmaul/*.hxx)
+file(GLOB_RECURSE sources_HellfireCitadel Draenor/HellfireCitadel/*.hpp Draenor/HellfireCitadel/*.cpp Draenor/HellfireCitadel/*.hxx)
 file(GLOB_RECURSE sources_ShadowmoonBurialGrounds Draenor/ShadowmoonBurialGrounds/*.hpp Draenor/ShadowmoonBurialGrounds/*.cpp Draenor/ShadowmoonBurialGrounds/*.hxx) 
 file(GLOB_RECURSE sources_IronDocks Draenor/IronDocks/*.hpp Draenor/IronDocks/*.cpp Draenor/IronDocks/*.hxx)
 file(GLOB_RECURSE sources_Everbloom Draenor/Everbloom/*.hpp Draenor/Everbloom/*.cpp Draenor/Everbloom/*.hxx)
@@ -26,6 +27,7 @@ set(scripts_STAT_SRCS
   ${sources_Garrison}
 #endif /* not CROSS */
   ${sources_Highmaul}
+  ${sources_HellfireCitadel}
   ${sources_IronDocks}
   ${sources_Auchindoun}
   ${sources_Skyreach}

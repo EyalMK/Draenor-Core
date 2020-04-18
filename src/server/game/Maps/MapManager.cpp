@@ -177,11 +177,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, player->GetDungeonDifficultyID());
             return false;
         }
-		else    // mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty); // Attempt to downscale.
-		{
-			player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, player->GetRaidDifficultyID());
-			return false;
-		}
+		else    // attempt to downscale
+			mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty); ///< mapDiff is never read 01/18/16
     }
 
     //Bypass checks for GMs
@@ -228,112 +225,20 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 		// Can only enter in a raid group except for any raid pre-WoD.
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
         {
-			player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_NEED_GROUP);
             sLog->outDebug(LOG_FILTER_MAPS, "MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName(), mapName);
             return false;
         }
     }
 
-	// If the player or group leader defeats any bosses on Normal and goes out, switches diff and tries to enter on Heroic difficulty, he can't. Or the other way around.
-	// He can do it only by using Dynamic Difficulty, inside the instance.
-	uint32 boundDifficultyToCheck = 0;
-	switch (targetDifficulty)
-	{
-		case Difficulty10N:
-			boundDifficultyToCheck = Difficulty25N;
-			break;
-
-		case Difficulty25N:
-			boundDifficultyToCheck = Difficulty10N;
-			break;
-
-		case Difficulty10HC:
-			boundDifficultyToCheck = Difficulty25HC;
-			break;
-
-		case Difficulty25HC:
-			boundDifficultyToCheck = Difficulty10HC;
-			break;
-
-		default: break;
-	}
-
     // Get instance where player's group is bound & it's map.
-    if (group)
-    {
-		// Check the map entrance and players inside.
-        InstanceGroupBind* boundInstance = group->GetBoundInstance(entry);
-        if (boundInstance && boundInstance->save)
-            if (Map* boundMap = sMapMgr->FindMap(mapid, boundInstance->save->GetInstanceId()))
-                if (!loginCheck && !boundMap->CanEnter(player))
-                    return false;
-
-	// Player permanently bound to different instance than group leader one.
-	if (group->GetLeaderGUID())
-		if (Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID()))
-		{
-			InstancePlayerBind* leaderBoundInstance = leader->GetBoundInstance(mapid, leader->GetDifficulty(entry->IsRaid()));
-			InstancePlayerBind* playerBoundInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry->IsRaid())); // Player inherits leader difficulty.
-
-			// The leader / players cannot enter a raid if a boss is killed and they used Dynamic Difficulty for it, unless they use it from inside.
-			if (player->GetBoundInstance(mapid, Difficulty(boundDifficultyToCheck)) && player->HasDynamicDifficultyMap(mapid))
-			{
-				player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY);
-				return false;
-			}
-
-			// The leader and the player are both bound to an instance, check if it's the same.
-			if (leaderBoundInstance && playerBoundInstance)
-			{
-				if (playerBoundInstance->perm && playerBoundInstance->save && leaderBoundInstance->perm && leaderBoundInstance->save)
-				{
-					// Different save defeated encounters. If the player has more, error. Else he inherits them on entrance.
-					if (playerBoundInstance->save->GetEncounterMask() > leaderBoundInstance->save->GetEncounterMask())
-					{
-						player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER);
-						return false;
-					}
-
-					// Different save instance id's.
-					if (playerBoundInstance->save->GetInstanceId() != leaderBoundInstance->save->GetInstanceId())
-					{
-						// For Normal raids, if the leader has at least the same number of defeated encounters, update the player bind to his and let him enter.
-						if (leader->GetDifficulty(entry->IsRaid()) == Difficulty10N || leader->GetDifficulty(entry->IsRaid()) == Difficulty25N)
-						{
-							player->UnbindInstance(mapid, leader->GetDifficulty(entry->IsRaid()), false);
-							player->BindToInstance(leaderBoundInstance->save, leaderBoundInstance->perm, false);
-							playerBoundInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry->IsRaid())); // Player inherits leader difficulty.
-						}
-						else // For Heroic raids, the player cannot enter.
-						{
-							player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE);
-							return false;
-						}
-					}
-				}
-			}
-			// The player is bound to an instance to which the leader is not (reverse doesn't count as the player gets the leader bind on entrance).
-			if (!leaderBoundInstance && playerBoundInstance)
-			{
-				player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER);
-				return false;
-			}
-		}
-		// Group check for max players in instance.
-		if (!group->CanEnterInInstance())
-		{
-			player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_MAX_PLAYERS);
-			return false;
-		}
-	}
-	else
+	if (group)
 	{
-		// The leader / players cannot enter a raid if a boss is killed and they used Dynamic Difficulty for it, unless they use it from inside.
-		if (player->GetBoundInstance(mapid, Difficulty(boundDifficultyToCheck)) && player->HasDynamicDifficultyMap(mapid))
-		{
-			player->SendTransferAborted(entry->MapID, TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY);
-			return false;
-		}
+		// Check the map entrance and players inside.
+		InstanceGroupBind* boundInstance = group->GetBoundInstance(entry);
+		if (boundInstance && boundInstance->save)
+			if (Map* boundMap = sMapMgr->FindMap(mapid, boundInstance->save->GetInstanceId()))
+				if (!loginCheck && !boundMap->CanEnter(player))
+					return false;
 	}
 
     // As of Patch 5.4.7, players are limited to entering 10 instances per hour (modifiable by config).
