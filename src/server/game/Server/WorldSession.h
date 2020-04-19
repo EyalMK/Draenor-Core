@@ -1655,8 +1655,6 @@ class WorldSession
         time_t m_TimeLastSellItemOpcode;
         time_t m_TimeLastUseItem;
 
-		time_t m_TimeLastDifficultyChange;
-
         uint32 m_uiAntispamMailSentCount;
         uint32 m_uiAntispamMailSentTimer;
 

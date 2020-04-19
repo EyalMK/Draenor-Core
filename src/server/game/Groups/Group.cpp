@@ -2350,6 +2350,19 @@ void Group::SetLegacyRaidDifficultyID(Difficulty difficulty)
     SendUpdate();
 }
 
+bool Group::InCombatToInstance(uint32 instanceId)
+{
+    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        Player* player = itr->getSource();
+        if (player && !player->getAttackers().empty() && player->GetInstanceId() == instanceId && (player->GetMap()->IsRaidOrHeroicDungeon()))
+            for (std::set<Unit*>::const_iterator i = player->getAttackers().begin(); i != player->getAttackers().end(); ++i)
+                if ((*i) && (*i)->GetTypeId() == TYPEID_UNIT && (*i)->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+                    return true;
+    }
+    return false;
+}
+
 Difficulty Group::GetDifficultyID(MapEntry const* p_MapEntry) const
 {
     if (!p_MapEntry->IsRaid())
@@ -2459,8 +2472,7 @@ InstanceGroupBind* Group::GetBoundInstance(Player* player)
 
 InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
 {
-	MapEntry const* mapEntry = sMapStore.LookupEntry(aMap->GetId());
-    return GetBoundInstance(mapEntry);
+    return GetBoundInstance(aMap->GetEntry());
 }
 
 InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)

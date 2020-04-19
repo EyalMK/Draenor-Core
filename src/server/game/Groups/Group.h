@@ -360,6 +360,7 @@ class Group
         void SetRaidDifficultyID(Difficulty difficulty);
         void SetLegacyRaidDifficultyID(Difficulty difficulty);
         uint16 InInstance();
+        bool InCombatToInstance(uint32 instanceId);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* SendMsgTo);
 
         // -no description-

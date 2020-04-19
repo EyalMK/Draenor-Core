@@ -147,7 +147,6 @@ WorldSession::WorldSession(uint32 id, InterRealmClient* irc, AccountTypes sec, b
     timeLastServerCommand               = 0;
     timeLastChangeSubGroupCommand       = 0;
     m_TimeLastSellItemOpcode            = 0;
-	m_TimeLastDifficultyChange			= 0;
     m_uiAntispamMailSentCount           = 0;
     m_PlayerLoginCounter                = 0;
     m_clientTimeDelay                   = 0;
