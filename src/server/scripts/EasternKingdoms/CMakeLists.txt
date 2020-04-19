@@ -183,16 +183,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ShadowfangKeep/instance_shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.h
   EasternKingdoms/burning_steppes.cpp
-  EasternKingdoms/BlackwingLair/boss_chromaggus.cpp
-  EasternKingdoms/BlackwingLair/boss_razorgore.cpp
-  EasternKingdoms/BlackwingLair/boss_firemaw.cpp
-  EasternKingdoms/BlackwingLair/boss_broodlord_lashlayer.cpp
-  EasternKingdoms/BlackwingLair/boss_ebonroc.cpp
-  EasternKingdoms/BlackwingLair/instance_blackwing_lair.cpp
-  EasternKingdoms/BlackwingLair/boss_vaelastrasz.cpp
-  EasternKingdoms/BlackwingLair/boss_nefarian.cpp
-  EasternKingdoms/BlackwingLair/boss_flamegor.cpp
-  EasternKingdoms/BlackwingLair/boss_victor_nefarius.cpp
   EasternKingdoms/blasted_lands.cpp
   EasternKingdoms/stormwind_city.cpp
   EasternKingdoms/ZulAman/boss_halazzi.cpp

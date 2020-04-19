@@ -150,14 +150,13 @@ void AddSC_instance_blackrock_depths();
 
 /// Blackwing lair
 void AddSC_boss_razorgore();
-void AddSC_boss_vael();
+void AddSC_boss_vaelastrasz();
 void AddSC_boss_broodlord();
 void AddSC_boss_firemaw();
 void AddSC_boss_ebonroc();
 void AddSC_boss_flamegor();
 void AddSC_boss_chromaggus();
 void AddSC_boss_nefarian();
-void AddSC_boss_victor_nefarius();
 
 /// Deadmines
 void AddSC_instance_deadmines();
@@ -1348,14 +1347,13 @@ void AddEasternKingdomsScripts()
     AddSC_boss_tomb_of_seven();
     AddSC_instance_blackrock_depths();
     AddSC_boss_razorgore();
-    AddSC_boss_vael();
+    AddSC_boss_vaelastrasz();
     AddSC_boss_broodlord();
     AddSC_boss_firemaw();
     AddSC_boss_ebonroc();
     AddSC_boss_flamegor();
     AddSC_boss_chromaggus();
     AddSC_boss_nefarian();
-    AddSC_boss_victor_nefarius();
     AddSC_instance_deadmines();
     AddSC_deadmines();
     AddSC_boss_glubtok();
