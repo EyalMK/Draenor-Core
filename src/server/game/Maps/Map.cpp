@@ -2922,12 +2922,14 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
 							bool warningOnly = false;
 
 							WorldPacket data(SMSG_PENDING_RAID_LOCK, 10);
-							data << uint32(TimeUntilLock);
+
+							data.WriteBit(warningOnly);  // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START.
+							data.WriteBit(lockExtended); // extended.
+							data.FlushBits();
 							data << uint32(i_data ? i_data->GetCompletedEncounterMask() : 0);
-							data << uint8(lockExtended);
-							data << uint8(warningOnly); // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-							player->GetSession()->SendPacket(&data);
-							player->SetPendingBind(mapSave->GetInstanceId(), 60000);
+							data << uint32(TimeUntilLock);
+                            player->GetSession()->SendPacket(&data);
+							player->SetPendingBind(mapSave->GetInstanceId(), TimeUntilLock);
 						}
                     }
                 }
