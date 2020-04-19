@@ -140,6 +140,7 @@ struct LiquidData
     float  depth_level;
 };
 
+
 // Lock types since Cataclysm, updated. Check http://eu.battle.net/wow/en/forum/topic/12822112588 .
 enum InstanceLockTypes
 {
@@ -413,9 +414,17 @@ class Map : public GridRefManager<NGridType>
 
         uint32 Expansion() const { return i_mapEntry ? i_mapEntry->Expansion() : 0; }
 
+
 		bool GetEntrancePos(int32 &mapid, float &x, float &y) { return i_mapEntry && i_mapEntry->GetEntrancePos(mapid, x, y); }
 
 		InstanceLockTypes GetInstanceLockType();
+
+        bool GetEntrancePos(int32 &mapid, float &x, float &y)
+        {
+            if (!i_mapEntry)
+                return false;
+            return i_mapEntry->GetEntrancePos(mapid, x, y);
+        }
 
         void AddObjectToRemoveList(WorldObject* obj);
         void AddObjectToSwitchList(WorldObject* obj, bool on);
