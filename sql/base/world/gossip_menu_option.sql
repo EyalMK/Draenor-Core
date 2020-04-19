@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `gossip_menu_option` (
   PRIMARY KEY (`menu_id`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.gossip_menu_option: 6,340 rows
+-- Dumping data for table worldlive.gossip_menu_option: 6,342 rows
 DELETE FROM `gossip_menu_option`;
 /*!40000 ALTER TABLE `gossip_menu_option` DISABLE KEYS */;
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
@@ -6370,7 +6370,9 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(12754, 0, 0, 'Im ready to ride', 1, 1, 0, 0, 0, 0, ''),
 	(11611, 0, 0, 'I wish to ride the Stormwind charger, sir.', 1, 1, 0, 0, 0, 0, NULL),
 	(2871, 0, 0, 'I inspect the body further.', 1, 1, 2872, 0, 0, 0, ''),
-	(10567, 1, 0, '<Break Longshore\'s manacles and free him.>', 0, 0, 0, 0, 0, 0, '');
+	(10567, 1, 0, '<Break Longshore\'s manacles and free him.>', 0, 0, 0, 0, 0, 0, ''),
+	(11613, 0, 0, 'I would like to start the Blood Ritual, Kasim.', 0, 0, 0, 0, 0, 0, ''),
+	(11613, 1, 0, 'I would like to start the Amulet Ritual, Kasim.', 0, 0, 0, 0, 0, 0, '');
 /*!40000 ALTER TABLE `gossip_menu_option` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

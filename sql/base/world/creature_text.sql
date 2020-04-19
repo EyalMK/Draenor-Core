@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_text: 13,193 rows
+-- Dumping data for table worldlive.creature_text: 13,205 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -13224,7 +13224,19 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(27171, 0, 1, 'I don\'t wanna die!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager'),
 	(27171, 0, 2, 'Big guy will save us!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager'),
 	(27171, 0, 3, 'Ahh!!!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager'),
-	(27171, 0, 4, 'They\'re everywhere!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager');
+	(27171, 0, 4, 'They\'re everywhere!', 12, 0, 100, 0, 0, 0, 'Chilltusk Forager'),
+	(19354, 0, 0, 'Keep a close eye on this Broken scum! Far too many have escaped from us!', 14, 0, 100, 0, 0, 0, 'Arzeth the Merciless - Bellowing Order 1'),
+	(19354, 0, 1, 'Do not allow these wretches a moment of rest! If there\'s an Ata\'mal crystal here then we shall find it!', 14, 0, 100, 0, 0, 0, 'Arzeth the Merciless - Bellowing Order 2'),
+	(19354, 0, 2, 'We will find what the Master is looking for! Failure is not an option!', 14, 0, 100, 0, 0, 0, 'Arzeth the Merciless - Bellowing Order 3'),
+	(19354, 0, 3, 'Work these Broken wretches to the bones, Illidari! If there\'s anything of value in this forsaken place we shall find it!', 14, 0, 100, 0, 0, 0, 'Arzeth the Merciless - Bellowing Order 4'),
+	(19354, 1, 0, 'That Broken worm gave you that staff, didn\'t he? Did he also tell you he\'s the one that sold out his tribe? No matter, you will both pay for this!', 14, 0, 100, 0, 0, 0, 'Arzeth the Merciless - On Staff Use'),
+	(18248, 0, 0, 'Grunting, %s turns away from the wanted poster, returning to his warm spot by the fire.', 16, 0, 100, 0, 0, 0, 'Nekthar'),
+	(18248, 1, 0, '%s begins to read the wanted poster.', 16, 0, 100, 0, 0, 0, 'Nekthar'),
+	(19569, 0, 0, 'I hope those blood elves across the way don\'t think that I\'m spying on them!', 12, 0, 100, 5, 0, 0, 'Netherologist Coppernickels'),
+	(19569, 1, 0, 'If I were smart, I\'d be selling this research for a seat on the rocket ship.  I have a feeling we\'re going to need to get out of here soon!', 12, 0, 100, 5, 0, 0, 'Netherologist Coppernickels'),
+	(19569, 2, 0, 'If this is right, we don\'t have long! Oh well.', 12, 0, 100, 5, 0, 0, 'Netherologist Coppernickels'),
+	(19569, 3, 0, 'This is the last time that I buy second-hand equipment from an ethereal!', 12, 0, 100, 5, 0, 0, 'Netherologist Coppernickels'),
+	(42298, 4, 0, 'Quickly, $n! We haven\'t much time before Rezelikh makes his return.', 14, 0, 100, 0, 0, 0, ' Kasim Sharim - Text 5');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
