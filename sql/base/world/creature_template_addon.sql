@@ -6393,7 +6393,6 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(19562, 0, 0, 0, 4097, 69, NULL, 0),
 	(19565, 0, 0, 0, 2, 0, NULL, 0),
 	(19568, 0, 0, 0, 2, 0, NULL, 0),
-	(19569, 0, 0, 0, 2, 133, NULL, 0),
 	(19570, 0, 0, 0, 2, 0, NULL, 0),
 	(19571, 0, 0, 0, 2, 0, NULL, 0),
 	(19572, 0, 0, 0, 2, 0, NULL, 0),
@@ -25021,7 +25020,8 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(66185, 0, 0, 0, 0, 0, '73304', 0),
 	(5271, 0, 0, 0, 1, 0, '8278', 0),
 	(5277, 0, 0, 0, 1, 0, '12099', 0),
-	(5709, 0, 0, 0, 1, 0, '12535', 0);
+	(5709, 0, 0, 0, 1, 0, '12535', 0),
+	(11983, 0, 0, 0, 0, 0, NULL, 0);
 /*!40000 ALTER TABLE `creature_template_addon` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

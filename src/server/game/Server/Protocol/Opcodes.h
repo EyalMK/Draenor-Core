@@ -1787,7 +1787,8 @@ enum Opcodes
     CMSG_GHOST                                          = 0x0000,
     CMSG_GRANT_LEVEL                                    = 0x0000,
     CMSG_HEARTH_AND_RESURRECT                           = 0x0000,
-	CMSG_INSTANCE_LOCK_RESPONSE							= 0x1909, ///< 6.2.3 20726
+	CMSG_INSTANCE_LOCK_RESPONSE                         = 0x067F, // 5.4.7 18019
+	//CMSG_INSTANCE_LOCK_RESPONSE				        = 0x1909, ///< 6.2.3 20726
     CMSG_MANEUVER_START                                 = 0x0000,
     CMSG_MEETINGSTONE_INFO                              = 0x0000,
     CMSG_MINIGAME_MOVE                                  = 0x0000,
@@ -1881,7 +1882,8 @@ enum Opcodes
     SMSG_LIST_TARGETS                                   = 0x0000,
     SMSG_MOVE_CHARACTER_CHEAT_FAILURE                   = 0x0000,
     SMSG_MOVE_CHARACTER_CHEAT_SUCCESS                   = 0x0000,
-    SMSG_PENDING_RAID_LOCK                              = 0x0E64, ///< 6.2.3 20726
+	SMSG_PENDING_RAID_LOCK                              = 0x1C52, // 5.4.7 18019
+    //SMSG_PENDING_RAID_LOCK                            = 0x0E64, ///< 6.2.3 20726
     SMSG_PLAYER_NOT_FOUND_FAILURE                       = 0x0000,
     SMSG_REFRESH_COMPONENT                              = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                          = 0x0000,

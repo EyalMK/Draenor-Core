@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `locales_quest_template_objective` (
   PRIMARY KEY (`ID`,`Locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.locales_quest_template_objective: ~81,511 rows (approximately)
+-- Dumping data for table worldlive.locales_quest_template_objective: ~86,719 rows (approximately)
 DELETE FROM `locales_quest_template_objective`;
 /*!40000 ALTER TABLE `locales_quest_template_objective` DISABLE KEYS */;
 INSERT INTO `locales_quest_template_objective` (`ID`, `Locale`, `Description`) VALUES

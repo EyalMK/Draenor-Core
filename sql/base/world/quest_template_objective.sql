@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `quest_template_objective` (
   KEY `idx_QuestID` (`QuestID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2787045 DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.quest_template_objective: ~21,311 rows (approximately)
+-- Dumping data for table worldlive.quest_template_objective: ~19,928 rows (approximately)
 DELETE FROM `quest_template_objective`;
 /*!40000 ALTER TABLE `quest_template_objective` DISABLE KEYS */;
 INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
@@ -12176,6 +12176,8 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(266517, 27048, 1, 2, 65508, 3, 0, 0, '', '', 1),
 	(266518, 27048, 1, 3, 65510, 3, 0, 0, '', '', 1),
 	(266519, 27729, 0, 0, 40855, 8, 0, 0, 'Disgusting Eels Justifiably Slain', '', 1),
+	(266520, 26160, 3, 0, 42298, 1, 0, 0, 'Speak with Kasim Sharim to begin the blood ritual', '', 20779),
+	(266521, 26170, 3, 0, 42298, 1, 0, 0, 'Participate in Kasim Sharim\'s ritual', '', 20779),
 	(266522, 25107, 1, 0, 52470, 1, 0, 0, '', '', 1),
 	(266523, 26995, 1, 0, 60742, 6, 0, 0, '', '', 1),
 	(266524, 25616, 0, 0, 34353, 10, 0, 0, '', '', 1),
@@ -15557,11 +15559,11 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(272854, 34584, 2, 0, 230335, 8, 0, 0, 'Mark trees for lumberjacks', '', 1),
 	(272855, 34585, 0, 0, 81360, 1, 1, 0, '', '', 1),
 	(272856, 34586, 0, 0, 79757, 1, 0, 0, 'Speak with Baros to build your garrison', '2204', 1),
-	(272858, 34589, 1, 0, 111043, 3, 0, 0, '', '', 1),
+	(272858, 34589, 1, 0, 111043, 3, 0, 0, '', '', 1);
+INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
 	(272860, 34591, 0, 0, 79274, 1, 0, 0, '', '569', 1),
 	(272861, 34592, 0, 0, 79529, 8, 0, 0, '', '', 1),
-	(272862, 34593, 1, 0, 111065, 1, 0, 0, 'Thulgork\'s Orders found', '2759', 1);
-INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
+	(272862, 34593, 1, 0, 111065, 1, 0, 0, 'Thulgork\'s Orders found', '2759', 1),
 	(272863, 34593, 1, 1, 111066, 1, 0, 0, 'Crulgorosh\'s Orders found', '2758', 1),
 	(272866, 34596, 0, 0, 79927, 1, 1, 0, 'Reglakk stopped', '2727', 1),
 	(272867, 34597, 2, 0, 230650, 8, 0, 0, 'Boxes of Ogre Research destroyed', '', 1),

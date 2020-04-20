@@ -121,25 +121,32 @@ public:
 
 		// Event
 		EVENT_CHECK_PLAYER = 0,
+		EVENT_SUMMON_SHADE_OF_KALDOREI = 1,
+		EVENT_CHECK_WHERE_PLAYER = 2,
 
 		// Actions
 		CHECK_FOR_SHADE = 0,
-		SUMMON_SHADE_OF_KALDOREI = 1,
 
 	};
 
 
 	struct npc_moonwell_bunnyAI : public ScriptedAI
 	{
-		npc_moonwell_bunnyAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+		npc_moonwell_bunnyAI(Creature* p_Creature) : ScriptedAI(p_Creature) {
+			m_SummonedShade = false;
+			m_PlayerGuid = false;
+		}
 
 		EventMap m_CosmeticEvents;
 		EventMap m_Events;
+		bool m_SummonedShade;
+		bool m_PlayerGuid;
 
 		// Lists
 		std::list<Player*> PlayersInRange;
 		std::list<uint32> Quests;
 		std::list<uint32> ShadesOfKaldorei;
+		std::list<Player*> PlayersInAreaWithQuest;
 		
 		// Positions of Shades
 		Position const l_ShadeShadowGlen  = {	10702.7f, 761.221f, 1322.88f, 3.0f	};
@@ -148,7 +155,7 @@ public:
 		Position const l_ShadeOracleGlade = {	10669.2f, 1855.89f, 1325.84f, 2.8f	};
 		Position const l_ShadeArlithrien  = {	9556.4941f, 1648.8970f, 1300.9762f, 1.735402f };
 
-		void Reset()
+		void Reset() override
 		{
 			// Push Quest IDs into list
 			Quests.push_back(QUEST_CROWN_OF_AZEROTH);
@@ -169,22 +176,26 @@ public:
 			ClearDelayedOperations();
 
 			// Check for Players
-			m_CosmeticEvents.ScheduleEvent(EVENT_CHECK_PLAYER, 1 * TimeConstants::IN_MILLISECONDS);
+			m_CosmeticEvents.ScheduleEvent(EVENT_CHECK_PLAYER, 0.5 * TimeConstants::IN_MILLISECONDS);
 
 		}
 
 
-		void DoAction(int32 const p_Action)
+		void DoAction(int32 const p_Action) override
 		{
 			switch (p_Action)
 			{
 				case CHECK_FOR_SHADE:
 				{
+					if (m_SummonedShade)
+						return;
+
 					for (uint32 Shade : ShadesOfKaldorei)
 						if (me->FindNearestCreature(Shade, 10.0f, true))
 							break; // If Shade is found, break loop - event ongoing
 
-					m_CosmeticEvents.ScheduleEvent(SUMMON_SHADE_OF_KALDOREI, 0.2 * TimeConstants::IN_MILLISECONDS); // Else summon shade
+					m_CosmeticEvents.ScheduleEvent(EVENT_SUMMON_SHADE_OF_KALDOREI, 0.2 * TimeConstants::IN_MILLISECONDS); // Summon shade
+					m_SummonedShade = true; // Event Check for Shade returns if the variable is true
 					break;
 				}
 				default:
@@ -212,23 +223,70 @@ public:
 						for (uint32 Quest : Quests)
 							if (p_Player->GetQuestStatus(Quest) == QUEST_STATUS_INCOMPLETE)
 							{
+								m_PlayerGuid = p_Player->GetGUID();
 								DoAction(CHECK_FOR_SHADE);
 							}
 					break;
-				case SUMMON_SHADE_OF_KALDOREI:						
-						// Creature texts and events are handled in SmartAI
-						if (me->GetAreaId() == AREAID_SHADOWGLEN)
-							Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_SHADOWGLEN, l_ShadeShadowGlen, TEMPSUMMON_MANUAL_DESPAWN); 
-						if (me->GetAreaId() == AREAID_DOLANAAR)
-							Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_DOLANAAR, l_ShadeDolanaar, TEMPSUMMON_MANUAL_DESPAWN);
-						if (me->GetAreaId() == AREAID_STARBREEZE)
-							Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_STARBREEZE, l_ShadeStarbreeze, TEMPSUMMON_MANUAL_DESPAWN);
-						if (me->GetAreaId() == AREAID_ORACLEGLADE)
-							Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_ORACLEGLADE, l_ShadeOracleGlade, TEMPSUMMON_MANUAL_DESPAWN);
-						if (me->GetAreaId() == AREAID_ARLITHRIEN)
-							Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_ARLITHRIEN, l_ShadeArlithrien, TEMPSUMMON_MANUAL_DESPAWN);
-						break;
 
+				case EVENT_CHECK_WHERE_PLAYER:
+					// This event checks if the same player that the event was played for is still in the area. If it doesn't find said player, reset m_SummonedShade in order to play event for new players.
+					me->GetPlayerListInGrid(PlayersInAreaWithQuest, 20.0f);
+					for (Player* p_Player : PlayersInAreaWithQuest)
+						if (!m_PlayerGuid == p_Player->GetGUID())
+								m_SummonedShade = false;
+							
+					break;
+				case EVENT_SUMMON_SHADE_OF_KALDOREI:
+				{
+					// Creature texts and events are handled in SmartAI
+					if (me->GetAreaId() == AREAID_SHADOWGLEN)
+					{
+						Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_SHADOWGLEN, l_ShadeShadowGlen, TEMPSUMMON_MANUAL_DESPAWN);
+						// NPC despawns after 30 seconds from spawning
+						AddTimedDelayedOperation(31 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							m_CosmeticEvents.ScheduleEvent(EVENT_CHECK_WHERE_PLAYER, 0 * TimeConstants::IN_MILLISECONDS); // Check for same player
+							
+						});
+					}
+					else if (me->GetAreaId() == AREAID_DOLANAAR)
+					{
+						Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_DOLANAAR, l_ShadeDolanaar, TEMPSUMMON_MANUAL_DESPAWN);
+						// NPC despawns after 32 seconds from spawning
+						AddTimedDelayedOperation(33 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							m_CosmeticEvents.ScheduleEvent(EVENT_CHECK_WHERE_PLAYER, 0 * TimeConstants::IN_MILLISECONDS); // Check for same player
+						});
+					}
+					else if (me->GetAreaId() == AREAID_STARBREEZE)
+					{
+						Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_STARBREEZE, l_ShadeStarbreeze, TEMPSUMMON_MANUAL_DESPAWN);
+						// NPC despawns after 40 seconds from spawning
+						AddTimedDelayedOperation(41 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							m_CosmeticEvents.ScheduleEvent(EVENT_CHECK_WHERE_PLAYER, 0 * TimeConstants::IN_MILLISECONDS); // Check for same player
+						});
+					}	
+					else if (me->GetAreaId() == AREAID_ORACLEGLADE)
+					{
+						Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_ORACLEGLADE, l_ShadeOracleGlade, TEMPSUMMON_MANUAL_DESPAWN);
+						// NPC despawns after 40 seconds from spawning
+						AddTimedDelayedOperation(41 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							m_CosmeticEvents.ScheduleEvent(EVENT_CHECK_WHERE_PLAYER, 0 * TimeConstants::IN_MILLISECONDS); // Check for same player
+						});
+					}
+					else if (me->GetAreaId() == AREAID_ARLITHRIEN)
+					{
+						Creature* Shade = me->SummonCreature(NPC_SHADE_OF_KALDOREI_ARLITHRIEN, l_ShadeArlithrien, TEMPSUMMON_MANUAL_DESPAWN);
+						// NPC despawns after 50 seconds from spawning
+						AddTimedDelayedOperation(51 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+						{
+							m_CosmeticEvents.ScheduleEvent(EVENT_CHECK_WHERE_PLAYER, 0 * TimeConstants::IN_MILLISECONDS); // Check for same player
+						});
+					}	
+					break;
+				}
 			}
 
 		}

@@ -3865,18 +3865,18 @@ void ObjectMgr::LoadPlayerInfo()
 					continue;
 
 				// skip expansion races if not playing with expansion
-				if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_THE_BURNING_CRUSADE && (race == RACE_BLOODELF || race == RACE_DRAENEI))
+				if (sWorld->getIntConfig(CONFIG_EXPANSION) < 1 && (race == RACE_BLOODELF || race == RACE_DRAENEI))
 					continue;
 
 				// skip expansion classes if not playing with expansion
-				if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_WRATH_OF_THE_LICH_KING  && class_ == CLASS_DEATH_KNIGHT)
+				if (sWorld->getIntConfig(CONFIG_EXPANSION) < 2 && class_ == CLASS_DEATH_KNIGHT)
 					continue;
 
 				// skip expansion classes / races if not playing with expansion
-				if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_CATACLYSM && (race == RACE_GOBLIN || race == RACE_WORGEN))
+				if (sWorld->getIntConfig(CONFIG_EXPANSION) < 3 && (race == RACE_GOBLIN || race == RACE_WORGEN))
 
 					// skip expansion classes / races if not playing with expansion
-					if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_MISTS_OF_PANDARIA && (class_ == CLASS_MONK || race == RACE_PANDAREN_NEUTRAL || race == RACE_PANDAREN_ALLI || race == RACE_PANDAREN_HORDE))
+					if (sWorld->getIntConfig(CONFIG_EXPANSION) < 4 && (class_ == CLASS_MONK || race == RACE_PANDAREN_NEUTRAL || race == RACE_PANDAREN_ALLI || race == RACE_PANDAREN_HORDE))
 
 						// fatal error if no level 1 data
 						if (!pInfo->levelInfo || pInfo->levelInfo[0].stats[0] == 0)
@@ -5620,23 +5620,6 @@ void ObjectMgr::LoadInstanceEncounters()
 	} while (l_Result->NextRow());
 
 	sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance encounters in %u ms", l_Counter, GetMSTimeDiffToNow(l_OldMSTime));
-}
-
-// Boss loot quest Id, used for new Loot-based Lockout system.
-uint32 ObjectMgr::GetWeeklyBossLootQuestId(uint32 creatureEntry, uint32 difficulty)
-{
-	PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_BOSS_LOOT_QUEST_ID);
-	stmt->setUInt32(0, creatureEntry);
-	stmt->setUInt32(1, difficulty);
-	PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-	if (!result)
-		return 0;
-
-	Field* fields = result->Fetch();
-	uint32 questId = fields[0].GetUInt32();
-
-	return questId;
 }
 
 GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const

@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS `game_tele` (
   `map` smallint(5) unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5645753 DEFAULT CHARSET=utf8 COMMENT='Tele Command';
+) ENGINE=MyISAM AUTO_INCREMENT=5645754 DEFAULT CHARSET=utf8 COMMENT='Tele Command';
 
--- Dumping data for table worldlive.game_tele: 2,087 rows
+-- Dumping data for table worldlive.game_tele: 2,088 rows
 DELETE FROM `game_tele`;
 /*!40000 ALTER TABLE `game_tele` DISABLE KEYS */;
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES
@@ -2113,7 +2113,8 @@ INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orient
 	(5645749, 5122.14, -814.783, 329.13, 0.759337, 1464, 'worldbosskazz'),
 	(5645750, 3980.45, -782.131, 36.5177, 1.74766, 1448, 'hfcraid'),
 	(5645751, 1483.99, 2953.26, 35.2387, 0.0275292, 1182, 'dungeonauchindoun'),
-	(5645752, 89.8652, -318.885, 65.4642, 0.0279307, 229, 'classicubrs');
+	(5645752, 89.8652, -318.885, 65.4642, 0.0279307, 229, 'classicubrs'),
+	(5645753, -7659.24, -1220.3, 287.787, 2.65539, 0, 'bwlorb');
 /*!40000 ALTER TABLE `game_tele` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

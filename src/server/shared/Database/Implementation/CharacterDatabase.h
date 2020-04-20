@@ -699,15 +699,7 @@ enum CharacterDatabaseStatements
     /// Armory stats
     CHAR_REP_STATS,
 
-	// New Loot-based Lockout system.
-	CHAR_INS_WEEKLY_BOSS_KILL,
-	CHAR_UPD_WEEKLY_BOSS_KILL,
-	CHAR_DEL_WEEKLY_BOSS_KILLS,
-	CHAR_SEL_WEEKLY_BOSS_KILL,
-	CHAR_SEL_WEEKLY_BOSS_KILLS,
-	CHAR_SEL_WEEKLY_BOSS_MAPS,
-
-	MAX_CHARACTERDATABASE_STATEMENTS
+    MAX_CHARACTERDATABASE_STATEMENTS
 };
 
 class CharacterDatabaseConnection : public MySQLConnection

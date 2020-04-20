@@ -205,9 +205,8 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
-        if (player->GetQuestRewardStatus(7761))
-            player->CastSpell(player, 23460, true);
-
+        player->CastSpell(player, 23460, true);
+		//player->TeleportTo(469, -7664.76f, -1100.87f, 399.679f, 0.561981f);
         return true;
     }
 };

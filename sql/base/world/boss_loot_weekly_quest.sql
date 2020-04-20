@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `boss_loot_weekly_quest` (
   PRIMARY KEY (`entry`,`difficulty`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Loot-based Lockout System';
 
--- Dumping data for table worldlive.boss_loot_weekly_quest: 18 rows
+-- Dumping data for table worldlive.boss_loot_weekly_quest: 32 rows
 DELETE FROM `boss_loot_weekly_quest`;
 /*!40000 ALTER TABLE `boss_loot_weekly_quest` DISABLE KEYS */;
 INSERT INTO `boss_loot_weekly_quest` (`entry`, `difficulty`, `questId`, `comment`) VALUES
@@ -41,7 +41,21 @@ INSERT INTO `boss_loot_weekly_quest` (`entry`, `difficulty`, `questId`, `comment
 	(93068, 0, 39482, 'Xhul\'horac'),
 	(93439, 0, 39483, 'Tyrant Velhari'),
 	(91349, 0, 39484, 'Mannoroth'),
-	(91331, 0, 39485, 'Archimonde');
+	(91331, 0, 39485, 'Archimonde'),
+	(83746, 0, 37464, 'Rhukmar'),
+	(95068, 17, 39473, 'Siegemaster Mar\'tak'),
+	(90284, 17, 39474, 'Iron Reaver'),
+	(90776, 17, 39475, 'Komrok'),
+	(90378, 17, 39476, 'Kilrogg Deadeye'),
+	(92146, 17, 39477, 'Gurtogg Bloodboil (Council)'),
+	(91809, 17, 39478, 'Gorefiend'),
+	(90316, 17, 39479, 'Shadow-Lord Iskar'),
+	(90296, 17, 39480, 'Socrethar the Eternal'),
+	(89890, 17, 39481, 'Fel Lord Zakuun'),
+	(93068, 17, 39482, 'Xhul\'horac'),
+	(93439, 17, 39483, 'Tyrant Velhari'),
+	(91349, 17, 39484, 'Mannoroth'),
+	(91331, 17, 39485, 'Archimonde');
 /*!40000 ALTER TABLE `boss_loot_weekly_quest` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
