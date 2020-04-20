@@ -244,7 +244,7 @@ public:
         uint64  m_playerGUID;
 		uint64  m_kingGUID;
 		uint64  m_godfreyGUID;
-        std::set<ObjectGuid> pList;
+        std::set<uint64> pList;
 
         void Reset() override
         {
@@ -373,7 +373,7 @@ public:
                 pList.insert(m_playerGUID);
         }
 
-        bool HasPlayer(ObjectGuid guid)
+        bool HasPlayer(uint64 guid)
         {
             return (pList.find(guid) != pList.end());
         }
@@ -1619,7 +1619,7 @@ public:
         go_gate_196399AI(GameObject* go) : GameObjectAI(go) { }
 
         EventMap m_events;
-        std::list<ObjectGuid> cList;
+        std::list<uint64> cList;
         bool m_isUsed;
 
         void Reset() override
@@ -1691,7 +1691,7 @@ public:
         go_gate_196401AI(GameObject* go) : GameObjectAI(go) { }
 
         EventMap m_events;
-        std::list<ObjectGuid> cList;
+        std::list<uint64> cList;
         bool m_isUsed;
 
         void Reset() override
@@ -2222,7 +2222,7 @@ public:
         go_kings_gate_196412AI(GameObject* go) : GameObjectAI(go) { }
 
         EventMap m_events;
-        std::list<ObjectGuid> cList;
+        std::list<uint64> cList;
         bool m_isUsed;
 
         void Reset() override

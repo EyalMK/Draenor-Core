@@ -332,7 +332,11 @@ void AddSC_undercity();
 void AddSC_western_plaguelands();
 void AddSC_westfall();
 void AddSC_wetlands();
-void AddSC_gilneas();
+void AddSC_Gilneas();
+void AddSC_Gilneas_city_part1();
+void AddSC_Gilneas_city_part2();
+void AddSC_Gilneas_city_part3();
+void AddSC_Duskhaven();
 void AddSC_ashenvale();
 void AddSC_azshara();
 void AddSC_azuremyst_isle();
@@ -1615,7 +1619,12 @@ void AddKalimdorScripts()
     AddSC_instance_wailing_caverns();
     AddSC_zulfarrak();
     AddSC_instance_zulfarrak();
-    AddSC_gilneas();
+    /// Gilneas Scripts
+	void AddSC_Gilneas();
+	void AddSC_Gilneas_city_part1();
+	void AddSC_Gilneas_city_part2();
+	void AddSC_Gilneas_city_part3();
+	void AddSC_Duskhaven();
 
     AddSC_ashenvale();
     AddSC_azshara();
