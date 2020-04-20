@@ -221,8 +221,11 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Karazhan/boss_moroes.cpp
   EasternKingdoms/Karazhan/boss_terestian_illhoof.cpp
   EasternKingdoms/Karazhan/karazhan.h
-  EasternKingdoms/Gilneas/gilneas.cpp
-  EasternKingdoms/Gilneas/gilneas.h
+  EasternKingdoms/Gilneas/Duskhaven.cpp
+  EasternKingdoms/Gilneas/Gilneas_city_part1.cpp
+  EasternKingdoms/Gilneas/Gilneas_city_part2.cpp
+  EasternKingdoms/Gilneas/Gilneas_city_part3.cpp
+  EasternKingdoms/Gilneas/Gilneas.h
   EasternKingdoms/ThroneOfTheTides/boss_lady_nazjar.cpp
   EasternKingdoms/ThroneOfTheTides/boss_commander_ulthok.cpp
   EasternKingdoms/ThroneOfTheTides/boss_mindebender_ghursha.cpp
