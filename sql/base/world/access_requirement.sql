@@ -61,7 +61,7 @@ INSERT INTO `access_requirement` (`mapId`, `difficulty`, `level_min`, `level_max
 	(389, 1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Ragefire Chasm - Ogrimmar Instance'),
 	(409, 9, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Molten Core - 40 man'),
 	(429, 1, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Dire Maul'),
-	(469, 9, 61, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Blackwing Lair - Blackrock Mountain - Eastern Kingdoms'),
+	(469, 9, 50, 0, 15138, 0, 0, 0, 0, 0, 0, 0, NULL, 'Blackwing Lair - Blackrock Mountain - Eastern Kingdoms'),
 	(509, 3, 61, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Ruins Of Ahn\'Qiraj (Outside)'),
 	(531, 9, 61, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Ahn\'Qiraj Temple (Outside)'),
 	(532, 3, 68, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 'Karazhan,Main (Entrance)'),
