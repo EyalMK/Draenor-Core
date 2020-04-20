@@ -17,85 +17,80 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "blackwing_lair.h"
 
-enum Spells
-{
-	SPELL_SHADOWFLAME = 22539,
-	SPELL_WINGBUFFET = 23339,
-	SPELL_FLAMEBUFFET = 23341
-};
-
-enum Events
-{
-	EVENT_SHADOWFLAME = 1,
-	EVENT_WINGBUFFET = 2,
-	EVENT_FLAMEBUFFET = 3
-};
+#define SPELL_SHADOWFLAME       22539
+#define SPELL_WINGBUFFET        23339
+#define SPELL_FLAMEBUFFET       23341
 
 class boss_firemaw : public CreatureScript
 {
 public:
 	boss_firemaw() : CreatureScript("boss_firemaw") { }
 
-	struct boss_firemawAI : public BossAI
+	CreatureAI* GetAI(Creature* creature) const
 	{
-		boss_firemawAI(Creature* creature) : BossAI(creature, DATA_FIREMAW) { }
+		return new boss_firemawAI(creature);
+	}
 
-		void EnterCombat(Unit* /*who*/) override
+	struct boss_firemawAI : public ScriptedAI
+	{
+		boss_firemawAI(Creature* creature) : ScriptedAI(creature) {}
+
+		uint32 ShadowFlame_Timer;
+		uint32 WingBuffet_Timer;
+		uint32 FlameBuffet_Timer;
+
+		void Reset()
 		{
-			if (instance && instance->GetBossState(DATA_BROODLORD_LASHLAYER) != DONE)
-			{
-				EnterEvadeMode();
-				return;
-			}
-			_EnterCombat();
-
-			events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
-			events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
-			events.ScheduleEvent(EVENT_FLAMEBUFFET, 5000);
+			ShadowFlame_Timer = 30000;                          //These times are probably wrong
+			WingBuffet_Timer = 24000;
+			FlameBuffet_Timer = 5000;
 		}
 
-		void UpdateAI(uint32 diff) override
+		void EnterCombat(Unit* /*who*/)
+		{
+			DoZoneInCombat();
+		}
+
+		void UpdateAI(const uint32 diff)
 		{
 			if (!UpdateVictim())
 				return;
 
-			events.Update(diff);
-
-			if (me->HasUnitState(UNIT_STATE_CASTING))
-				return;
-
-			while (uint32 eventId = events.ExecuteEvent())
+			//ShadowFlame_Timer
+			if (ShadowFlame_Timer <= diff)
 			{
-				switch (eventId)
-				{
-				case EVENT_SHADOWFLAME:
-					DoCastVictim(SPELL_SHADOWFLAME);
-					events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
-					break;
-				case EVENT_WINGBUFFET:
-					DoCastVictim(SPELL_WINGBUFFET);
-					if (DoGetThreat(me->getVictim()))
-						DoModifyThreatPercent(me->getVictim(), -75);
-					events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
-					break;
-				case EVENT_FLAMEBUFFET:
-					DoCastVictim(SPELL_FLAMEBUFFET);
-					events.ScheduleEvent(EVENT_FLAMEBUFFET, 5000);
-					break;
-				}
+				DoCast(me->getVictim(), SPELL_SHADOWFLAME);
+				ShadowFlame_Timer = urand(15000, 18000);
 			}
+			else ShadowFlame_Timer -= diff;
+
+			//WingBuffet_Timer
+			if (WingBuffet_Timer <= diff)
+			{
+				DoCast(me->getVictim(), SPELL_WINGBUFFET);
+				if (DoGetThreat(me->getVictim()))
+					DoModifyThreatPercent(me->getVictim(), -75);
+
+				WingBuffet_Timer = 25000;
+			}
+			else WingBuffet_Timer -= diff;
+
+			//FlameBuffet_Timer
+			if (FlameBuffet_Timer <= diff)
+			{
+				DoCast(me->getVictim(), SPELL_FLAMEBUFFET);
+				FlameBuffet_Timer = 5000;
+			}
+			else FlameBuffet_Timer -= diff;
 
 			DoMeleeAttackIfReady();
 		}
 	};
-
-	CreatureAI* GetAI(Creature* creature) const override
-	{
-		return new boss_firemawAI(creature);
-	}
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_firemaw()
 {
 	new boss_firemaw();
 }
+#endif

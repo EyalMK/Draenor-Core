@@ -6,12 +6,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+/* ScriptData
+SDName: Boss_Razorgore
+SD%Complete: 80
+SDComment: Needs additional review. Phase 1 NYI (Grethok the Controller)
+SDCategory: Blackwing Lair
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "blackwing_lair.h"
 #include "Player.h"
+
+//Razorgore Phase 2 Script
 
 enum Say
 {
@@ -23,6 +31,7 @@ enum Say
 
 enum Spells
 {
+
 	SPELL_MINDCONTROL = 42013,
 	SPELL_CHANNEL = 45537,
 	SPELL_EGG_DESTROY = 19873,
@@ -33,128 +42,93 @@ enum Spells
 	SPELL_CONFLAGRATION = 23023
 };
 
-enum Summons
-{
-	NPC_ELITE_DRACHKIN = 12422,
-	NPC_ELITE_WARRIOR = 12458,
-	NPC_WARRIOR = 12416,
-	NPC_MAGE = 12420,
-	NPC_WARLOCK = 12459,
-
-	GO_EGG = 177807
-};
-
-enum EVENTS
-{
-	EVENT_CLEAVE = 1,
-	EVENT_STOMP = 2,
-	EVENT_FIREBALL = 3,
-	EVENT_CONFLAGRATION = 4
-};
-
 class boss_razorgore : public CreatureScript
 {
 public:
 	boss_razorgore() : CreatureScript("boss_razorgore") { }
 
-	struct boss_razorgoreAI : public BossAI
+	CreatureAI* GetAI(Creature* creature) const
 	{
-		boss_razorgoreAI(Creature* creature) : BossAI(creature, DATA_RAZORGORE_THE_UNTAMED )
+		return new boss_razorgoreAI(creature);
+	}
+
+	struct boss_razorgoreAI : public ScriptedAI
+	{
+		boss_razorgoreAI(Creature* creature) : ScriptedAI(creature) {}
+
+		uint32 Cleave_Timer;
+		uint32 WarStomp_Timer;
+		uint32 FireballVolley_Timer;
+		uint32 Conflagration_Timer;
+
+		void Reset()
 		{
-			Initialize();
+			Cleave_Timer = 15000;                               //These times are probably wrong
+			WarStomp_Timer = 35000;
+			FireballVolley_Timer = 7000;
+			Conflagration_Timer = 12000;
 		}
 
-		void Initialize()
+		void EnterCombat(Unit* /*who*/)
 		{
-			secondPhase = false;
+			DoZoneInCombat();
 		}
 
-		void Reset() override
+		void JustDied(Unit* /*killer*/)
 		{
-			_Reset();
-
-			Initialize();
-			instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
+			DoScriptText(SAY_DEATH, me);
 		}
 
-		void JustDied(Unit* /*killer*/) override
-		{
-			_JustDied();
-			Talk(SAY_DEATH);
-
-			instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
-		}
-
-		void DoChangePhase()
-		{
-			events.ScheduleEvent(EVENT_CLEAVE, 15000);
-			events.ScheduleEvent(EVENT_STOMP, 35000);
-			events.ScheduleEvent(EVENT_FIREBALL, 7000);
-			events.ScheduleEvent(EVENT_CONFLAGRATION, 12000);
-
-			secondPhase = true;
-			me->RemoveAllAuras();
-			me->SetHealth(me->GetMaxHealth());
-		}
-
-		void DoAction(int32 action) override
-		{
-			if (action == ACTION_PHASE_TWO)
-				DoChangePhase();
-		}
-
-		void DamageTaken(Unit* /*who*/, uint32& damage)
-		{
-			if (!secondPhase)
-				damage = 0;
-		}
-
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(const uint32 diff)
 		{
 			if (!UpdateVictim())
 				return;
 
-			events.Update(diff);
-
-			if (me->HasUnitState(UNIT_STATE_CASTING))
-				return;
-
-			while (uint32 eventId = events.ExecuteEvent())
+			//Cleave_Timer
+			if (Cleave_Timer <= diff)
 			{
-				switch (eventId)
-				{
-				case EVENT_CLEAVE:
-					DoCastVictim(SPELL_CLEAVE);
-					events.ScheduleEvent(EVENT_CLEAVE, urand(7000, 10000));
-					break;
-				case EVENT_STOMP:
-					DoCastVictim(SPELL_WARSTOMP);
-					events.ScheduleEvent(EVENT_STOMP, urand(15000, 25000));
-					break;
-				case EVENT_FIREBALL:
-					DoCastVictim(SPELL_FIREBALLVOLLEY);
-					events.ScheduleEvent(EVENT_FIREBALL, urand(12000, 15000));
-					break;
-				case EVENT_CONFLAGRATION:
-					DoCastVictim(SPELL_CONFLAGRATION);
-					if (me->getVictim() && me->getVictim()->HasAura(SPELL_CONFLAGRATION))
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-							me->TauntApply(target);
-					events.ScheduleEvent(EVENT_CONFLAGRATION, 30000);
-					break;
-				}
+				DoCast(me->getVictim(), SPELL_CLEAVE);
+				Cleave_Timer = urand(7000, 10000);
 			}
+			else Cleave_Timer -= diff;
+
+			//WarStomp_Timer
+			if (WarStomp_Timer <= diff)
+			{
+				DoCast(me->getVictim(), SPELL_WARSTOMP);
+				WarStomp_Timer = urand(15000, 25000);
+			}
+			else WarStomp_Timer -= diff;
+
+			//FireballVolley_Timer
+			if (FireballVolley_Timer <= diff)
+			{
+				DoCast(me->getVictim(), SPELL_FIREBALLVOLLEY);
+				FireballVolley_Timer = urand(12000, 15000);
+			}
+			else FireballVolley_Timer -= diff;
+
+			//Conflagration_Timer
+			if (Conflagration_Timer <= diff)
+			{
+				DoCast(me->getVictim(), SPELL_CONFLAGRATION);
+				//We will remove this threat reduction and add an aura check.
+
+				//if (DoGetThreat(me->getVictim()))
+				//DoModifyThreatPercent(me->getVictim(), -50);
+
+				Conflagration_Timer = 12000;
+			}
+			else Conflagration_Timer -= diff;
+
+			// Aura Check. If the gamer is affected by confliguration we attack a random gamer.
+			if (me->getVictim() && me->getVictim()->HasAura(SPELL_CONFLAGRATION))
+				if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+					me->TauntApply(target);
+
 			DoMeleeAttackIfReady();
 		}
-
-	private:
-		bool secondPhase;
 	};
-
-	CreatureAI* GetAI(Creature* creature) const override
-	{
-		return new boss_razorgoreAI(creature);
-	}
 };
 
 class go_orb_of_domination : public GameObjectScript
@@ -175,6 +149,7 @@ public:
 	}
 };
 
+
 class spell_egg_event : public SpellScriptLoader
 {
 public:
@@ -192,7 +167,7 @@ public:
 
 		void Register() override
 		{
-		//	OnHit += SpellHitFn(spell_egg_eventSpellScript::HandleOnHit);
+			//	OnHit += SpellHitFn(spell_egg_eventSpellScript::HandleOnHit);
 		}
 	};
 
@@ -202,9 +177,13 @@ public:
 	}
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_razorgore()
 {
 	new boss_razorgore();
 	new go_orb_of_domination();
 	new spell_egg_event();
+
 }
+#endif
+

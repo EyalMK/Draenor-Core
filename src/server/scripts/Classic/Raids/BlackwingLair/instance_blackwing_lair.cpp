@@ -14,7 +14,7 @@
 
 /*
 Blackwing Lair Encounter:
-1 - DATA_RAZORGORE_THE_UNTAMED .cpp
+1 - boss_razorgore.cpp
 2 - boss_vaelastrasz.cpp
 3 - boss_broodlord_lashlayer.cpp
 4 - boss_firemaw.cpp
@@ -50,7 +50,7 @@ public:
 			SetBossNumber(EncounterCount);
 		}
 
-		void Initialize() override
+		void Initialize()
 		{
 			// Razorgore
 			EggCount = 0;
@@ -76,7 +76,7 @@ public:
 			NefarianGUID = 0;
 		}
 
-		void OnCreatureCreate(Creature* creature) override
+		void OnCreatureCreate(Creature* creature)
 		{
 			switch (creature->GetEntry())
 			{
@@ -117,19 +117,19 @@ public:
 			}
 		}
 
-		void OnGameObjectCreate(GameObject* go) override
+		void OnGameObjectCreate(GameObject* go)
 		{
 			switch (go->GetEntry())
 			{
 			case 177807: // Egg
 				if (GetBossState(DATA_FIREMAW) == DONE)
-					go->SetPhaseMask(2, true);
+					go->SetPhaseMask(1, true);
 				else
 					EggList.push_back(go->GetGUID());
 				break;
 			case 175946: // Door
 				RazorgoreDoorGUID = go->GetGUID();
-				HandleGameObject(0, GetBossState(DATA_RAZORGORE_THE_UNTAMED ) == DONE, go);
+				HandleGameObject(0, GetBossState(DATA_RAZORGORE_THE_UNTAMED) == DONE, go);
 				break;
 			case 175185: // Door
 				VaelastraszDoorGUID = go->GetGUID();
@@ -150,26 +150,26 @@ public:
 			}
 		}
 
-		void OnGameObjectRemove(GameObject* go) override
+		void OnGameObjectRemove(GameObject* go)
 		{
 			if (go->GetEntry() == 177807) // Egg
 				EggList.remove(go->GetGUID());
 		}
 
-		bool SetBossState(uint32 type, EncounterState state) override
+		bool SetBossState(uint32 type, EncounterState state)
 		{
 			if (!InstanceScript::SetBossState(type, state))
 				return false;
 
 			switch (type)
 			{
-			case DATA_RAZORGORE_THE_UNTAMED :
+			case DATA_RAZORGORE_THE_UNTAMED:
 				HandleGameObject(RazorgoreDoorGUID, state == DONE);
 				if (state == DONE)
 				{
 					for (std::list<uint64>::const_iterator itr = EggList.begin(); itr != EggList.end(); ++itr)
 						if (GameObject* egg = instance->GetGameObject((*itr)))
-							egg->SetPhaseMask(2, true);
+							egg->SetPhaseMask(1, true);
 				}
 				SetData(DATA_EGG_EVENT, NOT_STARTED);
 				break;
@@ -210,7 +210,7 @@ public:
 		{
 			switch (id)
 			{
-			case DATA_RAZORGORE_THE_UNTAMED :  return RazorgoreTheUntamedGUID;
+			case DATA_RAZORGORE_THE_UNTAMED:  return RazorgoreTheUntamedGUID;
 			case DATA_VAELASTRAZ_THE_CORRUPT: return VaelastraszTheCorruptGUID;
 			case DATA_BROODLORD_LASHLAYER:    return BroodlordLashlayerGUID;
 			case DATA_FIREMAW:                return FiremawGUID;
@@ -250,7 +250,7 @@ public:
 							DoRemoveAurasDueToSpellOnPlayers(42013);
 						}
 						_events.ScheduleEvent(EVENT_RAZOR_PHASE_TWO, IN_MILLISECONDS);
-						_events.CancelEvent(EVENT_RAZOR_SPAWN); 
+						_events.CancelEvent(EVENT_RAZOR_SPAWN);
 					}
 					if (EggEvent == NOT_STARTED)
 						SetData(DATA_EGG_EVENT, IN_PROGRESS);
@@ -259,14 +259,15 @@ public:
 			}
 		}
 
-		void OnUnitDeath(Unit* unit) override
+		void OnUnitDeath(Unit* unit)
 		{
 			//! HACK, needed because of buggy CreatureAI after charm
-			if (unit->GetEntry() == NPC_RAZORGORE && GetBossState(DATA_RAZORGORE_THE_UNTAMED ) != DONE)
-				SetBossState(DATA_RAZORGORE_THE_UNTAMED , DONE);
+			if (unit->GetEntry() == NPC_RAZORGORE && GetBossState(DATA_RAZORGORE_THE_UNTAMED) != DONE)
+				SetBossState(DATA_RAZORGORE_THE_UNTAMED, DONE);
+			SetData(DATA_EGG_EVENT, DONE);
 		}
 
-		void Update(uint32 diff) override
+		void Update(uint32 diff)
 		{
 			if (_events.Empty())
 				return;
@@ -334,7 +335,7 @@ public:
 		uint64 NefarianGUID;
 	};
 
-	InstanceScript* GetInstanceScript(InstanceMap* map) const
+	InstanceScript* GetInstanceScript(InstanceMap* map) const override
 	{
 		return new instance_blackwing_lair_InstanceMapScript(map);
 	}

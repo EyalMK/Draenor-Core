@@ -42,6 +42,8 @@ enum Events
 	EVENT_SUCCESS_3 = 16,
 };
 
+#define GOSSIP_ITEM         "Start Event!"
+
 enum Says
 {
 	// Nefarius
@@ -70,12 +72,6 @@ enum Says
 	SAY_HUNTER = 11,
 	SAY_ROGUE = 12,
 	SAY_DEATH_KNIGHT = 13
-};
-
-enum Gossip
-{
-	GOSSIP_ID = 21332,
-	GOSSIP_OPTION_ID = 0
 };
 
 enum Paths
@@ -160,6 +156,36 @@ class boss_victor_nefarius : public CreatureScript
 {
 public:
 	boss_victor_nefarius() : CreatureScript("boss_victor_nefarius") { }
+
+	void SendDefaultMenu(Player* player, Creature* creature, uint32 action)
+	{
+		if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+		{
+			player->CLOSE_GOSSIP_MENU();
+			CAST_AI(boss_victor_nefarius::boss_victor_nefariusAI, creature->AI())->BeginEvent(player);
+		}
+	}
+
+	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+	{
+		player->PlayerTalkClass->ClearMenus();
+		if (sender == GOSSIP_SENDER_MAIN)
+			SendDefaultMenu(player, creature, action);
+
+		return true;
+	}
+
+	bool OnGossipHello(Player* player, Creature* creature)
+	{
+		if (creature->isQuestGiver())
+			player->PrepareQuestMenu(creature->GetGUID());
+
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+		player->SEND_GOSSIP_MENU(907, creature->GetGUID());
+
+		return true;
+	}
+
 
 	struct boss_victor_nefariusAI : public BossAI
 	{
@@ -358,15 +384,7 @@ public:
 			}
 		}
 
-		void sGossipSelect(Player* player, uint32 sender, uint32 action) override
-		{
-			if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
-			{
-				player->CLOSE_GOSSIP_MENU();
-				Talk(SAY_GAMESBEGIN_1);
-				BeginEvent(player);
-			}
-		}
+		
 
 	private:
 		uint32 SpawnedAdds;

@@ -28,10 +28,9 @@ enum Says
 	SAY_KILLTARGET = 4
 };
 
-enum Gossip
-{
-	GOSSIP_ID = 21334,
-};
+#define GOSSIP_ITEM         "Start Event!"
+
+
 
 enum Spells
 {
@@ -62,6 +61,35 @@ class boss_vaelastrasz : public CreatureScript
 {
 public:
 	boss_vaelastrasz() : CreatureScript("boss_vaelastrasz") { }
+
+	void SendDefaultMenu(Player* player, Creature* creature, uint32 action)
+	{
+		if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+		{
+			player->CLOSE_GOSSIP_MENU();
+			CAST_AI(boss_vaelastrasz::boss_vaelAI, creature->AI())->BeginSpeech(player);
+		}
+	}
+
+	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+	{
+		player->PlayerTalkClass->ClearMenus();
+		if (sender == GOSSIP_SENDER_MAIN)
+			SendDefaultMenu(player, creature, action);
+
+		return true;
+	}
+
+	bool OnGossipHello(Player* player, Creature* creature)
+	{
+		if (creature->isQuestGiver())
+			player->PrepareQuestMenu(creature->GetGUID());
+
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+		player->SEND_GOSSIP_MENU(907, creature->GetGUID());
+
+		return true;
+	}
 
 	struct boss_vaelAI : public BossAI
 	{
@@ -102,7 +130,7 @@ public:
 		void BeginSpeech(Unit* target)
 		{
 			PlayerGUID = target->GetGUID();
-			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 			events.ScheduleEvent(EVENT_SPEECH_1, 1000);
 		}
 
@@ -213,14 +241,7 @@ public:
 			DoMeleeAttackIfReady();
 		}
 
-		void sGossipSelect(Player* player, uint32 sender, uint32 action) override
-		{
-			if (sender == GOSSIP_ID && action == 0)
-			{
-				player->CLOSE_GOSSIP_MENU();
-				BeginSpeech(player);
-			}
-		}
+	
 
 	private:
 		uint64 PlayerGUID;
