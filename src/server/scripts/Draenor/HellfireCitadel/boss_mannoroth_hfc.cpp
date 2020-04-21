@@ -1926,6 +1926,97 @@ public:
 	}
 };
 
+/// Fel Green Spire - 464545
+class npc_citadel_fel_green_spire_mann : public CreatureScript
+{
+public:
+	npc_citadel_fel_green_spire_mann() : CreatureScript("npc_citadel_fel_green_spire_mann") {}
+
+	enum eActions
+	{
+		ActionBeam = 1,
+		ActionFelImplosion
+	};
+
+	enum eSpells
+	{
+		BeamVisualOnBoss = 182259,
+		FelImplosion = 181254
+	};
+
+	struct npc_citadel_fel_green_spire_mannAI : public ScriptedAI
+	{
+		npc_citadel_fel_green_spire_mannAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+		{
+			m_Instance = p_Creature->GetInstanceScript();
+		}
+
+		InstanceScript* m_Instance;
+
+		void Reset() override
+		{
+			me->SetReactState(ReactStates::REACT_PASSIVE);
+			me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+
+			me->SetDisableGravity(true);
+			me->SetDisplayId(11686);
+
+			me->AI()->CanTargetOutOfLOS();
+
+			me->CombatStop();
+			me->CombatStopWithPets();
+		}
+
+		void EnterCombat(Unit* /*p_Attacker*/) override
+		{
+
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eActions::ActionBeam:
+			{
+				me->SetOrientation(eCitadelCreatures::BossMannoroth);
+				me->CastSpell(eCitadelCreatures::BossMannoroth, eSpells::BeamVisualOnBoss, true);
+				break;
+			}
+			case eActions::ActionFelImplosion:
+			{
+				std::list<Unit*> l_TargetList;
+
+				JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(me, me, 1500.0f);
+				JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(me, l_TargetList, l_Check);
+				me->VisitNearbyObject(500.0f, l_Searcher);
+
+				std::set<uint64> l_Targets;
+
+				for (Unit* l_Iter : l_TargetList)
+				{
+					l_Targets.insert(l_Iter->GetGUID());
+
+					me->CastSpell(l_Iter, eSpells::FelImplosion, true);
+				}
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_citadel_fel_green_spire_mannAI(p_Creature);
+	}
+};
+
 /// Doom Lord - 91241
 class npc_citadel_doom_lord_mann : public CreatureScript
 {
@@ -3071,6 +3162,7 @@ void AddSC_boss_mannoroth_hfc()
 	new npc_citadel_khadgar_mann();
 	new npc_citadel_fel_red_spire_mann();
 	new npc_citadel_fel_purple_spire_mann();
+	new npc_citadel_fel_green_spire_mann();
 	new npc_citadel_khadgar_portal_mann();
 
 	/// Spells
