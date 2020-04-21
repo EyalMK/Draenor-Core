@@ -171,6 +171,54 @@ public:
     }
 };
 
+/// Carlin Redpath - 11063
+class npc_carlin_redpath : public CreatureScript
+{
+public:
+	npc_carlin_redpath() : CreatureScript("npc_carlin_redpath") { }
+	
+	enum eData
+	{
+		// Quest
+		QUEST_HEROES_OF_DARROWSHIRE = 27388,
+
+		// Gossip data
+		GOSSIP_MENU = 3864,
+		GOSSIP_MENU2 = 16849,
+		GOSSIP_OPTION = 0,
+		NPC_TEXT = 4716,
+
+		// Items
+		ITEM_EXTENDED_ANNALS_OF_DARROWSHIRE = 13202
+
+	};
+
+	bool OnGossipHello(Player* player, Creature* creature)
+	{
+		if (player->GetQuestStatus(QUEST_HEROES_OF_DARROWSHIRE) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(ITEM_EXTENDED_ANNALS_OF_DARROWSHIRE))
+			player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU, GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+		player->SEND_GOSSIP_MENU(NPC_TEXT, creature->GetGUID());
+
+		return true;
+	}
+
+	bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+	{
+		player->PlayerTalkClass->ClearMenus();
+		switch (action)
+		{
+			case GOSSIP_ACTION_INFO_DEF:
+				player->SEND_GOSSIP_MENU(GOSSIP_MENU2, creature->GetGUID());
+				player->AddItem(ITEM_EXTENDED_ANNALS_OF_DARROWSHIRE, 1);
+				break;
+		}
+		return true;
+	}
+
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_eastern_plaguelands()
 {
@@ -178,5 +226,6 @@ void AddSC_eastern_plaguelands()
     new npc_augustus_the_touched();
     new npc_darrowshire_spirit();
     new npc_tirion_fordring();
+	new npc_carlin_redpath();
 }
 #endif
