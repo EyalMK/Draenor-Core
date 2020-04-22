@@ -2447,6 +2447,66 @@ public:
     }
 };
 
+/// Soothing Broth Item ID - 49144, Spell ID - 68304
+class spell_q14309_calming_the_kodo : public SpellScriptLoader
+{
+public:
+	spell_q14309_calming_the_kodo() : SpellScriptLoader("spell_q14309_calming_the_kodo")
+	{
+	}
+
+	class spell_q14309_calming_the_kodo_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_q14309_calming_the_kodo_SpellScript);
+
+		void HandleAfterCast()
+		{
+			Unit* caster = GetCaster();
+			Unit* target = GetExplTargetUnit();
+
+			if (!caster || !target)
+				return;
+
+			if (Player* player = caster->ToPlayer())
+			{
+				if (player->GetQuestStatus(14309) == QUEST_STATUS_INCOMPLETE)
+				{
+					if (Creature* creature = target->ToCreature())
+					{
+						if (creature->GetEntry() == 36094) // Enraged Kodo
+						{
+							player->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL); // Player kneel
+
+							// Kodo will go to soothing broth infront of player.
+							Position l_Pos;
+							player->GetPosition(&l_Pos);
+							player->GetNearPoint(player, l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, 0.0f, 0.5f, player->GetAngle(target));
+							target->GetMotionMaster()->MovePoint(1, l_Pos);
+
+							// Kodo will eat
+							target->HandleEmoteCommand(EMOTE_STATE_EAT);
+
+							// Player is supposed to get kill credit from the spell itself summoning a kc bunny but if it doesn't need to uncomment this line
+							//player->KillMonsterCredit(36079);
+						}
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_q14309_calming_the_kodo_SpellScript::HandleAfterCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_q14309_calming_the_kodo_SpellScript();
+	}
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_quest_spell_scripts()
 {
@@ -2509,5 +2569,6 @@ void AddSC_quest_spell_scripts()
     new spell_q29939_throw_goblin_fisher();
     new spell_q30151_throw_ball();
     new spell_q30136_silken_rope();
+	new spell_q14309_calming_the_kodo();
 }
 #endif
