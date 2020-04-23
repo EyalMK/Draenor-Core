@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `playercreateinfo_spell` (
   PRIMARY KEY (`race`,`class`,`Spell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.playercreateinfo_spell: 6,766 rows
+-- Dumping data for table worldlive.playercreateinfo_spell: 6,767 rows
 DELETE FROM `playercreateinfo_spell`;
 /*!40000 ALTER TABLE `playercreateinfo_spell` DISABLE KEYS */;
 INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES
@@ -6789,7 +6789,8 @@ INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES
 	(9, 5, 69046, 'Pack Hobgoblin'),
 	(9, 7, 69046, 'Pack Hobgoblin'),
 	(9, 8, 69046, 'Pack Hobgoblin'),
-	(9, 9, 69046, 'Pack Hobgoblin');
+	(9, 9, 69046, 'Pack Hobgoblin'),
+	(0, 6, 53428, 'Runeforging');
 /*!40000 ALTER TABLE `playercreateinfo_spell` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

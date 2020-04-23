@@ -6049,7 +6049,6 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(124870, 0, 0, 'Calm down Valdred. Undertaker Mordo probably sewed new ones for you.', 1, 1, 124871, 0, 0, 0, ''),
 	(124871, 0, 0, 'You talk to Undertaker Mordo. He will tell you what to do. Thats all I know.', 1, 1, 0, 0, 0, 0, ''),
 	(11126, 0, 0, 'Can you tell me of the time when the Darkspear left Orgrimmar, Voljin? I need to see Garroshs actions for myself.', 1, 1, 0, 0, 0, 0, ''),
-	(10974, 1, 0, 'I\'m ready to face my challenge.', 1, 1, 0, 0, 0, 0, ''),
 	(11662, 0, 0, 'I am ready to start the assault!', 1, 1, 0, 0, 0, 0, ''),
 	(34249, 0, 0, 'Where is the Sapphire of sky?', 1, 1, 0, 0, 0, 0, ''),
 	(34249, 1, 0, 'Where is the Black Feather Quill?', 1, 1, 0, 0, 0, 0, ''),
@@ -6372,7 +6371,8 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(2871, 0, 0, 'I inspect the body further.', 1, 1, 2872, 0, 0, 0, ''),
 	(10567, 1, 0, '<Break Longshore\'s manacles and free him.>', 0, 0, 0, 0, 0, 0, ''),
 	(11613, 0, 0, 'I would like to start the Blood Ritual, Kasim.', 0, 0, 0, 0, 0, 0, ''),
-	(11613, 1, 0, 'I would like to start the Amulet Ritual, Kasim.', 0, 0, 0, 0, 0, 0, '');
+	(11613, 1, 0, 'I would like to start the Amulet Ritual, Kasim.', 0, 0, 0, 0, 0, 0, ''),
+	(3864, 0, 0, 'Carlin, do you have the extended Annals of Darrowshire?', 1, 1, 0, 0, 0, 0, '');
 /*!40000 ALTER TABLE `gossip_menu_option` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

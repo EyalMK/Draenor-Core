@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `garrison_plot_content` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4638 DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.garrison_plot_content: ~604 rows (approximately)
+-- Dumping data for table worldlive.garrison_plot_content: ~532 rows (approximately)
 DELETE FROM `garrison_plot_content`;
 /*!40000 ALTER TABLE `garrison_plot_content` DISABLE KEYS */;
 INSERT INTO `garrison_plot_content` (`id`, `plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES

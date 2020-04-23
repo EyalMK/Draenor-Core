@@ -10945,9 +10945,9 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(38966, 12, 1, 'Thralls words are true, as dey always be. The Horde is much more den a few old, stubborn leaders and a handfull of heroes from Northrend. The people be cryin Garroshs name... at least for now.', 12, 0, 100, 0, 0, 20116, 'Voljin talk'),
 	(38966, 13, 1, 'Still, I be hopin Thrall will return to us one day. Tha future right now be lookin very grim...and very bloody.', 12, 0, 100, 0, 0, 20117, 'Voljin talk'),
 	(38930, 1, 1, 'Try to not make me look too bad eh?', 12, 0, 100, 0, 0, 21373, 'Zuni talk'),
-	(39062, 0, 1, 'Get in the pit and show us your stuff.', 12, 0, 100, 0, 0, 0, 'Darkspear Jailor talk'),
-	(38142, 0, 1, 'I sshal tasste your blood, landling.', 12, 0, 100, 0, 0, 0, 'Captured spitescale scout talk'),
-	(38002, 0, 1, 'Swiftclaw isnt stopping! Steer him back to the raptor pens near the Darkspear Hold', 41, 0, 100, 0, 0, 0, 'Swiftclaw talk'),
+	(39062, 0, 1, 'Get in the pit and show us your stuff, $g boy:girl.', 12, 0, 100, 0, 0, 0, 'Darkspear Jailor talk'),
+	(38142, 0, 0, 'They sssend you to your death, youngling.', 12, 0, 100, 0, 0, 0, 'Captured spitescale scout talk'),
+	(38002, 0, 0, 'Swiftclaw isnt stopping! Steer him back to the raptor pens near the Darkspear Hold', 41, 0, 100, 0, 0, 0, 'Swiftclaw - Text'),
 	(35486, 5, 1, 'You are breaking into the vault to retrive your Personal Riches!', 42, 0, 100, 0, 4000, 0, 'Bank talk'),
 	(34830, 0, 8, 'What I doin wrong? Dont I get a lunch and two breaks a day, mon?', 12, 0, 100, 0, 0, 0, 'Foreman talk'),
 	(34830, 0, 9, 'Work was bettah in da Undermine!', 12, 0, 100, 0, 0, 0, 'Foreman talk'),
@@ -13064,15 +13064,13 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(33266, 0, 0, 'Death to the Alliance', 12, 0, 100, 25, 0, 0, 'Wounded Mor\'shan Defender Says'),
 	(33266, 0, 1, 'Many thanks $C', 12, 0, 100, 3, 0, 0, 'Wounded Mor\'shan Defender Says'),
 	(33266, 0, 2, 'For the Horde!', 12, 0, 100, 15, 0, 0, 'Wounded Mor\'shan Defender Says'),
+	(33304, 6, 0, 'Show yourself, elf-coward! Face your death with honor!', 14, 0, 100, 0, 0, 0, 'Gorat Yells'),
+	(33304, 5, 0, 'He must fall!', 12, 0, 100, 0, 0, 0, 'Gorat Says'),
+	(33304, 3, 0, 'Follow me closely, and prepare for battle!', 12, 0, 100, 0, 0, 0, 'Gorat Says'),
+	(33304, 4, 0, 'Captain Elendilad conceals himself on the island ahead, cowardly issuing orders to his underlings.', 12, 0, 100, 0, 0, 0, 'Gorat Says'),
 	(33304, 0, 0, 'Thank you, friend. I could not rest knowing that my mission had not been completed.', 12, 0, 100, 0, 0, 0, 'Gorat Says'),
 	(33304, 1, 0, '...and that my mens\' sacrifice had not been avenged.', 12, 0, 100, 0, 0, 0, 'Gorat Says'),
 	(33304, 2, 0, 'We must hurry, now. I sense that my time is short.', 12, 0, 100, 0, 0, 0, 'Gorat Says'),
-	(33304, 3, 0, 'Follow me closely, and prepare for battle!', 12, 0, 100, 0, 0, 0, 'Gorat Says'),
-	(33304, 4, 0, 'Captain Elendilad conceals himself on the island ahead, cowardly issuing orders to his underlings.', 12, 0, 100, 0, 0, 0, 'Gorat Says'),
-	(33304, 5, 0, 'He must fall!', 12, 0, 100, 0, 0, 0, 'Gorat Says'),
-	(33304, 6, 0, 'Show yourself, elf-coward! Face your death with honor!', 14, 0, 100, 0, 0, 0, 'Gorat Yells'),
-	(33302, 0, 0, 'How many times must I have you killed, orc?!', 14, 0, 100, 0, 0, 0, 'Captain Elendilad Yells'),
-	(33302, 1, 0, 'Curse you, $N vermin! This forest belongs to the Kaldorei...', 12, 0, 100, 0, 0, 0, 'Captain Elendilad Says on Death'),
 	(24823, 0, 0, 'Model U-9207 Iron Rune Construct does not appreciate your tone of voice. Commencing total annihilation of your rug, Lebronski.', 12, 0, 100, 0, 0, 0, 'Iron Rune Construct'),
 	(24807, 0, 0, 'Behold my perfect creation!', 12, 7, 100, 0, 0, 0, 'Walt'),
 	(24717, 0, 0, 'WHOA, WHOA, WHOA! Hold everything fellas!', 12, 7, 100, 0, 0, 0, 'Stanwad'),
@@ -13236,7 +13234,9 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(19569, 1, 0, 'If I were smart, I\'d be selling this research for a seat on the rocket ship.  I have a feeling we\'re going to need to get out of here soon!', 12, 0, 100, 5, 0, 0, 'Netherologist Coppernickels'),
 	(19569, 2, 0, 'If this is right, we don\'t have long! Oh well.', 12, 0, 100, 5, 0, 0, 'Netherologist Coppernickels'),
 	(19569, 3, 0, 'This is the last time that I buy second-hand equipment from an ethereal!', 12, 0, 100, 5, 0, 0, 'Netherologist Coppernickels'),
-	(42298, 4, 0, 'Quickly, $n! We haven\'t much time before Rezelikh makes his return.', 14, 0, 100, 0, 0, 0, ' Kasim Sharim - Text 5');
+	(42298, 4, 0, 'Quickly, $n! We haven\'t much time before Rezelikh makes his return.', 14, 0, 100, 0, 0, 0, ' Kasim Sharim - Text 5'),
+	(33302, 0, 0, 'How many times must I have you killed, orc?!', 14, 0, 100, 0, 0, 0, 'Captain Elendilad Yells'),
+	(33302, 1, 0, 'Curse you, $N vermin! This forest belongs to the Kaldorei...', 12, 0, 100, 0, 0, 0, 'Captain Elendilad Says on Death');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
