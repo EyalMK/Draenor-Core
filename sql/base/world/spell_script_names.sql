@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `spell_script_names` (
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.spell_script_names: 3,571 rows
+-- Dumping data for table worldlive.spell_script_names: 3,575 rows
 DELETE FROM `spell_script_names`;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -312,6 +312,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(16827, 'spell_hun_claw_bite'),
 	(16914, 'spell_dru_hurricane'),
 	(16961, 'spell_dru_primal_fury'),
+	(16972, 'spell_destroy_karangs_banner'),
 	(16974, 'spell_dru_predatory_swiftness'),
 	(17007, 'spell_dru_leader_of_the_pack'),
 	(17009, 'spell_voodoo'),
@@ -569,6 +570,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(44851, 'spell_exploding_orb_hasty_grow'),
 	(44875, 'spell_item_complete_raptor_capture'),
 	(44936, 'spell_q11515_fel_siphon_dummy'),
+	(44967, 'spell_potion_of_wildfire'),
+	(45065, 'spell_unbathed_concoction'),
 	(45102, 'spell_love_is_in_the_air_romantic_picnic'),
 	(45205, 'spell_gen_clone_weapon_aura'),
 	(45206, 'spell_generic_clone_weapon'),
@@ -1079,6 +1082,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(67869, 'spell_gilneas_knocking'),
 	(68282, 'spell_gen_mounted_charge'),
 	(68284, 'spell_gen_mounted_charge'),
+	(68304, 'spell_q14309_calming_the_kodo'),
 	(68321, 'spell_gen_mounted_charge'),
 	(68498, 'spell_gen_mounted_charge'),
 	(68501, 'spell_gen_mounted_charge'),

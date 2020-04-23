@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `disables` (
   PRIMARY KEY (`sourceType`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.disables: 152 rows
+-- Dumping data for table worldlive.disables: 156 rows
 DELETE FROM `disables`;
 /*!40000 ALTER TABLE `disables` DISABLE KEYS */;
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
@@ -177,7 +177,11 @@ INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, 
 	(1, 26948, 0, '', '', 'Deprecated quest: Moonfire'),
 	(1, 26949, 0, '', '', 'Deprecated quest: Learning the Word'),
 	(0, 126892, 7, '', '', '1-60 spell 126892/zen-pilgrimage'),
-	(1, 7632, 0, '', '', 'Quest - The Ancient Leaf - Deprecated in 4.0.3');
+	(1, 7632, 0, '', '', 'Quest - The Ancient Leaf - Deprecated in 4.0.3'),
+	(0, 46393, 7, '', '', '46393/brutal-assault'),
+	(0, 46392, 7, '', '', '46392/focused-assault'),
+	(0, 26013, 7, '', '', 'Disabled [Deserter] bg spell as not nededed with merc mode.'),
+	(0, 40775, 7, '', '', 'https://www.wowhead.com/spell=40775/stun-zone');
 /*!40000 ALTER TABLE `disables` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
