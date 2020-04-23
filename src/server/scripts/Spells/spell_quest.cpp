@@ -2486,7 +2486,7 @@ public:
 							// Kodo will eat
 							target->HandleEmoteCommand(EMOTE_STATE_EAT);
 
-							// Player is supposed to get kill credit from the spell itself summoning a kc bunny but if it doesn't need to uncomment this line
+							// Player is supposed to get kill credit from the spell itself summoning the bowl but if it doesn't need to uncomment this line
 							//player->KillMonsterCredit(36079);
 						}
 					}
