@@ -51,7 +51,7 @@ uint8 gExpansionPerClass[] =
     EXPANSION_VANILLA,                  ///< CLASS_HUNTER
     EXPANSION_VANILLA,                  ///< CLASS_ROGUE
     EXPANSION_VANILLA,                  ///< CLASS_PRIEST
-    EXPANSION_WRATH_OF_THE_LICH_KING,   ///< CLASS_DEATH_KNIGHT
+	EXPANSION_VANILLA,   ///< CLASS_DEATH_KNIGHT
     EXPANSION_VANILLA,                  ///< CLASS_SHAMAN
     EXPANSION_VANILLA,                  ///< CLASS_MAGE
     EXPANSION_VANILLA,                  ///< CLASS_WARLOCK
