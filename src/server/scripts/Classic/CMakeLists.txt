@@ -34,6 +34,11 @@ set(scripts_STAT_SRCS
   Classic/Dungeons/OldScarletMonastery/instance_scarlet_monastery.cpp
   Classic/Dungeons/OldScarletMonastery/scarlet_monastery.h
 
+  Classic/Dungeons/OldRazorfenDowns/boss_amnennar_the_coldbringer.cpp
+  Classic/Dungeons/OldRazorfenDowns/instance_razorfen_downs.cpp
+  Classic/Dungeons/OldRazorfenDowns/razorfen_downs.cpp
+  Classic/Dungeons/OldRazorfenDowns/razorfen_downs.h
+
 
   Classic/Raids/OnyxiasLair/boss_onyxia_classic.cpp 
   Classic/Raids/OnyxiasLair/instance_onyxias_lair.cpp 

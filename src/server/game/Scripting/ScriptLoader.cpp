@@ -453,8 +453,17 @@ void AddSC_boss_onyxia_classic();
 //void AddSC_boss_onyxia();
 void AddSC_instance_onyxias_lair();
 
-/// Razorfen Downs
+/// Old Razorfen Downs
+//void AddSC_boss_amnennar_the_coldbringer();
+//void AddSC_razorfen_downs();
+//void AddSC_instance_razorfen_downs();
+
+
+/// New Razorfen Downs - Added in 6.0.2
 void AddSC_boss_amnennar_the_coldbringer();
+void AddSC_boss_glutton();
+void AddSC_boss_mordresh_fire_eye();
+void AddSC_boss_tuten_kash();
 void AddSC_razorfen_downs();
 void AddSC_instance_razorfen_downs();
 
