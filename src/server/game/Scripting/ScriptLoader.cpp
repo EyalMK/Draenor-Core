@@ -226,7 +226,7 @@ void AddSC_boss_scorn();
 void AddSC_instance_scarlet_monastery();
 void AddSC_boss_mograine_and_whitemane();
 
-/// Scholomance
+/// Old Scholomance
 void AddSC_boss_darkmaster_gandling();
 void AddSC_boss_death_knight_darkreaver();
 void AddSC_boss_theolenkrastinov();
@@ -239,6 +239,14 @@ void AddSC_boss_lorekeeperpolkelt();
 void AddSC_boss_rasfrost();
 void AddSC_boss_theravenian();
 void AddSC_boss_vectus();
+void AddSC_instance_scholomance();
+
+/// New Scholomance 5.0.4
+void AddSC_boss_darkmaster_gandling();
+void AddSC_boss_instructor_chillheart();
+void AddSC_boss_jandice_barov();
+void AddSC_boss_lillian_voss();
+void AddSC_boss_rattlegore();
 void AddSC_instance_scholomance();
 
 /// Shadowfang keep
