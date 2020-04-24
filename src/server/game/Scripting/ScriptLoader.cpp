@@ -213,35 +213,51 @@ void AddSC_the_scarlet_enclave_c1();
 void AddSC_the_scarlet_enclave_c2();
 void AddSC_the_scarlet_enclave_c5();
 
-/// Scarlet Monastery
-void AddSC_boss_arcanist_doan();
-void AddSC_boss_azshir_the_sleepless();
-void AddSC_boss_bloodmage_thalnos();
+
+/// Scarlet Halls - Added in 5.0.4
+void AddSC_boss_armsmaster_harlan();
+void AddSC_boss_flameweaver_koegler();
+void AddSC_boss_houndmaster_braun();
+void AddSC_instance_scarlet_halls();
+
+
+/// Old Scarlet Monastery
+//void AddSC_boss_arcanist_doan();
+//void AddSC_boss_azshir_the_sleepless();
+//void AddSC_boss_bloodmage_thalnos();
+//void AddSC_boss_headless_horseman();
+//void AddSC_boss_herod();
+//void AddSC_boss_high_inquisitor_fairbanks();
+//void AddSC_boss_houndmaster_loksey();
+//void AddSC_boss_interrogator_vishas();
+//void AddSC_boss_scorn();
+//void AddSC_boss_mograine_and_whitemane();
+//void AddSC_instance_scarlet_monastery();
+
+
+/// New Scarlet Monastery - Added in 5.0.4
+void AddSC_boss_brother_korloff();
+void AddSC_boss_commander_durand();
 void AddSC_boss_headless_horseman();
-void AddSC_boss_herod();
-void AddSC_boss_high_inquisitor_fairbanks();
-void AddSC_boss_houndmaster_loksey();
-void AddSC_boss_interrogator_vishas();
-void AddSC_boss_scorn();
+void AddSC_boss_thalnos_the_soulrender();
 void AddSC_instance_scarlet_monastery();
-void AddSC_boss_mograine_and_whitemane();
 
 /// Old Scholomance
-void AddSC_boss_darkmaster_gandling();
-void AddSC_boss_death_knight_darkreaver();
-void AddSC_boss_theolenkrastinov();
-void AddSC_boss_illuciabarov();
-void AddSC_boss_instructormalicia();
-void AddSC_boss_jandicebarov();
-void AddSC_boss_kormok();
-void AddSC_boss_lordalexeibarov();
-void AddSC_boss_lorekeeperpolkelt();
-void AddSC_boss_rasfrost();
-void AddSC_boss_theravenian();
-void AddSC_boss_vectus();
-void AddSC_instance_scholomance();
+//void AddSC_boss_darkmaster_gandling();
+//void AddSC_boss_death_knight_darkreaver();
+//void AddSC_boss_theolenkrastinov();
+//void AddSC_boss_illuciabarov();
+//void AddSC_boss_instructormalicia();
+//void AddSC_boss_jandicebarov();
+//void AddSC_boss_kormok();
+//void AddSC_boss_lordalexeibarov();
+//void AddSC_boss_lorekeeperpolkelt();
+//void AddSC_boss_rasfrost();
+//void AddSC_boss_theravenian();
+//void AddSC_boss_vectus();
+//void AddSC_instance_scholomance();
 
-/// New Scholomance 5.0.4
+/// New Scholomance - Added in 5.0.4
 void AddSC_boss_darkmaster_gandling();
 void AddSC_boss_instructor_chillheart();
 void AddSC_boss_jandice_barov();
@@ -370,7 +386,7 @@ void AddSC_uldum();
 void AddSC_ungoro_crater();
 void AddSC_winterspring();
 
-/// Upper Blackrock Spire
+/// New Upper Blackrock Spire - Added in 6.0.3
 void AddSC_upper_blackrock_spire();
 void AddSC_instance_upper_blackrock_spire();
 void AddSC_boss_orebender_gorashan();
@@ -380,7 +396,6 @@ void AddSC_boss_ragewing_the_untamed();
 void AddSC_boss_warlord_zaela();
 
 /// Kalimdor
-
 /// Ragefire
 void AddSC_instance_ragefire_chasm();
 void AddSC_ragefire_chasm();
@@ -432,10 +447,9 @@ void AddSC_boss_landslide();
 void AddSC_boss_noxxion();
 void AddSC_boss_ptheradras();
 
-/// Onyxia's Lair Classic
+/// Old Onyxia's Lair
 void AddSC_boss_onyxia_classic();
-
-/// Onyxia's Lair
+/// Onyxia's Lair - Disabled for 1-60 progression
 //void AddSC_boss_onyxia();
 void AddSC_instance_onyxias_lair();
 
@@ -472,6 +486,7 @@ void AddSC_instance_temple_of_ahnqiraj();
 /// Wailing caverns
 void AddSC_wailing_caverns();
 void AddSC_instance_wailing_caverns();
+
 /// Zul'Farrak generic
 void AddSC_zulfarrak();
 
@@ -1409,29 +1424,30 @@ void AddEasternKingdomsScripts()
     AddSC_the_scarlet_enclave_c1();
     AddSC_the_scarlet_enclave_c2();
     AddSC_the_scarlet_enclave_c5();
-    AddSC_boss_arcanist_doan();
-    AddSC_boss_azshir_the_sleepless();
-    AddSC_boss_bloodmage_thalnos();
+	/// Old scholomance and Scarlet Monastery - commented out.
+    //AddSC_boss_arcanist_doan();
+    //AddSC_boss_azshir_the_sleepless();
+    //AddSC_boss_bloodmage_thalnos();
     AddSC_boss_headless_horseman();
-    AddSC_boss_herod();
-    AddSC_boss_high_inquisitor_fairbanks();
-    AddSC_boss_houndmaster_loksey();
-    AddSC_boss_interrogator_vishas();
-    AddSC_boss_scorn();
+    //AddSC_boss_herod();
+    //AddSC_boss_high_inquisitor_fairbanks();
+    //AddSC_boss_houndmaster_loksey();
+    //AddSC_boss_interrogator_vishas();
+    //AddSC_boss_scorn();
     AddSC_instance_scarlet_monastery();
-    AddSC_boss_mograine_and_whitemane();
+    //AddSC_boss_mograine_and_whitemane();
     AddSC_boss_darkmaster_gandling();
-    AddSC_boss_death_knight_darkreaver();
-    AddSC_boss_theolenkrastinov();
-    AddSC_boss_illuciabarov();
-    AddSC_boss_instructormalicia();
-    AddSC_boss_jandicebarov();
-    AddSC_boss_kormok();
-    AddSC_boss_lordalexeibarov();
-    AddSC_boss_lorekeeperpolkelt();
-    AddSC_boss_rasfrost();
-    AddSC_boss_theravenian();
-    AddSC_boss_vectus();
+    //AddSC_boss_death_knight_darkreaver();
+    //AddSC_boss_theolenkrastinov();
+    //AddSC_boss_illuciabarov();
+    //AddSC_boss_instructormalicia();
+    //AddSC_boss_jandicebarov();
+    //AddSC_boss_kormok();
+    //AddSC_boss_lordalexeibarov();
+    //AddSC_boss_lorekeeperpolkelt();
+    //AddSC_boss_rasfrost();
+    //AddSC_boss_theravenian();
+    //AddSC_boss_vectus();
     AddSC_instance_scholomance();
     AddSC_boss_baron_ashbury();
     AddSC_boss_baron_silverlaine();
