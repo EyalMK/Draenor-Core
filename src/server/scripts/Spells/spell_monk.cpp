@@ -2344,8 +2344,16 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 							newTarget = itr;
 
 						if (itr->HasAura(GetSpellInfo()->Id))
-							if (itr->GetAura(GetSpellInfo()->Id)->GetDuration() < newTarget->GetAura(GetSpellInfo()->Id)->GetDuration())
-								newTarget = itr;
+						{
+							if (Aura* itrAura = itr->GetAura(GetSpellInfo()->Id))
+							{
+								if (Aura* newTargetAura = newTarget->GetAura(GetSpellInfo()->Id))
+								{
+									if (itrAura->GetDuration() < newTargetAura->GetDuration())
+										newTarget = itr;
+								}
+							}
+						}
 					}
 				}
 
