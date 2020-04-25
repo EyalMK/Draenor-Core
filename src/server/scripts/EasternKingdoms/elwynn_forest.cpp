@@ -52,7 +52,7 @@ enum Northshire
 	EVENT_HEALED_2 = 2,
 };
 
-
+/// Stormwind Infantry - 49869
 class npc_stormwind_infantry : public CreatureScript
 {
 public:
@@ -153,10 +153,7 @@ public:
 };
 
 
-/*######
- ## npc_blackrock_battle_worg
- ######*/
-
+/// Blackrock Worg - 49871
 class npc_blackrock_battle_worg : public CreatureScript 
 {
 public:
@@ -247,51 +244,9 @@ public:
 		return new npc_blackrock_battle_worgAI(pCreature);
 	}
 };
-/*######
- ## npc_brother_paxton
- ######*/
 
-class npc_brother_paxton : public CreatureScript
-{
-public:
-	npc_brother_paxton() : CreatureScript("npc_brother_paxton") { }
 
-	struct npc_brother_paxtonAI : public ScriptedAI
-	{
-		npc_brother_paxtonAI(Creature* creature) : ScriptedAI(creature) 
-		{
-			me->GetMotionMaster()->MovePath(95100, true);
-		}
-
-		void Reset()
-		{
-			if (!me->HasAura(SPELL_FORTITUDE))
-				if (!me->HasUnitState(UNIT_STATE_CASTING))
-					 me->CastSpell(me, SPELL_FORTITUDE, false);
-		}
-
-		void UpdateAI(uint32 diff)
-		{
-			if (me->HasUnitState(UNIT_STATE_CASTING) && me->IsMoving())
-				me->StopMoving();
-
-			if (!UpdateVictim())
-				return;
-
-			DoMeleeAttackIfReady();
-		}
-	};
-
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new npc_brother_paxtonAI(creature);
-	}
-};
-
-/*######
-## npc_stormwind_injured_soldier
-######*/
-
+/// Injured Stormwind Infantry - 50047
 #define SPELL_HEAL          93072
 
 class npc_injured_stormwind_soldier : public CreatureScript
@@ -423,97 +378,9 @@ public:
 	}
 };
 
-/*######
-## npc_blackrock_spy
-######*/
 
 
-/// Replaced by SmartAI in DB.
-
-/*class npc_blackrock_spy : public CreatureScript
-{
-public:
-	npc_blackrock_spy() : CreatureScript("npc_blackrock_spy") { }
-
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new npc_blackrock_spyAI(creature);
-	}
-
-	struct npc_blackrock_spyAI : public ScriptedAI
-	{
-		npc_blackrock_spyAI(Creature* creature) : ScriptedAI(creature)
-		{
-			CastSpying();
-		}
-
-		void CastSpying()
-		{
-			GetCreature(-8868.88f, -99.1016f);
-			GetCreature(-8936.5f, -246.743f);
-			GetCreature(-8922.44f, -73.9883f);
-			GetCreature(-8909.68f, -40.0247f);
-			GetCreature(-8834.85f, -119.701f);
-			GetCreature(-9022.08f, -163.965f);
-			GetCreature(-8776.55f, -79.158f);
-			GetCreature(-8960.08f, -63.767f);
-			GetCreature(-8983.12f, -202.827f);
-		}
-
-		void GetCreature(float X, float Y)
-		{
-			if (me->GetHomePosition().GetPositionX() == X, me->GetHomePosition().GetPositionY() == Y)
-				if (!me->isInCombat() && !me->HasAura(SPELL_SPYING))
-					DoCast(me, SPELL_SPYING);
-
-			CastSpyglass();
-		}
-
-		void CastSpyglass()
-		{
-			Spyglass(-8868.88f, -99.1016f, -8936.5f, -246.743f, -8922.44f, -73.9883f, -8909.68f, -40.0247f, -8834.85f,
-				-119.701f, -9022.08f, -163.965f, -8776.55f, -79.158f, -8960.08f, -63.767f, -8983.12f, -202.827f);
-		}
-
-		void Spyglass(float X1, float Y1, float X2, float Y2, float X3, float Y3, float X4, float Y4, float X5, float Y5,
-			float X6, float Y6, float X7, float Y7, float X8, float Y8, float X9, float Y9)
-		{
-			if (me->GetHomePosition().GetPositionX() != X1, me->GetHomePosition().GetPositionY() != Y1)
-				if (me->GetHomePosition().GetPositionX() != X2, me->GetHomePosition().GetPositionY() != Y2)
-					if (me->GetHomePosition().GetPositionX() != X3, me->GetHomePosition().GetPositionY() != Y3)
-						if (me->GetHomePosition().GetPositionX() != X4, me->GetHomePosition().GetPositionY() != Y4)
-							if (me->GetHomePosition().GetPositionX() != X5, me->GetHomePosition().GetPositionY() != Y5)
-								if (me->GetHomePosition().GetPositionX() != X6, me->GetHomePosition().GetPositionY() != Y6)
-									if (me->GetHomePosition().GetPositionX() != X7, me->GetHomePosition().GetPositionY() != Y7)
-										if (me->GetHomePosition().GetPositionX() != X8, me->GetHomePosition().GetPositionY() != Y8)
-											if (me->GetHomePosition().GetPositionX() != X9, me->GetHomePosition().GetPositionY() != Y9)
-												if (me->GetHomePosition().GetPositionX() == me->GetPositionX(), me->GetHomePosition().GetPositionY() == me->GetPositionY())
-													if (!me->isInCombat() && !me->HasAura(SPELL_SPYGLASS))
-														DoCast(me, SPELL_SPYGLASS);
-		}
-
-		void EnterCombat(Unit* who)
-		{
-			Talk(urand(0, 2));
-			me->RemoveAllAuras();
-		}
-		*/
-	//	void UpdateAI(const uint32 /*diff*/)
-		 /* {
-			CastSpyglass();
-
-			if (!UpdateVictim())
-				return;
-
-			DoMeleeAttackIfReady();
-		}
-	};
-};*/
-
-/*######
- ## npc_blackrock_invader
- ######*/
-
+/// Blackrock Invader - 42937
 class npc_blackrock_invader : public CreatureScript 
 {
 public:
@@ -545,10 +412,8 @@ public:
 	}
 };
 
-/*######
- ## npc_goblin_assassin
- ######*/
 
+/// Goblin Assassin - 50039
 class npc_goblin_assassin : public CreatureScript 
 {
 public:
@@ -583,10 +448,8 @@ public:
 };
 
 
-/*######
- ## npc_wounded_trainee |= 44564
- ######*/
 
+/// Wounded Trainee - 44564
 class npc_wounded_trainee : public CreatureScript
 {
 public:
@@ -626,15 +489,12 @@ public:
 };
 
 
+/// Marshal Mcbride - 197
 enum Marshal
 {
 	QUEST_REPORT_TO_GOLDSHIRE = 54,
 	SAY_DISMISSED = 0
 };
-
-/*######
-## npc_marshal_mcbride
-######*/
 
 class npc_marshal_mcbride : public CreatureScript
 {
@@ -652,10 +512,7 @@ public:
 
 };
 
-/*######
-## npc_training_dummy_elwynn
-######*/
-
+/// Training Dummy Starting Zones - 44171, 44548, 44820, 44937 & 42328
 enum eTrainingDummySpells
 {
     SPELL_CHARGE        = 100,
@@ -836,6 +693,8 @@ public:
 	}
 };
 
+/// Stormwind Gryphon - 42260
+/// Used to be Stormwind Charger - changed due to issues with movement for ground mount.
 enum eMovepointsData
 {
 	MaxStormwindChargerMoves = 19
@@ -866,7 +725,6 @@ static std::array<G3D::Vector3, eMovepointsData::MaxStormwindChargerMoves> g_Sto
 	}
 };
 
-// Stormwind Gryphon - 42260
 class npc_stormwind_gryphon : public CreatureScript
 {
 public:
@@ -973,10 +831,7 @@ public:
 	}
 };
 
-/*################
-npc_hogger#
-################*/
-
+/// Hogger - 448
 enum Spells
 {
 	SPELL_EATING = 87351,
@@ -1284,10 +1139,7 @@ public:
 	}
 };
 
-/*######
-## spell_quest_extincteur
-######*/
-
+/// Spell - Quest Extinguishing Hope - 26391
 #define SPELL_VISUAL_EXTINGUISHER   96028
 
 class spell_quest_extincteur: public SpellScriptLoader
@@ -1341,7 +1193,7 @@ class spell_quest_extincteur: public SpellScriptLoader
 
 
 
-
+/// Henze Faulk - 6172
 enum eHenzeFaulkData
 {
 	SAY_HEAL = -1000187,
@@ -1412,20 +1264,21 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_elwyn_forest()
 {
-	// Northshire
+	/// Northshire
     new npc_stormwind_infantry();
 	new npc_blackrock_battle_worg();
-	new npc_brother_paxton();
     new npc_injured_stormwind_soldier();
     new npc_training_dummy_start_zones();
-	/// Replaced by SmartAI
-	//new npc_blackrock_spy();
 	new npc_blackrock_invader();
 	new npc_goblin_assassin();
 	new npc_wounded_trainee();
 	new spell_quest_extincteur();
 
-	// Goldshire
+	/// Replaced by SmartAI
+	//new npc_brother_paxton();
+	//new npc_blackrock_spy();
+
+	/// Goldshire
 	new npc_stormwind_gryphon();
 	new	npc_marshal_dughan();
 
