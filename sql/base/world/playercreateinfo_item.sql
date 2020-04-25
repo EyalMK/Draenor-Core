@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `playercreateinfo_item` (
 DELETE FROM `playercreateinfo_item`;
 /*!40000 ALTER TABLE `playercreateinfo_item` DISABLE KEYS */;
 INSERT INTO `playercreateinfo_item` (`race`, `class`, `itemid`, `amount`) VALUES
-	(0, 6, 40582, -1),
+	(0, 6, 40582, 1),
 	(1, 10, 73209, 1),
 	(2, 10, 73209, 1),
 	(3, 10, 73209, 1),

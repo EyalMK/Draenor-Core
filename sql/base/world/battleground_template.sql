@@ -28,31 +28,15 @@ CREATE TABLE IF NOT EXISTS `battleground_template` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.battleground_template: 21 rows
+-- Dumping data for table worldlive.battleground_template: 5 rows
 DELETE FROM `battleground_template`;
 /*!40000 ALTER TABLE `battleground_template` DISABLE KEYS */;
 INSERT INTO `battleground_template` (`id`, `MinPlayersPerTeam`, `MaxPlayersPerTeam`, `MinLvl`, `MaxLvl`, `AllianceStartLoc`, `HordeStartLoc`, `StartMaxDist`, `Weight`, `holiday`, `ScriptName`, `Comment`) VALUES
-	(1, 1, 40, 20, 100, 611, 610, 100, 0, 283, '', 'Alterac Valley (Disabled)'),
-	(2, 1, 10, 10, 100, 769, 770, 75, 12, 284, '', 'Warsong Gulch'),
 	(3, 1, 15, 10, 100, 890, 889, 20, 12, 285, '', 'Arathi Basin'),
-	(7, 1, 15, 15, 100, 1103, 1104, 75, 12, 353, '', 'Eye of The Storm'),
 	(4, 1, 2, 10, 100, 929, 936, 0, 1, 0, '', 'Nagrand Arena'),
 	(5, 1, 2, 10, 100, 939, 940, 0, 1, 0, '', 'Blades\'s Edge Arena'),
 	(6, 1, 2, 10, 100, 0, 0, 0, 1, 0, '', 'All Arena'),
-	(8, 1, 2, 10, 100, 1258, 1259, 0, 1, 0, '', 'Ruins of Lordaeron'),
-	(9, 1, 15, 50, 50, 1367, 1368, 25, 0, 400, '', 'Strand of the Ancients'),
-	(10, 1, 5, 10, 100, 1362, 1363, 0, 1, 0, '', 'Dalaran Sewers'),
-	(11, 1, 5, 100, 100, 1364, 1365, 0, 0, 0, '', 'The Ring of Valor (Disabled)'),
-	(30, 1, 40, 100, 100, 1485, 1486, 200, 0, 420, '', 'Isle of Conquest (Disabled)'),
-	(32, 1, 40, 45, 100, 0, 0, 0, 1, 0, '', 'Random battleground'),
-	(699, 1, 10, 40, 100, 4059, 4060, 20, 12, 489, '', 'Kotmogu\'s temple'),
-	(708, 1, 10, 90, 90, 4062, 4061, 40, 12, 488, '', 'SilverShard Mines'),
-	(108, 1, 10, 30, 100, 1726, 1727, 15, 12, 436, '', 'Twin Peaks'),
-	(120, 1, 10, 10, 100, 1740, 1799, 50, 12, 435, '', 'Battle for Gilneas'),
-	(719, 1, 5, 10, 100, 4136, 4137, 0, 1, 0, '', 'Tol\'Viron Arena'),
-	(754, 1, 10, 45, 45, 4487, 4486, 15, 0, 515, '', 'Deepwind Gorge'),
-	(757, 1, 5, 10, 100, 4534, 4535, 0, 1, 0, '', 'The Tiger\'s Peak'),
-	(100, 10, 10, 90, 100, 0, 0, 0, 1, 0, '', 'Rated Battleground 10v10');
+	(32, 1, 40, 45, 100, 0, 0, 0, 1, 0, '', 'Random battleground');
 /*!40000 ALTER TABLE `battleground_template` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

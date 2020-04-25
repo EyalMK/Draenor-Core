@@ -18,20 +18,14 @@ set(scripts_STAT_SRCS
   EasternKingdoms/AlteracValley/boss_drekthar.cpp
   EasternKingdoms/AlteracValley/boss_vanndar.cpp
   EasternKingdoms/AlteracValley/alterac_valley.cpp
-  EasternKingdoms/Scholomance/boss_the_ravenian.cpp
-  EasternKingdoms/Scholomance/boss_instructor_malicia.cpp
-  EasternKingdoms/Scholomance/boss_death_knight_darkreaver.cpp
-  EasternKingdoms/Scholomance/boss_illucia_barov.cpp
-  EasternKingdoms/Scholomance/scholomance.h
-  EasternKingdoms/Scholomance/boss_vectus.cpp
+  EasternKingdoms/Scholomance/boss_instructor_chillheart.cpp
   EasternKingdoms/Scholomance/boss_jandice_barov.cpp
-  EasternKingdoms/Scholomance/boss_kormok.cpp
-  EasternKingdoms/Scholomance/boss_lord_alexei_barov.cpp
-  EasternKingdoms/Scholomance/boss_doctor_theolen_krastinov.cpp
+  EasternKingdoms/Scholomance/boss_lillian_voss.cpp
+  EasternKingdoms/Scholomance/boss_rattlegore.cpp
   EasternKingdoms/Scholomance/boss_darkmaster_gandling.cpp
+  EasternKingdoms/Scholomance/scholomance.h
+  EasternKingdoms/Scholomance/scholomance.cpp
   EasternKingdoms/Scholomance/instance_scholomance.cpp
-  EasternKingdoms/Scholomance/boss_lorekeeper_polkelt.cpp
-  EasternKingdoms/Scholomance/boss_ras_frostwhisper.cpp
   EasternKingdoms/isle_of_queldanas.cpp
   EasternKingdoms/ZulGurub/boss_grilek.cpp
   EasternKingdoms/ZulGurub/boss_hazzarah.cpp
@@ -159,18 +153,17 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Deadmines/deadmines.cpp
   EasternKingdoms/Deadmines/instance_deadmines.cpp
   EasternKingdoms/duskwood.cpp
-  EasternKingdoms/ScarletMonastery/boss_azshir_the_sleepless.cpp
-  EasternKingdoms/ScarletMonastery/boss_mograine_and_whitemane.cpp
-  EasternKingdoms/ScarletMonastery/boss_bloodmage_thalnos.cpp
-  EasternKingdoms/ScarletMonastery/boss_interrogator_vishas.cpp
+  EasternKingdoms/ScarletHalls/boss_armsmaster_harlan.cpp
+  EasternKingdoms/ScarletHalls/boss_flameweaver_koegler.cpp
+  EasternKingdoms/ScarletHalls/boss_houndmaster_braun.cpp
+  EasternKingdoms/ScarletHalls/instance_scarlet_halls.cpp
+  EasternKingdoms/ScarletHalls/scarlet_halls.h
+  EasternKingdoms/ScarletMonastery/boss_brother_korloff.cpp
+  EasternKingdoms/ScarletMonastery/boss_commander_durand.cpp
+  EasternKingdoms/ScarletMonastery/boss_thalnos_the_soulrender.cpp
   EasternKingdoms/ScarletMonastery/boss_headless_horseman.cpp
   EasternKingdoms/ScarletMonastery/instance_scarlet_monastery.cpp
-  EasternKingdoms/ScarletMonastery/boss_houndmaster_loksey.cpp
   EasternKingdoms/ScarletMonastery/scarlet_monastery.h
-  EasternKingdoms/ScarletMonastery/boss_high_inquisitor_fairbanks.cpp
-  EasternKingdoms/ScarletMonastery/boss_arcanist_doan.cpp
-  EasternKingdoms/ScarletMonastery/boss_herod.cpp
-  EasternKingdoms/ScarletMonastery/boss_scorn.cpp
   EasternKingdoms/undercity.cpp
   EasternKingdoms/silvermoon_city.cpp
   EasternKingdoms/loch_modan.cpp
@@ -183,16 +176,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ShadowfangKeep/instance_shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.h
   EasternKingdoms/burning_steppes.cpp
-  EasternKingdoms/BlackwingLair/boss_chromaggus.cpp
-  EasternKingdoms/BlackwingLair/boss_razorgore.cpp
-  EasternKingdoms/BlackwingLair/boss_firemaw.cpp
-  EasternKingdoms/BlackwingLair/boss_broodlord_lashlayer.cpp
-  EasternKingdoms/BlackwingLair/boss_ebonroc.cpp
-  EasternKingdoms/BlackwingLair/instance_blackwing_lair.cpp
-  EasternKingdoms/BlackwingLair/boss_vaelastrasz.cpp
-  EasternKingdoms/BlackwingLair/boss_nefarian.cpp
-  EasternKingdoms/BlackwingLair/boss_flamegor.cpp
-  EasternKingdoms/BlackwingLair/boss_victor_nefarius.cpp
   EasternKingdoms/blasted_lands.cpp
   EasternKingdoms/stormwind_city.cpp
   EasternKingdoms/ZulAman/boss_halazzi.cpp
@@ -221,8 +204,11 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Karazhan/boss_moroes.cpp
   EasternKingdoms/Karazhan/boss_terestian_illhoof.cpp
   EasternKingdoms/Karazhan/karazhan.h
-  EasternKingdoms/Gilneas/gilneas.cpp
-  EasternKingdoms/Gilneas/gilneas.h
+  EasternKingdoms/Gilneas/Duskhaven.cpp
+  EasternKingdoms/Gilneas/Gilneas_city_part1.cpp
+  EasternKingdoms/Gilneas/Gilneas_city_part2.cpp
+  EasternKingdoms/Gilneas/Gilneas_city_part3.cpp
+  EasternKingdoms/Gilneas/Gilneas.h
   EasternKingdoms/ThroneOfTheTides/boss_lady_nazjar.cpp
   EasternKingdoms/ThroneOfTheTides/boss_commander_ulthok.cpp
   EasternKingdoms/ThroneOfTheTides/boss_mindebender_ghursha.cpp

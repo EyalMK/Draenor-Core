@@ -216,7 +216,6 @@ class SpellScript : public _SpellScript
             public:
                 TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area);
                 bool CheckEffect(SpellInfo const* spellEntry, uint8 effIndex);
-				uint16 GetTarget() const { return targetType; }
                 std::string ToString();
             protected:
                 uint16 targetType;

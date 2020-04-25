@@ -220,7 +220,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     }
 
     Group* group = player->GetGroup();
-    if (entry->IsRaid() && entry->Expansion() >= EXPANSION_MISTS_OF_PANDARIA)
+    if (entry->IsRaid() && entry->Expansion() >= 4)
     {
 		// Can only enter in a raid group except for any raid pre-WoD.
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))

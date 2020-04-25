@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `quest_template_objective` (
   KEY `idx_QuestID` (`QuestID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2787045 DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.quest_template_objective: ~21,311 rows (approximately)
+-- Dumping data for table worldlive.quest_template_objective: ~20,689 rows (approximately)
 DELETE FROM `quest_template_objective`;
 /*!40000 ALTER TABLE `quest_template_objective` DISABLE KEYS */;
 INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
@@ -2407,11 +2407,14 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(254212, 29473, 0, 0, 54518, 4, 0, 0, 'Use bandage on Injured Carnie', '', 19865),
 	(254213, 29922, 0, 0, 56737, 1, 0, 0, 'Speak to Kitemaster Ut-Nam', '505', 1),
 	(254214, 30744, 1, 0, 81054, 100, 0, 0, '', '597 598', 1),
+	(254215, 24440, 5, 0, 4975, 1, 0, 0, 'Well Cleansed', '', 20779),
+	(254216, 24456, 5, 0, 4977, 1, 0, 0, 'Well Cleansed', '', 20779),
 	(254217, 27151, 0, 0, 45153, 10, 0, 0, '', '', 1),
 	(254218, 27680, 0, 0, 2748, 1, 0, 0, '', '', 19865),
 	(254219, 30038, 0, 0, 54139, 1, 0, 0, 'Loot and Equip a Trainee\'s Sword', '', 1),
 	(254220, 28209, 1, 0, 63281, 1, 0, 0, '', '', 1),
 	(254221, 10308, 1, 0, 29209, 10, 0, 0, '', '', 1),
+	(254222, 24524, 5, 0, 4978, 1, 0, 0, 'Cleanse the Wildmane Well', '', 20779),
 	(254223, 28318, 1, 0, 63430, 1, 0, 0, '', '', 1),
 	(254224, 643, 1, 0, 4458, 1, 0, 0, '', '', 19865),
 	(254225, 586, 0, 0, 669, 8, 0, 0, '', '', 19865),
@@ -12176,6 +12179,8 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(266517, 27048, 1, 2, 65508, 3, 0, 0, '', '', 1),
 	(266518, 27048, 1, 3, 65510, 3, 0, 0, '', '', 1),
 	(266519, 27729, 0, 0, 40855, 8, 0, 0, 'Disgusting Eels Justifiably Slain', '', 1),
+	(266520, 26160, 3, 0, 42298, 1, 0, 0, 'Speak with Kasim Sharim to begin the blood ritual', '', 20779),
+	(266521, 26170, 3, 0, 42298, 1, 0, 0, 'Participate in Kasim Sharim\'s ritual', '', 20779),
 	(266522, 25107, 1, 0, 52470, 1, 0, 0, '', '', 1),
 	(266523, 26995, 1, 0, 60742, 6, 0, 0, '', '', 1),
 	(266524, 25616, 0, 0, 34353, 10, 0, 0, '', '', 1),
@@ -15553,15 +15558,15 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(272847, 34573, 1, 0, 110898, 8, 0, 0, '', '2241', 1),
 	(272848, 34576, 1, 0, 110898, 8, 0, 0, '', '2241', 1),
 	(272849, 34577, 1, 0, 111906, 12, 0, 0, '', '2302', 1),
-	(272853, 34583, 0, 0, 84778, 1, 0, 0, 'Plant the Alliance Banner', '', 1),
+	(272853, 34583, 0, 0, 84778, 1, 0, 0, 'Plant the Alliance Banner', '', 1);
+INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
 	(272854, 34584, 2, 0, 230335, 8, 0, 0, 'Mark trees for lumberjacks', '', 1),
 	(272855, 34585, 0, 0, 81360, 1, 1, 0, '', '', 1),
 	(272856, 34586, 0, 0, 79757, 1, 0, 0, 'Speak with Baros to build your garrison', '2204', 1),
 	(272858, 34589, 1, 0, 111043, 3, 0, 0, '', '', 1),
 	(272860, 34591, 0, 0, 79274, 1, 0, 0, '', '569', 1),
 	(272861, 34592, 0, 0, 79529, 8, 0, 0, '', '', 1),
-	(272862, 34593, 1, 0, 111065, 1, 0, 0, 'Thulgork\'s Orders found', '2759', 1);
-INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
+	(272862, 34593, 1, 0, 111065, 1, 0, 0, 'Thulgork\'s Orders found', '2759', 1),
 	(272863, 34593, 1, 1, 111066, 1, 0, 0, 'Crulgorosh\'s Orders found', '2758', 1),
 	(272866, 34596, 0, 0, 79927, 1, 1, 0, 'Reglakk stopped', '2727', 1),
 	(272867, 34597, 2, 0, 230650, 8, 0, 0, 'Boxes of Ogre Research destroyed', '', 1),

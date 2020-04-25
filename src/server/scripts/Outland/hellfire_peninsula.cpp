@@ -520,13 +520,26 @@ public:
 
 enum Aledis
 {
+	// Quest
+	QUEST_ARELIONS_SECRET = 10286,
+
+	// Gossip Data
+	ALEDIS_GOSSIP_MENU = 8081,
+	ALEDIS_GOSSIP_OPTION = 0,
+	ALEDIS_NPC_TEXT = 9988,
+
+	// Texts
 	SAY_CHALLENGE = 0,
 	SAY_DEFEATED = 1,
+
+	// Events
 	EVENT_TALK = 1,
 	EVENT_ATTACK = 2,
 	EVENT_EVADE = 3,
 	EVENT_FIREBALL = 4,
 	EVENT_FROSTNOVA = 5,
+
+	// Spells
 	SPELL_FIREBALL = 20823,
 	SPELL_FROSTNOVA = 11831
 };
@@ -536,11 +549,29 @@ class npc_magister_aledis : public CreatureScript
 public:
 	npc_magister_aledis() : CreatureScript("npc_magister_aledis") { }
 
-	bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
 	{
-		player->CLOSE_GOSSIP_MENU();
-		creature->StopMoving();
-		CAST_AI(npc_magister_aledis::npc_magister_aledisAI, creature->AI())->StartFight(player);
+		if (p_Player->GetQuestStatus(QUEST_ARELIONS_SECRET) == QUEST_STATUS_INCOMPLETE)
+		{
+			p_Player->ADD_GOSSIP_ITEM_DB(ALEDIS_GOSSIP_MENU, ALEDIS_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			p_Player->SEND_GOSSIP_MENU(ALEDIS_NPC_TEXT, p_Creature->GetGUID());
+		}
+		
+		p_Player->SEND_GOSSIP_MENU(ALEDIS_NPC_TEXT, p_Creature->GetGUID());
+		return true;
+	}
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action) override
+	{
+		p_Player->PlayerTalkClass->ClearMenus();
+
+		if (action == GOSSIP_ACTION_INFO_DEF)
+		{
+			p_Player->CLOSE_GOSSIP_MENU();
+			p_Creature->StopMoving();
+			CAST_AI(npc_magister_aledis::npc_magister_aledisAI, p_Creature->AI())->StartFight(p_Player);
+		}
+
 		return true;
 	}
 
@@ -554,7 +585,7 @@ public:
 			me->SetFacingToObject(player);
 			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 			_playerGUID = player->GetGUID();
-			_events.ScheduleEvent(EVENT_TALK, 2000);
+			_events.ScheduleEvent(EVENT_TALK, 1000);
 		}
 
 		void Reset() override
@@ -599,7 +630,7 @@ public:
 				case EVENT_ATTACK:
 					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 					me->setFaction(FACTION_HOSTILE);
-					if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+					if (Player* player = Unit::GetPlayer(*me, _playerGUID))
 						me->CombatStart(player);
 					_events.ScheduleEvent(EVENT_FIREBALL, 1);
 					_events.ScheduleEvent(EVENT_FROSTNOVA, 5000);

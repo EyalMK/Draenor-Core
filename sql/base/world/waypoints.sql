@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
   PRIMARY KEY (`entry`,`pointid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature waypoints';
 
--- Dumping data for table worldlive.waypoints: 3,977 rows
+-- Dumping data for table worldlive.waypoints: 4,012 rows
 DELETE FROM `waypoints`;
 /*!40000 ALTER TABLE `waypoints` DISABLE KEYS */;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
@@ -3698,13 +3698,13 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 	(332660, 1, 1302.78, -2222.36, 91.681, 'Wounded WP 1'),
 	(332660, 2, 1255.75, -2224.22, 92.3249, 'Wounded WP 2'),
 	(332660, 3, 1219.97, -2245, 92.0576, 'Wounded WP 3'),
-	(333040, 1, 1432.58, -2016.19, 93.7049, 'Spirit of Gorat'),
-	(333040, 2, 1443.27, -2027.89, 93.61, 'Spirit of Gorat'),
-	(333040, 3, 1463.54, -2049.56, 93.1884, 'Spirit of Gorat'),
-	(333040, 4, 1471.42, -2066.36, 92.7038, 'Spirit of Gorat'),
-	(333040, 5, 1487.35, -2082.78, 93.5265, 'Spirit of Gorat'),
-	(333040, 6, 1513.84, -2088.52, 91.0716, 'Spirit of Gorat'),
 	(333040, 7, 1513.79, -2089.49, 90.6745, 'Spirit of Gorat'),
+	(333040, 6, 1513.84, -2088.52, 91.0716, 'Spirit of Gorat'),
+	(333040, 5, 1487.35, -2082.78, 93.5265, 'Spirit of Gorat'),
+	(333040, 4, 1471.42, -2066.36, 92.7038, 'Spirit of Gorat'),
+	(333040, 3, 1463.54, -2049.56, 93.1884, 'Spirit of Gorat'),
+	(333040, 2, 1443.27, -2027.89, 93.61, 'Spirit of Gorat'),
+	(333040, 1, 1432.58, -2016.19, 93.7049, 'Spirit of Gorat'),
 	(24806, 1, 479.123, -5941.48, 316.7, 'Iron Rune Construct'),
 	(24806, 2, 479.146, -5941.52, 339.755, 'Iron Rune Construct'),
 	(24806, 3, 496.133, -5940.06, 344.533, 'Iron Rune Construct'),
@@ -4002,7 +4002,42 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 	(2717100, 76, 4445.03, -479.462, 86.2938, ''),
 	(2717100, 77, 4439.44, -483.495, 87.3736, ''),
 	(2717100, 78, 4432.89, -488.558, 86.1981, ''),
-	(2717100, 79, 4427.68, -492.509, 84.9365, '');
+	(2717100, 79, 4427.68, -492.509, 84.9365, ''),
+	(18248, 1, 2317.72, 6030.27, 142.57, 'Nekthar'),
+	(18248, 2, 2307.82, 6024.44, 142.56, 'Nekthar'),
+	(18248, 3, 2304.89, 6025.77, 142.96, 'Nekthar'),
+	(18248, 4, 2304.89, 6025.77, 142.96, 'Nekthar'),
+	(18248, 5, 2306.93, 6023.86, 142.56, 'Nekthar'),
+	(18248, 6, 2317.38, 6030, 142.57, 'Nekthar'),
+	(18248, 7, 2319.51, 6029.16, 142.62, 'Nekthar'),
+	(18248, 8, 2319.51, 6029.16, 142.62, 'Nekthar'),
+	(19569, 1, 3389.06, 4296.1, 120.848, 'Netherologist Coppernickels'),
+	(19569, 2, 3381.91, 4300.33, 120.185, 'Netherologist Coppernickels'),
+	(19569, 3, 3379.54, 4317.5, 121.136, 'Netherologist Coppernickels'),
+	(19569, 4, 3379.26, 4319.73, 122.64, 'Netherologist Coppernickels'),
+	(19569, 5, 3378.79, 4328.07, 122.64, 'Netherologist Coppernickels'),
+	(19569, 6, 3380.94, 4335.49, 122.64, 'Netherologist Coppernickels'),
+	(19569, 7, 3386.13, 4336.3, 122.64, 'Netherologist Coppernickels'),
+	(19569, 8, 3374.05, 4341.09, 122.684, 'Netherologist Coppernickels'),
+	(19569, 9, 3371.34, 4343.16, 122.712, 'Netherologist Coppernickels'),
+	(19569, 10, 3367.23, 4343.4, 122.719, 'Netherologist Coppernickels'),
+	(19569, 11, 3363.59, 4340.95, 122.697, 'Netherologist Coppernickels'),
+	(19569, 12, 3367.61, 4344.06, 122.727, 'Netherologist Coppernickels'),
+	(19569, 13, 3374.61, 4356.84, 123.634, 'Netherologist Coppernickels'),
+	(19569, 14, 3379.82, 4357.93, 123.631, 'Netherologist Coppernickels'),
+	(19569, 15, 3375.75, 4344.93, 122.725, 'Netherologist Coppernickels'),
+	(19569, 16, 3377.95, 4319.35, 122.641, 'Netherologist Coppernickels'),
+	(19569, 17, 3378.48, 4315.87, 121.045, 'Netherologist Coppernickels'),
+	(19569, 18, 3382.31, 4281.61, 121.106, 'Netherologist Coppernickels'),
+	(19569, 19, 3382.72, 4279, 122.64, 'Netherologist Coppernickels'),
+	(19569, 20, 3383.64, 4271.15, 122.64, 'Netherologist Coppernickels'),
+	(19569, 21, 3388.75, 4267.11, 122.64, 'Netherologist Coppernickels'),
+	(19569, 22, 3392.29, 4267.63, 122.64, 'Netherologist Coppernickels'),
+	(19569, 23, 3382.1, 4279.11, 122.64, 'Netherologist Coppernickels'),
+	(19569, 24, 3381.78, 4281.36, 121.115, 'Netherologist Coppernickels'),
+	(19569, 25, 3381.14, 4290.22, 120.607, 'Netherologist Coppernickels'),
+	(19569, 26, 3383.74, 4292.46, 120.963, 'Netherologist Coppernickels'),
+	(19569, 27, 3389.09, 4296.38, 120.831, 'Netherologist Coppernickels');
 /*!40000 ALTER TABLE `waypoints` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
