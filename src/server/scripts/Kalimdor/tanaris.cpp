@@ -298,29 +298,229 @@ public:
 /// Thunderdrome Quest Chain
 enum ThunderDromeData
 {
-	// Quests
+	/// Quests
+	QUEST_THUNDERDROME_GRUDGE_MATCH_ALLIANCE = 25513,
+	QUEST_THUNDERDROME_GRUDGE_MATCH_HORDE	 = 25591,
+	QUEST_THUNDERDROME_SARINEXX				 = 25095,
+	QUEST_THUNDERDROME_THE_GINORMOUS		 = 25067,
+	QUEST_THUNDERDROME_ZUMONGA				 = 25094,
+
+
+	/// Npcs
+	NPC_DR_DEALWELL			= 39034,
+	NPC_LORD_GINORMOUS		= 39075,
+	NPC_ZUMONGA				= 39148,
+	NPC_SARINEXX			= 39149,
+	NPC_MEGS_DREADSHREDDER	= 40542,
+	NPC_KELSEY_STEELSPARK	= 40876,
+
+	/// Spells
+
+	// Megs Deadshredder Spells
+	SPELL_FLAME_WAVE			= 76735,
+	SPELL_STOP_POKING_ME		= 76091,
+	SPELL_SUMMON_DREADSHREDDER	= 76746,
+	SPELL_FLAMETHROWER			= 76804,
+	SPELL_SAWBLADE				= 76764,
+
+	// Kelsey Steelspark Spells
+	SPELL_CHAINED_SPARKS		= 76732,
+	SPELL_SUMMON_STEELSPARK		= 76749,
+	SPELL_FORKED_LIGHTNING		= 76843,
+	SPELL_SPARK_EFFECT			= 76850,
+	// Kelsey also uses Stop Poking Me
+
+	// The Ginormus
+	SPELL_SUMMON_DOGS_OF_WAR	= 73854,
+	SPELL_SKULL_WHACK			= 73855,
+
+	// Sarinexx
+	SPELL_SAND_TRAP				= 83730,
+	SPELL_WIDE_SLASH			= 73863,
+
+	// Zumonga
+	SPELL_HEADBUTT				= 73859,
+	SPELL_TASTE_OF_BLOOD		= 73858,
+
+
+	/// Actions
+	ACCEPTED_THE_GINORMOUS			 = 0,
+	ACCEPTED_SARINEXX				 = 1,
+	ACCEPTED_ZUMONGA				 = 2,
+	ACCEPTED_GRUDGE_MATCH			 = 3,
+
+
+	/// Events
+	START_EVENT_GINORMOUS				= 0,
+	START_EVENT_SARINEXX				= 1,
+	START_EVENT_ZUMONGA					= 2,
+	START_EVENT_GRUDGE_MATCH			= 3,
+
+	// Grudge Match
+	EVENT_FORKED_LIGHTNING				= 4,
+	EVENT_SPARK_EFFECT_CHASE			= 5,
+	EVENT_FLAMETHROWER					= 6,
+	EVENT_SAWBLADE						= 7,
+	EVENT_CHAINED_SPARKS				= 8,
+	EVENT_FLAME_WAVE					= 9,
+
+	// The Ginormus
+	EVENT_SUMMON_DOGS_OF_WAR			= 10,
+	EVENT_SKULL_WHACK					= 11,
 	
+	// Sarinexx
+	EVENT_SAND_TRAP						= 12,
+	EVENT_WIDE_SLASH					= 13,
 
-	// Texts
+	// Zumonga
+	EVENT_HEADBUTT						= 14,
+	EVENT_TASTE_OF_BLOOD				= 15,
 
-	// Npcs
 
-	// Spells
+
 };
 
+/// Dr.Dealwell - 39034
 class npc_dr_dealwell : public CreatureScript
 {
 public:
 	npc_dr_dealwell() : CreatureScript("npc_dr_dealwell") { }
-
+	
 	bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
 	{
+		if (quest->GetQuestId() == QUEST_THUNDERDROME_THE_GINORMOUS)
+		{
+			creature->GetAI()->DoAction(ACCEPTED_THE_GINORMOUS);
+		}
+		if (quest->GetQuestId() == QUEST_THUNDERDROME_SARINEXX)
+		{
+			creature->GetAI()->DoAction(ACCEPTED_SARINEXX);
+		}
+		if (quest->GetQuestId() == QUEST_THUNDERDROME_ZUMONGA)
+		{
+			creature->GetAI()->DoAction(ACCEPTED_ZUMONGA);
+		}
+		if (player->GetTeamId() == TEAM_ALLIANCE && quest->GetQuestId() == QUEST_THUNDERDROME_GRUDGE_MATCH_ALLIANCE)
+		{
+			creature->GetAI()->DoAction(ACCEPTED_GRUDGE_MATCH);
+		}
+		if (player->GetTeamId() == TEAM_HORDE && quest->GetQuestId() == QUEST_THUNDERDROME_GRUDGE_MATCH_HORDE)
+		{
+			creature->GetAI()->DoAction(ACCEPTED_GRUDGE_MATCH);
+		}
+
 		return true;
 	}
 
 	struct npc_dr_dealwellAI : public ScriptedAI
 	{
 		npc_dr_dealwellAI(Creature* creature) : ScriptedAI(creature) {}
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+		
+		// Center of Thunderdrome arena
+		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+
+		void Reset() override
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+		}
+
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent()) {}
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+				case START_EVENT_GINORMOUS:
+				{
+					me->SummonCreature(NPC_LORD_GINORMOUS, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
+					break;
+				}
+				case START_EVENT_SARINEXX:
+				{
+					me->SummonCreature(NPC_SARINEXX, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
+					break;
+				}
+				case START_EVENT_ZUMONGA:
+				{
+					me->SummonCreature(NPC_ZUMONGA, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
+					break;
+				}
+				case START_EVENT_GRUDGE_MATCH:
+				{
+					Creature* Kelsey = me->SummonCreature(NPC_KELSEY_STEELSPARK, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
+
+					// Place Megs infront of Kelsey
+					GetPositionWithDistInFront(Kelsey, 2.5f, l_Pos);
+					float z = Kelsey->GetMap()->GetHeight(Kelsey->GetPhaseMask(), l_Pos.GetPositionX(), l_Pos.GetPositionY(), l_Pos.GetPositionZ());
+					l_Pos.m_positionZ = z;
+
+					Creature* Megs	= me->SummonCreature(NPC_MEGS_DREADSHREDDER, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
+					break;
+				}
+			}
+		}
+
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case ACCEPTED_THE_GINORMOUS:
+					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
+					});
+					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(1); // Any Ladies and Gentlemen...	THE GINORMUS!
+						m_CosmeticEvents.ScheduleEvent(START_EVENT_GINORMOUS, 10 * TimeConstants::IN_MILLISECONDS);
+					});
+					break;
+				case ACCEPTED_SARINEXX:
+					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
+					});
+					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(3); // The faint of heart... SARINEXX!
+						m_CosmeticEvents.ScheduleEvent(START_EVENT_SARINEXX, 10 * TimeConstants::IN_MILLISECONDS);
+					});
+					break;
+				case ACCEPTED_ZUMONGA:
+					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
+					});
+					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(5); // Our next fighter... ZUMONGA!
+						m_CosmeticEvents.ScheduleEvent(START_EVENT_SARINEXX, 10 * TimeConstants::IN_MILLISECONDS);
+					});
+					break;
+				case ACCEPTED_GRUDGE_MATCH:
+					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
+						m_CosmeticEvents.ScheduleEvent(START_EVENT_GRUDGE_MATCH, 10 * TimeConstants::IN_MILLISECONDS);
+					});
+					break;
+
+				default:
+					break;
+			}
+		}
 
 	};
 
@@ -332,6 +532,831 @@ public:
 };
 
 
+
+/// Lord Ginormus - 39075
+class npc_lord_ginormus : public CreatureScript
+{
+public:
+	npc_lord_ginormus() : CreatureScript("npc_lord_ginormus") { }
+
+	struct npc_lord_ginormusAI : public ScriptedAI
+	{
+		npc_lord_ginormusAI(Creature* creature) : ScriptedAI(creature) {}
+
+
+		// Center of Thunderdrome arena
+		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+
+		std::list<Player*> PlayersInGrid;
+
+		void JustSummoned(Creature* /*summoner*/)
+		{
+			me->GetPlayerListInGrid(PlayersInGrid, 20.0f, true);
+			for (auto player : PlayersInGrid)
+				if (player->GetQuestStatus(QUEST_THUNDERDROME_THE_GINORMOUS) == QUEST_STATUS_INCOMPLETE)
+				{
+					me->CombatStart(player, true);
+					break;
+				}
+		}
+
+		void EnterCombat(Unit* target) override
+		{
+			Talk(1); // I am gravely disappointed.
+			events.ScheduleEvent(EVENT_SUMMON_DOGS_OF_WAR, urand(2000, 3000));
+		}
+
+		void KilledUnit(Unit* victim) override
+		{
+			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
+				Dealwell->AI()->Talk(8); // Random text on player death
+			Reset();
+		}
+
+		void JustDied(Unit* killer) override
+		{
+			Talk(0); // There has been too much violence...
+			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
+				Dealwell->AI()->Talk(2); // The Ginormus has fallen!
+		}
+
+		void Reset() override
+		{
+			events.Reset();
+			me->MovePosition(l_Pos, 0.0f, 0.0f);
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+
+			UpdateOperations(diff);
+
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_SUMMON_DOGS_OF_WAR:
+					DoCastVictim(SPELL_SUMMON_DOGS_OF_WAR);
+					events.ScheduleEvent(EVENT_SKULL_WHACK, urand(6000, 8000));
+					break;
+				case EVENT_SKULL_WHACK:
+					DoCastVictim(SPELL_SKULL_WHACK);
+					events.ScheduleEvent(EVENT_SUMMON_DOGS_OF_WAR, urand(20000, 25000));
+					break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_lord_ginormusAI(creature);
+	}
+
+};
+
+
+/// Sarinexx - 39149
+class npc_sarinexx : public CreatureScript
+{
+public:
+	npc_sarinexx() : CreatureScript("npc_sarinexx") { }
+
+	struct npc_sarinexxAI : public ScriptedAI
+	{
+		npc_sarinexxAI(Creature* creature) : ScriptedAI(creature) {}
+
+
+		// Center of Thunderdrome arena
+		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+
+		std::list<Player*> PlayersInGrid;
+
+		void JustSummoned(Creature* /*summoner*/)
+		{
+			me->GetPlayerListInGrid(PlayersInGrid, 20.0f, true);
+			for (auto player : PlayersInGrid)
+				if (player->GetQuestStatus(QUEST_THUNDERDROME_SARINEXX) == QUEST_STATUS_INCOMPLETE)
+				{
+					me->CombatStart(player, true);
+					break;
+				}
+		}
+
+		void EnterCombat(Unit* target) override
+		{
+			events.ScheduleEvent(EVENT_WIDE_SLASH, urand(2000, 4000));
+		}
+
+		void KilledUnit(Unit* victim) override
+		{
+			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
+				Dealwell->AI()->Talk(8); // Random text on player death
+			Reset();
+		}
+
+		void JustDied(Unit* killer) override
+		{
+			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
+				Dealwell->AI()->Talk(4); // There's no stopping $n!...
+		}
+
+		void Reset() override
+		{
+			events.Reset();
+			me->MovePosition(l_Pos, 0.0f, 0.0f);
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+
+			UpdateOperations(diff);
+
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_WIDE_SLASH:
+					DoCastVictim(SPELL_WIDE_SLASH);
+					events.ScheduleEvent(EVENT_SAND_TRAP, urand(7000, 8000));
+					break;
+				case EVENT_SAND_TRAP:
+					DoCastVictim(SPELL_SAND_TRAP);
+					events.ScheduleEvent(EVENT_WIDE_SLASH, urand(6000, 9000));
+					break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_sarinexxAI(creature);
+	}
+
+};
+
+
+/// Zumonga - 39148
+class npc_zumonga : public CreatureScript
+{
+public:
+	npc_zumonga() : CreatureScript("npc_zumonga") { }
+
+	struct npc_zumongaAI : public ScriptedAI
+	{
+		npc_zumongaAI(Creature* creature) : ScriptedAI(creature) {}
+
+
+		// Center of Thunderdrome arena
+		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+
+		std::list<Player*> PlayersInGrid;
+
+		void JustSummoned(Creature* /*summoner*/)
+		{
+			me->GetPlayerListInGrid(PlayersInGrid, 20.0f, true);
+			for (auto player : PlayersInGrid)
+				if (player->GetQuestStatus(QUEST_THUNDERDROME_ZUMONGA) == QUEST_STATUS_INCOMPLETE)
+				{
+					me->CombatStart(player, true);
+					break;
+				}
+		}
+
+		void EnterCombat(Unit* target) override
+		{
+			Talk(0); // ZUMONGA...KILL
+			events.ScheduleEvent(EVENT_HEADBUTT, urand(4000, 6000));
+		}
+
+		void KilledUnit(Unit* victim) override
+		{
+			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
+				Dealwell->AI()->Talk(8); // Random text on player death
+			Reset();
+		}
+
+		void JustDied(Unit* killer) override
+		{
+			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
+				Dealwell->AI()->Talk(6); // $n has done it again!
+		}
+
+		void Reset() override
+		{
+			events.Reset();
+			me->MovePosition(l_Pos, 0.0f, 0.0f);
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+
+			UpdateOperations(diff);
+
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_HEADBUTT:
+					DoCastVictim(SPELL_HEADBUTT);
+					events.ScheduleEvent(EVENT_TASTE_OF_BLOOD, urand(3000, 4000));
+					break;
+				case EVENT_TASTE_OF_BLOOD:
+					DoCastVictim(SPELL_TASTE_OF_BLOOD);
+					events.ScheduleEvent(EVENT_SUMMON_DOGS_OF_WAR, urand(7000, 8000));
+					break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_zumongaAI(creature);
+	}
+
+};
+
+
+/// Kelsey Steelspark - 40876
+class npc_kelsey_steelspark_thunderdrome : public CreatureScript
+{
+public:
+	npc_kelsey_steelspark_thunderdrome() : CreatureScript("npc_kelsey_steelspark_thunderdrome") { }
+
+	struct npc_kelsey_steelspark_thunderdromeAI : public ScriptedAI
+	{
+		npc_kelsey_steelspark_thunderdromeAI(Creature* creature) : ScriptedAI(creature) { }
+
+		std::list<Player*> PlayersInGrid;
+
+		void JustSummoned(Creature* /*summoner*/)
+		{
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+			me->SetSheath(SHEATH_STATE_MELEE);
+			Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 10.0f, true);
+			me->SetFacingToObject(Megs);
+		}
+
+		void EnterCombat(Unit* /*victim*/) override
+		{
+			events.ScheduleEvent(EVENT_CHAINED_SPARKS, urand(2000, 3000));
+		}
+
+		void Reset() override
+		{
+			events.Reset();
+		}
+
+		void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
+		{
+			if (me->GetHealthPct() <= 30.0f)
+			{
+				DoCastVictim(SPELL_SUMMON_STEELSPARK, true);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->AttackStop();
+				me->AI()->DoAction(0);
+			}
+		}
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case 0:
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(2); // Grrr... I was going to fight you fair and square, but you decided to bring friends. Fine! Behold the Alloy-Pounder Zero!
+					});
+					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(3); // Let's see how all of that dynamite in your pocket likes the KS-L10 Steelspark, Megs!
+					});
+					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
+						{
+							me->CastSpell(Megs, SPELL_STOP_POKING_ME, true);
+							Megs->AI()->Talk(7); // Yikes! That stings!
+						}
+
+					});
+					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true);
+						me->CombatStart(Megs, true);
+
+					});
+					break;
+
+				case 1:
+					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(4); // You can be sure to tell Gallywix not to underestimate Gnomeregan anymore.
+					});
+					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(5); // Until next time, Megs. Don't forget today's lesson.
+						//me->MovePosition(); Need to make her move to arena doors.
+
+
+						if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 40.0f, true))
+							Dealwell->AI()->Talk(7);
+
+						if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 10.0f, true))
+						{
+							me->GetPlayerListInGrid(PlayersInGrid, 20.0f, true);
+							for (auto player : PlayersInGrid)
+								if (player->GetQuestStatus(QUEST_THUNDERDROME_GRUDGE_MATCH_HORDE) == QUEST_STATUS_INCOMPLETE)
+									player->KilledMonsterCredit(NPC_KELSEY_STEELSPARK);
+							Kelsey->DespawnOrUnsummon(5000);
+						}
+					});
+
+					break;
+
+			default:
+				break;
+			}
+
+		}
+
+
+		void UpdateAI(const uint32 diff)
+		{
+
+			UpdateOperations(diff);
+
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+					case EVENT_CHAINED_SPARKS:
+						DoCastVictim(SPELL_CHAINED_SPARKS);
+						events.ScheduleEvent(EVENT_CHAINED_SPARKS, urand(4000, 6000));
+						break;
+				}
+
+
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_kelsey_steelspark_thunderdromeAI(creature);
+	}
+
+};
+
+
+/// Megs Dreadshredder - 40542
+class npc_megs_dreadshredder_thunderdrome : public CreatureScript
+{
+public:
+	npc_megs_dreadshredder_thunderdrome() : CreatureScript("npc_megs_dreadshredder_thunderdrome") { }
+
+	struct npc_megs_dreadshredder_thunderdromeAI : public ScriptedAI
+	{
+		npc_megs_dreadshredder_thunderdromeAI(Creature* creature) : ScriptedAI(creature) {}
+
+
+		std::list<Player*> PlayersInGrid;
+
+		void JustSummoned(Creature* /*summoner*/)
+		{
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+			me->SetSheath(SHEATH_STATE_MELEE);
+			Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 10.0f, true);
+			me->SetFacingToObject(Kelsey);
+
+
+			me->AI()->DoAction(0);
+		}
+
+
+		void EnterCombat(Unit* /*victim*/) override
+		{
+			events.ScheduleEvent(EVENT_FLAME_WAVE, urand(2000, 3000));
+		}
+
+
+		void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
+		{
+			if (me->GetHealthPct() <= 30.0f)
+			{
+				DoCastVictim(SPELL_SUMMON_DREADSHREDDER, true);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->AttackStop();
+				me->AI()->DoAction(0);
+			}
+		}
+
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case 0:
+					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(0); // You've gotten in my way one too many times, gnome.
+					});
+					AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 10.0f, true))
+						{
+							Kelsey->AI()->Talk(0); // You have fully depleted my patience as well.
+						}
+					});
+					AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(1); // There isn't room in this town for both of us!
+					});
+					AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 10.0f, true))
+						{
+							Kelsey->AI()->Talk(1); // I will attempt to not take undue pleasure in utterly destroying you.
+						}
+
+					});
+					AddTimedDelayedOperation(21 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(2); // BRING IT, PIPSQUEAK!
+
+						me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+						me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+
+						if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 10.0f, true))
+						{
+							Kelsey->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+							Kelsey->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+
+							me->CombatStart(Kelsey);
+						}
+					});
+					break;
+
+
+				case 1:
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(3); // You think you're clever, don't you, ganging up on me like this... well, prepare to face: THE DREADSHREDDER!
+					});
+					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(4); // You think you're all brave facing me, eh, Steelsparks?! Those pig tails won't protect you from THE DOOMSAW!
+					});
+					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
+						{
+							me->CastSpell(Kelsey, SPELL_STOP_POKING_ME, true);
+							Kelsey->AI()->Talk(6); // Ack! Not the face!
+						}
+
+					});
+					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true);
+						if (Kelsey)
+						{
+							Kelsey->AI()->Talk(7); // Whaaaa!!!!!
+							me->CastSpell(Kelsey, SPELL_SAWBLADE, true);
+						}
+
+						me->CombatStart(Kelsey, true);
+
+					});
+					break;
+
+				case 2:
+					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(5); // You gave it a good shot, kid. But this is goblin turf now. I suggest you get used to it.
+					});
+					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(6); // Ciao, babe. Let me know if you'd like to do lunch sometime. We'll work something out now that you've learned some manners.
+						//me->MovePosition(); Need to make her move to arena doors.
+
+
+						if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 40.0f, true))
+							Dealwell->AI()->Talk(7);
+
+						if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 10.0f, true))
+						{
+							me->GetPlayerListInGrid(PlayersInGrid, 20.0f, true);
+							for (auto player : PlayersInGrid)
+								if (player->GetQuestStatus(QUEST_THUNDERDROME_GRUDGE_MATCH_HORDE) == QUEST_STATUS_INCOMPLETE)
+									player->KilledMonsterCredit(NPC_KELSEY_STEELSPARK);
+							Kelsey->DespawnOrUnsummon(5000);
+						}
+					});
+
+					break;
+
+				default:
+					break;
+			}
+		}
+
+
+		void Reset() override
+		{
+			events.Reset();
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+
+			UpdateOperations(diff);
+
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_FLAME_WAVE:
+					DoCastVictim(SPELL_FLAME_WAVE);
+					events.ScheduleEvent(EVENT_FLAME_WAVE, urand(4000, 6000));
+					break;
+				}
+
+
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_megs_dreadshredder_thunderdromeAI(creature);
+	}
+
+};
+
+
+
+/// Steelsparks LX-506 - 41083
+class npc_steelsparks_lx_506 : public CreatureScript
+{
+public:
+	npc_steelsparks_lx_506() : CreatureScript("npc_steelsparks_lx_506") { }
+
+	struct npc_steelsparks_lx_506AI : public ScriptedAI
+	{
+		npc_steelsparks_lx_506AI(Creature* creature) : ScriptedAI(creature) {}
+
+		// Center of Thunderdrome arena
+		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+		Position mPos;
+		std::list<Player*> PlayersInGrid;
+
+
+		void JustSummoned(Creature* /*summoner*/)
+		{
+			me->SetSheath(SHEATH_STATE_MELEE);
+			me->GetPlayerListInGrid(PlayersInGrid, 20.0f);
+			for (auto player : PlayersInGrid)
+				if (player->GetQuestStatus(QUEST_THUNDERDROME_GRUDGE_MATCH_HORDE) == QUEST_STATUS_INCOMPLETE)
+				{
+					me->CombatStart(player, true);
+					break;
+				}	
+		}
+
+		void EnterCombat(Unit* /*victim*/) override
+		{
+			events.ScheduleEvent(EVENT_FORKED_LIGHTNING, urand(3000, 4000));
+		}
+
+		void JustDied(Unit* killer) override
+		{
+			if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
+			{
+				Kelsey->MovePosition(l_Pos, 0.0f, 0.0f);
+
+				// Place Megs infront of Kelsey
+				GetPositionWithDistInFront(Kelsey, 2.5f, mPos);
+				float z = Kelsey->GetMap()->GetHeight(Kelsey->GetPhaseMask(), mPos.GetPositionX(), mPos.GetPositionY(), mPos.GetPositionZ());
+				mPos.m_positionZ = z;
+
+				if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
+				{
+					Megs->MovePosition(mPos, 0.0f, 0.0f);
+					Megs->SetFacingToObject(Kelsey);
+					Megs->AI()->DoAction(2);
+				}
+
+			}
+
+		}
+
+
+		void Reset() override
+		{
+			events.Reset();
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+
+			UpdateOperations(diff);
+
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+					case EVENT_FORKED_LIGHTNING:
+						DoCastVictim(SPELL_FORKED_LIGHTNING);
+						events.ScheduleEvent(EVENT_SPARK_EFFECT_CHASE, urand(4000, 6000));
+						break;
+					case EVENT_SPARK_EFFECT_CHASE:
+						DoCastVictim(SPELL_SPARK_EFFECT);
+						events.ScheduleEvent(EVENT_FORKED_LIGHTNING, 5000);
+						break;
+				}
+
+			}
+			DoMeleeAttackIfReady();
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_steelsparks_lx_506AI(creature);
+	}
+
+};
+
+
+/// The Dreadshredder - 41077
+class npc_the_dreadshredder : public CreatureScript
+{
+public:
+	npc_the_dreadshredder() : CreatureScript("npc_the_dreadshredder") { }
+
+	struct npc_the_dreadshredderAI : public ScriptedAI
+	{
+		npc_the_dreadshredderAI(Creature* creature) : ScriptedAI(creature) {}
+
+		// Center of Thunderdrome arena
+		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+		Position mPos;
+		std::list<Player*> PlayersInGrid;
+
+
+		void JustSummoned(Creature* /*summoner*/)
+		{
+			me->SetSheath(SHEATH_STATE_MELEE);
+			me->GetPlayerListInGrid(PlayersInGrid, 20.0f);
+			for (auto player : PlayersInGrid)
+				if (player->GetQuestStatus(QUEST_THUNDERDROME_GRUDGE_MATCH_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
+				{
+					me->CombatStart(player, true);
+					break;
+				}
+		}
+
+		void EnterCombat(Unit* /*victim*/) override
+		{
+			events.ScheduleEvent(EVENT_FLAMETHROWER, urand(3000, 4000));
+		}
+
+		void JustDied(Unit* killer) override
+		{
+			if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
+			{
+				Megs->MovePosition(l_Pos, 0.0f, 0.0f);
+
+				// Place Kelsey infront of Megs
+				GetPositionWithDistInFront(Megs, 2.5f, mPos);
+				float z = Megs->GetMap()->GetHeight(Megs->GetPhaseMask(), mPos.GetPositionX(), mPos.GetPositionY(), mPos.GetPositionZ());
+				mPos.m_positionZ = z;
+
+				if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
+				{
+					Kelsey->MovePosition(mPos, 0.0f, 0.0f);
+					Kelsey->SetFacingToObject(Kelsey);
+					Kelsey->AI()->DoAction(1);
+				}
+
+			}
+
+		}
+
+
+		void Reset() override
+		{
+			events.Reset();
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+
+			UpdateOperations(diff);
+
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+					case EVENT_FLAMETHROWER:
+						DoCastVictim(SPELL_FLAMETHROWER);
+						events.ScheduleEvent(EVENT_SAWBLADE, urand(4000, 6000));
+						break;
+					case EVENT_SAWBLADE:
+						DoCastVictim(SPELL_SAWBLADE);
+						events.ScheduleEvent(EVENT_FLAMETHROWER, 5000);
+						break;
+				}
+
+			}
+			DoMeleeAttackIfReady();
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_the_dreadshredderAI(creature);
+	}
+
+};
 
 
 
@@ -1173,6 +2198,14 @@ void AddSC_tanaris()
     new npc_steward_of_time();
     new npc_OOX17();
 	new npc_dr_dealwell();
+	new npc_lord_ginormus();
+	new npc_sarinexx();
+	new npc_zumonga();
+	new npc_kelsey_steelspark_thunderdrome();
+	new npc_megs_dreadshredder_thunderdrome();
+	new npc_steelsparks_lx_506();
+	new npc_the_dreadshredder();
+
 
 	// Tanaris-Uldum Campaign Expedition
 	new npc_adarrah_44833();
