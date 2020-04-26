@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -48,8 +48,8 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(324, 'Gnomeregan Entrance', 90, -329.484, -3.22991, -152.846, 2.96706),
 	(442, 'Razorfen Downs Entrance', 129, 2593.68, 1111.23, 50.9518, 4.71239),
 	(444, 'Razorfen Downs Instance Start', 1, -4658.12, -2526.35, 81.492, 1.25978),
-	(446, 'Altar of Atal\'Hakkar Entrance', 109, -319.24, 99.9, -131.85, 3.19),
-	(448, 'Altar Of Atal\'Hakkar Instance Start', 0, -10175.1, -3995.15, -112.9, 2.95938),
+	(446, 'Sunken Temple Entrance Target', 109, -328.474, 95.3291, -91.0008, 3.14159),
+	(448, 'Sunken Temple Exit Target', 0, -10291.1, -3984.65, -70.4401, 1.29154),
 	(503, 'Stockades Instance', 0, -8764.83, 846.075, 87.4842, 3.77934),
 	(523, 'Gnomeregan Train Depot Entrance', 90, -736.51, 2.71, -249.99, 3.14),
 	(525, 'Gnomeregan Train Depot Instance', 0, -4858.27, 756.435, 244.923, 0),

@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `battlepay_product_item` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=874 DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.battlepay_product_item: ~898 rows (approximately)
+-- Dumping data for table worldlive.battlepay_product_item: ~757 rows (approximately)
 DELETE FROM `battlepay_product_item`;
 /*!40000 ALTER TABLE `battlepay_product_item` DISABLE KEYS */;
 INSERT INTO `battlepay_product_item` (`ID`, `ProductID`, `ItemID`, `Quantity`, `DisplayID`, `PetResult`) VALUES

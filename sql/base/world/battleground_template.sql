@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -28,15 +28,14 @@ CREATE TABLE IF NOT EXISTS `battleground_template` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.battleground_template: 5 rows
+-- Dumping data for table worldlive.battleground_template: 4 rows
 DELETE FROM `battleground_template`;
 /*!40000 ALTER TABLE `battleground_template` DISABLE KEYS */;
 INSERT INTO `battleground_template` (`id`, `MinPlayersPerTeam`, `MaxPlayersPerTeam`, `MinLvl`, `MaxLvl`, `AllianceStartLoc`, `HordeStartLoc`, `StartMaxDist`, `Weight`, `holiday`, `ScriptName`, `Comment`) VALUES
 	(3, 1, 15, 10, 100, 890, 889, 20, 12, 285, '', 'Arathi Basin'),
 	(4, 1, 2, 10, 100, 929, 936, 0, 1, 0, '', 'Nagrand Arena'),
 	(5, 1, 2, 10, 100, 939, 940, 0, 1, 0, '', 'Blades\'s Edge Arena'),
-	(6, 1, 2, 10, 100, 0, 0, 0, 1, 0, '', 'All Arena'),
-	(32, 1, 40, 45, 100, 0, 0, 0, 1, 0, '', 'Random battleground');
+	(6, 1, 2, 10, 100, 0, 0, 0, 1, 0, '', 'All Arena');
 /*!40000 ALTER TABLE `battleground_template` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `temp_battlepet_spawn_relation` (
   PRIMARY KEY (`CritterEntry`,`BattlePetEntry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.temp_battlepet_spawn_relation: ~893 rows (approximately)
+-- Dumping data for table worldlive.temp_battlepet_spawn_relation: ~477 rows (approximately)
 DELETE FROM `temp_battlepet_spawn_relation`;
 /*!40000 ALTER TABLE `temp_battlepet_spawn_relation` DISABLE KEYS */;
 INSERT INTO `temp_battlepet_spawn_relation` (`Name`, `CritterEntry`, `BattlePetEntry`) VALUES

@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_difficulty` (
   PRIMARY KEY (`entry`,`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.creature_template_difficulty: ~4,387 rows (approximately)
+-- Dumping data for table worldlive.creature_template_difficulty: ~5,382 rows (approximately)
 DELETE FROM `creature_template_difficulty`;
 /*!40000 ALTER TABLE `creature_template_difficulty` DISABLE KEYS */;
 INSERT INTO `creature_template_difficulty` (`entry`, `difficulty`, `difficulty_entry`) VALUES

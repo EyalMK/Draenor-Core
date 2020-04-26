@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `areatrigger_scripts` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.areatrigger_scripts: 150 rows
+-- Dumping data for table worldlive.areatrigger_scripts: 151 rows
 DELETE FROM `areatrigger_scripts`;
 /*!40000 ALTER TABLE `areatrigger_scripts` DISABLE KEYS */;
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
@@ -171,7 +171,8 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 	(153725, 'auchindoun_azzakel_at_fel_spark'),
 	(165065, 'auchindoun_kaathar_at_fissure'),
 	(157787, 'auchindoun_nyami_at_radiant_star'),
-	(157001, 'auchindoun_teronogor_areatrigger_chaos_wave');
+	(157001, 'auchindoun_teronogor_areatrigger_chaos_wave'),
+	(9509, 'at_timeless_isle_ordos');
 /*!40000 ALTER TABLE `areatrigger_scripts` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

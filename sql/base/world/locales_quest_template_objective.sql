@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `locales_quest_template_objective` (
   PRIMARY KEY (`ID`,`Locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.locales_quest_template_objective: ~81,259 rows (approximately)
+-- Dumping data for table worldlive.locales_quest_template_objective: ~89,127 rows (approximately)
 DELETE FROM `locales_quest_template_objective`;
 /*!40000 ALTER TABLE `locales_quest_template_objective` DISABLE KEYS */;
 INSERT INTO `locales_quest_template_objective` (`ID`, `Locale`, `Description`) VALUES
