@@ -14,7 +14,7 @@
 #include "SpellScript.h"
 
 #define CHECK_STATUS(a) (player->GetQuestStatus(a) == QUEST_STATUS_INCOMPLETE)
-#define GOSSIP_CHOICE_1 "Let's fight !"
+#define GOSSIP_CHOICE_1 "Let's fight!"
 #define GOSSIP_CHOICE "<Reach out to touch Chi-Ji.>"
 
 // Arness the Scale - 50787
@@ -2665,6 +2665,305 @@ class mob_yan_quillpaw : public CreatureScript
         };
 };
 
+
+/// Signal Fire - 216274
+class gob_signal_fire_krasarang : public GameObjectScript
+{
+public:
+	gob_signal_fire_krasarang() : GameObjectScript("gob_signal_fire_krasarang") { }
+
+	bool OnGossipHello(Player* p_Player, GameObject* p_GameObject) override
+	{
+		if (p_Player->GetQuestStatus(31483) == QUEST_STATUS_INCOMPLETE)
+		{
+			p_Player->KilledMonsterCredit(64681);
+			p_Player->SendMovieStart(128);
+		}
+
+		return true;
+	}
+
+};
+
+// Elder Anli - 58564
+class npc_scout_layna : public CreatureScript
+{
+public:
+	npc_scout_layna() : CreatureScript("npc_scout_layna") { }
+
+	bool OnQuestReward(Player* p_Player, Creature* p_Creature, Quest const* p_Quest, uint32 p_Options) override
+	{
+		switch (p_Quest->GetQuestId())
+		{
+			/// Quest Meet the scout should launch an event at reward, can't find enough infos to script it atm
+		case 32246: ///< Alliance
+			break;
+		case 32249: ///< Horde
+			break;
+		default:
+			break;
+		}
+
+		return true;
+	}
+};
+
+
+// Yan Quillpaw - 60542
+class npc_warlord_bloodhilt : public CreatureScript
+{
+public:
+	npc_warlord_bloodhilt() : CreatureScript("npc_warlord_bloodhilt")
+	{
+	}
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_warlord_bloodhiltAI(creature);
+	}
+
+	struct npc_warlord_bloodhiltAI : public ScriptedAI
+	{
+		npc_warlord_bloodhiltAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
+
+		EventMap m_Events;
+
+		enum eEvents
+		{
+			EventBloodThistyStrike = 1,
+			EventBloodyKnives,
+			EventBrutalCharge,
+			EventChokeEmOut,
+			EventCoupDeGrace
+		};
+
+		enum eSpells
+		{
+			SpellBloodThistyStrike = 135396,
+			SpellBloodyKnives = 135343,
+			SpellBrutalCharge = 135421,
+			SpellChokeEmOut = 135443,
+			SpellCoupDeGrace = 135397
+		};
+
+		void Reset()
+		{
+			m_Events.Reset();
+		}
+
+		void EnterCombat(Unit* p_Attacker)
+		{
+			m_Events.ScheduleEvent(eEvents::EventBloodThistyStrike, 3000);
+			m_Events.ScheduleEvent(eEvents::EventBloodyKnives, 8000);
+			m_Events.ScheduleEvent(eEvents::EventBrutalCharge, 13000);
+			m_Events.ScheduleEvent(eEvents::EventChokeEmOut, 18000);
+			m_Events.ScheduleEvent(eEvents::EventCoupDeGrace, 23000);
+		}
+
+		void UpdateAI(const uint32 p_Diff)
+		{
+			if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			m_Events.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent())
+			{
+			case eEvents::EventBloodThistyStrike:
+				if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+					me->CastSpell(l_Target, eSpells::SpellBloodThistyStrike, false);
+				m_Events.ScheduleEvent(eEvents::EventBloodThistyStrike, 30000);
+				break;
+			case eEvents::EventBloodyKnives:
+				if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+					me->CastSpell(l_Target, eSpells::SpellBloodyKnives, false);
+				m_Events.ScheduleEvent(eEvents::EventBloodyKnives, 30000);
+				break;
+			case eEvents::EventBrutalCharge:
+				if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+					me->CastSpell(l_Target, eSpells::SpellBrutalCharge, false);
+				m_Events.ScheduleEvent(eEvents::EventBrutalCharge, 30000);
+				break;
+			case eEvents::EventChokeEmOut:
+				if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+					me->CastSpell(l_Target, eSpells::SpellChokeEmOut, false);
+				m_Events.ScheduleEvent(eEvents::EventChokeEmOut, 30000);
+				break;
+			case eEvents::EventCoupDeGrace:
+				if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+					me->CastSpell(l_Target, eSpells::SpellCoupDeGrace, false);
+				m_Events.ScheduleEvent(eEvents::EventCoupDeGrace, 30000);
+				break;
+			default:
+				break;
+			}
+
+			DoMeleeAttackIfReady();
+		}
+	};
+};
+
+class npc_high_marshal_twinbraid : public CreatureScript
+{
+public:
+	npc_high_marshal_twinbraid() : CreatureScript("npc_high_marshal_twinbraid")
+	{
+	}
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_high_marshal_twinbraidAI(creature);
+	}
+
+	struct npc_high_marshal_twinbraidAI : public ScriptedAI
+	{
+		npc_high_marshal_twinbraidAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
+
+		EventMap m_Events;
+
+		enum eEvents
+		{
+			EventCannonballSpin = 1,
+			EventChaingun,
+			EventExplosivesPlunger,
+			EventChokeEmOut
+		};
+
+		enum eSpells
+		{
+			SpellCannonballSpin = 135154,
+			SpellChaingun = 135417,
+			SpellExplosivesPlunger = 135292, ///< self
+			SpellSoundTheAlarm = 135166  ///< self
+		};
+
+		void Reset()
+		{
+			m_Events.Reset();
+		}
+
+		void EnterCombat(Unit* p_Attacker)
+		{
+			m_Events.ScheduleEvent(eEvents::EventCannonballSpin, 3000);
+			m_Events.ScheduleEvent(eEvents::EventChaingun, 8000);
+			///                m_Events.ScheduleEvent(eEvents::EventExplosivesPlunger, 13000);
+			m_Events.ScheduleEvent(eEvents::EventChokeEmOut, 18000);
+		}
+
+		void EnterEvadeMode()
+		{
+			Reset();
+		}
+
+		void UpdateAI(const uint32 p_Diff)
+		{
+			if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			m_Events.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent())
+			{
+			case eEvents::EventCannonballSpin:
+				if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+					me->CastSpell(l_Target, eSpells::SpellCannonballSpin, false);
+				m_Events.ScheduleEvent(eEvents::EventCannonballSpin, 30000);
+				break;
+			case eEvents::EventChaingun:
+				if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+					me->CastSpell(l_Target, eSpells::SpellChaingun, false);
+				m_Events.ScheduleEvent(eEvents::EventChaingun, 30000);
+				break;
+			case eEvents::EventExplosivesPlunger:
+				me->CastSpell(me, eSpells::SpellExplosivesPlunger, false); ///< TO SCRIPT
+				m_Events.ScheduleEvent(eEvents::EventExplosivesPlunger, 30000);
+				break;
+			case eEvents::EventChokeEmOut:
+				me->CastSpell(me, eSpells::SpellSoundTheAlarm, false); ///< To check
+				m_Events.ScheduleEvent(eEvents::EventChokeEmOut, 30000);
+				break;
+			default:
+				break;
+			}
+
+			DoMeleeAttackIfReady();
+		}
+	};
+};
+/*
+/// Krasarang entering
+class playerScript_mapshift_krasarang : public PlayerScript
+{
+public:
+	playerScript_mapshift_krasarang() : PlayerScript("playerScript_mapshift_krasarang") { }
+
+	void OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneId, uint32 p_NewAreaId) override
+	{
+		if (p_Player && p_NewZoneId == 6134) ///< Krasarang Wilds
+		{
+			std::set<uint32> l_PhaseId, l_Terrainswap;
+
+			uint16 l_AllianceMapID = 1062; ///< 1103 seems also to be correct, can't find exact difference between those two ones
+			uint16 l_HordeMapID = 1063; ///< 1102 seems also to be correct, can't find exact difference between those two ones
+			l_Terrainswap.insert((uint32)l_AllianceMapID);
+			l_Terrainswap.insert((uint32)l_HordeMapID);
+			p_Player->GetSession()->SendSetPhaseShift(l_PhaseId, l_Terrainswap);
+
+			if (p_NewAreaId == 6369)
+			{
+			}
+			//                 else if (p_NewAreaId == 6612)
+			//                 {
+			//                     l_PhaseId.insert(0);
+			//                     p_Player->GetSession()->SendSetPhaseShift(l_PhaseId, l_Terrainswap);
+			//                 }
+		}
+	}
+}; */
+
+// Spirit of the Crane - 60487
+class npc_hilda_hornswaggle : public CreatureScript
+{
+public:
+	npc_hilda_hornswaggle() : CreatureScript("npc_hilda_hornswaggle")
+	{
+	}
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		if (p_Player->GetQuestStatus(eQuests::QuestAKingAmongMen) == QUEST_STATUS_INCOMPLETE)
+			p_Player->KilledMonsterCredit(p_Creature->GetEntry());
+
+		return true;
+	}
+};
+
+// Spirit of the Crane - 60487
+class npc_marshall_troteman : public CreatureScript
+{
+public:
+	npc_marshall_troteman() : CreatureScript("npc_marshall_troteman")
+	{
+	}
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		if (p_Player->GetQuestStatus(eQuests::QuestAKingAmongMen) == QUEST_STATUS_INCOMPLETE)
+			p_Player->KilledMonsterCredit(p_Creature->GetEntry());
+
+		return true;
+	}
+};
+
+
+
+
+
+
 #ifndef __clang_analyzer__
 void AddSC_krasarang_wilds()
 {
@@ -2692,5 +2991,13 @@ void AddSC_krasarang_wilds()
     new mob_thelonius();
     new mob_tukka_tuk();
     new mob_yan_quillpaw();
+
+	new gob_signal_fire_krasarang();
+	new npc_scout_layna();
+	new npc_warlord_bloodhilt();
+	new npc_high_marshal_twinbraid();
+	new npc_hilda_hornswaggle();
+	new npc_marshall_troteman();
+	/// new playerScript_mapshift_krasarang(); ///< Causes client crash, can't add 2 terrainswaps
 }
 #endif

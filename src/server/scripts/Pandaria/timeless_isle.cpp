@@ -8,6 +8,9 @@
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "timeless_isle.h"
 
 // Anduin Wrynn - 73061
@@ -353,11 +356,142 @@ class spell_item_timeless_caches : public SpellScriptLoader
         }
 };
 
+
+class timeless_isle_zone : public ZoneScript
+{
+public:
+
+	timeless_isle_zone() : ZoneScript("timeless_isle_zone")
+	{
+	}
+
+	ZoneScript* GetZoneScript(Map* map) const
+	{
+		return new timeless_isle_zone_Script(map);
+	}
+
+	class timeless_isle_zone_Script : public ZoneScript
+	{
+	public:
+
+		timeless_isle_zone_Script(Map* map) : ZoneScript()
+		{
+			m_Map = map;
+
+			Initialize();
+		}
+
+		void OnCreatureCreate(Creature* pCreature) override
+		{
+			switch (pCreature->GetEntry())
+			{
+			case NPC_SHAO_HAO: m_ShaoHaoGuid = pCreature->GetGUID(); break;
+			case NPC_YULON: m_JadeSerpentGuid = pCreature->GetGUID(); break;
+			case NPC_XUEN: m_WhiteTigerGuid = pCreature->GetGUID(); break;
+			case NPC_CHI_JI: m_RedCraneGuid = pCreature->GetGUID(); break;
+			case NPC_NIUZAO: m_BlackOxGuid = pCreature->GetGUID(); break;
+			}
+		}
+
+		void OnCreatureRemove(Creature* pCreature) override
+		{
+			switch (pCreature->GetEntry())
+			{
+			case NPC_SHAO_HAO: m_ShaoHaoGuid = 0; break;
+			case NPC_YULON: m_JadeSerpentGuid = 0; break;
+			case NPC_XUEN: m_WhiteTigerGuid = 0; break;
+			case NPC_CHI_JI: m_RedCraneGuid = 0; break;
+			case NPC_NIUZAO: m_BlackOxGuid = 0; break;
+			}
+		}
+
+		void OnGameObjectCreate(GameObject* go) override
+		{
+			switch (go->GetEntry())
+			{
+			case GAMEOBJECT_HEATED_DOOR:
+				m_HeatedDoorGuid = go->GetGUID();
+				break;
+			}
+		}
+
+		uint64 GetData64(uint32 type) override
+		{
+			switch (type)
+			{
+			case DATA_EMPERROR_SHAOHAO: return m_ShaoHaoGuid;
+			case DATA_JADE_SERPENT: return m_JadeSerpentGuid;
+			case DATA_WHITE_TIGER: return m_WhiteTigerGuid;
+			case DATA_HEATED_DOOR: return m_HeatedDoorGuid;
+			case DATA_RED_CRANE: return m_RedCraneGuid;
+			case DATA_BLACK_OX: return m_BlackOxGuid;
+			}
+
+			return 0;
+		}
+
+	private:
+
+		void Initialize()
+		{
+			/*m_Map->LoadGrid(-553.f, -4949.f);
+			m_Map->LoadGrid(-551.f, -5080.f);
+			m_Map->LoadGrid(-742.f, -5078.f);
+			m_Map->LoadGrid(-740.f, -4955.f);
+			m_Map->LoadGrid(-649.f, -5108.f);
+			m_Map->LoadGrid(-650.f, -5016.f);*/
+
+			m_ShaoHaoGuid = 0;
+			m_JadeSerpentGuid = 0;
+			m_WhiteTigerGuid = 0;
+			m_RedCraneGuid = 0;
+			m_BlackOxGuid = 0;
+			m_HeatedDoorGuid = 0;
+		}
+
+	private:
+
+		Map* m_Map;
+		uint64 m_ShaoHaoGuid;
+		uint64 m_JadeSerpentGuid;
+		uint64 m_WhiteTigerGuid;
+		uint64 m_RedCraneGuid;
+		uint64 m_BlackOxGuid;
+		uint64 m_HeatedDoorGuid;
+	};
+};
+
+
+class at_timeless_isle_ordos : public AreaTriggerScript
+{
+public:
+	at_timeless_isle_ordos() : AreaTriggerScript("at_timeless_isle_ordos") { }
+
+	enum eData
+	{
+		SPELL_CELESTIAL_WINDS	= 149322
+	};
+
+	bool OnTrigger(Player* pPlayer, AreaTriggerEntry const* p_Trigger) override
+	{
+		pPlayer->CastSpell(pPlayer, SPELL_CELESTIAL_WINDS, true);
+		return true;
+	}
+
+};
+
 #ifndef __clang_analyzer__
 void AddSC_timeless_isle()
 {
+	// Npcs
     new npc_prince_anduin();
     new npc_kairoz();
+	
+	// Spells
     new spell_item_timeless_caches();
+
+	// Areatriggers and Zone Scripts
+	new timeless_isle_zone();
+	new at_timeless_isle_ordos();               // 9509
 }
 #endif
