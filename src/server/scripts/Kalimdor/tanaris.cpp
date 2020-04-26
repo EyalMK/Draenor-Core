@@ -386,7 +386,7 @@ class npc_dr_dealwell : public CreatureScript
 public:
 	npc_dr_dealwell() : CreatureScript("npc_dr_dealwell") { }
 	
-	bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+	bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
 	{
 		if (quest->GetQuestId() == QUEST_THUNDERDROME_THE_GINORMOUS)
 		{
@@ -433,42 +433,7 @@ public:
 		{
 			UpdateOperations(p_Diff);
 
-			m_Events.Update(p_Diff);
 
-			m_CosmeticEvents.Update(p_Diff);
-
-			switch (m_Events.ExecuteEvent()) {}
-
-			switch (m_CosmeticEvents.ExecuteEvent())
-			{
-				case START_EVENT_GINORMOUS:
-				{
-					me->SummonCreature(NPC_LORD_GINORMOUS, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
-					break;
-				}
-				case START_EVENT_SARINEXX:
-				{
-					me->SummonCreature(NPC_SARINEXX, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
-					break;
-				}
-				case START_EVENT_ZUMONGA:
-				{
-					me->SummonCreature(NPC_ZUMONGA, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
-					break;
-				}
-				case START_EVENT_GRUDGE_MATCH:
-				{
-					Creature* Kelsey = me->SummonCreature(NPC_KELSEY_STEELSPARK, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
-
-					// Place Megs infront of Kelsey
-					GetPositionWithDistInFront(Kelsey, 2.5f, l_Pos);
-					float z = Kelsey->GetMap()->GetHeight(Kelsey->GetPhaseMask(), l_Pos.GetPositionX(), l_Pos.GetPositionY(), l_Pos.GetPositionZ());
-					l_Pos.m_positionZ = z;
-
-					Creature* Megs	= me->SummonCreature(NPC_MEGS_DREADSHREDDER, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
-					break;
-				}
-			}
 		}
 
 
@@ -484,7 +449,10 @@ public:
 					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						Talk(1); // Any Ladies and Gentlemen...	THE GINORMUS!
-						m_CosmeticEvents.ScheduleEvent(START_EVENT_GINORMOUS, 10 * TimeConstants::IN_MILLISECONDS);
+					});
+					AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->SummonCreature(NPC_LORD_GINORMOUS, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
 					});
 					break;
 				case ACCEPTED_SARINEXX:
@@ -495,7 +463,10 @@ public:
 					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						Talk(3); // The faint of heart... SARINEXX!
-						m_CosmeticEvents.ScheduleEvent(START_EVENT_SARINEXX, 10 * TimeConstants::IN_MILLISECONDS);
+					});
+					AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->SummonCreature(NPC_SARINEXX, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
 					});
 					break;
 				case ACCEPTED_ZUMONGA:
@@ -506,7 +477,11 @@ public:
 					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						Talk(5); // Our next fighter... ZUMONGA!
-						m_CosmeticEvents.ScheduleEvent(START_EVENT_SARINEXX, 10 * TimeConstants::IN_MILLISECONDS);
+					});
+
+					AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->SummonCreature(NPC_ZUMONGA, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
 					});
 					break;
 				case ACCEPTED_GRUDGE_MATCH:
@@ -515,6 +490,18 @@ public:
 						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
 						m_CosmeticEvents.ScheduleEvent(START_EVENT_GRUDGE_MATCH, 10 * TimeConstants::IN_MILLISECONDS);
 					});
+					AddTimedDelayedOperation(12 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Creature* Kelsey = me->SummonCreature(NPC_KELSEY_STEELSPARK, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
+
+						// Place Megs infront of Kelsey
+						GetPositionWithDistInFront(Kelsey, 2.5f, l_Pos);
+						float z = Kelsey->GetMap()->GetHeight(Kelsey->GetPhaseMask(), l_Pos.GetPositionX(), l_Pos.GetPositionY(), l_Pos.GetPositionZ());
+						l_Pos.m_positionZ = z;
+
+						Creature* Megs = me->SummonCreature(NPC_MEGS_DREADSHREDDER, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
+					});
+
 					break;
 
 				default:
