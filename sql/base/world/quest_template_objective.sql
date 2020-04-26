@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -28,11 +28,16 @@ CREATE TABLE IF NOT EXISTS `quest_template_objective` (
   KEY `idx_QuestID` (`QuestID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2787045 DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.quest_template_objective: ~20,689 rows (approximately)
+-- Dumping data for table worldlive.quest_template_objective: ~20,718 rows (approximately)
 DELETE FROM `quest_template_objective`;
 /*!40000 ALTER TABLE `quest_template_objective` DISABLE KEYS */;
 INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
 	(1, 33228, 4, 0, 777, 1000, 0, 0, '', '', 1),
+	(25513, 25513, 0, 0, 40542, 1, 0, 0, '', 'Megs Dreadshredder Defeated', 20779),
+	(25591, 25591, 0, 0, 40876, 1, 0, 0, '', 'Kelsey Steelspark Defeated', 20779),
+	(250670, 25067, 0, 0, 39075, 1, 0, 0, '', 'Ginormous Defeated', 20779),
+	(250940, 25094, 0, 0, 39148, 1, 0, 0, '', 'Zumonga Defeated', 20779),
+	(250950, 25095, 0, 0, 39149, 1, 0, 0, '', 'Sarinexx Defeated', 20779),
 	(251604, 30057, 0, 0, 57408, 1, 0, 0, 'Bring Mina Mudclaw home to her father', '', 1),
 	(251605, 28250, 0, 0, 48105, 30, 0, 0, 'Thieving plucker smashed', '', 1),
 	(251606, 30190, 0, 0, 58673, 8, 0, 0, '', '', 19865),
@@ -15553,13 +15558,13 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(272842, 34570, 0, 2, 79173, 1, 2, 0, 'Portal taken', '2189', 19865),
 	(272843, 34564, 0, 2, 79173, 1, 2, 0, 'Portal taken', '2190', 1),
 	(272844, 34563, 0, 0, 79160, 1, 0, 0, 'Master Smith Ared Found', '', 1),
-	(272845, 34571, 1, 0, 111906, 12, 0, 0, '', '2302', 1),
+	(272845, 34571, 1, 0, 111906, 12, 0, 0, '', '2302', 1);
+INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
 	(272846, 34572, 0, 0, 79023, 15, 0, 0, 'Ogres at Mar\'gok\'s Overwatch slain', '', 1),
 	(272847, 34573, 1, 0, 110898, 8, 0, 0, '', '2241', 1),
 	(272848, 34576, 1, 0, 110898, 8, 0, 0, '', '2241', 1),
 	(272849, 34577, 1, 0, 111906, 12, 0, 0, '', '2302', 1),
-	(272853, 34583, 0, 0, 84778, 1, 0, 0, 'Plant the Alliance Banner', '', 1);
-INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `ObjectID`, `Amount`, `Flags`, `UnkFloat`, `Description`, `VisualEffects`, `BuildVerified`) VALUES
+	(272853, 34583, 0, 0, 84778, 1, 0, 0, 'Plant the Alliance Banner', '', 1),
 	(272854, 34584, 2, 0, 230335, 8, 0, 0, 'Mark trees for lumberjacks', '', 1),
 	(272855, 34585, 0, 0, 81360, 1, 1, 0, '', '', 1),
 	(272856, 34586, 0, 0, 79757, 1, 0, 0, 'Speak with Baros to build your garrison', '2204', 1),
@@ -20556,7 +20561,7 @@ INSERT INTO `quest_template_objective` (`ID`, `QuestID`, `Type`, `Index`, `Objec
 	(400001, 37935, 0, 1, 90374, 1, 2, 0, 'Plant the flag to build the base\r\n', NULL, 1),
 	(400002, 38445, 0, 0, 91932, 1, 0, 0, 'Follow Naielle', NULL, 1),
 	(400003, 38445, 0, 0, 90374, 1, 0, 0, 'Plant the flag to build the base\r\n', NULL, 1),
-	(2657548, 36881, 1, 0, 18423, 1, 0, 0, 'Collect Onyxia\'s Head', NULL, 1),
+	(2657548, 36881, 0, 0, 10184, 1, 0, 0, 'Slay Onyxia', NULL, 1),
 	(2786100, 27861, 0, 0, 46944, 1, 0, 0, '', '', 1),
 	(2786200, 27862, 0, 0, 46944, 1, 0, 0, '', '', 1),
 	(2786300, 27863, 0, 0, 46944, 1, 0, 0, '', '', 1),

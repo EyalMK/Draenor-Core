@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `playercreateinfo_item` (
   KEY `playercreateinfo_race_class_index` (`race`,`class`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.playercreateinfo_item: 11 rows
+-- Dumping data for table worldlive.playercreateinfo_item: 13 rows
 DELETE FROM `playercreateinfo_item`;
 /*!40000 ALTER TABLE `playercreateinfo_item` DISABLE KEYS */;
 INSERT INTO `playercreateinfo_item` (`race`, `class`, `itemid`, `amount`) VALUES
@@ -34,7 +34,9 @@ INSERT INTO `playercreateinfo_item` (`race`, `class`, `itemid`, `amount`) VALUES
 	(7, 10, 73209, 1),
 	(8, 10, 73209, 1),
 	(10, 10, 73209, 1),
-	(11, 10, 73209, 1);
+	(11, 10, 73209, 1),
+	(0, 6, 38707, 1),
+	(0, 6, 6948, 1);
 /*!40000 ALTER TABLE `playercreateinfo_item` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

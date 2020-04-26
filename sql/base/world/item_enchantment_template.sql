@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `item_enchantment_template` (
   `type` mediumint(8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.item_enchantment_template: ~29,250 rows (approximately)
+-- Dumping data for table worldlive.item_enchantment_template: ~31,206 rows (approximately)
 DELETE FROM `item_enchantment_template`;
 /*!40000 ALTER TABLE `item_enchantment_template` DISABLE KEYS */;
 INSERT INTO `item_enchantment_template` (`entry`, `ench`, `chance`, `type`) VALUES

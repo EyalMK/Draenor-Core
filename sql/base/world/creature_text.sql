@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_text: 13,205 rows
+-- Dumping data for table worldlive.creature_text: 13,239 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -13107,15 +13107,11 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(82270, 4, 0, 'With those machines destroyed we can focus on our next move.', 12, 0, 100, 0, 0, 0, 'Vindicator Maraad - Under Siege Quest Complete'),
 	(49874, 0, 1, 'Blackrock take forest!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
 	(49874, 0, 0, 'Orc KILL $r!', 12, 0, 50, 0, 0, 0, 'on Aggro Text'),
-	(49869, 0, 0, 'I could use a heal, brother!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry'),
-	(49869, 0, 1, 'I need a heal!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry'),
-	(49869, 0, 2, 'Make yourself useful and heal me, Paxton!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry'),
-	(49869, 0, 3, 'HELP!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry'),
-	(951, 0, 0, 'Be healed, $g brother:sister;!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
-	(951, 0, 1, 'AND I LAY MY HANDS UPON YOU!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
-	(951, 0, 2, 'Let the Holy Light embrace you!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
-	(951, 0, 3, 'BY THE LIGHT BE RENEWED!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
-	(951, 0, 4, 'FIGHT ON, $G BROTHER:SISTER;!', 12, 0, 100, 0, 0, 0, 'Brother Paxton'),
+	(951, 1, 1, 'Let the Holy Light embrace you!', 12, 0, 100, 0, 0, 0, 'Brother Paxton - Healing Cast Phrase'),
+	(951, 1, 0, 'AND I LAY MY HANDS UPON YOU!', 12, 0, 100, 0, 0, 0, 'Brother Paxton - Renew Cast Phrase'),
+	(951, 0, 0, 'BY THE LIGHT BE RENEWED!', 12, 0, 100, 0, 0, 0, 'Brother Paxton - Renew Cast Phrase'),
+	(951, 2, 1, 'FIGHT ON, BROTHER!', 12, 0, 100, 0, 0, 0, 'Brother Paxton - Healing Cast Phrase'),
+	(951, 2, 0, 'Be healed, brother!', 12, 0, 100, 0, 0, 0, 'Brother Paxton - Healing Cast Phrase'),
 	(3296, 0, 0, '%s becomes enraged!', 16, 0, 100, 0, 0, 0, 'Orgrimmar Grunt'),
 	(14304, 1, 0, '%s becomes enraged!', 16, 0, 100, 0, 0, 0, 'Kor\'kron Elite'),
 	(16222, 3, 0, 'Your power strengthens us all.', 12, 1, 100, 0, 0, 0, 'Silvermoon City Guardian'),
@@ -13236,7 +13232,45 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(19569, 3, 0, 'This is the last time that I buy second-hand equipment from an ethereal!', 12, 0, 100, 5, 0, 0, 'Netherologist Coppernickels'),
 	(42298, 4, 0, 'Quickly, $n! We haven\'t much time before Rezelikh makes his return.', 14, 0, 100, 0, 0, 0, ' Kasim Sharim - Text 5'),
 	(33302, 0, 0, 'How many times must I have you killed, orc?!', 14, 0, 100, 0, 0, 0, 'Captain Elendilad Yells'),
-	(33302, 1, 0, 'Curse you, $N vermin! This forest belongs to the Kaldorei...', 12, 0, 100, 0, 0, 0, 'Captain Elendilad Says on Death');
+	(33302, 1, 0, 'Curse you, $N vermin! This forest belongs to the Kaldorei...', 12, 0, 100, 0, 0, 0, 'Captain Elendilad Says on Death'),
+	(49869, 0, 0, 'HELP!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry - Call For Heal'),
+	(49869, 0, 1, 'I need a heal!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry - Call For Heal'),
+	(49869, 0, 2, 'I could use a heal, brother!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry - Call For Heal'),
+	(49869, 0, 3, 'Make yourself useful and heal me, Paxton!', 12, 0, 100, 0, 0, 0, 'Stormwind Infantry - Call For Heal'),
+	(39075, 0, 0, 'I am gravely disappointed. Again you have made me unleash my dogs of war.', 14, 7, 100, 0, 0, 0, 'Lord Ginormus - Thunderdrome Arena Death'),
+	(39075, 1, 0, 'There has been too much violence. Too much pain. But I have an honorable compromise. Just walk away.', 14, 7, 100, 0, 0, 0, 'Lord Ginormus - Thunderdrome Arena Combat Start'),
+	(39034, 0, 0, 'Into the Thunderdrome, $n! There\'s no getting out until someone\'s hit the sand. Let\'s start the show!', 12, 7, 100, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Quest Accept Text'),
+	(39034, 1, 0, 'Any Ladies and Gentlemen present should LEAVE NOW...for only REAL MEN AND WOMEN will be able to handle the gory spectacle about to unfold! Introducing the first fighter, the warrior of the Wastewander, the Ayatollah of Kaja-Cola...THE GINORMUS!', 14, 7, 100, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Summon Ginormus Text'),
+	(39034, 2, 0, 'The Ginormus has fallen! $n looks like $g he\'s:she\'s ready for more!', 14, 7, 100, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Ginormus Death Text'),
+	(39034, 3, 0, 'The faint of heart may wish to shield their eyes! Being brought into the ring now is a horror, captured from the dark tunnels of the Centipaar Hive! I give you the skittering death: SARINEXX!', 14, 7, 100, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Sarinexx Summon Text'),
+	(39034, 4, 0, 'There is no stopping $n! Sarinexx has been massacred!', 14, 7, 100, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Sarinexx Death Text'),
+	(39034, 5, 0, 'Our next fighter was found in the deepest tombs of Zul\'Farrak! Gorged on cursed blood, raised from death countless times, he now knows only fury and violence! Dare you face the mindless wrath of...ZUMONGA!', 14, 7, 100, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Zumonga Summon Text'),
+	(39034, 6, 0, '$n has done it again! Zumonga dies once more!', 14, 7, 100, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Zumonga Death Text'),
+	(39034, 7, 0, 'And that\'s that, folks! This conflict\'s been settled the proper way, with VIOLENCE! Let\'s hear it for our contestants!', 14, 7, 100, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Grudge Match End Text'),
+	(39034, 8, 0, 'They went down like a sack of orc skulls!', 14, 7, 15, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Player Death 1'),
+	(39034, 8, 1, 'OOOF! That one\'s gonna require the "scraper."', 14, 7, 15, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Player Death 2'),
+	(39034, 8, 2, 'The challenger has been defeated!', 14, 7, 20, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Player Death 3'),
+	(39034, 8, 3, 'All that\'s left of the challenger is a red stain on the floor!', 14, 7, 20, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Player Death 4'),
+	(39034, 8, 4, 'Avert your eyes, ladies and gentlemen! It\'s a bloodbath!', 14, 7, 20, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Player Death 5'),
+	(39034, 8, 5, 'OUTTA NOWHERE -- WHAMO! DEAD!', 14, 7, 20, 0, 0, 0, 'Dr. Dealwell - Thunderdrome Arena Player Death 6'),
+	(39148, 0, 0, 'ZUMONGA...KILL', 14, 7, 100, 0, 0, 0, 'Zumonga - Summon/Combat start text'),
+	(40876, 0, 0, 'You have fully depleted my patience as well.', 12, 7, 100, 0, 0, 0, 'Kelsey Steelspark Thunderdrome - Text 1'),
+	(40876, 1, 0, 'I will attempt to not take undue pleasure in utterly destroying you.', 12, 7, 100, 0, 0, 0, 'Kelsey Steelspark Thunderdrome - Text 2'),
+	(40876, 2, 0, 'Grrr... I was going to fight you fair and square, but you decided to bring friends. Fine! Behold the Alloy-Pounder Zero!', 14, 7, 100, 0, 0, 0, 'Kelsey Steelspark Thunderdrome - Text 3'),
+	(40876, 3, 0, 'Let\'s see how all of that dynamite in your pocket likes the KS-L10 Steelspark, Megs!', 14, 7, 100, 0, 0, 0, 'Kelsey Steelspark Thunderdrome - Text 4'),
+	(40876, 4, 0, 'You can be sure to tell Gallywix not to underestimate Gnomeregan anymore.', 12, 7, 100, 0, 0, 0, 'Kelsey Steelspark Thunderdrome - Text 5'),
+	(40876, 5, 0, 'Until next time, Megs. Don\'t forget today\'s lesson.', 12, 7, 100, 0, 0, 0, 'Kelsey Steelspark Thunderdrome - Text 6'),
+	(40876, 6, 0, 'Ack! Not the face!', 14, 7, 100, 0, 0, 0, 'Kelsey Steelspark Thunderdrome - Text 7'),
+	(40876, 7, 0, 'Whaaaa!!!!!', 14, 7, 100, 0, 0, 0, 'Kelsey Steelspark Thunderdrome - Text 8'),
+	(40542, 0, 0, 'You\'ve gotten in my way one too many times, gnome.', 12, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 1'),
+	(40542, 1, 0, 'There isn\'t room in this town for both of us!', 12, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 2'),
+	(40542, 2, 0, 'BRING IT, PIPSQUEAK!', 14, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 3'),
+	(40542, 3, 0, 'You think you\'re clever, don\'t you, ganging up on me like this... well, prepare to face: THE DREADSHREDDER!', 14, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 4'),
+	(40542, 4, 0, 'You think you\'re all brave facing me, eh, Steelsparks?! Those pig tails won\'t protect you from THE DOOMSAW!', 12, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 5'),
+	(40542, 5, 0, 'You gave it a good shot, kid. But this is goblin turf now. I suggest you get used to it.', 12, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 6'),
+	(40542, 6, 0, 'Ciao, babe. Let me know if you\'d like to do lunch sometime. We\'ll work something out now that you\'ve learned some manners.', 12, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 7'),
+	(40542, 7, 0, 'Yikes! That stings!', 14, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 8'),
+	(50336, 0, 0, 'You! What are you doing here?', 12, 0, 100, 0, 0, 0, 'Yorik Sharpeye On Aggro Text');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

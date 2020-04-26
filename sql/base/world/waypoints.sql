@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -3578,10 +3578,10 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 	(35231, 52, -1532.6, 1580.93, 26.9905, ''),
 	(35231, 53, -1538.35, 1576.18, 28.9905, ''),
 	(35231, 54, -1540.59, 1574.43, 29.2071, ''),
-	(95100, 1, -8829.18, -147.578, 80.4889, 'Brother Paxton Waypoint Path 01'),
-	(95100, 2, -8822.08, -146.456, 80.877, 'Brother Paxton Waypoint Path 02'),
-	(95100, 3, -8817.2, -150.924, 81.5878, 'Brother Paxton Waypoint Path 03'),
 	(95100, 4, -8811.99, -159.78, 81.614, 'Brother Paxton Waypoint Path 04'),
+	(95100, 3, -8817.2, -150.924, 81.5878, 'Brother Paxton Waypoint Path 03'),
+	(95100, 2, -8822.08, -146.456, 80.877, 'Brother Paxton Waypoint Path 02'),
+	(95100, 1, -8829.18, -147.578, 80.4889, 'Brother Paxton Waypoint Path 01'),
 	(50372, 1, 1698.53, 1687.82, 134.825, 'Aradne'),
 	(50372, 2, 1696.9, 1688.16, 135.093, 'Aradne'),
 	(50372, 3, 1696.82, 1680.22, 134.648, 'Aradne'),

@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `item_bonus_group_linked` (
   `itemBonusGroup` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.item_bonus_group_linked: ~1,752 rows (approximately)
+-- Dumping data for table worldlive.item_bonus_group_linked: ~2,296 rows (approximately)
 DELETE FROM `item_bonus_group_linked`;
 /*!40000 ALTER TABLE `item_bonus_group_linked` DISABLE KEYS */;
 INSERT INTO `item_bonus_group_linked` (`itemEntry`, `itemBonusGroup`) VALUES

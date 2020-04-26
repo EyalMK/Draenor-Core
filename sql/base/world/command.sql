@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `command` (
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Chat System';
 
--- Dumping data for table worldlive.command: 456 rows
+-- Dumping data for table worldlive.command: 458 rows
 DELETE FROM `command`;
 /*!40000 ALTER TABLE `command` DISABLE KEYS */;
 INSERT INTO `command` (`name`, `security`, `help`) VALUES
@@ -478,7 +478,9 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 	('ticket fscticketres', 3, ' '),
 	('reload motd', 3, 'Syntax: .reload motd\r\n\r\nReload the server motd'),
 	('character deleted list', 3, ''),
-	('world', 0, 'Syntax:Use .world to speak in worldchat!');
+	('world', 0, 'Syntax:Use .world to speak in worldchat!'),
+	('w', 0, 'Syntax:Use .world to speak in worldchat!'),
+	('chat', 0, 'Syntax:Use .world to speak in worldchat!');
 /*!40000 ALTER TABLE `command` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

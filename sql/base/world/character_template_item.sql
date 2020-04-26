@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `character_template_item` (
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.character_template_item: ~1,571 rows (approximately)
+-- Dumping data for table worldlive.character_template_item: ~1,651 rows (approximately)
 DELETE FROM `character_template_item`;
 /*!40000 ALTER TABLE `character_template_item` DISABLE KEYS */;
 INSERT INTO `character_template_item` (`id`, `faction`, `itemID`, `count`, `type`) VALUES
