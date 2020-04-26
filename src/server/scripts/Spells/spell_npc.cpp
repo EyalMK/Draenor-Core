@@ -1573,6 +1573,40 @@ public:
     }
 };
 
+/// Jade Serpent Statue - 60849
+class npc_jade_serpent_statue : public CreatureScript
+{
+public:
+	npc_jade_serpent_statue() : CreatureScript("npc_jade_serpent_statue") { }
+
+	struct npc_jade_serpent_statueAI : public PassiveAI
+	{
+		npc_jade_serpent_statueAI(Creature* creature) :
+			PassiveAI(creature)
+		{
+
+		}
+
+		void Reset() override
+		{
+			if (Unit* l_Owner = me->GetOwner())
+			{
+				me->SetMaxHealth(l_Owner->CountPctFromMaxHealth(50));
+				me->SetFullHealth();
+			}
+
+			me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);
+			me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_PERIODIC_HEAL, true);
+			me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new npc_jade_serpent_statueAI(creature);
+	}
+};
+
 /// Black Ox Statue - 61146
 class spell_npc_black_ox_statue : public CreatureScript
 {
@@ -1766,6 +1800,7 @@ void AddSC_npc_spell_scripts()
 
     /// Monk NPC
     new spell_npc_black_ox_statue();
+	new npc_jade_serpent_statue();
 
     /// Rogue NPC
     new spell_npc_rogue_shadow_reflection();
