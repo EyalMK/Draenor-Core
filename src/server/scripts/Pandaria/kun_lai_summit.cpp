@@ -13,6 +13,8 @@
 #include "kun_lai_summit.h"
 
 #define GOSSIP_CHOICE_1 "I challenge you."
+#define CHECK_STATUS(a) (p_Player->GetQuestStatus(a) == QUEST_STATUS_INCOMPLETE)
+
 
 // Nessos the Oracle - 50789
 class mob_nessos_the_oracle : public CreatureScript
@@ -3077,6 +3079,44 @@ class mob_hackiss : public CreatureScript
         };
 };
 
+/// Sya Zhong - 60178
+class npc_sya_zhong : public CreatureScript
+{
+public:
+	npc_sya_zhong() : CreatureScript("npc_sya_zhong")
+	{
+	}
+
+	// Guid list to prevent spam
+	std::list<uint64> m_GuidList;
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		// Quest verif
+		if (CHECK_STATUS(30682) || CHECK_STATUS(30681) || CHECK_STATUS(30680) || CHECK_STATUS(30673))
+		{
+			// Quest validation
+			p_Player->KilledMonsterCredit(p_Creature->GetEntry());
+
+			// Prevent spam
+			for (uint64 m_Guid : m_GuidList)
+			{
+				if (m_Guid == p_Player->GetGUID())
+					return true;
+			}
+			p_Creature->AI()->Talk(0);
+			m_GuidList.push_back(p_Player->GetGUID());
+		}
+		else
+		{
+			p_Player->PrepareQuestMenu(p_Creature->GetGUID());
+			p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+		}
+
+		return true;
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_kun_lai_summit()
 {
@@ -3105,5 +3145,6 @@ void AddSC_kun_lai_summit()
     new mob_tankiss();
     new mob_healiss();
     new mob_hackiss();
+	new npc_sya_zhong();
 }
 #endif

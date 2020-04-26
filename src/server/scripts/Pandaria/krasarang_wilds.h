@@ -109,9 +109,9 @@ enum eEvents
 
 enum eQuests
 {
-    QuestChasingHope             = 30716,
-    QuestInTheHouseOfTheRedCrane = 30273,
-    QuestAKingAmonMen            = 32247
+	QuestChasingHope = 30716,
+	QuestInTheHouseOfTheRedCrane = 30273,
+	QuestAKingAmongMen = 32247
 };
 
 enum eActions

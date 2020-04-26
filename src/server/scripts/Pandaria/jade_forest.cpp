@@ -14,8 +14,58 @@
 
 #define REPUTATION_ORDER_OF_THE_CLOUD_SERPENT 1271
 #define GOSSIP_TEXT_I 12585
-#define GOSSIP_CHOICE_2 "Let's see which one of us is the better student. I challenge you to a duel !"
+#define GOSSIP_CHOICE_2 "Let's see which one of us is the better student. I challenge you to a duel!"
 #define GOSSIP_CHOICE_1 "Challenge the Patriarch."
+
+
+
+class playerScript_enter_jade_serpent_temple : public PlayerScript
+{
+public:
+	playerScript_enter_jade_serpent_temple() : PlayerScript("playerScript_enter_jade_serpent_temple") { }
+
+	/// Save Phasemask and GUID of player entering the area, remove it when leaving
+	std::map<uint64, uint32> m_PlayerGUIDs;
+
+	void OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneId, uint32 p_NewAreaId) override
+	{
+		/// Make all trashes + boss disappear in case of temple of Jade Serpent entrance
+		if (p_NewZoneId == 5956)
+		{
+			m_PlayerGUIDs.insert(std::make_pair(p_Player->GetGUID(), p_Player->GetPhaseMask()));
+			std::vector<uint32> l_Gobs = { 211280, 213544, 213545, 213547, 213548, 213549, 213550, 213903 };
+
+			if (p_Player->GetQuestStatus(32805) == QUEST_STATUS_INCOMPLETE)
+				p_Player->SetPhaseMask(2, true);
+
+			/// Open all doors of the instance
+			{
+				std::list<GameObject*> l_DoorsList;
+
+				for (uint32 l_Gob : l_Gobs)
+					p_Player->GetGameObjectListWithEntryInGrid(l_DoorsList, l_Gob, 200.0f); // TODO: adjuste searche range
+
+				for (GameObject* l_Door : l_DoorsList)
+					l_Door->SetGoState(GO_STATE_READY);
+			}
+		}
+		else if (p_OldZoneId == 5956)
+		{
+			for (auto l_Itr = m_PlayerGUIDs.begin(); l_Itr != m_PlayerGUIDs.end(); l_Itr++)
+			{
+				if (l_Itr->first == p_Player->GetGUID())
+				{
+					p_Player->SetPhaseMask(l_Itr->second, true);
+					l_Itr = m_PlayerGUIDs.erase(l_Itr);
+
+					if (l_Itr == m_PlayerGUIDs.end())
+						break;
+				}
+			}
+		}
+	}
+};
+
 
 // Shadow of Doubt - 57389
 class mob_shadow_of_doubt : public CreatureScript
@@ -2850,6 +2900,9 @@ class mob_chi_ji_student : public CreatureScript
 #ifndef __clang_analyzer__
 void AddSC_jade_forest()
 {
+	// Misc
+	new playerScript_enter_jade_serpent_temple();
+
     // Rare mobs
     new mob_kor_nas_nightsavage();
     new mob_krax_ik();

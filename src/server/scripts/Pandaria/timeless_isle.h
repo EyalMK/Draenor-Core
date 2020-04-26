@@ -3,15 +3,30 @@
 
 enum eQuests
 {
+	// Quests
     QUEST_TIME_KEEPER_KAIROZ_H       = 33156,
     QUEST_TIME_KEEPER_KAIROZ_A       = 33160
 };
 
 enum eCreatures
 {
+	// Npcs
     NPC_PRINCE_ANDUIN       = 73061,
-    NPC_KAIROZ              = 72870
+    NPC_KAIROZ              = 72870,
+
+	// Celestials
+	NPC_SHAO_HAO = 73303,
+	NPC_YULON = 71955,
+	NPC_XUEN = 71953,
+	NPC_CHI_JI = 71952,
+	NPC_NIUZAO = 71954,
 };
+
+enum eGameObjects
+{
+	GAMEOBJECT_HEATED_DOOR = 221032,
+};
+
 
 enum eActions
 {
@@ -25,7 +40,13 @@ enum eActions
     ACTION_KAIROZ_TALK_3      = 8,
     ACTION_KAIROZ_TALK_4      = 9,
     ACTION_KAIROZ_TALK_5      = 10,
-    ACTION_CONVERSATION       = 11
+    ACTION_CONVERSATION       = 11,
+
+	// Celestials
+	ACTION_CELESTIAL_CHALLENGE_INTRO,
+	ACTION_CELESTIAL_CHALLENGE_PREPARE,
+	ACTION_CELESTIAL_CHALLENGE_BATTLE_END,
+	ACTION_CELESTIAL_CHALLENGE_OUTRO,
 };
 
 enum eEvents
@@ -41,5 +62,19 @@ enum eEvents
     EVENT_KAIROZ_TALK_4    = 9,
     EVENT_KAIROZ_TALK_5    = 10
 };
+
+enum Data64
+{
+	DATA_EMPERROR_SHAOHAO = 1,
+	DATA_JADE_SERPENT,
+	DATA_WHITE_TIGER,
+	DATA_RED_CRANE,
+	DATA_BLACK_OX,
+	DATA_HEATED_DOOR,
+};
+
+const Position celestialChallengeCenterPos = { -647.99f, -5012.64f, -6.26f, 1.58f };
+
+
 
 #endif
