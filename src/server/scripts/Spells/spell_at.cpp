@@ -1017,6 +1017,10 @@ class spell_at_monk_healing_sphere : public AreaTriggerEntityScript
                     if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
                         return true;
 
+					/// Shouldn't heal if target has full HP
+					if (p_Object->ToUnit()->GetHealth() == p_Object->ToUnit()->GetMaxHealth())
+						return true;
+
                     if (!l_AreaTriggerCaster->IsValidAssistTarget(p_Object->ToUnit()))
                         return true;
 
