@@ -1,831 +1,826 @@
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "scholomance.h"
 
-enum ScholoEvents
+enum Spells
 {
-    // Neophyte
-    EVENT_CAST_REND_FLESH = 100,
-    EVENT_CAST_SHADOW_INCINERATION = 101,
+	// Risen Guard
+	SPELL_UNHOLY_BLADE = 111801,
+	SPELL_IMPALE = 111813,
 
-    // acolyte
-    EVENT_CAST_SPIRIT_BARRAGE = 102,
-    EVENT_CAST_UNBOUND = 103,
-    EVENT_CAST_SHADOW_BOLT = 104,
-    EVENT_CAST_SHATTER_SOUL = 105,
+	// Scholomance Acolyte
+	SPELL_SHADOW_BOLT = 111599,
+	SPELL_SHATTER_SOUL = 111594,
+	SPELL_SHATTER_SOUL_SUMMON = 111596,
+	SPELL_SPIRIT_BARRAGE = 111774,
+	SPELL_UNBOUND = 111772,
 
-    // Risen Guard
-    EVENT_IMPALE = 106,
-    EVENT_UNHOLY_WEAPON = 107,
+	// Scholomance Neophyte
+	SPELL_BOUND_SERVANT = 111715,
+	SPELL_NECROTIC_PACT = 111722,
+	SPELL_REND_FLESH = 111762,
+	SPELL_SHADOW_INCINERATION = 111752,
 
-    // Candleflickring mages
-    EVENT_FLICKERING_FLAME = 108,
-    EVENT_SKIN_LIKE_WAX = 109,
+	SPELL_BLACK_CANDLE_DUMMY = 114473,
+	SPELL_BLACK_CANDLE = 114400,
+	SPELL_BLACK_CANDLE_MISSILE = 114412,
+	SPELL_BLACK_CANDLE_SUMMON = 114411,
 
-    // Bored Student
-    EVENT_FIRE_BREATH = 110,
-    EVENT_SHADOW_NOVA = 111,
+	SPELL_SUMMON_WOVEN_BODYGUARD_SCRIPT_1 = 113803,
+	SPELL_SUMMON_WOVEN_BODYGUARD_SUMMON_1 = 113686,
+	SPELL_SUMMON_WOVEN_BODYGUARD_SCRIPT_2 = 113820,
+	SPELL_SUMMON_WOVEN_BODYGUARD_SUMMON_2 = 113821,
 
-    // Professor Slate
-    EVENT_TOXIC_POTION = 112,
-    EVENT_POTION_BRUTE_FORCE = 113,
-    EVENT_BRUTISH_FORCE = 114,
+	// Candlestick Mage
+	SPELL_FLICKERING_FLAME = 114474,
+	SPELL_SKIN_LIKE_WAX = 114479,
+
+	// Boneweaver
+	SPELL_BONE_SHARDS = 113629,
+
+	// Krastinovian Carver
+	SPELL_BOILING_BLOODTHRIST = 114141,
+	SPELL_BOILING_BLOODTHRIST_AOE = 114155,
+	SPELL_SANGUINARIAN = 115427, // achievement
+
+	// Bored Student
+	SPELL_FIRE_BREATH_POTION = 114872,
+	SPELL_SHADOW_BOLT_2 = 114859,
+	SPELL_SHADOW_NOVA = 114864,
+
+	// Professor Slate
+	SPELL_POTION_OF_BRUTISH_FORCE = 114874,
+	SPELL_REND = 114860,
+	SPELL_TOXIC_POTION = 114873,
+
+	// Doctor Theolen Krastionov
+	SPELL_BACKHAND = 18103,
+	SPELL_FRENZY = 8269,
+	SPELL_REND_2 = 16509,
 };
 
-// Neophyte
-#define REND_FLESH_INTERVAL urand(10000, 16000)
-#define SHADOW_INCINERATION_INTERVAL 6500
-// Acolyte
-//#define UNBOUND_INTERVAL 
-#define SHADOW_BOLT_INTERVAL 6000
-#define SHATTER_SOUL_INTERVAL urand(14000, 20000)
-
-#define EVENT_UNHOLY_WEAPON_INTERVAL urand(20000, 26000)
-#define EVENT_IMPALE_INTERVAL urand(6000, 14000)
-
-#define EVENT_FLICKERING_FLAME_INTERVAL urand(6000, 14000)
-#define EVENT_SKIN_LIKE_WAX_INTERVAL 10000
-#define firebreathinterval urand(8000, 30000)
-#define toxicinterval urand(5000, 20000)
-#define brutishforceinterval 25000
-#define shadowbreathinterval urand(5000, 25000)
-
-
-
-/*
-CALLED BY:
-ALL THE SPELLS IN THE DUNGEON
-*/
-// damage handling - heroics / normal
-class spell_scholomance_spells_damage : public SpellScriptLoader
+enum Adds
 {
-public:
-    spell_scholomance_spells_damage() : SpellScriptLoader("spell_instructor_chillheart_spspell_scholomance_spells_damageells_damage") { }
-
-    class spell_scholomance_spells_damage_Sp : public SpellScript
-    {
-        PrepareSpellScript(spell_scholomance_spells_damage_Sp);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
-        {
-            if (!GetCaster() || !GetHitUnit())
-                return;
-
-            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-            {
-                if (!instance->instance->IsHeroic())
-                {
-                    switch (GetSpellInfo()->Id)
-                    {
-                        /*
-                        WRONG SCALE UP INSTEAD
-                        */
-                        // Instructor
-                        // books
-                    case 120027:
-                    case 113859:
-                    case 113809:
-                        SetHitDamage(25000);
-                        break;
-                    case 111224: // touch of the grave
-                        SetHitDamage(3000);
-                        break;
-                    case 111631: // wrack soul
-                        SetHitDamage(15000);
-                        break;
-                    case 114886: // Frigid grasp
-                        SetHitDamage(75000);
-                        break;
-                    case 111616: // ice wrath
-                        SetHitDamage(15000);
-                        break;
-                        // Jandice Barov
-                    case 114061: // wondrous rapidity
-                        SetHitDamage(75000);
-                        break;
-                    case 114038: // gravity flux
-                        SetHitDamage(100000);
-                        break;
-                    case 113775: // whirl of illusion
-                        SetHitDamage(20000);
-                        break;
-                    case 113999: // bone spike
-                        SetHitDamage(150000);
-                        break;
-                    case 114009: // soulflame
-                        SetHitDamage(80000);
-                        break;
-                    case 111775: // shadow shiv
-                        SetHitDamage(60000);
-                        break;
-                    case 111585: // dark blaze
-                        SetHitDamage(10000);
-                        break;
-                    case 111642: // blazing soul
-                        SetHitDamage(15000);
-                        break;
-                    case 113136: // incinerate
-                    case 113141 : // immolate
-                        SetHitDamage(35000);
-                        break;
-                    }
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_scholomance_spells_damage_Sp::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-
-    };
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_scholomance_spells_damage_Sp();
-    }
+	NPC_RISEN_GUARD = 58822,
+	NPC_SCHOLOMANCE_ACOLYTE = 58757,
+	NPC_SHATTERED_SOUL = 58758,
+	NPC_SHOLOMANCE_NEOPHYTE = 58823,
+	NPC_BOUND_SERVANT = 58831,
+	NPC_BRITTLE_SKELETON_1 = 59480, // summoned by 114411
+	NPC_BRITTLE_SKELETON_2 = 59503,
+	NPC_WOVEN_BODYGUARD_1 = 59213, // summoned by 1
+	NPC_WOVEN_BODYGUARD_2 = 59242, // summoned by 2
+	NPC_CANDLESTICK_MAGE = 59467,
+	NPC_BONEWEAVER = 59193,
+	NPC_KRASTINOVIAN_CARVER = 59368,
+	NPC_FLESH_HORROR = 59359,
+	NPC_BORED_STUDENT = 59614,
+	NPC_PROFESSOR_SLATE = 59613,
 };
 
+enum Events
+{
+	// Risen Guard
+	EVENT_IMPALE = 1,
+	EVENT_UNHOLY_BLADE,
 
-class mob_scholomance_acolyte : public CreatureScript
+	// Scholomance Acolyte
+	EVENT_SHADOW_BOLT,
+	EVENT_SHATTER_SOUL,
+	EVENT_SPIRIT_BARRAGE,
+	EVENT_UNBOUND,
+
+	// Scholomance Neophyte
+	EVENT_BOUND_SERVANT,
+	EVENT_NECROTIC_PACT,
+	EVENT_REND_FLESH,
+	EVENT_SHADOW_INCINERATION,
+
+	// Candlestick Mage
+	EVENT_FLICKERING_FLAME,
+	EVENT_SKIN_LIKE_WAX,
+
+	// Boneweaver
+	EVENT_BONE_SHARDS,
+
+	// Bored Student
+	EVENT_FIRE_BREATH_POTION,
+	EVENT_SHADOW_NOVA,
+
+	// Professor Slate
+	EVENT_POTION_OF_BRUTISH_FORCE,
+	EVENT_REND,
+	EVENT_TOXIC_POTION,
+
+	// Doctor Theolen Krastinov
+	EVENT_BACKHAND,
+	EVENT_FRENZY,
+};
+
+class npc_scholomance_risen_guard : public CreatureScript
 {
 public:
-    mob_scholomance_acolyte() : CreatureScript("mob_scholomance_acolyte") { }
+	npc_scholomance_risen_guard() : CreatureScript("npc_scholomance_risen_guard") { }
 
-    struct mob_scholomance_acolyteAI : public ScriptedAI
-    {
-        mob_scholomance_acolyteAI(Creature* creature) : ScriptedAI(creature) { }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_scholomance_risen_guardAI(creature);
+	}
 
-        void Reset()
-        {
-            me->AddAura(SPELL_SHADOW_FORM_VISUAL, me);
-            me->SetReactState(REACT_DEFENSIVE);
-        }
-        void EnterCombat(Unit* who)
-        {
-            if (me->HasAura(SPELL_VISUAL_STRANGULATE_EMOTE))
-                me->RemoveAura(SPELL_VISUAL_STRANGULATE_EMOTE);
+	struct npc_scholomance_risen_guardAI : public ScriptedAI
+	{
+		npc_scholomance_risen_guardAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
 
-            events.ScheduleEvent(EVENT_CAST_SHADOW_BOLT, SHADOW_BOLT_INTERVAL);
-            events.ScheduleEvent(EVENT_CAST_SHATTER_SOUL, SHATTER_SOUL_INTERVAL);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
+		void Reset()
+		{
+			events.Reset();
+		}
 
-            events.Update(diff);
+		void EnterCombat(Unit* who)
+		{
+			events.ScheduleEvent(EVENT_UNHOLY_BLADE, urand(5000, 10000));
+			events.ScheduleEvent(EVENT_IMPALE, urand(3000, 10000));
+		}
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
 
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_CAST_SHADOW_BOLT:
-                    if (Unit* target = me->getVictim())
-                        me->CastSpell(target, SPELL_SHADOW_BOLT);
+			events.Update(diff);
 
-                    events.ScheduleEvent(EVENT_CAST_SHADOW_BOLT, SHADOW_BOLT_INTERVAL);
-                    break;
-                case EVENT_CAST_SHATTER_SOUL:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                        me->CastSpell(target, SPELL_SHATTER_SOUL);
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
 
-                    events.ScheduleEvent(EVENT_CAST_SHATTER_SOUL, SHATTER_SOUL_INTERVAL);
-                    break;
-                }
-            }
-        }
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_IMPALE:
+					if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+						DoCast(target, SPELL_IMPALE);
+					events.ScheduleEvent(EVENT_IMPALE, urand(8000, 12000));
+					break;
+				case EVENT_UNHOLY_BLADE:
+					DoCastVictim(SPELL_UNHOLY_BLADE);
+					events.ScheduleEvent(EVENT_UNHOLY_BLADE, urand(7000, 12000));
+					break;
+				default:
+					break;
+				}
+			}
 
-    };
+			DoMeleeAttackIfReady();
+		}
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_scholomance_acolyteAI(creature);
-    }
+	private:
+		EventMap events;
+	};
 };
-class mob_scholomance_neophyte : public CreatureScript
+
+class npc_scholomance_scholomance_acolyte : public CreatureScript
 {
 public:
-    mob_scholomance_neophyte() : CreatureScript("mob_scholomance_neophyte") { }
+	npc_scholomance_scholomance_acolyte() : CreatureScript("npc_scholomance_scholomance_acolyte") { }
 
-    struct mob_scholomance_neophyteAI : public ScriptedAI
-    {
-        mob_scholomance_neophyteAI(Creature* creature) : ScriptedAI(creature) { }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_scholomance_scholomance_acolyteAI(creature);
+	}
 
-        void EnterCombat(Unit* who)
-        {
-            if (me->HasAura(SPELL_VISUAL_STRANGULATE_EMOTE))
-                me->RemoveAura(SPELL_VISUAL_STRANGULATE_EMOTE);
+	struct npc_scholomance_scholomance_acolyteAI : public ScriptedAI
+	{
+		npc_scholomance_scholomance_acolyteAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
 
-            if (me->HasAura(SPELL_SHADOW_FORM_VISUAL))
-                me->RemoveAura(SPELL_SHADOW_FORM_VISUAL);
+		void Reset()
+		{
+			events.Reset();
+		}
 
-            me->SetReactState(REACT_DEFENSIVE);
+		void EnterCombat(Unit* who)
+		{
+			events.ScheduleEvent(EVENT_SHADOW_BOLT, 100);
+			events.ScheduleEvent(EVENT_UNBOUND, urand(5000, 15000));
+			events.ScheduleEvent(EVENT_SHATTER_SOUL, urand(8000, 20000));
+		}
 
-            events.ScheduleEvent(EVENT_CAST_REND_FLESH, REND_FLESH_INTERVAL);
-            events.ScheduleEvent(EVENT_CAST_SHADOW_INCINERATION, SHADOW_INCINERATION_INTERVAL);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
 
-            events.Update(diff);
+			events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
 
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_CAST_REND_FLESH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                        me->CastSpell(target, SPELL_REND_FLESH_HIGH_LEVEL);
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_SHADOW_BOLT:
+					DoCastVictim(SPELL_SHADOW_BOLT);
+					if (me->HasAura(SPELL_UNBOUND))
+						events.ScheduleEvent(EVENT_SPIRIT_BARRAGE, 1500);
+					else
+						events.ScheduleEvent(EVENT_SHADOW_BOLT, 1500);
+					break;
+				case EVENT_SPIRIT_BARRAGE:
+					DoCast(me, SPELL_SPIRIT_BARRAGE);
+					events.ScheduleEvent(EVENT_SPIRIT_BARRAGE, 2000);
+					break;
+				case EVENT_SHATTER_SOUL:
+					if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+						DoCast(target, SPELL_SHATTER_SOUL);
+					events.ScheduleEvent(EVENT_SHATTER_SOUL, urand(20000, 30000));
+					break;
+				case EVENT_UNBOUND:
+					DoCast(me, SPELL_UNBOUND);
+					break;
+				default:
+					break;
+				}
+			}
 
-                    events.ScheduleEvent(EVENT_CAST_REND_FLESH, REND_FLESH_INTERVAL);
-                    break;
-                case EVENT_CAST_SHADOW_INCINERATION:
-                    if (Unit* target = me->getVictim())
-                        me->CastSpell(target, SPELL_SHADOW_INCINERATION);
+			DoMeleeAttackIfReady();
+		}
 
-                    events.ScheduleEvent(EVENT_CAST_SHADOW_INCINERATION, SHADOW_INCINERATION_INTERVAL);
-                    break;
-                }
-            }
-        }
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_scholomance_neophyteAI(creature);
-    }
+	private:
+		EventMap events;
+	};
 };
-class mob_scholomance_risen_guard : public CreatureScript
+
+class npc_scholomance_scholomance_neophyte : public CreatureScript
 {
 public:
-    mob_scholomance_risen_guard() : CreatureScript("mob_scholomance_risen_guard") { }
+	npc_scholomance_scholomance_neophyte() : CreatureScript("npc_scholomance_scholomance_neophyte") { }
 
-    struct mob_risen_guardAI : public ScriptedAI
-    {
-        mob_risen_guardAI(Creature* creature) : ScriptedAI(creature) { }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_scholomance_scholomance_neophyteAI(creature);
+	}
 
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_IMPALE, EVENT_IMPALE_INTERVAL);
-            events.ScheduleEvent(EVENT_UNHOLY_WEAPON, EVENT_UNHOLY_WEAPON_INTERVAL);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
+	struct npc_scholomance_scholomance_neophyteAI : public ScriptedAI
+	{
+		npc_scholomance_scholomance_neophyteAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
 
-            events.Update(diff);
+		void Reset()
+		{
+			events.Reset();
+		}
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+		void EnterCombat(Unit* who)
+		{
+			events.ScheduleEvent(EVENT_SHADOW_INCINERATION, 100);
+			events.ScheduleEvent(EVENT_BOUND_SERVANT, urand(3000, 6000));
+			events.ScheduleEvent(EVENT_REND_FLESH, urand(8000, 15000));
+		}
 
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_IMPALE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                        me->CastSpell(target, SPELL_IMPALE);
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
 
-                    events.ScheduleEvent(EVENT_IMPALE, EVENT_IMPALE_INTERVAL);
-                    break;
-                case EVENT_UNHOLY_WEAPON:
-                    if (Unit* target = me->getVictim())
-                        me->CastSpell(target, SPELL_UNHOLY_WEAPON);
+			events.Update(diff);
 
-                    events.ScheduleEvent(EVENT_UNHOLY_WEAPON, EVENT_UNHOLY_WEAPON_INTERVAL);
-                    break;
-                }
-            }
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
 
-            DoMeleeAttackIfReady();
-        }
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_SHADOW_INCINERATION:
+					DoCastVictim(SPELL_SHADOW_INCINERATION);
+					events.ScheduleEvent(EVENT_SHADOW_INCINERATION, 1500);
+					break;
+				case EVENT_BOUND_SERVANT:
+					DoCast(me, SPELL_BOUND_SERVANT);
+					break;
+				case EVENT_NECROTIC_PACT:
+					DoCast(me, SPELL_NECROTIC_PACT);
+					break;
+				case EVENT_REND_FLESH:
+					if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+						DoCast(target, SPELL_REND_FLESH);
+					events.ScheduleEvent(EVENT_REND_FLESH, urand(10000, 20000));
+					break;
+				default:
+					break;
+				}
+			}
 
-    };
+			DoMeleeAttackIfReady();
+		}
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_risen_guardAI(creature);
-    }
+	private:
+		EventMap events;
+	};
 };
-class mob_shatter_soul_fragment : public CreatureScript
+
+class npc_scholomance_candlestick_mage : public CreatureScript
 {
 public:
-    mob_shatter_soul_fragment() : CreatureScript("mob_shatter_soul_fragment") { }
+	npc_scholomance_candlestick_mage() : CreatureScript("npc_scholomance_candlestick_mage") { }
 
-    struct mob_shatter_soul_fragmentAI : public ScriptedAI
-    {
-        mob_shatter_soul_fragmentAI(Creature* creature) : ScriptedAI(creature) { }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_scholomance_candlestick_mageAI(creature);
+	}
 
-        void Reset()
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            
-            me->setFaction(16);
+	struct npc_scholomance_candlestick_mageAI : public ScriptedAI
+	{
+		npc_scholomance_candlestick_mageAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
 
-            me->DespawnOrUnsummon(4000);
-         }
-        void EnterCombat(Unit* who)
-        {
-            if (Unit* target = me->getVictim())
-                me->CastSpell(target, SPELL_SPIRIT_BARRAGE);
-        }
-    };
+		void Reset()
+		{
+			events.Reset();
+		}
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_shatter_soul_fragmentAI(creature);
-    }
+		void EnterCombat(Unit* who)
+		{
+			events.ScheduleEvent(EVENT_FLICKERING_FLAME, urand(1000, 4000));
+			events.ScheduleEvent(EVENT_SKIN_LIKE_WAX, urand(5000, 7000));
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_FLICKERING_FLAME:
+					DoCastVictim(SPELL_FLICKERING_FLAME);
+					events.ScheduleEvent(EVENT_FLICKERING_FLAME, urand(1000, 4000));
+					break;
+				case EVENT_SKIN_LIKE_WAX:
+					if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_SKIN_LIKE_WAX))
+						DoCast(target, SPELL_SKIN_LIKE_WAX);
+					events.ScheduleEvent(EVENT_SKIN_LIKE_WAX, urand(8000, 10000));
+					break;
+				default:
+					break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	private:
+		EventMap events;
+	};
 };
-// second sanctum
-class mob_scholomance_dark_candle : public CreatureScript
+
+class npc_scholomance_boneweaver : public CreatureScript
 {
 public:
-    mob_scholomance_dark_candle() : CreatureScript("mob_scholomance_dark_candle") { }
+	npc_scholomance_boneweaver() : CreatureScript("npc_scholomance_boneweaver") { }
 
-    struct mob_scholomance_dark_candleAI : public Scripted_NoMovementAI
-    {
-        mob_scholomance_dark_candleAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
-        bool hasexplode;
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_scholomance_boneweaverAI(creature);
+	}
 
-        void Reset()
-        {
-            hasexplode = false;
-            me->CastSpell(me, SPELL_SUMMON_BLACK_CANDLE);
-            me->CastSpell(me, SPELL_BLACK_CANDLE_SPELL);
-        }
-        void EnterCombat(Unit* who)
-        {
+	struct npc_scholomance_boneweaverAI : public ScriptedAI
+	{
+		npc_scholomance_boneweaverAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
 
-        }
-        void UpdateAI(uint32 const diff)
-        {
-        }
-    };
+		void Reset()
+		{
+			events.Reset();
+			me->SetReactState(REACT_DEFENSIVE);
+		}
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_scholomance_dark_candleAI(creature);
-    }
+		void EnterCombat(Unit* who)
+		{
+			events.ScheduleEvent(EVENT_BONE_SHARDS, urand(1000, 4000));
+		}
+
+		void JustDied(Unit* who)
+		{
+			if (InstanceScript* pInstance = me->GetInstanceScript())
+				if (Creature* pRattlegore = sObjectAccessor->GetCreature(*me, pInstance->GetData64(DATA_RATTLEGORE)))
+					pRattlegore->AI()->DoAction(1);
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_BONE_SHARDS:
+					DoCastVictim(SPELL_BONE_SHARDS);
+					events.ScheduleEvent(EVENT_BONE_SHARDS, urand(6000, 10000));
+					break;
+				default:
+					break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	private:
+		EventMap events;
+	};
 };
 
-class mob_scholomance_candlestick_mage : public CreatureScript
+class npc_scholomance_krastinovian_carver : public CreatureScript
 {
 public:
-    mob_scholomance_candlestick_mage() : CreatureScript("mob_scholomance_candlestick_mage") { }
+	npc_scholomance_krastinovian_carver() : CreatureScript("npc_scholomance_krastinovian_carver") { }
 
-    struct mob_scholomance_candlestick_mageAI : public ScriptedAI
-    {
-        mob_scholomance_candlestick_mageAI(Creature* creature) : ScriptedAI(creature) { }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_scholomance_krastinovian_carverAI(creature);
+	}
 
-        void Reset()
-        {
-            if (Creature* candle = me->FindNearestCreature(CREATURE_TRIGGER_CANDLE, 30.0f, true))
-            { 
-                me->SetFacingToObject(candle);      
-                me->CastSpell(me, SPELL_TWILING_CHANNEL);
-            }
-        }
-        void EnterCombat(Unit* who)
-        {   
-            events.ScheduleEvent(EVENT_FLICKERING_FLAME, EVENT_FLICKERING_FLAME_INTERVAL);
-            events.ScheduleEvent(EVENT_SKIN_LIKE_WAX, EVENT_SKIN_LIKE_WAX_INTERVAL);
-        }
-        void JustDied(Unit* /*killer*/)
-        {
-            if (Creature* candle = me->FindNearestCreature(CREATURE_TRIGGER_CANDLE, 10.0f, true))
-            {
-                if (me->FindNearestCreature(CREATURE_CANDLESTICK_MAGE, 10.0f, false))
-                {
-                    candle->RemoveAura(SPELL_SUMMON_BLACK_CANDLE);
-                    candle->RemoveAura(SPELL_BLACK_CANDLE_SPELL);
-                }
-            }
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
+	struct npc_scholomance_krastinovian_carverAI : public ScriptedAI
+	{
+		npc_scholomance_krastinovian_carverAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
 
-            events.Update(diff);
+		void Reset()
+		{
+			me->AddAura(SPELL_BOILING_BLOODTHRIST, me);
+		}
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+		void JustDied(Unit* who)
+		{
+			if (InstanceScript* pInstance = me->GetInstanceScript())
+			{
+				if (Aura const* aur = me->GetAura(SPELL_BOILING_BLOODTHRIST))
+					if (aur->GetStackAmount() >= 99)
+						pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_SANGUINARIAN, 0, 0, me);
+			}
 
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_FLICKERING_FLAME:
-                    me->CastSpell(me->getVictim(), SPELL_FLICKERING_FLAME);
+			DoCastAOE(SPELL_BOILING_BLOODTHRIST_AOE, true);
+		}
 
-                    events.ScheduleEvent(EVENT_FLICKERING_FLAME, EVENT_FLICKERING_FLAME_INTERVAL);
-                    break;
-                case EVENT_SKIN_LIKE_WAX:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                        me->CastSpell(target, SPELL_SKIN_LIKE_WAX);
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
 
-                    events.ScheduleEvent(EVENT_SKIN_LIKE_WAX, EVENT_SKIN_LIKE_WAX_INTERVAL);
-                    break;
-                }
-            }
-        }
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_scholomance_candlestick_mageAI(creature);
-    }
+			DoMeleeAttackIfReady();
+		}
+	};
 };
-class mob_scholomance_skull_state : public CreatureScript
+
+class npc_scholomance_bored_student : public CreatureScript
 {
 public:
-    mob_scholomance_skull_state() : CreatureScript("mob_scholomance_skull_state") { }
+	npc_scholomance_bored_student() : CreatureScript("npc_scholomance_bored_student") { }
 
-    struct mob_scholomance_skull_stateAI : public Scripted_NoMovementAI
-    {
-        mob_scholomance_skull_stateAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_scholomance_bored_studentAI(creature);
+	}
 
-        void Reset()
-        {
-            me->CastSpell(me, SPELL_TALKING_SKULL);
-        }
-    };
+	struct npc_scholomance_bored_studentAI : public ScriptedAI
+	{
+		npc_scholomance_bored_studentAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_scholomance_skull_stateAI(creature);
-    }
+		void Reset()
+		{
+			events.Reset();
+		}
+
+		void EnterCombat(Unit* who)
+		{
+			events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3000, 10000));
+			events.ScheduleEvent(EVENT_SHADOW_NOVA, urand(5000, 15000));
+			events.ScheduleEvent(EVENT_FIRE_BREATH_POTION, urand(10000, 15000));
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_SHADOW_BOLT:
+					DoCastVictim(SPELL_SHADOW_BOLT_2);
+					events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(5000, 10000));
+					break;
+				case EVENT_FIRE_BREATH_POTION:
+					DoCastVictim(SPELL_FIRE_BREATH_POTION);
+					events.ScheduleEvent(EVENT_FIRE_BREATH_POTION, urand(10000, 15000));
+					break;
+				case EVENT_SHADOW_NOVA:
+					if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+						DoCast(target, SPELL_SHADOW_NOVA);
+					events.ScheduleEvent(EVENT_SHADOW_NOVA, urand(10000, 15000));
+					break;
+				default:
+					break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	private:
+		EventMap events;
+	};
 };
-class mob_scholomance_krastinoc_carvers : public CreatureScript
+
+class npc_scholomance_professor_slate : public CreatureScript
 {
 public:
-    mob_scholomance_krastinoc_carvers() : CreatureScript("mob_scholomance_krastinoc_carvers") { }
+	npc_scholomance_professor_slate() : CreatureScript("npc_scholomance_professor_slate") { }
 
-    struct mob_scholomance_krastinoc_carversAI : public ScriptedAI
-    {
-        mob_scholomance_krastinoc_carversAI(Creature* creature) : ScriptedAI(creature) { }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_scholomance_professor_slateAI(creature);
+	}
 
-        void Reset()
-        {
-            switch (urand(0, 5))
-            {
-            case 0:
-                me->CastSpell(me, 124064); // book
-                break;
-            }
+	struct npc_scholomance_professor_slateAI : public ScriptedAI
+	{
+		npc_scholomance_professor_slateAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
 
-            me->CastSpell(me, SPELL_BOLIDING_BLOODTHIRST);
-        }
-        void EnterCombat(Unit* who)
-        {
-            switch (urand(0, 3))
-            {
-            case 0:
-                me->MonsterYell("blood blood blood BLOOD BLOOD!", LANG_UNIVERSAL, me->GetGUID());
-                break;
-            case 1:
-                me->MonsterYell("More Blood!", LANG_UNIVERSAL, me->GetGUID());
-                break;
-            case 2:
-                me->MonsterYell("blood blood blood BLOOD BLOOD!", LANG_UNIVERSAL, me->GetGUID());
-                break;
-            }
-        }
-        void JustDied(Unit* /*killer*/)
-        {
-            switch (urand(0, 1))
-            {
-            case 0:
-                me->MonsterYell("The scent of blood.. so delicious", LANG_UNIVERSAL, me->GetGUID());
-                break;
-            }
+		void Reset()
+		{
+			events.Reset();
+		}
 
-            std::list<Creature*> Krastinov;
+		void EnterCombat(Unit* who)
+		{
+			events.ScheduleEvent(EVENT_FIRE_BREATH_POTION, urand(3000, 6000));
+			events.ScheduleEvent(EVENT_TOXIC_POTION, urand(6000, 8000));
+			//events.ScheduleEvent(EVENT_POTION_OF_BRUTISH_FORCE, 10000);
+		}
 
-            me->GetCreatureListWithEntryInGrid(Krastinov, CREATURE_KRASTINOV_CARVER, 10.0f /*?*/);
-            
-            for (auto itr : Krastinov)
-            {
-                if (itr->isAlive())
-                if (itr->GetAura(SPELL_BOLIDING_BLOODTHIRST))
-                {
-					Aura* aura = itr->GetAura(SPELL_BOLIDING_BLOODTHIRST);
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
 
-                    aura->SetStackAmount(aura->GetStackAmount() + 1);
-                }
-            }
-            
-        }
-        void UpdateAI(uint32 const diff)
-        {
+			events.Update(diff);
 
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
 
-            if (!UpdateVictim())
-                return;
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_FIRE_BREATH_POTION:
+					DoCastVictim(SPELL_FIRE_BREATH_POTION);
+					break;
+				case EVENT_TOXIC_POTION:
+					if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+						DoCast(target, SPELL_TOXIC_POTION);
+					break;
+				case EVENT_POTION_OF_BRUTISH_FORCE:
+					DoCast(me, SPELL_POTION_OF_BRUTISH_FORCE);
 
-            events.Update(diff);
+					events.CancelEvent(EVENT_FIRE_BREATH_POTION);
+					events.CancelEvent(EVENT_TOXIC_POTION);
+					events.ScheduleEvent(EVENT_REND, urand(3000, 4000));
+					break;
+				case EVENT_REND:
+					DoCastVictim(SPELL_REND);
+					events.ScheduleEvent(EVENT_REND, urand(10000, 12000));
+					break;
+				default:
+					break;
+				}
+			}
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+			DoMeleeAttackIfReady();
+		}
 
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_scholomance_krastinoc_carversAI(creature);
-    }
+	private:
+		EventMap events;
+	};
 };
-class mob_scholomance_flesh_horror : public CreatureScript
+
+enum KrastinovScriptTexts
+{
+	SAY_AGGRO = 0,
+	SAY_DEATH = 1,
+	SAY_INTRO = 2,
+	SAY_SLAY = 3,
+};
+
+class npc_doctor_theolen_krastinov : public CreatureScript
 {
 public:
-    mob_scholomance_flesh_horror() : CreatureScript("mob_scholomance_flesh_horror") { }
+	npc_doctor_theolen_krastinov() : CreatureScript("npc_doctor_theolen_krastinov") { }
 
-    struct mob_scholomance_flesh_horrorAI : public ScriptedAI
-    {
-        mob_scholomance_flesh_horrorAI(Creature* creature) : ScriptedAI(creature) { }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_doctor_theolen_krastinovAI(creature);
+	}
 
-        void Reset()
-        {
-            summons.DespawnAll();
+	struct npc_doctor_theolen_krastinovAI : public ScriptedAI
+	{
+		npc_doctor_theolen_krastinovAI(Creature* creature) : ScriptedAI(creature)
+		{
+			me->setActive(true);
+		}
 
-            Position pos;
+		void Reset()
+		{
+			events.Reset();
+		}
 
-            me->GetRandomNearPosition(pos, 8.0f);
+		void IsSummonedBy(Unit* owner)
+		{
+			Talk(SAY_INTRO);
+		}
 
-            graft4 = me->SummonCreature(CREATURE_MEAT_GRAFT, pos, TEMPSUMMON_MANUAL_DESPAWN);
-            graft3 = me->SummonCreature(CREATURE_MEAT_GRAFT, pos, TEMPSUMMON_MANUAL_DESPAWN);
-            graft2 = me->SummonCreature(CREATURE_MEAT_GRAFT, pos, TEMPSUMMON_MANUAL_DESPAWN);
-            graft = me->SummonCreature(CREATURE_MEAT_GRAFT, pos, TEMPSUMMON_MANUAL_DESPAWN);
+		void EnterCombat(Unit* who)
+		{
+			Talk(SAY_AGGRO);
 
-            graft->CastSpell(me, 83487);
-            graft2->CastSpell(me, 83487);
-            graft3->CastSpell(me, 83487);
-            graft4->CastSpell(me, 83487);
+			events.ScheduleEvent(EVENT_BACKHAND, urand(3000, 7000));
+			events.ScheduleEvent(EVENT_FRENZY, urand(5000, 10000));
+			events.ScheduleEvent(EVENT_REND, urand(3000, 5000));
+		}
 
-            graft->SetReactState(REACT_PASSIVE);
-            graft2->SetReactState(REACT_PASSIVE);
-            graft3->SetReactState(REACT_PASSIVE);
-            graft4->SetReactState(REACT_PASSIVE);
-            graft->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
-            graft2->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
-            graft3->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
-            graft4->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
+		void KilledUnit(Unit* victim)
+		{
+			if (victim->IsPlayer())
+			{
+				Talk(SAY_SLAY);
+			}
+		}
 
-            graft4->GetMotionMaster()->MoveFollow(me, 2, 20, MOTION_SLOT_ACTIVE);
-            graft3->GetMotionMaster()->MoveFollow(me, 4.0f, 55, MOTION_SLOT_ACTIVE);
-            graft2->GetMotionMaster()->MoveFollow(me, 9.0f, 180, MOTION_SLOT_ACTIVE);
-            graft->GetMotionMaster()->MoveFollow(me, 6.0, 335, MOTION_SLOT_ACTIVE);
-        }
-        void EnterCombat(Unit* who)
-        {
-        }
-        void JustDied(Unit* /*killer*/)
-        {
-            summons.DespawnAll();
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
+		void JustDied(Unit* killer)
+		{
+			Talk(SAY_DEATH);
 
-            events.Update(diff);
+			events.Reset();
+		}
 
-            if (graft == NULL ||  graft2 == NULL  || graft3 == NULL | graft4 == NULL)
-                return;
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
 
-            graft->CastSpell(me, 83487);
-            graft2->CastSpell(me, 83487);
-            graft3->CastSpell(me, 83487);
-            graft4->CastSpell(me, 83487);
-            
-            if (me->GetHealthPct() < 95 && graft != NULL && graft->isAlive())
-            {
-                graft->CastSpell(me, 114176);
-            }
-            if (graft->isDead() && graft2->isDead() && graft3->isDead() && graft4->isDead())
-            {
-                me->Kill(me);
-                me->DespawnOrUnsummon(10000);
-            }
-            DoMeleeAttackIfReady();
-        }
-    private:
-        Creature* graft;
-        Creature* graft2;
-        Creature* graft3;
-        Creature* graft4;
-    };
+			events.Update(diff);
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_scholomance_flesh_horrorAI(creature);
-    }
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_BACKHAND:
+					DoCastVictim(SPELL_BACKHAND);
+					events.ScheduleEvent(EVENT_BACKHAND, urand(8000, 12000));
+					break;
+				case EVENT_FRENZY:
+					DoCast(me, SPELL_FRENZY);
+					break;
+				case EVENT_REND:
+					DoCastVictim(SPELL_REND_2);
+					events.ScheduleEvent(EVENT_REND, urand(12000, 15000));
+					break;
+				default:
+					break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+	};
 };
-class mob_scholomance_bored_student : public CreatureScript
+
+
+class spell_scholomance_boiling_bloodthrist_aoe : public SpellScriptLoader
 {
 public:
-    mob_scholomance_bored_student() : CreatureScript("mob_scholomance_bored_student") { }
+	spell_scholomance_boiling_bloodthrist_aoe() : SpellScriptLoader("spell_scholomance_boiling_bloodthrist_aoe") { }
 
-    struct mob_scholomance_bored_studentAI : public ScriptedAI
-    {
-        mob_scholomance_bored_studentAI(Creature* creature) : ScriptedAI(creature) { }
+	class spell_scholomance_boiling_bloodthrist_aoe_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_scholomance_boiling_bloodthrist_aoe_SpellScript);
 
-        void Reset()
-        {
-        }
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_SHADOW_NOVA, firebreathinterval);
-            events.ScheduleEvent(EVENT_FIRE_BREATH, shadowbreathinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
+		void HandleHit(SpellEffIndex effIndex)
+		{
+			if (!GetCaster() || !GetHitUnit())
+				return;
 
-            events.Update(diff);
+			PreventHitDefaultEffect(effIndex);
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+			uint32 stacks = 0;
+			if (Aura const* aur = GetCaster()->GetAura(SPELL_BOILING_BLOODTHRIST))
+				stacks = aur->GetStackAmount();
 
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_SHADOW_NOVA:
-                    me->CastSpell(me->getVictim(), SPELL_SHADOW_NOVA_BORED_STUDENT);
-                    events.ScheduleEvent(EVENT_SHADOW_NOVA, shadowbreathinterval);
-                    break;
-                case EVENT_FIRE_BREATH:
-                    me->CastSpell(me->getVictim(), SPELL_FIRE_BREATH_POTION_BORED_STUDENT);
-                    events.ScheduleEvent(EVENT_FIRE_BREATH, firebreathinterval);
-                    break;
-                }
-            }
+			if (stacks > 0)
+			{
+				if (Aura* aur = GetHitUnit()->GetAura(SPELL_BOILING_BLOODTHRIST))
+					aur->ModStackAmount(stacks);
+			}
+		}
 
-            DoMeleeAttackIfReady();
-        }
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_scholomance_boiling_bloodthrist_aoe_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+		}
+	};
 
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_scholomance_bored_studentAI(creature);
-    }
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_scholomance_boiling_bloodthrist_aoe_SpellScript();
+	}
 };
-class mob_scholomance_professor : public CreatureScript
+
+/*enum ScholoSpells
+{
+	//Gandling Event Spells
+	SPELL_GANDLING_CHANNEL    = 114201,
+	SPELL_SKULL_GANDLING_DEAD = 126343,
+	SPELL_HOVER_IDLE          = 127603, // maybe not the correct hover for Gandling
+	SPELL_BONE_ARMOR_VISUAL   = 113996, // find the correct visual for Gandling
+};
+
+class mob_gandling_event : public CreatureScript
 {
 public:
-    mob_scholomance_professor() : CreatureScript("mob_scholomance_professor") { }
+	mob_gandling_event() : CreatureScript("mob_gandling_event") { }
 
-    struct mob_scholomance_professorAI : public ScriptedAI
-    {
-        mob_scholomance_professorAI(Creature* creature) : ScriptedAI(creature) { }
+	struct mob_gandling_eventAI : public ScriptedAI
+	{
+		mob_gandling_eventAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset()
-        {
-        }
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_BRUTISH_FORCE, brutishforceinterval);
-            events.ScheduleEvent(EVENT_TOXIC_POTION, toxicinterval);
-            events.ScheduleEvent(EVENT_FIRE_BREATH, firebreathinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-            {
-                switch (urand(0, 20))
-                {
-                case 0:
-                    me->CastSpell(me, 79506); // emote talk
-                    break;
-                }
-            }
+		void Reset()
+		{
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+			me->SetReactState(REACT_DEFENSIVE);
+		}
 
-            if (!UpdateVictim())
-                return;
+		void DoAction(int32 const action)
+		{
+		// Texts and Actions will be included soon
+		}
 
-            events.Update(diff);
+	};
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new mob_gandling_eventAI (creature);
+	}
+};*/
 
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_FIRE_BREATH:
-                    me->CastSpell(me->getVictim(), SPELL_FIRE_BREATH_POTION_BORED_STUDENT);
-                    events.ScheduleEvent(EVENT_FIRE_BREATH, firebreathinterval);
-                    break;
-                case EVENT_TOXIC_POTION:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(target, SPELL_TOXIC_POTION);
-                    events.ScheduleEvent(EVENT_FIRE_BREATH, toxicinterval);
-                    break;
-                case EVENT_BRUTISH_FORCE:
-                    me->CastSpell(me, SPELL_POTION_OF_BRUTISH_FORCE);
-                    events.ScheduleEvent(EVENT_BRUTISH_FORCE, brutishforceinterval);
-                    break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_scholomance_professorAI(creature);
-    }
-};
-// called by 114411
-class spell_candle_summon : public SpellScriptLoader
-{
-public:
-    spell_candle_summon() : SpellScriptLoader("spell_candle_summon") { }
-
-    class spell_candle_summon_spell_script : public SpellScript
-    {
-        PrepareSpellScript(spell_candle_summon_spell_script);
-
-        void HandleAfterCastSummon()
-        {
-            if (!GetCaster())
-                return;
-            Player* player = GetCaster()->ToPlayer();
-            if (!player)
-                return;
-            std::list<Creature*> Mushroom_List;
-
-            player->GetCreatureListWithEntryInGrid(Mushroom_List, 59480, 16.0f);
-
-            if (Mushroom_List.size() >= 6)
-            {
-                Mushroom_List.back()->ToTempSummon()->UnSummon();
-            }
-        }
-        void Register() override
-        {
-            AfterCast += SpellCastFn(spell_candle_summon_spell_script::HandleAfterCastSummon);
-        }
-    };
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_candle_summon_spell_script();
-    }
-};
-class hack_fixing_lock_doors : public GameObjectScript
-{
-public:
-    hack_fixing_lock_doors() : GameObjectScript("hack_fixing_lock_doors") { }
-
-    bool OnGossipHello(Player* player, GameObject* gobject)
-    {
-        return false;
-    }
-};
 
 void AddSC_scholomance()
 {
-    // mobs
-    new mob_scholomance_candlestick_mage();
-    new mob_scholomance_dark_candle();
-    new mob_shatter_soul_fragment();
-    new mob_scholomance_neophyte();
-    new mob_scholomance_acolyte();
-    new mob_scholomance_risen_guard();
-    new mob_scholomance_skull_state();
-    new mob_scholomance_flesh_horror();
-    new mob_scholomance_krastinoc_carvers();
-    new mob_scholomance_professor();
-    new mob_scholomance_bored_student();
-    // gobs
-    new hack_fixing_lock_doors();
-    // spells
-    new spell_scholomance_spells_damage();
-    new spell_candle_summon();
+	new npc_scholomance_risen_guard();
+	new npc_scholomance_scholomance_acolyte();
+	new npc_scholomance_scholomance_neophyte();
+	new npc_scholomance_candlestick_mage();
+	new npc_scholomance_boneweaver();
+	new npc_scholomance_krastinovian_carver();
+	new npc_scholomance_bored_student();
+	new npc_scholomance_professor_slate();
+
+	new npc_doctor_theolen_krastinov();             // 59369
+
+	new spell_scholomance_boiling_bloodthrist_aoe();
+
+	//new mob_gandling_event();
 }
