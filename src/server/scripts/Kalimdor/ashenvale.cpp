@@ -850,7 +850,7 @@ class go_naga_brazier : public GameObjectScript
         }
 };
 
-/// Karang's Banner Item ID - 16972, Spell ID - 20737
+/// Karang's Banner Item ID - 16972, Spell ID - 20783
 enum KingoftheFoulwealdMisc
 {
 	GO_BANNER = 178205
