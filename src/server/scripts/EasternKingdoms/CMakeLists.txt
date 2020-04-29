@@ -9,6 +9,7 @@ file(GLOB_RECURSE sources_UBRS EasternKingdoms/UpperBlackRockSpire/*.hpp Eastern
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ${sources_UBRS}
+  EasternKingdoms/searing_gorge.cpp
   EasternKingdoms/ghostlands.cpp
   EasternKingdoms/eversong_woods.cpp
   EasternKingdoms/elwynn_forest.cpp

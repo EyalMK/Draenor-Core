@@ -375,6 +375,7 @@ void AddSC_moonglade();
 void AddSC_mulgore();
 void AddSC_orgrimmar();
 void AddSC_silithus();
+void AddSC_searing_gorge();
 void AddSC_southern_barrens();
 void AddSC_stonetalon_mountains();
 void AddSC_tanaris();
