@@ -690,14 +690,18 @@ bool SpellEffectInfo::HasRadius() const
 
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 {
-    if (!HasRadius())
-        return 0.0f;
+	if (!HasRadius())
+		return 0.0f;
 
-    float radius = _spellInfo->IsPositive() ? RadiusEntry->radiusFriend : RadiusEntry->radiusHostile;
-    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
+	float radius = _spellInfo->IsPositive() ? RadiusEntry->radiusFriend : RadiusEntry->radiusHostile;
+	if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
+		modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
 
-    return radius;
+	// Hackfix for Glyph of Renewing Mist
+	if (caster->HasAura(123334) && spell->GetSpellInfo()->Id == 119607)
+		radius = 40.0f;
+
+	return radius;
 }
 
 uint32 SpellEffectInfo::GetProvidedTargetMask() const
