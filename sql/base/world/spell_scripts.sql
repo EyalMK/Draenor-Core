@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `spell_scripts` (
   `o` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.spell_scripts: 129 rows
+-- Dumping data for table worldlive.spell_scripts: 131 rows
 DELETE FROM `spell_scripts`;
 /*!40000 ALTER TABLE `spell_scripts` DISABLE KEYS */;
 INSERT INTO `spell_scripts` (`id`, `effIndex`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES
@@ -158,7 +158,9 @@ INSERT INTO `spell_scripts` (`id`, `effIndex`, `delay`, `command`, `datalong`, `
 	(108863, 0, 0, 8, 57705, 0, 0, 0, 0, 0, 0),
 	(70253, 0, 0, 10, 37598, 18000, 0, -8426.07, 1320.59, 102.148, 1.54035),
 	(70253, 0, 0, 10, 37598, 18000, 0, -8426.07, 1320.59, 102.148, 1.54035),
-	(115930, 0, 0, 0, 0, 0, 2000006000, 0, 0, 0, 0);
+	(115930, 0, 0, 0, 0, 0, 2000006000, 0, 0, 0, 0),
+	(46550, 0, 0, 14, 46424, 0, 0, 0, 0, 0, 0),
+	(38173, 0, 0, 10, 22023, 12000, 0, 0, 0, 0, 0);
 /*!40000 ALTER TABLE `spell_scripts` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

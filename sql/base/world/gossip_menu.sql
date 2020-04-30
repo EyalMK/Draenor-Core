@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `gossip_menu` (
   PRIMARY KEY (`entry`,`text_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.gossip_menu: 6,322 rows
+-- Dumping data for table worldlive.gossip_menu: 6,323 rows
 DELETE FROM `gossip_menu`;
 /*!40000 ALTER TABLE `gossip_menu` DISABLE KEYS */;
 INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
@@ -1326,6 +1326,7 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 	(5001, 20004),
 	(5001, 20005),
 	(5021, 6073),
+	(5032, 6158),
 	(5061, 4835),
 	(5061, 4837),
 	(5081, 6288),
