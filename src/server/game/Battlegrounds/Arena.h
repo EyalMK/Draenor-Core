@@ -197,32 +197,49 @@ namespace Arena
         // This is a simulation. Not much info on how it really works
         float chance = GetChanceAgainst(ownRating, opponentRating);
         float won_mod = (won) ? 1.0f : 0.0f;
+		int differenceInRating = opponentRating - ownRating;
 
         // Calculate the rating modification
-        float mod;
+        float k;
 
         if (rbg)
         {
             if (won && ownRating < 1500)
-                mod = 192.0f * (won_mod - chance);
+                k = 192.0f * (won_mod - chance);
             else
-                mod = 24.0f * (won_mod - chance);
+                k = 24.0f * (won_mod - chance);
 
-            return (int32)ceil(mod);
+            return (int32)ceil(k);
         }
 
+		k = 96.0f - (won_mod - chance);
         // TODO: Replace this hack with using the confidence factor (limiting the factor to 2.0f)
-        if (won && ownRating < 1300)
-        {
-            if (ownRating < 1000)
-                mod = 48.0f * (won_mod - chance);
-            else
-                mod = (24.0f + (24.0f * (1300.0f - float(ownRating)) / 300.0f)) * (won_mod - chance);
-        }
-        else
-            mod = 24.0f * (won_mod - chance);
+		if (won)
+		{
+			if (ownRating >= 1500 && ownRating<1750)
+				k = 50.0f - (won_mod - chance);
+			else if (ownRating >= 1750 && ownRating<2500)
+				k = 32.0f - (won_mod - chance);
+			else if (ownRating >= 2500 && ownRating<2750)
+				k = 20.0f - (won_mod - chance);
+			else if (ownRating >= 2750 && ownRating<3000)
+				k = 15.0f - (won_mod - chance);
+			else if (ownRating >= 3000)
+				k = 10.0f - (won_mod - chance);
 
-        return (int32)ceil(mod);
+			if (ownRating > 1000)
+			{
+				if (differenceInRating > 500)
+					k += 20;
+				else if (differenceInRating > 250)
+					k += 10;
+			}
+		}
+
+		if (k > 96.0f)
+			k = 96.0f;
+
+        return (int32)ceil(k);
     }
 
     inline int32 GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won /*, float& confidence_factor*/)
@@ -231,24 +248,36 @@ namespace Arena
         // This is a simulation. Not much info on how it really works
         float chance = GetChanceAgainst(ownRating, opponentRating);
         float won_mod = (won) ? 1.0f : 0.0f;
-        float mod = won_mod - chance;
+        float k = won_mod - chance;
+		int differenceInRating = opponentRating - ownRating;
 
-        // Work in progress:
-        /*
-        // This is a simulation, as there is not much info on how it really works
-        float confidence_mod = min(1.0f - fabs(mod), 0.5f);
+		if (won)
+		{
+			if (ownRating >= 1500 && ownRating<1750)
+				k = 50.0f - (won_mod - chance);
+			else if (ownRating >= 1750 && ownRating<2500)
+				k = 32.0f - (won_mod - chance);
+			else if (ownRating >= 2500 && ownRating<2750)
+				k = 20.0f - (won_mod - chance);
+			else if (ownRating >= 2750 && ownRating<3000)
+				k = 15.0f - (won_mod - chance);
+			else if (ownRating >= 3000)
+				k = 10.0f - (won_mod - chance);
 
-        // Apply confidence factor to the mod:
-        mod *= confidence_factor
+			if (ownRating > 1000)
+			{
+				if (differenceInRating > 500)
+					k += 20;
+				else if (differenceInRating > 250)
+					k += 10;
+			}
+		}
 
-        // And only after that update the new confidence factor
-        confidence_factor -= ((confidence_factor - 1.0f) * confidence_mod) / confidence_factor;
-        */
 
-        // Real rating modification
-        mod *= 24.0f;
+		if (k > 96.0f)
+			k = 96.0f;
 
-        return (int32)ceil(mod);
+        return (int32)ceil(k);
     }
 };
 
