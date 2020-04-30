@@ -488,7 +488,6 @@ public:
 					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
-						m_CosmeticEvents.ScheduleEvent(START_EVENT_GRUDGE_MATCH, 10 * TimeConstants::IN_MILLISECONDS);
 					});
 					AddTimedDelayedOperation(12 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
@@ -662,7 +661,8 @@ public:
 		void Reset() override
 		{
 			events.Reset();
-			me->MovePosition(l_Pos, 0.0f, 0.0f);
+			if (!me->isDead())
+				me->MovePosition(l_Pos, 0.0f, 0.0f);
 		}
 
 		void UpdateAI(const uint32 diff)
@@ -755,7 +755,8 @@ public:
 		void Reset() override
 		{
 			events.Reset();
-			me->MovePosition(l_Pos, 0.0f, 0.0f);
+			if (!me->isDead())
+				me->MovePosition(l_Pos, 0.0f, 0.0f);
 		}
 
 		void UpdateAI(const uint32 diff)
@@ -1201,6 +1202,8 @@ public:
 		void Reset() override
 		{
 			events.Reset();
+			if (!me->isDead())
+				me->MovePosition(l_Pos, 0.0f, 0.0f);
 		}
 
 		void UpdateAI(const uint32 diff)
@@ -1303,6 +1306,8 @@ public:
 		void Reset() override
 		{
 			events.Reset();
+			if (!me->isDead())
+				me->MovePosition(l_Pos, 0.0f, 0.0f);
 		}
 
 		void UpdateAI(const uint32 diff)

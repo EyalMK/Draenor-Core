@@ -472,8 +472,8 @@ public:
 		void Reset()  override
 		{
 			m_targetGUID = 0;
-			m_events.RescheduleEvent(EVENT_START_ANIM, urand(45000, 60000));
-			m_events.RescheduleEvent(EVENT_MASTER_RESET, 120000);
+			m_events.RescheduleEvent(EVENT_START_ANIM, urand(60000, 80000));
+			m_events.RescheduleEvent(EVENT_MASTER_RESET, 160000);
 		}
 
 		void UpdateAI(uint32 diff) override
@@ -498,9 +498,10 @@ public:
 								Position pos;
 
 								m_targetGUID = target->GetGUID();
-								me->GetNearPosition(pos, 1.5f, 0.3f); // to test angle dist
+								me->GetNearPosition(pos, 1.5f, 0.3f);
+
 								target->GetMotionMaster()->MovePoint(0, pos, true);
-								m_events.ScheduleEvent(EVENT_START_TALK, 1000);
+								m_events.ScheduleEvent(EVENT_START_TALK, 2000);
 							}
 							break;
 						}
@@ -512,7 +513,7 @@ public:
 					{
 						Talk(0); // Let's see, I just saw a corpse with a jaw...
 						m_events.ScheduleEvent(EVENT_ANIM_PART_01, 3000);
-						m_events.RescheduleEvent(EVENT_MASTER_RESET, 120000);
+						m_events.RescheduleEvent(EVENT_MASTER_RESET, 150000);
 						break;
 					}
 					case EVENT_ANIM_PART_01:
@@ -585,7 +586,7 @@ public:
 						if (Creature* target = Unit::GetCreature(*me, m_targetGUID))
 						{
 							target->GetMotionMaster()->MovePath(5041401, false); // Risen Dead Path
-							m_events.ScheduleEvent(EVENT_ANIM_PART_10, 45000);
+							m_events.ScheduleEvent(EVENT_ANIM_PART_10, 20000);
 							m_events.RescheduleEvent(EVENT_START_ANIM, urand(50000, 70000));
 							m_events.RescheduleEvent(EVENT_MASTER_RESET, 150000);
 						}
@@ -1025,337 +1026,6 @@ public:
 	}
 };
 
-
-
-
-/// The Wakening Quest - 24960
-/// Marshal Redpath - 49230
-class npc_marshal_redpath_49230 : public CreatureScript
-{
-public:
-	npc_marshal_redpath_49230() : CreatureScript("npc_marshal_redpath_49230") { }
-
-	enum eData
-	{
-		QUEST_THE_WAKENING = 24960,
-		MENU_ID_2		   = 12486,
-	};
-
-	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-	{
-		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-			return false;
-
-		return true;
-	}
-
-
-	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
-	{
-
-		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-		{
-			uint32 ID = p_Player->PlayerTalkClass->GetGossipMenu().GetMenuId();
-			if (ID == MENU_ID_2 && p_Player->GetQuestObjectiveCounter(256142) != 1)
-			{
-				p_Player->CLOSE_GOSSIP_MENU();
-				CAST_AI(npc_marshal_redpath_49230AI, p_Creature->AI())->StartAnim(p_Player);
-			}
-		}
-		return false;
-	}
-
-
-
-	struct npc_marshal_redpath_49230AI : public ScriptedAI
-	{
-		npc_marshal_redpath_49230AI(Creature *c) : ScriptedAI(c) { }
-
-		uint32 m_timer;
-		uint32 m_phase;
-		Player* m_player;
-
-		void Reset()  override
-		{
-			m_timer = 0;
-			m_phase = 0;
-			m_player = nullptr;
-		}
-
-		void StartAnim(Player* player)
-		{
-			if (!m_phase)
-			{
-				m_player = player;
-				m_phase = 1;
-				m_timer = 100;
-			}
-		}
-
-		void UpdateAI(uint32 diff) override
-		{
-			if (m_timer <= diff)
-			{
-				m_timer = 1000;
-				DoWork();
-			}
-			else m_timer -= diff;
-		}
-
-		void DoWork()
-		{
-			switch (m_phase)
-			{
-			case 1:
-				Talk(0); // Who are you calling a monster? 
-				m_timer = 2000;
-				m_phase = 2;
-				break;
-			case 2:
-				if (m_player)
-					m_player->KilledMonsterCredit(49230);
-
-				m_timer = 4000;
-				m_phase = 3;
-				break;
-			case 3:
-				me->GetMotionMaster()->MovePath(49230 * 100, false); // PathID 4923000 in Waypoints table.
-				m_timer = 10000;
-				m_phase = 4;
-				break;
-			case 4:
-				me->DespawnOrUnsummon();
-				m_timer = 0;
-				m_phase = 0;
-				break;
-			}
-		}
-	};
-
-	CreatureAI* GetAI(Creature* pCreature) const
-	{
-		return new npc_marshal_redpath_49230AI(pCreature);
-	}
-};
-
-/// Valdred Moray - 49231
-class npc_valdred_moray_49231 : public CreatureScript
-{
-public:
-	npc_valdred_moray_49231() : CreatureScript("npc_valdred_moray_49231") { }
-
-	enum eData
-	{
-		QUEST_THE_WAKENING = 24960,
-		MENU_ID_3		   = 12489
-	};
-
-	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-	{
-		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-			return false;
-
-		return true;
-	}
-
-
-	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
-	{
-
-		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-		{
-			uint32 ID = p_Player->PlayerTalkClass->GetGossipMenu().GetMenuId();
-			if (ID == MENU_ID_3 && p_Player->GetQuestObjectiveCounter(256143) != 1)
-			{
-				p_Player->CLOSE_GOSSIP_MENU();
-				CAST_AI(npc_valdred_moray_49231AI, p_Creature->AI())->StartAnim(p_Player);
-			}
-		}
-		return false;
-	}
-
-	struct npc_valdred_moray_49231AI : public ScriptedAI
-	{
-		npc_valdred_moray_49231AI(Creature *c) : ScriptedAI(c) { }
-
-		uint32 m_timer;
-		uint32 m_phase;
-		Player* m_player;
-
-		void Reset()  override
-		{
-			me->CastSpell(me, 68442);
-			m_timer = 0;
-			m_phase = 0;
-			m_player = nullptr;
-		}
-
-		void StartAnim(Player* player)
-		{
-			if (!m_phase)
-			{
-				m_player = player;
-				m_phase = 1;
-				m_timer = 100;
-			}
-		}
-
-		void UpdateAI(uint32 diff) override
-		{
-			if (m_timer <= diff)
-			{
-				m_timer = 1000;
-				DoWork();
-			}
-			else m_timer -= diff;
-		}
-
-		void DoWork()
-		{
-			switch (m_phase)
-			{
-			case 1:
-				me->RemoveAurasDueToSpell(68442, me->GetGUID());
-				Talk(0); // I see. Well then, let's get to work
-				m_timer = 2000;
-				m_phase = 2;
-				break;
-			case 2:
-				if (m_player)
-					m_player->KilledMonsterCredit(49231);
-
-				m_timer = 4000;
-				m_phase = 3;
-				break;
-			case 3:
-				me->GetMotionMaster()->MovePath(49231, false); // Pathid from Waypoints table
-				Talk(1); // Valdred Moray, reporting for duty.
-				m_timer = 10000;
-				m_phase = 4;
-				break;
-			case 4:
-				me->DespawnOrUnsummon();
-				m_timer = 0;
-				m_phase = 0;
-				break;
-			}
-		}
-	};
-
-	CreatureAI* GetAI(Creature* pCreature) const
-	{
-		return new npc_valdred_moray_49231AI(pCreature);
-	}
-};
-
-/// Lilian Voss - 38895
-class npc_lilian_voss_38895 : public CreatureScript
-{
-public:
-	npc_lilian_voss_38895() : CreatureScript("npc_lilian_voss_38895") { }
-
-	enum eData
-	{
-		QUEST_THE_WAKENING	= 24960,
-		MENU_ID_2			= 12484,
-	};
-
-	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-	{
-		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-			return false;
-
-		return true;
-	}
-
-
-	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action)
-	{
-
-		if (p_Player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
-		{
-			uint32 ID = p_Player->PlayerTalkClass->GetGossipMenu().GetMenuId();
-			if (ID == MENU_ID_2 && p_Player->GetQuestObjectiveCounter(256141) != 1)
-			{
-				p_Player->CLOSE_GOSSIP_MENU();
-				CAST_AI(npc_lilian_voss_38895AI, p_Creature->AI())->StartAnim(p_Player);
-			}
-		}
-		return false;
-	}
-
-
-
-	struct npc_lilian_voss_38895AI : public ScriptedAI
-	{
-		npc_lilian_voss_38895AI(Creature *c) : ScriptedAI(c) { }
-
-		uint32 m_timer;
-		uint32 m_phase;
-		Player* m_player;
-
-		void Reset()  override
-		{
-			m_timer = 0;
-			m_phase = 0;
-			m_player = nullptr;
-		}
-
-		void StartAnim(Player* player)
-		{
-			if (!m_phase)
-			{
-				m_player = player;
-				m_phase = 1;
-				m_timer = 100;
-			}
-		}
-
-		void UpdateAI(uint32 diff) override
-		{
-			if (m_timer <= diff)
-			{
-				m_timer = 1000;
-				DoWork();
-			}
-			else m_timer -= diff;
-		}
-
-		void DoWork()
-		{
-			switch (m_phase)
-			{
-			case 1:
-				Talk(0); // No. You're lying!
-				m_timer = 2000;
-				m_phase = 2;
-				break;
-			case 2:
-				if (m_player)
-					m_player->KilledMonsterCredit(38895);
-
-				m_timer = 5000;
-				m_phase = 3;
-				break;
-			case 3:
-				me->GetMotionMaster()->MovePath(38895, false); // Pathid from Waypoints
-				m_timer = 10000;
-				m_phase = 4;
-				break;
-			case 4:
-				me->DespawnOrUnsummon();
-				m_timer = 0;
-				m_phase = 0;
-				break;
-			}
-		}
-	};
-
-	CreatureAI* GetAI(Creature* pCreature) const
-	{
-		return new npc_lilian_voss_38895AI(pCreature);
-	}
-};
 
 /// Deathguard Saltain - 1740
 class npc_deathguard_saltain : public CreatureScript
@@ -2955,9 +2625,6 @@ void AddSC_tirisfal_glades()
 	new npc_undertaker_mordo();
 	new npc_darnell_49141();
 	new npc_mindless_zombie();
-	new npc_marshal_redpath_49230();
-	new npc_valdred_moray_49231();
-	new npc_lilian_voss_38895();
 	new npc_deathguard_saltain();
 	new npc_scarlet_corpse_49340();
 	new npc_darnell_49337();

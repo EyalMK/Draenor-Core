@@ -80,7 +80,6 @@ public:
             {
                 pCaster->CastSpell(pCaster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
 
-                creatureTarget->UpdateEntry(NPC_TAMED_KODO);
                 creatureTarget->CastSpell(creatureTarget, SPELL_KODO_KOMBO_DESPAWN_BUFF, false);
 
                 if (creatureTarget->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
@@ -120,6 +119,7 @@ public:
 
                 if (me->IsWithinDistInMap(who, 10.0f))
                 {
+					me->UpdateEntry(NPC_TAMED_KODO); // supposed to award kill credit to quest
                     DoScriptText(RAND(SAY_SMEED_HOME_1, SAY_SMEED_HOME_2, SAY_SMEED_HOME_3), who);
 
                     //spell have no implemented effect (dummy), so useful to notify spellHit

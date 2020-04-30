@@ -515,17 +515,16 @@ public:
 /// Training Dummy Starting Zones - 44171, 44548, 44820, 44937 & 42328
 enum eTrainingDummySpells
 {
-    SPELL_CHARGE        = 100,
-    SPELL_AUTORITE      = 105361, // OnDamage
-    SPELL_ASSURE        = 56641,
-    SPELL_EVISCERATION  = 2098,
-    SPELL_MOT_DOULEUR_1 = 589,
-    SPELL_MOT_DOULEUR_2 = 124464, //
-    SPELL_NOVA          = 122,
-    SPELL_CORRUPTION_1  = 172,
-    SPELL_CORRUPTION_2  = 87389,
-    SPELL_CORRUPTION_3  = 131740,
-    SPELL_PAUME_TIGRE   = 100787
+    SPELL_CHARGE			= 100,
+    SPELL_AUTORITE			= 105361, // OnDamage - Paladins
+    SPELL_ASSURE			= 56641,
+    SPELL_EVISCERATION		= 2098,
+    SPELL_SHADOW_WORD_PAIN  = 589,
+    SPELL_NOVA				= 122,
+    SPELL_CORRUPTION_1		= 172,
+    SPELL_CORRUPTION_2		= 87389,
+    SPELL_CORRUPTION_3		= 131740,
+    SPELL_TIGER_PALM		= 100787
 };
 
 class npc_training_dummy_start_zones : public CreatureScript
@@ -590,13 +589,12 @@ public:
                 case SPELL_CHARGE:
                 case SPELL_ASSURE:
                 case SPELL_EVISCERATION:
-                case SPELL_MOT_DOULEUR_1:
-                case SPELL_MOT_DOULEUR_2:
+				case SPELL_SHADOW_WORD_PAIN:
                 case SPELL_NOVA:
                 case SPELL_CORRUPTION_1:
                 case SPELL_CORRUPTION_2:
                 case SPELL_CORRUPTION_3:
-                case SPELL_PAUME_TIGRE:
+                case SPELL_TIGER_PALM:
                     if (Caster->ToPlayer())
                         Caster->ToPlayer()->KilledMonsterCredit(44175, 0);
                     break;
