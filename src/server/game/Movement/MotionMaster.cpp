@@ -376,7 +376,7 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
     MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, float o, uint32 id)
+void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, float o, uint32 id, uint32 arrivalSpellId, uint64 arrivalSpellTargetGuid)
 {
     sLog->outDebug(LOG_FILTER_GENERAL, "Unit (GUID: %u) jump to point (X: %f Y: %f Z: %f)", _owner->GetGUIDLow(), x, y, z);
 
@@ -386,6 +386,10 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
     float moveTimeHalf = speedZ / Movement::gravity;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
+	/// Hackfix: Heroic Leap - needed for proper jump animation
+	if (arrivalSpellId == 52174 && max_height < 1.5f)
+		max_height = 1.5f;
+
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z, false);
     init.SetParabolic(max_height, 0);
@@ -394,12 +398,14 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
         init.SetFacing(o);
     init.Launch();
 
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
-}
+	///< Sometimes its still uninitialized even after MoveSplineInit::Launch
+	if (_owner->IsSplineEnabled())
+	{
+		_owner->UpdateSplinePosition(true);
+		_owner->AddUnitState(UNIT_STATE_RESET_GENERATOR);
+	}
 
-void MotionMaster::MoveJump(Position const p_Pos, float p_SpeedXY, float p_SpeedZ, uint32 p_ID)
-{
-    MoveJump(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpeedXY, p_SpeedZ, p_Pos.m_orientation, p_ID);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveJump(uint32 p_LocEntry, float p_SpeedXY, float p_SpeedZ, uint32 p_ID)

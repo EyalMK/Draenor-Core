@@ -64,6 +64,13 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* unit, uint32 diff)
         i_nextMoveTime.Update(diff);
         if (i_nextMoveTime.Passed())
         {
+
+			if (unit->HasUnitState(UNIT_STATE_RESET_GENERATOR))
+			{
+				DoInitialize(unit);
+				unit->ClearUnitState(UNIT_STATE_RESET_GENERATOR);
+			}
+
             // start moving
             unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 

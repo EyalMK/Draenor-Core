@@ -1417,15 +1417,13 @@ void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
             m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_spellInfo->Id);
             break;
         case 49376: ///< Wild Charge
-            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation(), m_spellInfo->Id);
-            break;
         case 156220: ///< Tactical Retreat
         case 156883: ///< Tactical Retreat (Other)
             m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation(), m_spellInfo->Id);
             break;
-        default:
-            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_caster->GetOrientation(), m_spellInfo->Id);
-            break;
+		default:
+			m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, 10.0f, EVENT_JUMP, m_spellInfo->Effects[p_EffIndex].TriggerSpell, m_caster->GetGUID());
+			break;
     }
 }
 
@@ -1442,6 +1440,28 @@ void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & sp
         speedXY = m_spellInfo->Effects[i].ValueMultiplier;
     else
         speedXY = dist * 10.0f / speedZ;
+
+	/// Death Grip and Leap of Faith
+	if (m_spellInfo->Id == 110726)
+		speedXY = 38;
+	else if (m_spellInfo->Id == 102401)
+	{
+		speedXY = 38.0f;
+		speedZ = 10.0f;
+	}
+	else if (m_spellInfo->Id == 6544)
+	{
+		///< Looks weird ik, but was calculated from sniff
+		speedZ = 17.0f / (5 - (dist / 10.0f));
+		speedXY = dist * 23.0f / speedZ;
+	}
+	else if (m_spellInfo->Id == 49575 || m_spellInfo->Id == 146599)
+	{
+		///< Looks weird ik, but was calculated from sniff
+		speedZ = 4.39216185f;
+		speedXY = 49.961971f;
+
+	}
 }
 
 void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
