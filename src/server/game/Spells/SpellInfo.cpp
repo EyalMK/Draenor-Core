@@ -4034,7 +4034,7 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
         case 132463:// Chi Wave (Heal)
             scale = 0.25f;
             break;
-        case 115175:// Soothing Mist
+        case 115175:// Soothing Mist (monk)
             scale = 0.3f;
             break;
         default:
@@ -4049,7 +4049,7 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
             case 117895:// Eminence
                 scale = 0.1f;
                 break;
-            case 115175:// Soothing Mist
+            case 125950:// Soothing Mist
                 scale = 0.15f;
                 break;
             default:
