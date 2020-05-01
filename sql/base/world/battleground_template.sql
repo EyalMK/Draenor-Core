@@ -28,14 +28,17 @@ CREATE TABLE IF NOT EXISTS `battleground_template` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.battleground_template: 4 rows
+-- Dumping data for table worldlive.battleground_template: 7 rows
 DELETE FROM `battleground_template`;
 /*!40000 ALTER TABLE `battleground_template` DISABLE KEYS */;
 INSERT INTO `battleground_template` (`id`, `MinPlayersPerTeam`, `MaxPlayersPerTeam`, `MinLvl`, `MaxLvl`, `AllianceStartLoc`, `HordeStartLoc`, `StartMaxDist`, `Weight`, `holiday`, `ScriptName`, `Comment`) VALUES
 	(3, 1, 15, 10, 100, 890, 889, 20, 12, 285, '', 'Arathi Basin'),
 	(4, 1, 2, 10, 100, 929, 936, 0, 1, 0, '', 'Nagrand Arena'),
 	(5, 1, 2, 10, 100, 939, 940, 0, 1, 0, '', 'Blades\'s Edge Arena'),
-	(6, 1, 2, 10, 100, 0, 0, 0, 1, 0, '', 'All Arena');
+	(6, 1, 2, 10, 100, 0, 0, 0, 1, 0, '', 'All Arena'),
+	(2, 1, 10, 10, 100, 769, 770, 75, 12, 284, '', 'Warsong Gulch'),
+	(32, 1, 40, 45, 100, 0, 0, 0, 1, 0, '', 'Random battleground'),
+	(7, 1, 15, 15, 100, 1103, 1104, 75, 12, 353, '', 'Eye of The Storm');
 /*!40000 ALTER TABLE `battleground_template` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

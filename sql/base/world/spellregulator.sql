@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               5.7.28-log - MySQL Community Server (GPL)
--- Server OS:                    Win64
--- HeidiSQL Version:             9.4.0.5125
+-- Host:                         logon.hellscream.org
+-- Server version:               5.5.9-log - MySQL Community Server (GPL)
+-- Server OS:                    Win32
+-- HeidiSQL Version:             10.3.0.5771
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -11,14 +11,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table world.spellregulator
+-- Dumping structure for table worldlive.spellregulator
 CREATE TABLE IF NOT EXISTS `spellregulator` (
   `id` int(11) DEFAULT '0',
   `percentage` int(11) DEFAULT '0',
   `notes` char(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table world.spellregulator: ~0 rows (approximately)
+-- Dumping data for table worldlive.spellregulator: ~0 rows (approximately)
 DELETE FROM `spellregulator`;
 /*!40000 ALTER TABLE `spellregulator` DISABLE KEYS */;
 /*!40000 ALTER TABLE `spellregulator` ENABLE KEYS */;

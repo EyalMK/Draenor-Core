@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_addon` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_template_addon: 25,051 rows
+-- Dumping data for table worldlive.creature_template_addon: 25,056 rows
 DELETE FROM `creature_template_addon`;
 /*!40000 ALTER TABLE `creature_template_addon` DISABLE KEYS */;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
@@ -25078,7 +25078,12 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(58226, 0, 0, 0, 1, 0, '', 0),
 	(58233, 0, 0, 50331648, 1, 0, '110160', 0),
 	(58235, 0, 0, 0, 1, 0, '', 0),
-	(58287, 0, 0, 50331648, 1, 0, '', 0);
+	(58287, 0, 0, 50331648, 1, 0, '', 0),
+	(21741, 0, 0, 0, 1, 0, '', 0),
+	(21740, 0, 0, 0, 1, 0, '', 0),
+	(21739, 0, 0, 0, 1, 0, '', 0),
+	(21738, 0, 0, 0, 1, 0, '', 0),
+	(41463, 0, 0, 0, 0, 0, '170010', 0);
 /*!40000 ALTER TABLE `creature_template_addon` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

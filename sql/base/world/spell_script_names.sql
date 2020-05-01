@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `spell_script_names` (
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.spell_script_names: 3,575 rows
+-- Dumping data for table worldlive.spell_script_names: 3,589 rows
 DELETE FROM `spell_script_names`;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -354,6 +354,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(20594, 'spell_gen_pvp_trinket_cooldown'),
 	(20594, 'spell_gen_stoneform_dwarf_racial'),
 	(20711, 'spell_pri_spirit_of_redemption'),
+	(20783, 'spell_destroy_karangs_banner'),
 	(20895, 'spell_hun_glyph_of_animal_bond'),
 	(20925, 'spell_pal_sacred_shield'),
 	(21562, 'spell_pri_power_word_fortitude'),
@@ -1936,11 +1937,17 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(110960, 'spell_mage_greater_invisibility_triggered'),
 	(111129, 'spell_overcharged_soul_damage'),
 	(111264, 'spell_mage_ice_ward'),
+	(111441, 'spell_instructor_chillheart_fill_phylactery'),
+	(111570, 'spell_lilian_voss_deaths_grasp'),
+	(111631, 'spell_instructor_chillheart_wrack_soul'),
+	(111637, 'spell_instructor_chillheart_wrack_soul_aoe'),
+	(111669, 'spell_instructor_chillheart_wrack_summon_books'),
 	(111673, 'spell_dk_control_undead'),
 	(111698, 'spell_shadopan_apparitions'),
 	(111758, 'spell_pri_glyph_of_the_heavens'),
 	(111758, 'spell_pri_path_of_devout'),
 	(111771, 'spell_warl_demonic_gateway'),
+	(111773, 'spell_lilian_voss_shadow_shiv_vehicle'),
 	(111850, 'spell_lightning_prison'),
 	(111859, 'spell_warl_grimoire_of_service'),
 	(111895, 'spell_warl_grimoire_of_service'),
@@ -1967,9 +1974,13 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(113858, 'spell_warl_dark_soul_charges'),
 	(113860, 'spell_warl_dark_soul_charges'),
 	(113861, 'spell_warl_dark_soul_charges'),
+	(113996, 'spell_rattlegore_bone_armor'),
+	(114009, 'spell_rattlegore_soul_flame_dmg'),
 	(114014, 'spell_rog_shuriken_toss'),
 	(114015, 'spell_rog_anticipation'),
+	(114035, 'spell_area_jandice_barov_gravity_flux'),
 	(114039, 'spell_pal_hand_of_purity'),
+	(114048, 'spell_jandice_barov_whirl_of_illusion'),
 	(114050, 'spell_sha_ascendance_flame'),
 	(114050, 'spell_sha_glyph_of_ascendance'),
 	(114051, 'spell_sha_ascendance_air'),
@@ -1980,6 +1991,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(114074, 'spell_sha_enhanced_chain_lightning'),
 	(114083, 'spell_sha_ascendance_water_heal'),
 	(114083, 'spell_sha_water_ascendant_heal'),
+	(114155, 'spell_scholomance_boiling_bloodthrist_aoe'),
 	(114157, 'spell_pal_execution_sentence'),
 	(114163, 'spell_pal_divine_purpose'),
 	(114163, 'spell_pal_eternal_flame'),
@@ -1988,6 +2000,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(114192, 'spell_warr_mocking_banner'),
 	(114232, 'spell_pal_sanctified_wrath_bonus'),
 	(114255, 'spell_pri_surge_of_light'),
+	(114262, 'spell_lilian_voss_reanimate_corpse'),
 	(114338, 'spell_dru_glyph_of_the_stag'),
 	(114451, 'spell_yeasty_alemental_ferment'),
 	(114556, 'spell_dk_purgatory_absorb'),
@@ -2245,6 +2258,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(119975, 'spell_dk_conversion'),
 	(119983, 'spell_dread_spray_stacks'),
 	(119996, 'spell_monk_transcendence_transfer'),
+	(120027, 'spell_instructor_chillheart_burn'),
 	(120047, 'spell_dread_spray'),
 	(120086, 'spell_monk_fists_of_fury_stun'),
 	(120142, 'spell_dart'),
