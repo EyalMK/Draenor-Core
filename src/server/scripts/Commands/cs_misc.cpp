@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.hpp"
 #include "DisableMgr.h"
 #include <fstream>
+#include "../scripts/Custom/SpellRegulator.h"
 
 #ifndef CROSS
 #include "GarrisonMgr.hpp"
@@ -396,37 +397,56 @@ class misc_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDevCommand(ChatHandler* handler, char const* args)
-        {
-            if (!*args)
-            {
-                if (handler->GetSession()->GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
-                    handler->GetSession()->SendNotification(LANG_DEV_ON);
-                else
-                    handler->GetSession()->SendNotification(LANG_DEV_OFF);
-                return true;
-            }
+		static bool HandleDevCommand(ChatHandler* handler, char const* args)
+		{
+			if (!*args)
+			{
+				if (handler->GetSession()->GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
+					handler->GetSession()->SendNotification(LANG_DEV_ON);
+				else
+					handler->GetSession()->SendNotification(LANG_DEV_OFF);
+				return true;
+			}
 
-            std::string argstr = (char*)args;
+			std::string argstr = (char*)args;
 
-            if (argstr == "on")
-            {
-                handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
-                handler->GetSession()->SendNotification(LANG_DEV_ON);
-                return true;
-            }
+			if (argstr == "on")
+			{
+				handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+				handler->GetSession()->SendNotification(LANG_DEV_ON);
+				return true;
+			}
 
-            if (argstr == "off")
-            {
-                handler->GetSession()->GetPlayer()->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
-                handler->GetSession()->SendNotification(LANG_DEV_OFF);
-                return true;
-            }
+			if (argstr == "off")
+			{
+				handler->GetSession()->GetPlayer()->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+				handler->GetSession()->SendNotification(LANG_DEV_OFF);
+				return true;
+			}
 
-            handler->SendSysMessage(LANG_USE_BOL);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+			if (argstr == "rp")
+			{
+				sSpellRegulator->LoadFromDB();
+				if (handler->GetSession())
+				{
+					handler->GetSession()->SendNotification("SpellRegulator reloaded.");
+				}
+			}
+
+			if (argstr == "reloadspell")
+			{
+				sSpellRegulator->LoadFromDB();
+				if (handler->GetSession())
+				{
+					handler->GetSession()->SendNotification("SpellRegulator reloaded.");
+				}
+			}
+
+			handler->SendSysMessage(LANG_USE_BOL);
+			handler->SetSentErrorMessage(true);
+			return false;
+
+		}
 
         static bool HandleGPSCommand(ChatHandler* handler, char const* args)
         {

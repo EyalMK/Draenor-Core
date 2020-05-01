@@ -3051,7 +3051,7 @@ INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
 	(362, 1, 'Eunice Burch - Daily Quests'),
 	(361, 1, 'Marogg - Daily Quests'),
 	(360, 1, 'Aska Mistrunner - Daily Quests'),
-	(370, 1, 'Grimnur Stonebrand - Daily Quests'),
+	(370, 1, 'Troll Patrol Daily Quests'),
 	(369, 1, 'Catherine Leland - Daily Quests'),
 	(368, 1, 'Armand Cromwell - Daily Quests'),
 	(367, 1, 'Kah Mistrunner - Daily Quests'),

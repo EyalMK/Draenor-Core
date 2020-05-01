@@ -16,6 +16,8 @@ set(scripts_STAT_SRCS
 	Custom/custom_playerscripts.cpp
 	Custom/midsummer_fire_festival.cpp
 	Custom/classic_pvp_titles.cpp
+	Custom/SpellRegulator.cpp
+	Custom/SpellRegulator.h
 )
 
 message("  -> Prepared: Custom")

@@ -95,6 +95,7 @@
 #include "TaxiPathGraph.h"
 #include "ChatLexicsCutter.h"
 #include <ctime>
+#include "../scripts/Custom/SpellRegulator.h"
 
 uint32 gOnlineGameMaster = 0;
 
@@ -1886,6 +1887,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell pet auras...");
     sSpellMgr->LoadSpellPetAuras();
+
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell regulator values...");
+	sSpellRegulator->LoadFromDB();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell target coordinates...");
     sSpellMgr->LoadSpellTargetPositions();

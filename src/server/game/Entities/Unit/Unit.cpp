@@ -55,6 +55,7 @@
 #include "BattlegroundWS.h"
 #include "BattlegroundTP.h"
 #include "BattlegroundDG.h"
+#include "../scripts/Custom/SpellRegulator.h"
 #ifndef CROSS
 #include "Guild.h"
 #endif /* not CROSS */
@@ -515,30 +516,31 @@ void Unit::UpdateSplineMovement(uint32 p_Diff)
     }
 }
 
-void Unit::UpdateSplinePosition()
+void Unit::UpdateSplinePosition(bool _final)
 {
-    m_movesplineTimer.Reset(positionUpdateDelay);
+	if (!movespline->Initialized())
+		return;
 
-    Movement::Location l_Location = movespline->ComputePosition();
-    if (GetTransGUID())
-    {
-        Position& l_Pos = m_movementInfo.t_pos;
-        l_Pos.m_positionX = l_Location.x;
-        l_Pos.m_positionY = l_Location.y;
-        l_Pos.m_positionZ = l_Location.z;
-        l_Pos.SetOrientation(l_Location.orientation);
+	m_movesplineTimer.Reset(positionUpdateDelay);
+	Movement::Location loc = movespline->ComputePosition();
+	if (_final)
+		loc = movespline->FinalDestination();
 
-        if (GetVehicleBase())
-        {
-            if (TransportBase* l_Transport = GetDirectTransport())
-                l_Transport->CalculatePassengerPosition(l_Location.x, l_Location.y, l_Location.z, l_Location.orientation);
-        }
-    }
+	if (movespline->onTransport)
+	{
+		Position& pos = m_movementInfo.t_pos;
+		pos.m_positionX = loc.x;
+		pos.m_positionY = loc.y;
+		pos.m_positionZ = loc.z;
+		pos.SetOrientation(loc.orientation);
+		if (TransportBase* transport = GetDirectTransport())
+			transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
+	}
 
-    if (HasUnitState(UnitState::UNIT_STATE_CANNOT_TURN))
-        l_Location.orientation = GetOrientation();
+	if (HasUnitState(UNIT_STATE_CANNOT_TURN))
+		loc.orientation = GetOrientation();
 
-    UpdatePosition(l_Location.x, l_Location.y, l_Location.z, l_Location.orientation);
+	UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
 
     /// Update all passengers after updating vehicle position
     /// This will prevent some base positioning if vehicles are updated in the wrong order
@@ -887,6 +889,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
+
+	if ((damagetype == SPELL_DIRECT_DAMAGE || damagetype == DOT) && spellProto)
+		sSpellRegulator->Regulate(damage, spellProto->Id);
 
     if (GetTypeId() == TypeID::TYPEID_PLAYER
         && victim->GetTypeId() == TypeID::TYPEID_UNIT
@@ -1250,6 +1255,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         SetDamageDone(dmgDone);
     }
+
+	if ((damagetype == SPELL_DIRECT_DAMAGE || damagetype == DOT) && spellProto)
+		sSpellRegulator->Regulate(damage, spellProto->Id);
 
     return damage;
 }
@@ -5973,6 +5981,7 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
 {
+	sSpellRegulator->Regulate(log->damage, log->SpellID);
     WorldPacket data(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 73);  // we guess size (73 is from sniffs without debug flag)
 
     int32 overkill = log->damage - log->target->GetHealth();
@@ -6026,7 +6035,10 @@ void Unit::ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVict
 
 void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* p_Info)
 {
+
     AuraEffect const* l_Aura = p_Info->auraEff;
+
+	sSpellRegulator->Regulate(p_Info->damage, l_Aura->GetId());
 
     uint32 l_Amount              = 0;
     uint32 l_Resisted            = 0;

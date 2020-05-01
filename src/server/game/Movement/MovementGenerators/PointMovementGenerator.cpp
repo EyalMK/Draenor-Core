@@ -222,10 +222,37 @@ bool EffectMovementGenerator::Update(Unit* p_Unit, uint32)
     return !p_Unit->movespline->Finalized();
 }
 
+class DelayedTriggerCast : public BasicEvent
+{
+public:
+	DelayedTriggerCast(uint64 p_CasterGuid, uint64 p_TargetGuid, uint32 p_SpellId) :
+		m_CasterGuid(p_CasterGuid), m_TargetGuid(p_TargetGuid), m_SpellId(p_SpellId) { }
+
+	bool Execute(uint64 /*p_Time*/, uint32 /*p_Diff*/)
+	{
+		if (Unit* l_Caster = ObjectAccessor::FindPlayer(m_CasterGuid))
+			if (Unit* l_Target = ObjectAccessor::GetUnit(*l_Caster, m_TargetGuid))
+				l_Caster->CastSpell(l_Target, m_SpellId, true);
+
+		return true;
+	}
+
+private:
+	uint64 m_CasterGuid;
+	uint64 m_TargetGuid;
+	uint32 m_SpellId;
+};
+
 void EffectMovementGenerator::Finalize(Unit* unit)
 {
-    if (_arrivalSpellId)
-        unit->CastSpell(ObjectAccessor::GetUnit(*unit, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+	if (_arrivalSpellId)
+	{
+		/// Hackfix: Heroic Leap trigger spell (52174) - add a small delay to have properly working animation
+		if (_arrivalSpellId == 52174)
+			unit->m_Events.AddEvent(new DelayedTriggerCast(unit->GetGUID(), _arrivalSpellTargetGuid, _arrivalSpellId), unit->m_Events.CalculateTime(300));
+		else
+			unit->CastSpell(ObjectAccessor::GetUnit(*unit, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+	}
 
     if (unit->GetTypeId() != TYPEID_UNIT)
         return;

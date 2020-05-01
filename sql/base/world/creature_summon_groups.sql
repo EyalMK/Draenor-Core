@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `creature_summon_groups` (
   `summonTime` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_summon_groups: 22 rows
+-- Dumping data for table worldlive.creature_summon_groups: 29 rows
 DELETE FROM `creature_summon_groups`;
 /*!40000 ALTER TABLE `creature_summon_groups` DISABLE KEYS */;
 INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `summonType`, `summonTime`) VALUES
@@ -50,7 +50,14 @@ INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `
 	(7363, 0, 1, 7401, -11309.1, -2972.41, 8.33972, 3.24362, 8, 300000),
 	(7363, 0, 1, 7401, -11317, -2978.34, 5.48171, 3.21221, 8, 300000),
 	(7363, 0, 1, 7401, -11328.8, -2979.58, 6.07384, 3.19257, 8, 300000),
-	(7363, 0, 1, 7401, -11321.9, -2974.86, 7.56403, 3.30645, 8, 300000);
+	(7363, 0, 1, 7401, -11321.9, -2974.86, 7.56403, 3.30645, 8, 300000),
+	(21024, 0, 1, 21738, -3587.23, 1892.89, 47.3237, 2.19912, 1, 37000),
+	(21024, 0, 1, 21739, -3598.68, 1888.02, 47.3237, 1.69297, 1, 37000),
+	(21024, 0, 1, 21740, -3605.31, 1884.48, 47.3237, 1.309, 1, 37000),
+	(21024, 0, 1, 21741, -3591.87, 1886.82, 47.3237, 1.85005, 1, 37000),
+	(21310, 0, 0, 21685, -3600.32, 1898.6, 47.3654, 4.92183, 1, 600000),
+	(21310, 0, 0, 21686, -3603.86, 1900.85, 47.3654, 4.93109, 1, 600000),
+	(21310, 0, 0, 21687, -3597.99, 1902.12, 47.3654, 4.84868, 1, 600000);
 /*!40000 ALTER TABLE `creature_summon_groups` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
