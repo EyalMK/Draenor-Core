@@ -161,10 +161,16 @@ public:
 		EventMap m_Events;
 		EventMap m_CosmeticEvents;
 
+		std::vector<uint64> m_SummonersGuids;
+
 		uint8 m_SummonerKilled;
 		uint8 m_RegenCycle;
 
+		bool m_FightStarted;
+
+		bool m_InEvadeMode;
 		bool m_Paused;
+
 		bool m_Phase2;
 		bool m_Phase3;
 		bool m_Phase4;
@@ -173,10 +179,15 @@ public:
 		void Reset() override
 		{
 			ClearDelayedOperations();
+
 			m_Events.Reset();
 			m_CosmeticEvents.Reset();
 
 			_Reset();
+
+			me->RemoveAllAreasTrigger();
+
+			m_FightStarted = false;
 
 			m_SummonerKilled = 0;
 			m_Paused = true;
@@ -186,25 +197,11 @@ public:
 
 			m_RegenCycle = 1;
 
-			m_Events.SetPhase(ePhases::TheLegionsMight);
-
-			me->SetDisplayId(63958);
-
-			me->DespawnCreaturesInArea(eCitadelCreatures::FelSummoner, 1000.0f);
-			me->DespawnCreaturesInArea(eCitadelCreatures::GuldanMann, 1000.0f);
-
-			me->RemoveAreaTrigger(eSpells::MannorothBlood);
+			me->RemoveAura(eCitadelSpells::Berserker);
 
 			DespawnGameObjects(eMannorothObjects::FelSpireRed, 1000.0f);
 			DespawnGameObjects(eMannorothObjects::FelSpirePurple, 1000.0f);
 			DespawnGameObjects(eMannorothObjects::FelSpireGreen, 1000.0f);
-
-			me->RemoveAura(eCitadelSpells::Berserker);
-
-			me->SummonCreature(eCitadelCreatures::FelSummoner, g_FelIronSummonerRedSpawnPos);
-			me->SummonCreature(eCitadelCreatures::FelSummoner, g_FelIronSummonerPurpleSpawnPos);
-			me->SummonCreature(eCitadelCreatures::FelSummoner, g_FelIronSummonerGreenSpawnPos);
-			me->SummonCreature(eCitadelCreatures::GuldanMann, g_GuldanRestPos);
 
 			me->CastSpell(me, eSpells::MannorothBlood, true);
 
@@ -224,78 +221,86 @@ public:
 			me->SetPower(Powers::POWER_ENERGY, 33);
 			me->AddAura(eSpells::GreenPower, me);
 
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_INTERRUPT_CAST, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
-
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SILENCE, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_STUN, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SLEEP, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_CHARM, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SAPPED, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_HORROR, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_POLYMORPH, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_DISORIENTED, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FREEZE, true);
-
 			if (m_Instance != nullptr)
 			{
 				m_Instance->instance->SetObjectVisibility(500.0f);
-
-				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me, 1);
-
-				m_Instance->SetBossState(eCitadelDatas::DataMannoroth, EncounterState::NOT_STARTED);
 			}
-		}
 
-		void DespawnGameObjects(uint32 entry, float distance)
-		{
-			std::list<GameObject*> gameobjects;
-			GetGameObjectListWithEntryInGrid(gameobjects, me, entry, distance);
+			if (m_SummonersGuids.empty())
+			{
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					std::list<Creature*> l_CreatureList;
 
-			if (gameobjects.empty())
-				return;
+					uint32 const l_Entries[4] = { eCitadelCreatures::FelPurpleSummoner, eCitadelCreatures::FelRedSummoner, eCitadelCreatures::FelGreenSummoner, eCitadelCreatures::GuldanMann };
 
-			for (std::list<GameObject*>::iterator iter = gameobjects.begin(); iter != gameobjects.end(); ++iter)
-				(*iter)->RemoveFromWorld();
+					for (uint8 l_I = 0; l_I < 4; ++l_I)
+					{
+						l_CreatureList.clear();
+
+						me->GetCreatureListWithEntryInGrid(l_CreatureList, l_Entries[l_I], 500.0f);
+
+						for (Creature* l_Iter : l_CreatureList)
+							m_SummonersGuids.push_back(l_Iter->GetGUID());
+					}
+				});
+			}
 		}
 
 		void EnterEvadeMode() override
 		{
-			summons.DespawnAll();
+			if (m_InEvadeMode)
+				return;
 
-			m_Events.Reset();
-			m_CosmeticEvents.Reset();
+			m_InEvadeMode = true;
 
-			CreatureAI::EnterEvadeMode();
-
-			me->InterruptNonMeleeSpells(true);
-
-			me->ClearAllUnitState();
-
-			if (m_Instance != nullptr)
+			AddTimedDelayedOperation(50, [this]() -> void
 			{
-				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me, 1);
+				me->StopMoving();
+				me->GetMotionMaster()->Clear();
+			});
 
-				ResetTheEncounter(me, m_Instance);
-			}
+			AddTimedDelayedOperation(150, [this]() -> void
+			{
+				CreatureAI::EnterEvadeMode();
 
-			me->StopMoving();
+				summons.DespawnAll();
 
-			me->NearTeleportTo(me->GetHomePosition());
+				m_Events.Reset();
+				m_CosmeticEvents.Reset();
 
-			JustReachedHome();
+				if (m_Instance != nullptr)
+				{
+					m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me, 1);
+
+					ResetTheEncounter(me, m_Instance);
+				}
+
+				m_InEvadeMode = false;
+			});
 		}
 
 		void JustReachedHome() override
 		{
+			m_InEvadeMode = false;
+
+			me->SetDisplayId(63958);
+
 			if (m_Instance != nullptr)
-				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me, 1);
+				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+			summons.DespawnAll();
+
+			ResetSummoners();
 		}
 
 		void EnterCombat(Unit* p_Attacker) override
 		{
+			if (m_FightStarted)
+				return;
+
+			m_FightStarted = true;
+
 			_EnterCombat();
 
 			me->SetWalk(false);
@@ -304,23 +309,15 @@ public:
 			m_Events.ScheduleEvent(eEvents::EventFelImplosion, 4 * TimeConstants::IN_MILLISECONDS, 0, ePhases::TheLegionsMight);
 			//m_Events.ScheduleEvent(eEvents::EventInferno, 20 * TimeConstants::IN_MILLISECONDS, 0, ePhases::TheLegionsMight);
 
-			if (IsMythic())
-			{
-				std::list<Creature*> l_GuldanList;
-				me->GetCreatureListWithEntryInGrid(l_GuldanList, eCitadelCreatures::GuldanMann, 1000.0f);
-
-				for (Creature* l_Guldan : l_GuldanList)
-				{
-					if (l_Guldan->IsAIEnabled)
-						l_Guldan->AI()->DoAction(eActions::RedSpire);
-				}
-			}
-
 			if (m_Instance != nullptr)
 			{
 				m_Instance->SetBossState(eCitadelDatas::DataMannoroth, EncounterState::IN_PROGRESS);
 
 				m_Events.SetPhase(ePhases::TheLegionsMight);
+
+				CallSummonersInCombat(p_Attacker);
+
+				StartTheEncounter(me, p_Attacker, m_Instance);
 			}
 		}
 
@@ -426,8 +423,20 @@ public:
 
 					m_Paused = true;
 
-					if (!IsMythic())
+					if (IsMythic())
 					{
+						m_Events.ScheduleEvent(eEvents::EventForm2, 4000);
+						m_Events.ScheduleEvent(eEvents::EventAttackable2, 13000);
+						m_Events.ScheduleEvent(eEvents::EventAggresive2, 15000);
+						m_Events.ScheduleEvent(eEvents::EventTalk2, 23000);
+					}
+					else
+					{
+						m_Events.ScheduleEvent(eEvents::EventForm2, 10000);
+						m_Events.ScheduleEvent(eEvents::EventAttackable2, 19000);
+						m_Events.ScheduleEvent(eEvents::EventAggresive2, 21000);
+						m_Events.ScheduleEvent(eEvents::EventTalk2, 28000);
+
 						std::list<Creature*> l_GuldanList;
 						me->GetCreatureListWithEntryInGrid(l_GuldanList, eCitadelCreatures::GuldanMann, 1000.0f);
 
@@ -436,22 +445,6 @@ public:
 							if (l_Guldan->IsAIEnabled)
 								l_Guldan->AI()->DoAction(eActions::RedSpire);
 						}
-					}
-
-					if (!IsMythic())
-					{
-						m_Events.ScheduleEvent(eEvents::EventForm2, 10000);
-						m_Events.ScheduleEvent(eEvents::EventAttackable2, 19000);
-						m_Events.ScheduleEvent(eEvents::EventAggresive2, 21000);
-						m_Events.ScheduleEvent(eEvents::EventTalk2, 28000);
-					}
-
-					if (IsMythic())
-					{
-						m_Events.ScheduleEvent(eEvents::EventForm2, 4000);
-						m_Events.ScheduleEvent(eEvents::EventAttackable2, 13000);
-						m_Events.ScheduleEvent(eEvents::EventAggresive2, 15000);
-						m_Events.ScheduleEvent(eEvents::EventTalk2, 23000);
 					}
 				break;
 				}
@@ -915,80 +908,18 @@ public:
 
 				m_CosmeticEvents.CancelEvent(eEvents::EventRegenerateEnergy);
 
-				m_Events.ScheduleEvent(eEvents::EventForm4, 10000);
+				m_Events.ScheduleEvent(eEvents::EventForm4, 6000);
 				m_Events.ScheduleEvent(eEvents::EventAggresive4, 16000);
 				m_Events.ScheduleEvent(eEvents::EventTalk4, 23200);
 			}
 		}
 
-		/*void ScheduleThirdPhase()
-		{
-			m_Events.SetPhase(ePhases::TruePower);
-
-			m_Phase3 = true;
-
-			m_Paused = true;
-
-			std::list<Creature*> l_GuldanList;
-			me->GetCreatureListWithEntryInGrid(l_GuldanList, eCitadelCreatures::GuldanMann, 1000.0f);
-
-			for (Creature* l_Guldan : l_GuldanList)
-			{
-				if (l_Guldan->IsAIEnabled)
-					l_Guldan->AI()->DoAction(eActions::PurpleSpire);
-			}
-
-			m_CosmeticEvents.CancelEvent(eEvents::EventRegenerateEnergy);
-
-			m_Events.CancelEvent(eEvents::EventFelImplosion);
-			m_Events.CancelEvent(eEvents::EventInferno);
-
-			m_Events.CancelEvent(eEvents::EventGlaiveCombo);
-			m_Events.CancelEvent(eEvents::EventFelHellstorm);
-			m_Events.CancelEvent(eEvents::EventMannorothGaze);
-			m_Events.CancelEvent(eEvents::EventFelseeker);
-
-			m_Events.ScheduleEvent(eEvents::EventForm3, 11000);
-			m_Events.ScheduleEvent(eEvents::EventAggresive3, 21000);
-			m_Events.ScheduleEvent(eEvents::EventTalk3, 29000);
-		}
-
-		void ScheduleFourthPhase()
-		{
-			m_Events.SetPhase(ePhases::Empowerment);
-
-			m_Phase4 = true;
-
-			m_Paused = true;
-
-			std::list<Creature*> l_GuldanList;
-			me->GetCreatureListWithEntryInGrid(l_GuldanList, eCitadelCreatures::GuldanMann, 1000.0f);
-
-			for (Creature* l_Guldan : l_GuldanList)
-			{
-				if (l_Guldan->IsAIEnabled)
-					l_Guldan->AI()->DoAction(eActions::GreenSpire);
-			}
-
-			Talk(eTalks::TalkPhase4);
-
-			m_Events.CancelEvent(eEvents::EventInferno);
-
-			m_Events.CancelEvent(eEvents::EventGlaiveCombo);
-			m_Events.CancelEvent(eEvents::EventFelHellstorm);
-			m_Events.CancelEvent(eEvents::EventMannorothGaze);
-			m_Events.CancelEvent(eEvents::EventFelseeker);
-			m_Events.CancelEvent(eEvents::EventShadowForce);
-
-			m_CosmeticEvents.CancelEvent(eEvents::EventRegenerateEnergy);
-
-			m_Events.ScheduleEvent(eEvents::EventForm4, 10000);
-			m_Events.ScheduleEvent(eEvents::EventAggresive4, 16000);
-			m_Events.ScheduleEvent(eEvents::EventTalk4, 23200);
-		}*/
-
 		void JustDied(Player* p_Player)
 		{
+			me->RemoveAllAreasTrigger();
+
+			summons.DespawnAll();
+
 			Talk(eTalks::TalkDeath);
 
 			_JustDied();
@@ -1003,7 +934,7 @@ public:
 
 			if (m_Instance != nullptr)
 			{
-				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me, 1);
+				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
 				m_Instance->SetBossState(eCitadelDatas::DataMannoroth, EncounterState::DONE);
 
@@ -1033,6 +964,56 @@ public:
 					CastSpellToPlayers(me->GetMap(), me, eSpells::MannorothBonusLoot, true);
 			}
 		}
+
+		void DespawnGameObjects(uint32 entry, float distance)
+		{
+			std::list<GameObject*> gameobjects;
+			GetGameObjectListWithEntryInGrid(gameobjects, me, entry, distance);
+
+			if (gameobjects.empty())
+				return;
+
+			for (std::list<GameObject*>::iterator iter = gameobjects.begin(); iter != gameobjects.end(); ++iter)
+				(*iter)->RemoveFromWorld();
+		}
+
+		void ResetSummoners()
+		{
+			for (uint64 l_Guid : m_SummonersGuids)
+			{
+				if (Creature* l_Iter = Creature::GetCreature(*me, l_Guid))
+				{
+					if (l_Iter->isDead())
+					{
+						l_Iter->DespawnOrUnsummon();
+						l_Iter->Respawn();
+
+						uint64 l_Guid = l_Iter->GetGUID();
+						AddTimedDelayedOperation(100, [this, l_Guid]() -> void
+						{
+							if (Creature* l_Creature = Creature::GetCreature(*me, l_Guid))
+								l_Creature->GetMotionMaster()->MoveTargetedHome();
+						});
+					}
+					else if (l_Iter->IsAIEnabled)
+						l_Iter->AI()->EnterEvadeMode();
+				}
+			}
+		}
+
+		void CallSummonersInCombat(Unit* p_Attacker)
+		{
+			for (uint64 l_Guid : m_SummonersGuids)
+			{
+				if (Creature* l_Iter = Creature::GetCreature(*me, l_Guid))
+				{
+					if (l_Iter->GetEntry() != eCitadelCreatures::GuldanMann)
+						l_Iter->AI()->AttackStart(p_Attacker);
+					else
+						l_Iter->SetInCombatWithZone();
+				}
+			}
+		}
 	};
 
 	CreatureAI* GetAI(Creature* p_Creature) const override
@@ -1041,23 +1022,16 @@ public:
 	}
 };
 
-/// Fel Iron Summoner - 91305
-class boss_fel_iron_summoner : public CreatureScript
+/// Fel Iron Summoner <Purple> - 913050
+class boss_fel_purple_iron_summoner : public CreatureScript
 {
 public:
-	boss_fel_iron_summoner() : CreatureScript("boss_fel_iron_summoner") {}
+	boss_fel_purple_iron_summoner() : CreatureScript("boss_fel_purple_iron_summoner") {}
 
 	enum eSpells
 	{
-		VisualGreen = 182212,
-		VisualRed = 185147,
 		VisualPurple = 185175,
 		BeamVisualMythic = 186648 // Only used in mythic
-	};
-
-	enum eTalks
-	{
-		TalkAggro
 	};
 
 	enum eEvents
@@ -1079,9 +1053,9 @@ public:
 		SummonerKilled
 	};
 
-	struct boss_fel_iron_summonerAI : public BossAI
+	struct boss_fel_purple_iron_summonerAI : public BossAI
 	{
-		boss_fel_iron_summonerAI(Creature* p_Creature) : BossAI(p_Creature, eCitadelDatas::DataFelIronSummoner)
+		boss_fel_purple_iron_summonerAI(Creature* p_Creature) : BossAI(p_Creature, eCitadelDatas::DataFelIronSummoner)
 		{
 			m_Instance = p_Creature->GetInstanceScript();
 		}
@@ -1097,65 +1071,54 @@ public:
 
 		void Reset() override
 		{
+			m_Events.Reset();
+
 			m_FightStarted = false;
 
 			_Reset();
 
+			me->RemoveAllAreasTrigger();
+
 			m_SummonerKilled = 0;
 
 			me->SetReactState(ReactStates::REACT_PASSIVE);
-
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_INTERRUPT_CAST, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
-
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SILENCE, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_STUN, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SLEEP, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_CHARM, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SAPPED, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_HORROR, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_POLYMORPH, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_DISORIENTED, true);
-			me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FREEZE, true);
 		}
 
 		void DoAction(int32 const p_Action) override
 		{
 			switch (p_Action)
 			{
-				case eActions::ActionSummonerKilled:
-				{
-					++m_SummonerKilled;
+			case eActions::ActionSummonerKilled:
+			{
+				++m_SummonerKilled;
 
-					if (m_SummonerKilled == eCitadelDatas::MaxSummoners)
+				if (m_SummonerKilled == eCitadelDatas::MaxSummoners)
+				{
+					if (m_Instance != nullptr)
 					{
-						if (m_Instance != nullptr)
+						if (Creature* l_Mannoroth = Creature::GetCreature(*me, m_Instance->GetData64(eCitadelCreatures::BossMannoroth)))
 						{
-							if (Creature* l_Mannoroth = Creature::GetCreature(*me, m_Instance->GetData64(eCitadelCreatures::BossMannoroth)))
-							{
-								if (l_Mannoroth->IsAIEnabled)
-									l_Mannoroth->AI()->DoAction(eActions::ActionStartPhase2);
-							}
+							if (l_Mannoroth->IsAIEnabled)
+								l_Mannoroth->AI()->DoAction(eActions::ActionStartPhase2);
 						}
 					}
-
-					break;
 				}
 
-				case eActions::ActionBeamMythic:
+				break;
+			}
+
+			case eActions::ActionBeamMythic:
+			{
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->CastSpell(me, eSpells::BeamVisualMythic, true);
-					});
+					me->CastSpell(me, eSpells::BeamVisualMythic, true);
+				});
 
-					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->Kill(me);
-					});
-				}
+				AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->Kill(me);
+				});
+			}
 			}
 		}
 
@@ -1166,39 +1129,38 @@ public:
 
 			m_FightStarted = true;
 
-			if (WorldObject* l_Spire = GetClosestGameObjectWithEntry(me, eMannorothObjects::FelSpireRed, 50.0f))
+			me->CastSpell(me, eSpells::VisualPurple, false);
+
+			if (InstanceScript* l_Instance = me->GetInstanceScript())
 			{
-				me->CastSpell(me, eSpells::VisualRed, false);
-
-				m_Events.ScheduleEvent(eEvents::EventCurseoftheLegion, 65 * TimeConstants::IN_MILLISECONDS, 0);
-			}
-
-			else if (WorldObject* l_Spire = GetClosestGameObjectWithEntry(me, eMannorothObjects::FelSpirePurple, 50.0f))
-			{
-				me->CastSpell(me, eSpells::VisualPurple, false);
-
-				m_Events.ScheduleEvent(eEvents::EventFelImplosion, 10 * TimeConstants::IN_MILLISECONDS, 0);
-			}
-
-			else
-			{
-				me->CastSpell(me, eSpells::VisualGreen, false);
-
-				if (!IsMythic())
+				if (Creature* l_Mannoroth = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::BossMannoroth)))
 				{
-					Talk(eTalks::TalkAggro);
+					if (!l_Mannoroth->isInCombat())
+						l_Mannoroth->SetInCombatWithZone();
 				}
 
-				m_Events.ScheduleEvent(eEvents::EventInferno, 18 * TimeConstants::IN_MILLISECONDS, 0);
+				if (Creature* l_RedSummoner = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::FelRedSummoner)))
+				{
+					if (!l_RedSummoner->isInCombat())
+						l_RedSummoner->SetInCombatWithZone();
+				}
+
+				if (Creature* l_GreenSummoner = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::FelGreenSummoner)))
+				{
+					if (!l_GreenSummoner->isInCombat())
+						l_GreenSummoner->SetInCombatWithZone();
+				}
+
+				if (Creature* l_Guldan = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::GuldanMann)))
+				{
+					if (!l_Guldan->isInCombat())
+						l_Guldan->SetInCombatWithZone();
+				}
 			}
 
 			if (m_Instance != nullptr)
 			{
 				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
-
-				CallAddsInCombat(p_Attacker);
-
-				StartTheEncounter(me, p_Attacker, m_Instance);
 			}
 		}
 
@@ -1208,6 +1170,8 @@ public:
 			{
 				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 			}
+
+			summons.DespawnAll();
 		}
 
 		void JustDied(Unit* /*p_Killer*/) override
@@ -1253,84 +1217,426 @@ public:
 
 			DoMeleeAttackIfReady();
 		}
+	};
 
-		void CallAddsInCombat(Unit* p_Attacker)
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new boss_fel_purple_iron_summonerAI(p_Creature);
+	}
+};
+
+/// Fel Iron Summoner <Red> - 913051
+class boss_fel_red_iron_summoner : public CreatureScript
+{
+public:
+	boss_fel_red_iron_summoner() : CreatureScript("boss_fel_red_iron_summoner") {}
+
+	enum eSpells
+	{
+		VisualRed = 185147,
+		BeamVisualMythic = 186648 // Only used in mythic
+	};
+
+	enum eEvents
+	{
+		EventCurseoftheLegion,
+		EventFelImplosion,
+		EventInferno
+	};
+
+	enum eActions
+	{
+		ActionSummonerKilled,
+		ActionStartPhase2,
+		ActionBeamMythic
+	};
+
+	enum eDatas
+	{
+		SummonerKilled
+	};
+
+	struct boss_fel_red_iron_summonerAI : public BossAI
+	{
+		boss_fel_red_iron_summonerAI(Creature* p_Creature) : BossAI(p_Creature, eCitadelDatas::DataFelIronSummoner)
 		{
-			std::list<Creature*> SummonerList;
-			me->GetCreatureListWithEntryInGrid(SummonerList, eCitadelCreatures::FelSummoner, 1000.0f);
+			m_Instance = p_Creature->GetInstanceScript();
+		}
 
-			for (Creature* l_FelIronSummoner : SummonerList)
+		InstanceScript* m_Instance;
+
+		EventMap m_Events;
+		EventMap m_CosmeticEvents;
+
+		bool m_FightStarted;
+
+		uint8 m_SummonerKilled;
+
+		void Reset() override
+		{
+			m_Events.Reset();
+
+			m_FightStarted = false;
+
+			_Reset();
+
+			me->RemoveAllAreasTrigger();
+
+			m_SummonerKilled = 0;
+
+			me->SetReactState(ReactStates::REACT_PASSIVE);
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
 			{
-				if (l_FelIronSummoner->IsAIEnabled && !l_FelIronSummoner->isInCombat())
+			case eActions::ActionSummonerKilled:
+			{
+				++m_SummonerKilled;
+
+				if (m_SummonerKilled == eCitadelDatas::MaxSummoners)
 				{
-					if (l_FelIronSummoner->GetEntry() != eCitadelCreatures::FelSummoner)
-						l_FelIronSummoner->AI()->AttackStart(p_Attacker);
-					else
-						l_FelIronSummoner->SetInCombatWithZone();
+					if (m_Instance != nullptr)
+					{
+						if (Creature* l_Mannoroth = Creature::GetCreature(*me, m_Instance->GetData64(eCitadelCreatures::BossMannoroth)))
+						{
+							if (l_Mannoroth->IsAIEnabled)
+								l_Mannoroth->AI()->DoAction(eActions::ActionStartPhase2);
+						}
+					}
 				}
+
+				break;
 			}
 
-			std::list<Creature*> Boss;
-			me->GetCreatureListWithEntryInGrid(Boss, eCitadelCreatures::BossMannoroth, 1000.0f);
-
-			for (Creature* l_Mannoroth : Boss)
+			case eActions::ActionBeamMythic:
 			{
-				if (l_Mannoroth->IsAIEnabled && !l_Mannoroth->isInCombat())
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					if (l_Mannoroth->GetEntry() != eCitadelCreatures::BossMannoroth)
-						l_Mannoroth->AI()->AttackStart(p_Attacker);
-					else
+					me->CastSpell(me, eSpells::BeamVisualMythic, true);
+				});
+
+				AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->Kill(me);
+				});
+			}
+			}
+		}
+
+		void EnterCombat(Unit* p_Attacker) override
+		{
+			if (m_FightStarted)
+				return;
+
+			m_FightStarted = true;
+
+			me->CastSpell(me, eSpells::VisualRed, false);
+
+			if (InstanceScript* l_Instance = me->GetInstanceScript())
+			{
+				if (Creature* l_Mannoroth = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::BossMannoroth)))
+				{
+					if (!l_Mannoroth->isInCombat())
 						l_Mannoroth->SetInCombatWithZone();
 				}
-			}
 
-			std::list<Creature*> l_Guldan;
-			me->GetCreatureListWithEntryInGrid(l_Guldan, eCitadelCreatures::GuldanMann, 1000.0f);
-
-			for (Creature* l_Guldan : l_Guldan)
-			{
-				if (l_Guldan->IsAIEnabled && !l_Guldan->isInCombat())
+				if (Creature* l_PurpleSummoner = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::FelPurpleSummoner)))
 				{
-					if (l_Guldan->GetEntry() != eCitadelCreatures::GuldanMann)
-						l_Guldan->AI()->AttackStart(p_Attacker);
-					else
+					if (!l_PurpleSummoner->isInCombat())
+						l_PurpleSummoner->SetInCombatWithZone();
+				}
+
+				if (Creature* l_GreenSummoner = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::FelGreenSummoner)))
+				{
+					if (!l_GreenSummoner->isInCombat())
+						l_GreenSummoner->SetInCombatWithZone();
+				}
+
+				if (Creature* l_Guldan = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::GuldanMann)))
+				{
+					if (!l_Guldan->isInCombat())
 						l_Guldan->SetInCombatWithZone();
 				}
 			}
 
-			std::list<Creature*> l_RedSpireList;
-			me->GetCreatureListWithEntryInGrid(l_RedSpireList, eCitadelCreatures::FelRedSpire, 1000.0f);
-
-			for (Creature* l_RedSpire : l_RedSpireList)
+			if (m_Instance != nullptr)
 			{
-				if (l_RedSpire->IsAIEnabled && !l_RedSpire->isInCombat())
-				{
-					if (l_RedSpire->GetEntry() != eCitadelCreatures::FelRedSpire)
-						l_RedSpire->AI()->AttackStart(p_Attacker);
-					else
-						l_RedSpire->SetInCombatWithZone();
-				}
+				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
+			}
+		}
+
+		void JustReachedHome() override
+		{
+			if (m_Instance != nullptr)
+			{
+				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 			}
 
-			std::list<Creature*> l_PurpleSpireList;
-			me->GetCreatureListWithEntryInGrid(l_PurpleSpireList, eCitadelCreatures::FelPurpleSpire, 1000.0f);
+			summons.DespawnAll();
+		}
 
-			for (Creature* l_PurpleSpire : l_PurpleSpireList)
+		void JustDied(Unit* /*p_Killer*/) override
+		{
+			if (m_Instance != nullptr)
 			{
-				if (l_PurpleSpire->IsAIEnabled && !l_PurpleSpire->isInCombat())
+				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+				if (Creature* l_Mannoroth = Creature::GetCreature(*me, m_Instance->GetData64(eCitadelCreatures::BossMannoroth)))
 				{
-					if (l_PurpleSpire->GetEntry() != eCitadelCreatures::FelPurpleSpire)
-						l_PurpleSpire->AI()->AttackStart(p_Attacker);
-					else
-						l_PurpleSpire->SetInCombatWithZone();
+					if (l_Mannoroth->IsAIEnabled)
+					{
+						l_Mannoroth->AI()->SetData(eDatas::SummonerKilled, 0);
+					}
 				}
 			}
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			if (!UpdateVictim() || (m_Instance != nullptr && m_Instance->IsWipe()))
+				return;
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+
+			}
+
+			m_Events.Update(p_Diff);
+
+			if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+				return;
+
+			switch (m_Events.ExecuteEvent())
+			{
+			default:
+				break;
+			}
+
+			DoMeleeAttackIfReady();
 		}
 	};
 
 	CreatureAI* GetAI(Creature* p_Creature) const override
 	{
-		return new boss_fel_iron_summonerAI(p_Creature);
+		return new boss_fel_red_iron_summonerAI(p_Creature);
+	}
+};
+
+/// Fel Iron Summoner <Green> - 91305
+class boss_fel_green_iron_summoner : public CreatureScript
+{
+public:
+	boss_fel_green_iron_summoner() : CreatureScript("boss_fel_green_iron_summoner") {}
+
+	enum eSpells
+	{
+		VisualGreen = 182212,
+		BeamVisualMythic = 186648 // Only used in mythic
+	};
+
+	enum eTalks
+	{
+		TalkAggro
+	};
+
+	enum eEvents
+	{
+		EventCurseoftheLegion,
+		EventFelImplosion,
+		EventInferno
+	};
+
+	enum eActions
+	{
+		ActionSummonerKilled,
+		ActionStartPhase2,
+		ActionBeamMythic
+	};
+
+	enum eDatas
+	{
+		SummonerKilled
+	};
+
+	struct boss_fel_green_iron_summonerAI : public BossAI
+	{
+		boss_fel_green_iron_summonerAI(Creature* p_Creature) : BossAI(p_Creature, eCitadelDatas::DataFelIronSummoner)
+		{
+			m_Instance = p_Creature->GetInstanceScript();
+		}
+
+		InstanceScript* m_Instance;
+
+		EventMap m_Events;
+		EventMap m_CosmeticEvents;
+
+		bool m_FightStarted;
+
+		uint8 m_SummonerKilled;
+
+		void Reset() override
+		{
+			m_Events.Reset();
+
+			m_FightStarted = false;
+
+			_Reset();
+
+			me->RemoveAllAreasTrigger();
+
+			m_SummonerKilled = 0;
+
+			me->SetReactState(ReactStates::REACT_PASSIVE);
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eActions::ActionSummonerKilled:
+			{
+				++m_SummonerKilled;
+
+				if (m_SummonerKilled == eCitadelDatas::MaxSummoners)
+				{
+					if (m_Instance != nullptr)
+					{
+						if (Creature* l_Mannoroth = Creature::GetCreature(*me, m_Instance->GetData64(eCitadelCreatures::BossMannoroth)))
+						{
+							if (l_Mannoroth->IsAIEnabled)
+								l_Mannoroth->AI()->DoAction(eActions::ActionStartPhase2);
+						}
+					}
+				}
+
+				break;
+			}
+
+			case eActions::ActionBeamMythic:
+			{
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->CastSpell(me, eSpells::BeamVisualMythic, true);
+				});
+
+				AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->Kill(me);
+				});
+			}
+			}
+		}
+
+		void EnterCombat(Unit* p_Attacker) override
+		{
+			if (m_FightStarted)
+				return;
+
+			m_FightStarted = true;
+
+			me->CastSpell(me, eSpells::VisualGreen, false);
+
+			if (!IsMythic())
+				Talk(eTalks::TalkAggro);
+
+
+			if (InstanceScript* l_Instance = me->GetInstanceScript())
+			{
+				if (Creature* l_Mannoroth = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::BossMannoroth)))
+				{
+					if (!l_Mannoroth->isInCombat())
+						l_Mannoroth->SetInCombatWithZone();
+				}
+
+				if (Creature* l_PurpleSummoner = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::FelPurpleSummoner)))
+				{
+					if (!l_PurpleSummoner->isInCombat())
+						l_PurpleSummoner->SetInCombatWithZone();
+				}
+
+				if (Creature* l_RedSummoner = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::FelRedSummoner)))
+				{
+					if (!l_RedSummoner->isInCombat())
+						l_RedSummoner->SetInCombatWithZone();
+				}
+
+				if (Creature* l_Guldan = Creature::GetCreature(*me, l_Instance->GetData64(eCitadelCreatures::GuldanMann)))
+				{
+					if (!l_Guldan->isInCombat())
+						l_Guldan->SetInCombatWithZone();
+				}
+			}
+
+			if (m_Instance != nullptr)
+			{
+				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
+			}
+		}
+
+		void JustReachedHome() override
+		{
+			if (m_Instance != nullptr)
+			{
+				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+			}
+
+			summons.DespawnAll();
+		}
+
+		void JustDied(Unit* /*p_Killer*/) override
+		{
+			if (m_Instance != nullptr)
+			{
+				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+				if (Creature* l_Mannoroth = Creature::GetCreature(*me, m_Instance->GetData64(eCitadelCreatures::BossMannoroth)))
+				{
+					if (l_Mannoroth->IsAIEnabled)
+					{
+						l_Mannoroth->AI()->SetData(eDatas::SummonerKilled, 0);
+					}
+				}
+			}
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			if (!UpdateVictim() || (m_Instance != nullptr && m_Instance->IsWipe()))
+				return;
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+
+			}
+
+			m_Events.Update(p_Diff);
+
+			if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+				return;
+
+			switch (m_Events.ExecuteEvent())
+			{
+			default:
+				break;
+			}
+
+			DoMeleeAttackIfReady();
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new boss_fel_green_iron_summonerAI(p_Creature);
 	}
 };
 
@@ -1488,7 +1794,7 @@ public:
 						if (IsMythic())
 						{
 							std::list<Creature*> l_SummonerList;
-							me->GetCreatureListWithEntryInGrid(l_SummonerList, eCitadelCreatures::FelSummoner, 1000.0f);
+							me->GetCreatureListWithEntryInGrid(l_SummonerList, eCitadelCreatures::FelPurpleSummoner && eCitadelCreatures::FelRedSummoner && eCitadelCreatures::FelGreenSummoner, 1000.0f);
 
 							for (Creature* l_Summoner : l_SummonerList)
 							{
@@ -2841,30 +3147,30 @@ public:
 
 		std::list<WorldObject*> m_RealList;
 
-		void CorrectTargets(std::list<WorldObject*>& p_Targets)
+		void FilterTargets(std::list<WorldObject*>& p_Targets)
 		{
 			if (p_Targets.empty())
 				return;
 
-			if (Unit* l_Caster = GetCaster())
-			{
-				for (WorldObject* l_Target : p_Targets)
-				{
-					if (l_Target->GetEntry() == eCitadelCreatures::ChannelTarget)
-						m_RealList.push_back(l_Target);
-				}
+			Unit* l_Caster = GetCaster();
+			if (l_Caster == nullptr)
+				return;
 
-				p_Targets.clear();
-				for (WorldObject* l_Itr : m_RealList)
-				{
-					p_Targets.push_back(l_Itr);
-				}
-			}
+			p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+			{
+				if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+					return true;
+
+				if (p_Object->ToUnit()->GetEntry() == eCitadelCreatures::ChannelTarget)
+					return true;
+
+				return false;
+			});
 		}
 
 		void Register() override
 		{
-			OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_citadel_spire_channel_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_NEARBY_ENTRY);
+			OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_citadel_spire_channel_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
 		}
 	};
 
@@ -3025,13 +3331,6 @@ public:
 
 	std::set<uint64> m_AffectedPlayers;
 
-	void OnCreate(AreaTrigger* p_AreaTrigger) override
-	{
-		uint32 l_Duration = 10080 * TimeConstants::MINUTE;
-
-		p_AreaTrigger->SetDuration(l_Duration);
-	}
-
 	void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
 	{
 		if (Unit* l_Caster = p_AreaTrigger->GetCaster())
@@ -3095,61 +3394,14 @@ public:
 	}
 };
 
-/// Mannoroth Platform Fix - 600000
-class go_citadel_mannoroth_platform_fix : public GameObjectScript
-{
-public:
-	go_citadel_mannoroth_platform_fix() : GameObjectScript("go_citadel_mannoroth_platform_fix") { }
-
-	struct go_citadel_mannoroth_platform_fixAI : public GameObjectAI
-	{
-		go_citadel_mannoroth_platform_fixAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
-
-		bool ScriptedCollide(float p_X, float p_Y, float p_Z, float* p_OutZ /*= nullptr*/) const override
-		{
-			float const l_Radius = 70.0f;
-
-			float l_PlatformXCenter = go->m_positionX + 353.0f;
-			float l_PlatformYCenter = go->m_positionY - 53.0f;
-
-			float l_PlatformZMin = go->m_positionZ + 280.0f;
-			float l_PlatformZMax = go->m_positionZ + 300.0f;
-
-			bool l_IsInRadius = sqrt(std::pow(l_PlatformXCenter - p_X, 2) + std::pow(l_PlatformYCenter - p_Y, 2)) <= l_Radius;
-			bool l_IsInHeightRange = p_Z >= l_PlatformZMin && p_Z <= l_PlatformZMax;
-
-			GameObjectDestructibleState l_State = go->GetDestructibleState();
-
-			if (l_IsInRadius && l_IsInHeightRange && l_State == GameObjectDestructibleState::GO_DESTRUCTIBLE_DAMAGED)
-			{
-				float l_ThisFloorHeight = go->m_positionZ + 283.0f;
-				float l_ThisFloorHeightMin = go->m_positionZ + 275.0f;
-
-				if (p_Z >= l_ThisFloorHeightMin)
-				{
-					if (p_OutZ)
-						*p_OutZ = l_ThisFloorHeight;
-
-					return true;
-				}
-			}
-
-			return false;
-		}
-	};
-
-	GameObjectAI* GetAI(GameObject* p_GameObject) const override
-	{
-		return new go_citadel_mannoroth_platform_fixAI(p_GameObject);
-	}
-};
-
 #ifndef __clang_analyzer__
 void AddSC_boss_mannoroth_hfc()
 {
 	/// Boss
 	new boss_mannoroth_hfc();
-	new boss_fel_iron_summoner();
+	new boss_fel_purple_iron_summoner();
+	new boss_fel_red_iron_summoner();
+	new boss_fel_green_iron_summoner();
 
 	/// Creatures
 	new npc_citadel_doom_lord_mann();
@@ -3179,6 +3431,5 @@ void AddSC_boss_mannoroth_hfc()
 	new areatrigger_citadel_mannoroth_blood();
 
 	/// Objects
-	new go_citadel_mannoroth_platform_fix();
 }
 #endif

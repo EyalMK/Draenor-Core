@@ -41,7 +41,7 @@ void StartTheEncounter(Creature* p_Source, Unit* p_Target, InstanceScript* p_Ins
 	if (p_Source == nullptr || p_Target == nullptr || p_Instance == nullptr)
 		return;
 
-	uint32 l_Entry = (p_Source->GetEntry() == eCitadelCreatures::BossMannoroth) ? eCitadelCreatures::FelSummoner : eCitadelCreatures::BossMannoroth;
+	uint32 l_Entry = (p_Source->GetEntry() == eCitadelCreatures::BossMannoroth) ? eCitadelCreatures::FelPurpleSummoner && eCitadelCreatures::FelRedSummoner && eCitadelCreatures::FelGreenSummoner : eCitadelCreatures::BossMannoroth;
 	if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
 	{
 		if (l_Other->IsAIEnabled && !l_Other->isInCombat())
@@ -54,7 +54,7 @@ void ResetTheEncounter(Creature* p_Source, InstanceScript* p_Instance)
 	if (p_Source == nullptr || p_Instance == nullptr)
 		return;
 
-	uint32 l_Entry = (p_Source->GetEntry() == eCitadelCreatures::BossMannoroth) ? eCitadelCreatures::FelSummoner : eCitadelCreatures::BossMannoroth;
+	uint32 l_Entry = (p_Source->GetEntry() == eCitadelCreatures::BossMannoroth) ? eCitadelCreatures::FelPurpleSummoner && eCitadelCreatures::FelRedSummoner && eCitadelCreatures::FelGreenSummoner : eCitadelCreatures::BossMannoroth;
 	if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
 	{
 		if (l_Other->isDead())

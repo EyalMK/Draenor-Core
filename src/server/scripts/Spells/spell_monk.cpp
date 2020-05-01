@@ -61,7 +61,7 @@ enum MonkSpells
 	SPELL_MONK_RENEWING_MIST_VISUAL				= 119647,
 	SPELL_MONK_RENEWING_MIST					= 115151,
     SPELL_MONK_RENEWING_MIST_HOT                = 119611,
-    SPELL_MONK_RENEWING_MIST_JUMP_AURA          = 119607,
+    SPELL_MONK_RENEWING_MIST_AOE				= 119607,
     SPELL_MONK_GLYPH_OF_RENEWING_MIST           = 123334,
     SPELL_MONK_SURGING_MIST_HEAL                = 116995,
     SPELL_MONK_ENVELOPING_MIST_HEAL             = 132120,
@@ -123,8 +123,8 @@ enum MonkSpells
 	ITEM_MONK_BM_T14_4P							= 123159,
 
 	// Tier 18
-	ITEM_MONK_BW_T18_2P							= 185398,						
-	ITEM_MONK_BW_T18_4P							= 185399,
+	ITEM_MONK_BM_T18_2P							= 185398,						
+	ITEM_MONK_BM_T18_4P							= 185399,
 	ITEM_MONK_MW_T18_2P							= 185126,
 	ITEM_MONK_MW_T18_4P							= 185258,
 	ITEM_MONK_WW_T18_2P							= 185542,
@@ -2155,6 +2155,8 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 ThunderFocusTea = 116680
             };
 
+			SpellModifier* spellMod;
+
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -2169,26 +2171,26 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 }
             }
 
-            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-
-                if (l_Target == nullptr)
-                    return;
-
-                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
-                if (Aura* l_ThunderFocusTea = l_Caster->GetAura(eSpells::ThunderFocusTea, l_Caster->GetGUID()))
-                {
-                    if (Aura* l_RenewingMistHot = l_Target->GetAura(SPELL_MONK_RENEWING_MIST_HOT, l_Caster->GetGUID()))
-                        l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(l_RenewingMistHot->GetEffect(EFFECT_1)->GetAmount() + l_ThunderFocusTea->GetEffect(EFFECT_1)->GetAmount());
-                }
-            }
-
-			void HandleOnHit()
+			void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
 			{
-				Unit* l_Caster = GetCaster();
+				Player* l_Caster = GetCaster()->ToPlayer();
 				Unit* l_Target = GetHitUnit();
+
+				if (l_Caster == nullptr || l_Target == nullptr)
+					return;
+
+				l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
+
+				if (Aura* l_RenewingMistHot = l_Target->GetAura(SPELL_MONK_RENEWING_MIST_HOT, l_Caster->GetGUID()))
+				{
+					if (l_Caster->HasAura(eSpells::ThunderFocusTea))
+					{
+						l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(5);
+						l_RenewingMistHot->SetCharges(5);
+					}
+					else
+						l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(3);
+				}
 
 				if (l_Caster->HasAura(ITEM_MONK_MW_T18_2P))
 				{
@@ -2198,9 +2200,8 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_monk_renewing_mist_SpellScript::HandleAfterCast);
-                OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-				OnHit += SpellHitFn(spell_monk_renewing_mist_SpellScript::HandleOnHit);
+				AfterCast += SpellCastFn(spell_monk_renewing_mist_SpellScript::HandleAfterCast);
+				OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_SpellScript::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2208,6 +2209,87 @@ class spell_monk_renewing_mist: public SpellScriptLoader
         {
             return new spell_monk_renewing_mist_SpellScript();
         }
+};
+
+/// last update : 6.1.2 19802
+/// Renewing Mist AoE Jump - 119607
+class spell_monk_renewing_mist_aoe : public SpellScriptLoader
+{
+public:
+	spell_monk_renewing_mist_aoe() : SpellScriptLoader("spell_monk_renewing_mist_aoe") { }
+
+	class spell_monk_renewing_mist_aoe_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_monk_renewing_mist_aoe_SpellScript);
+
+		void FilterTargets(std::list<WorldObject*>& unitList)
+		{
+			if (!GetCaster() || !GetOriginalCaster())
+				return;
+
+			if (unitList.size() > 0)
+				unitList.remove(GetCaster());
+
+			if (unitList.size() > 0)
+				unitList.remove_if(TargetCheck(GetOriginalCaster()->GetGUID()));
+
+			if (unitList.size() > 1)
+				JadeCore::Containers::RandomResizeList(unitList, 1);
+		}
+
+		void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
+		{
+			if (!GetCaster() || !GetOriginalCaster() || !GetHitUnit())
+				return;
+
+			if (AuraEffect* l_RenewingMistHOT = GetCaster()->GetAuraEffect(SPELL_MONK_RENEWING_MIST_HOT, EFFECT_1))
+			{
+				int32 amount = l_RenewingMistHOT->GetAmount();
+
+				if (amount > 1)
+				{
+					amount--;
+					l_RenewingMistHOT->SetAmount(1);
+					l_RenewingMistHOT->GetBase()->SetCharges(1);
+					GetOriginalCaster()->CastCustomSpell(GetHitUnit(), SPELL_MONK_RENEWING_MIST_HOT, NULL, &amount, NULL, true);
+					GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_RENEWING_MIST_VISUAL, true);
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_renewing_mist_aoe_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+			OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_aoe_SpellScript::HandleOnHitTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
+		}
+
+	private:
+
+		class TargetCheck
+		{
+		public:
+			TargetCheck(uint64 casterGUID) : _casterGUID(casterGUID) {}
+
+			bool operator()(WorldObject* object) const
+			{
+				if (!object->IsPlayer() && !object->ToUnit()->isPet())
+					return true;
+
+				if (object->ToUnit()->HasAura(SPELL_MONK_RENEWING_MIST_HOT, _casterGUID))
+					return true;
+
+				return false;
+			}
+
+		private:
+			uint64 _casterGUID;
+		};
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_monk_renewing_mist_aoe_SpellScript();
+	}
 };
 
 /// last update : 6.1.2 19802
@@ -2221,10 +2303,6 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_renewing_mist_hot_AuraScript);
 
-            uint32 update;
-            uint8  spreadCount;
-			Unit* oldTarget;
-
             enum eSpells
             {
                 GlyphofRenewedTea = 159496,
@@ -2233,27 +2311,9 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/)
             {
-                update = 0;
-                spreadCount = 1;
-				oldTarget = nullptr;
-
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_HOT))
                     return false;
                 return true;
-            }
-
-            void OnUpdate(uint32 diff, AuraEffect* /*aurEff*/)
-            {
-               update += diff;
-
-                if (update >= 1000) // We're setting the min GCD
-                {
-                    if (GetCaster())
-                        if (Player* _player = GetCaster()->ToPlayer())
-                            _player->CastSpell(_player, SPELL_MONK_UPLIFT_ALLOWING_CAST, true);
-
-                    update = 0;
-                }
             }
 
             void OnTick(AuraEffect const* aurEff)
@@ -2261,141 +2321,51 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
 
-				if (oldTarget != nullptr)
-					l_Target = oldTarget;
-
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                /// Check if all the 'charges' are apply
-                if (aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() <= 1)
-                    return;
-
-                float l_Radius = 20.0f;
-                if (l_Caster->HasAura(eSpells::GlyphofRenewingMist))
-                    l_Radius = 40.0f;
+				// Check charges
+				if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_1))
+				{
+					int32 amount = aurEff->GetAmount();
+					if (amount > 1)
+						GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_MONK_RENEWING_MIST_AOE, true, nullptr, nullptr, GetCasterGUID());
 				
-				Unit* newTarget;
-
-                /// Get friendly unit on range
-                std::list<Unit*> l_FriendlyUnitList;
-                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
-                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
-
-                l_FriendlyUnitList.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
-                {
-                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
-                        return true;
-
-                    if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
-                        return true;
-
-					if (p_Object->ToUnit()->isStatue() || p_Object->ToUnit()->isTotem())
-						return true;
-
-					bool casterIsPvP = l_Caster->IsPvP();
-					bool targetIsPvP = p_Object->ToUnit()->IsPvP();
-
-					if (casterIsPvP == false && targetIsPvP == true)
-						return true;
-
-					if (casterIsPvP == true && targetIsPvP == false)
-						return true;
-
-                    return false;
-                });
-				bool hasAll = false;
-				uint32 value = 0;
-
-				/// Check if every target has the buff already
-				for (auto itr : l_FriendlyUnitList) 
-				{
-					if (itr->HasAura(GetSpellInfo()->Id))
-						value++;
+					if (Unit* l_Caster = GetCaster())
+						l_Caster->AddAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster);
 				}
-
-				if (value == l_FriendlyUnitList.size())
-					hasAll = true;
-
-				if (hasAll == false)
-				{
-					/// Not every player has the buff, so get rid of all the players who have it
-					l_FriendlyUnitList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
-
-					/// Sort friendly unit by pourcentage of health and get the most injured
-					if (l_FriendlyUnitList.size() > 1)
-					{
-						l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
-						l_FriendlyUnitList.resize(1);
-					}
-
-					for (auto itr : l_FriendlyUnitList)
-					{
-						newTarget = itr;
-					}
-				}
-				else
-				{
-					/// Every player has the buff, target the person with the lowest duration
-					for (auto itr : l_FriendlyUnitList)
-					{
-						if (newTarget == nullptr)
-							newTarget = itr;
-
-						if (itr->HasAura(GetSpellInfo()->Id))
-						{
-							if (Aura* itrAura = itr->GetAura(GetSpellInfo()->Id))
-							{
-								if (Aura* newTargetAura = newTarget->GetAura(GetSpellInfo()->Id))
-								{
-									if (itrAura->GetDuration() < newTargetAura->GetDuration())
-										newTarget = itr;
-								}
-							}
-						}
-					}
-				}
-
-				if (newTarget == l_Target || newTarget == l_Caster)
-					return;
-
-                /// Spread renewing mist on him
-				l_Target->CastSpell(newTarget, SPELL_MONK_RENEWING_MIST_VISUAL, true);
-                l_Caster->CastSpell(newTarget, GetSpellInfo()->Id, true);
-
-				if (Aura* l_RenewingMistHot = newTarget->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
-					l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(1);
-
-				oldTarget = newTarget;
-
-                aurEff->GetBase()->GetEffect(EFFECT_1)->SetAmount(aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() - 1);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
-                    return;
+				if (Unit* l_Caster = GetCaster())
+				{
+					l_Caster->RemoveAura(SPELL_MONK_UPLIFT_ALLOWING_CAST);
 
-                if (l_Caster->HasAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID()))
-                    l_Caster->RemoveAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID());
+					AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
 
-                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
-
-                if ((l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE) ||
-                    (l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_ENEMY_SPELL))
-                {
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
-                }
+					if ((l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE) ||
+						(l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_ENEMY_SPELL))
+					{
+						l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
+						l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
+					}
+				}
             }
+
+			void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+			{
+				p_AurEff->GetBase()->SetCharges(p_AurEff->GetAmount());
+
+				if (Unit* l_Caster = GetCaster())
+					l_Caster->AddAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster);
+			}
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_renewing_mist_hot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                OnEffectUpdate += AuraEffectUpdateFn(spell_monk_renewing_mist_hot_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_renewing_mist_hot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);       
                 OnEffectRemove += AuraEffectApplyFn(spell_monk_renewing_mist_hot_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+				OnEffectApply += AuraEffectApplyFn(spell_monk_renewing_mist_hot_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -4890,11 +4860,12 @@ class spell_monk_blackout_kick: public SpellScriptLoader
 
 			void HandleAfterCast()
 			{
-				Unit* l_Caster = GetCaster();
+				Player* l_Caster = GetCaster()->ToPlayer();
 				Unit* l_Target = GetHitUnit();
+
 				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184908); // Furious Sun (Sacred Draenic Incense)
 
-				if (l_Caster->HasAura(184908)) // Furious Sun - WW (Sacred Draenic Incense)
+				if (l_Caster->HasAura(184908) && l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_MONK_WINDWALKER) // Furious Sun - WW (Sacred Draenic Incense)
 				{
 					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
 					{
@@ -4948,6 +4919,23 @@ class spell_monk_expel_harm: public SpellScriptLoader
 
                 return SPELL_CAST_OK;
             }
+
+			void HandleBeforeCast()
+			{
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(ITEM_MONK_BM_T18_2P))
+					{
+						if (l_Player->GetHealthPct() <= 50.0f)
+							l_Player->RemoveSpellCooldown(115072, true);
+					}
+
+					if (l_Player->GetHealthPct() <= 35.0f)
+					{
+						l_Player->RemoveSpellCooldown(115072, true);
+					}
+				}
+			}
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
@@ -5004,6 +4992,7 @@ class spell_monk_expel_harm: public SpellScriptLoader
 
             void Register()
             {
+				BeforeCast += SpellCastFn(spell_monk_expel_harm_SpellScript::HandleBeforeCast);
                 OnCheckCast += SpellCheckCastFn(spell_monk_expel_harm_SpellScript::CheckTarget);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_expel_harm_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
@@ -6734,7 +6723,6 @@ class spell_monk_gift_of_the_serpent : public SpellScriptLoader
         }
 };
 
-
 /// Last Update 6.2.3
 /// Hurricane Strike - 123986
 class spell_monk_chi_burst_cast : public SpellScriptLoader
@@ -6851,8 +6839,9 @@ void AddSC_monk_spell_scripts()
     new spell_monk_mana_tea_stacks();
     new spell_monk_enveloping_mist();
     new spell_monk_surging_mist();
+	new spell_monk_renewing_mist();
+	new spell_monk_renewing_mist_aoe();
     new spell_monk_renewing_mist_hot();
-    new spell_monk_renewing_mist();
     new spell_monk_healing_elixirs_aura();
     new spell_monk_healing_elixirs();
     new spell_monk_zen_sphere();

@@ -6298,7 +6298,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
-            case 119611: ///< Renewing Mist
+			case 115151: // Renewing Mist
+				spellInfo->Effects[EFFECT_2].Effect = 0;
+				break;
+			case 119607:  // Renewing Mist AoE Jump
+				//spellInfo->Effects[EFFECT_1].SetRadiusIndex(EFFECT_RADIUS_20_YARDS);
+				break;
+            case 119611: ///< Renewing Mist HoT
+				spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NATURE;
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;
                 break;
             case 109186: ///< Surge of light
