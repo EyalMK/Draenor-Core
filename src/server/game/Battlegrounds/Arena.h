@@ -216,16 +216,16 @@ namespace Arena
         // TODO: Replace this hack with using the confidence factor (limiting the factor to 2.0f)
 		if (won)
 		{
-			if (ownRating >= 1500 && ownRating<1750)
-				k = 50.0f - (won_mod - chance);
-			else if (ownRating >= 1750 && ownRating<2500)
-				k = 32.0f - (won_mod - chance);
-			else if (ownRating >= 2500 && ownRating<2750)
-				k = 20.0f - (won_mod - chance);
-			else if (ownRating >= 2750 && ownRating<3000)
-				k = 15.0f - (won_mod - chance);
+			if (ownRating >= 1500 && ownRating < 1750)
+				k = 50.0f;
+			else if (ownRating >= 1750 && ownRating < 2500)
+				k = 32.0f;
+			else if (ownRating >= 2500 && ownRating < 2750)
+				k = 20.0f;
+			else if (ownRating >= 2750 && ownRating < 3000)
+				k = 15.0f;
 			else if (ownRating >= 3000)
-				k = 10.0f - (won_mod - chance);
+				k = 10.0f;
 
 			if (ownRating > 1000)
 			{
@@ -238,6 +238,8 @@ namespace Arena
 
 		if (k > 96.0f)
 			k = 96.0f;
+
+		k = k * (won_mod - chance);
 
         return (int32)ceil(k);
     }
