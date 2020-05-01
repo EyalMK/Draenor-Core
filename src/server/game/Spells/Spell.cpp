@@ -7732,6 +7732,10 @@ SpellCastResult Spell::CheckCasterAuras() const
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
     uint32 unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);     // Get unit state
 
+	///< Disgusting hack but needed for now - Cyclone and Pain Suppression
+	if (m_spellInfo->Id == 33206 && m_caster->HasAura(33786))
+		usableInStun = false;
+
     if (unitflag & UNIT_FLAG_STUNNED && !usableInStun)
         prevented_reason = SPELL_FAILED_STUNNED;
     else if (unitflag & UNIT_FLAG_CONFUSED && !m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_CONFUSED))
