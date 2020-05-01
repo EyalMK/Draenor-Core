@@ -106,9 +106,7 @@ enum eCitadelCreatures
 
 	/// Mannoroth
 	BossMannoroth = 91349,
-	FelPurpleSummoner = 913050,
-	FelRedSummoner = 913051,
-	FelGreenSummoner = 91305,
+	FelSummoner = 91305,
 	MassiveBlastWave = 454533,
 
 	FelRedSpire = 95851,
@@ -171,6 +169,9 @@ enum eCitadelDatas
 
 	/// Other boss datas
 	DataFelIronSummoner = eCitadelDatas::MaxBossData,
+
+	/// Some define datas
+	FriendlyFaction = 35,
 
 	// Counters
 

@@ -697,6 +697,10 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 	if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
 		modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
 
+	// Hackfix for Glyph of Renewing Mist
+	if (caster->HasAura(123334) && spell->GetSpellInfo()->Id == 119607)
+		radius = 40.0f;
+
 	return radius;
 }
 

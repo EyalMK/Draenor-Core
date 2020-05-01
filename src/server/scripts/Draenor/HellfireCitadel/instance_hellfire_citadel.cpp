@@ -45,12 +45,7 @@ public:
 
 			m_ZakuunGuid = 0;
 			m_XhulhoracGuid = 0;
-
 			m_MannorothGuid = 0;
-			m_FelPurpleSummonerGuid = 0;
-			m_FelRedSummonerGuid = 0;
-			m_FelGreenSummonerGuid = 0;
-			m_GuldanMannGuid = 0;
 
 			m_AnetheronGuid = 0;
 			m_KazrogalGuid = 0;
@@ -84,12 +79,7 @@ public:
 		/// Destructor's Rise - Part 4
 		uint64 m_ZakuunGuid;
 		uint64 m_XhulhoracGuid;
-
 		uint64 m_MannorothGuid;
-		uint64 m_FelPurpleSummonerGuid;
-		uint64 m_FelRedSummonerGuid;
-		uint64 m_FelGreenSummonerGuid;
-		uint64 m_GuldanMannGuid;
 
 		/// The Black Gate - Part 5
 		uint64 m_AnetheronGuid;
@@ -178,26 +168,6 @@ public:
 			case eCitadelCreatures::BossMannoroth:
 			{
 				m_MannorothGuid = p_Creature->GetGUID();
-				break;
-			}
-			case eCitadelCreatures::FelPurpleSummoner:
-			{
-				m_FelPurpleSummonerGuid = p_Creature->GetGUID();
-				break;
-			}
-			case eCitadelCreatures::FelRedSummoner:
-			{
-				m_FelRedSummonerGuid = p_Creature->GetGUID();
-				break;
-			}
-			case eCitadelCreatures::FelGreenSummoner:
-			{
-				m_FelGreenSummonerGuid = p_Creature->GetGUID();
-				break;
-			}
-			case eCitadelCreatures::GuldanMann:
-			{
-				m_GuldanMannGuid = p_Creature->GetGUID();
 				break;
 			}
 			case eCitadelCreatures::Anetheron:
@@ -737,14 +707,6 @@ public:
 				return m_XhulhoracGuid;
 			case eCitadelCreatures::BossMannoroth:
 				return m_MannorothGuid;
-			case eCitadelCreatures::FelPurpleSummoner:
-				return m_FelPurpleSummonerGuid;
-			case eCitadelCreatures::FelRedSummoner:
-				return m_FelRedSummonerGuid;
-			case eCitadelCreatures::FelGreenSummoner:
-				return m_FelGreenSummonerGuid;
-			case eCitadelCreatures::GuldanMann:
-				return m_GuldanMannGuid;
 			case eCitadelCreatures::BossArchimonde:
 				return m_ArchimondeGuid;
 
@@ -766,7 +728,7 @@ public:
 			case eCitadelCreatures::BossArchimonde:
 			{
 				if (l_Creature->GetMap()->IsMythic())
-					DoCompleteAchievement(eCitadelAchievements::AchievementArchimondeMythic | AchievementArchimondeEdge | AchievementArchimondeCurve); // If player hasn't killed it HC, but kills it in MM, it rewards both (blizzlike).
+					DoCompleteAchievement(eCitadelAchievements::AchievementArchimondeMythic | AchievementArchimondeEdge);
 				else if (l_Creature->GetMap()->IsHeroic())
 					DoCompleteAchievement(eCitadelAchievements::AchievementArchimondeCurve);
 				else
