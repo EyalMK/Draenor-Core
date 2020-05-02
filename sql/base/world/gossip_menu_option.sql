@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `gossip_menu_option` (
   PRIMARY KEY (`menu_id`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.gossip_menu_option: 6,346 rows
+-- Dumping data for table worldlive.gossip_menu_option: 6,347 rows
 DELETE FROM `gossip_menu_option`;
 /*!40000 ALTER TABLE `gossip_menu_option` DISABLE KEYS */;
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
@@ -3408,7 +3408,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(11764, 5, 1, 'Let me browse your goods.', 3, 128, 0, 0, 0, 0, ''),
 	(12599, 0, 5, 'Make this inn your home.', 8, 65536, 0, 0, 0, 0, ''),
 	(12599, 1, 1, 'I want to browse your goods.', 3, 128, 0, 0, 0, 0, ''),
-	(7046, 0, 1, 'Hey Vi\'el, show me your wares!', 0, 0, 0, 0, 0, 0, ''),
+	(7046, 0, 1, 'Hey Vi\'el, show me your wares!', 3, 128, 0, 0, 0, 0, ''),
 	(10974, 0, 0, 'I\'m ready to face my challenge.', 1, 1, 0, 0, 0, 0, ''),
 	(11131, 0, 0, 'Yes.  Do you have a raptor that can take me there?', 1, 1, 0, 0, 0, 0, ''),
 	(11020, 0, 0, 'I am ready, Vol\'jin.', 1, 1, 0, 0, 0, 0, ''),
@@ -6376,7 +6376,8 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(3864, 0, 0, 'Carlin, do you have the extended Annals of Darrowshire?', 1, 1, 0, 0, 0, 0, ''),
 	(7967, 1, 0, 'Send me to the Abyssal Shelf!', 1, 1, 0, 0, 0, 0, ''),
 	(7967, 4, 0, 'Lend me a Windrider.  I\'m going to Spinebreaker Post!', 1, 1, 0, 0, 0, 0, ''),
-	(7967, 5, 0, 'I\'m on a bombing mission for Forward Commander To\'arch.  I need a wyvern destroyer!', 1, 1, 0, 0, 0, 0, '');
+	(7967, 5, 0, 'I\'m on a bombing mission for Forward Commander To\'arch.  I need a wyvern destroyer!', 1, 1, 0, 0, 0, 0, ''),
+	(9212, 0, 0, 'I am ready to leave, Durkot.', 1, 1, 0, 0, 0, 0, NULL);
 /*!40000 ALTER TABLE `gossip_menu_option` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `character_template_item` (
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.character_template_item: ~1,651 rows (approximately)
+-- Dumping data for table worldlive.character_template_item: ~1,352 rows (approximately)
 DELETE FROM `character_template_item`;
 /*!40000 ALTER TABLE `character_template_item` DISABLE KEYS */;
 INSERT INTO `character_template_item` (`id`, `faction`, `itemID`, `count`, `type`) VALUES

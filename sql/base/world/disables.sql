@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `disables` (
   PRIMARY KEY (`sourceType`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.disables: 156 rows
+-- Dumping data for table worldlive.disables: 158 rows
 DELETE FROM `disables`;
 /*!40000 ALTER TABLE `disables` DISABLE KEYS */;
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
@@ -181,7 +181,9 @@ INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, 
 	(0, 46393, 7, '', '', '46393/brutal-assault'),
 	(0, 46392, 7, '', '', '46392/focused-assault'),
 	(0, 26013, 7, '', '', 'Disabled [Deserter] bg spell as not nededed with merc mode.'),
-	(0, 40775, 7, '', '', 'https://www.wowhead.com/spell=40775/stun-zone');
+	(0, 40775, 7, '', '', 'https://www.wowhead.com/spell=40775/stun-zone'),
+	(1, 5943, 0, '', '', 'Quest - Gizelton Caravan - Deprecated in 4.0.3'),
+	(1, 5821, 0, '', '', 'Quest - Bodyguard for Hire - Deprecated in 4.0.3');
 /*!40000 ALTER TABLE `disables` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

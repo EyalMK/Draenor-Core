@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `pool_quest` (
   KEY `idx_guid` (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.pool_quest: 274 rows
+-- Dumping data for table worldlive.pool_quest: 272 rows
 DELETE FROM `pool_quest`;
 /*!40000 ALTER TABLE `pool_quest` DISABLE KEYS */;
 INSERT INTO `pool_quest` (`entry`, `pool_entry`, `description`) VALUES
@@ -171,9 +171,7 @@ INSERT INTO `pool_quest` (`entry`, `pool_entry`, `description`) VALUES
 	(29363, 360, 'Mulgore Spice Bread'),
 	(29364, 360, 'Corn Mash'),
 	(29362, 360, '"Magic" Mushrooms'),
-	(29347, 370, 'Live Bait'),
-	(29344, 370, 'Fish fer Squirky'),
-	(29342, 370, 'Cold Water Fishing'),
+	(12563, 370, 'Troll Patrol'),
 	(26536, 369, 'Thunder Falls'),
 	(26442, 369, 'Rock Lobster'),
 	(26414, 369, 'Hitting a Walleye'),
@@ -203,8 +201,8 @@ INSERT INTO `pool_quest` (`entry`, `pool_entry`, `description`) VALUES
 	(29318, 365, 'Ribs for the Sentinels'),
 	(29357, 365, 'Spice Bread Aplenty'),
 	(29313, 365, 'The Secret to Perfect Kimchi'),
-	(29343, 370, 'One fer the Ages'),
-	(29350, 370, 'The Gnomish Bait-o-Matic'),
+	(12501, 370, 'Troll Patrol'),
+	(12587, 370, 'Troll Patrol'),
 	(29325, 371, 'A Slippery Snack'),
 	(29359, 371, 'An Old Favorite'),
 	(29321, 371, 'Happy as a Clam Digger'),

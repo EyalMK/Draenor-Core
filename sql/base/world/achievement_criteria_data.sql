@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `achievement_criteria_data` (
   PRIMARY KEY (`criteria_id`,`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Achievment system';
 
--- Dumping data for table worldlive.achievement_criteria_data: 1,162 rows
+-- Dumping data for table worldlive.achievement_criteria_data: 1,163 rows
 DELETE FROM `achievement_criteria_data`;
 /*!40000 ALTER TABLE `achievement_criteria_data` DISABLE KEYS */;
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
@@ -1186,7 +1186,8 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 	(12752, 11, 0, 0, 'achievement_soul_power'),
 	(24693, 11, 0, 0, 'achievement_highmaul_pair_annihilation'),
 	(4244, 11, 0, 0, 'achievement_hadronox_denied'),
-	(10758, 0, 0, 0, '');
+	(10758, 0, 0, 0, ''),
+	(19007, 11, 0, 0, 'achievement_rattle_no_more');
 /*!40000 ALTER TABLE `achievement_criteria_data` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
