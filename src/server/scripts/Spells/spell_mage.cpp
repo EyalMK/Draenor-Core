@@ -115,9 +115,10 @@ enum MageSpells
     SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091,
     SPELL_MAGE_DRAGON_BREATH                     = 31661,
     SPELL_MAGE_PRESENCE_OF_MIND                  = 12043,
+	SPELL_MAGE_CONJURE_PHOENIX					 = 186181,
+	SPELL_MAGE_ICARUS_UPRISING					 = 186170,
 
 	// Tier
-
 
 	// T18
 	ITEM_MAGE_ARCANE_T18_2P						 = 186166,
@@ -3481,8 +3482,7 @@ public:
     }
 };
 
-/// Conjure Phoenix - 186181
-/// Called by T18 Fire P2 - 186167
+/// T18 Fire P2 - 186167
 class spell_mage_T18_phoenix : public SpellScriptLoader
 {
 public:
@@ -3519,6 +3519,36 @@ public:
 	AuraScript* GetAuraScript() const
 	{
 		return new spell_mage_T18_phoenix_AuraScript();
+	}
+};
+
+/// Conjure Phoenix - 186181
+class spell_mage_conjure_phoenix : public SpellScriptLoader
+{
+public:
+	spell_mage_conjure_phoenix() : SpellScriptLoader("spell_mage_conjure_phoenix") { }
+
+	class spell_mage_conjure_phoenix_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_mage_conjure_phoenix_SpellScript);
+
+		void HandleOnCast()
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster->HasAura(ITEM_MAGE_FIRE_T18_4P))
+				l_Caster->CastSpell(l_Caster, SPELL_MAGE_ICARUS_UPRISING, true);
+		}
+
+		void Register()
+		{
+			OnCast += SpellCastFn(spell_mage_conjure_phoenix_SpellScript::HandleOnCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_mage_conjure_phoenix_SpellScript();
 	}
 };
 
@@ -3590,6 +3620,8 @@ void AddSC_mage_spell_scripts()
     new spell_mage_item_t17_fire_4p_bonus();
     new spell_mage_item_t17_arcane_4p_bonus();
     new spell_mage_glyph_of_arcane_language();
+	new spell_mage_T18_phoenix();
+	new spell_mage_conjure_phoenix();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();
