@@ -165,6 +165,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ScarletMonastery/boss_thalnos_the_soulrender.cpp
   EasternKingdoms/ScarletMonastery/boss_headless_horseman.cpp
   EasternKingdoms/ScarletMonastery/instance_scarlet_monastery.cpp
+  EasternKingdoms/ScarletMonastery/scarlet_monastery.cpp
   EasternKingdoms/ScarletMonastery/scarlet_monastery.h
   EasternKingdoms/undercity.cpp
   EasternKingdoms/silvermoon_city.cpp
