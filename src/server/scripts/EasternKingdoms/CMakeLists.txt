@@ -158,6 +158,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ScarletHalls/boss_flameweaver_koegler.cpp
   EasternKingdoms/ScarletHalls/boss_houndmaster_braun.cpp
   EasternKingdoms/ScarletHalls/instance_scarlet_halls.cpp
+  EasternKingdoms/ScarletHalls/scarlet_halls.cpp
   EasternKingdoms/ScarletHalls/scarlet_halls.h
   EasternKingdoms/ScarletMonastery/boss_brother_korloff.cpp
   EasternKingdoms/ScarletMonastery/boss_commander_durand.cpp

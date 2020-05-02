@@ -1,181 +1,358 @@
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "scarlet_halls.h"
+
+enum ScriptedTexts
+{
+	SAY_AGGRO = 0,
+	SAY_DEATH = 1,
+	SAY_INTRO = 2,
+	SAY_KILL = 3,
+	SAY_DRAGON_BREATH = 4,
+};
 
 enum Spells
 {
-    SPELL_BOOK_BURNER     = 113364,
-    SPELL_BURNING_BOOKS   = 113616, // Aura stay for 30 seconds
-    SPELL_FIREBALL_VOLLEY = 113691,
-    SPELL_DRAGON_BREATH   = 113641,
-    SPELL_PYROBLAST       = 113690,
-    SPELL_QUICKENED_MIND  = 113682,
-    SPELL_TELEPORT        = 113626
-};
+	SPELL_PYROBLAST = 113690,
+	SPELL_FIREBALL_VOLLEY = 113691,
+	SPELL_QUICKENED_MIND = 113682,
+	SPELL_GREATER_DRAGONS_BREATH = 113641,
+	SPELL_GREATER_DRAGONS_BREATH_DMG = 113653,
+	SPELL_GREATER_DRAGONS_BREATH_DUMMY = 113657,
 
-enum Talk
-{
-    SAY_INTRO           = 0, // Everything must burn. None shall know of the Scarlet Crusade's shame!
-    SAY_AGGRO           = 1, // You, too, shall be charred to ash!
-    SAY_DRAGON_BREATH_1 = 2, // Breath of the Dragon!
-    SAY_DRAGON_BREATH_2 = 3, // Purged by fire!
-    SAY_KILLER_1        = 4, // Burn, BURN!
-    SAY_KILLER_2        = 5, // Die in a fire!
-    SAY_DEATH           = 6  //  My fire...has gone out.
+	SPELL_BOOK_BURNER_AOE = 113366,
+	SPELL_BOOK_BURNER = 113364,
+	SPELL_BURNING_BOOKS = 113616,
+	SPELL_BURNING_BOOKS_DMG = 113620,
+
+	SPELL_TELEPORT = 113626
 };
 
 enum Events
 {
-    EVENT_BURNING_BOOKS,
-    EVENT_TELEPORT,
-    EVENT_DRAGON_BREATH,
-    EVENT_QUICK_MIND,
-    EVENT_FIREBALL,
-    EVENT_PYROBLAST,
-    EVENT_DRAGON_BREATH_INTRO
+	EVENT_PYROBLAST = 1,
+	EVENT_FIREBALL_VOLLEY,
+	EVENT_QUICKENED_MIND,
+	EVENT_GREATER_DRAGONS_BREATH,
+
+	EVENT_BURNING_BOOKS,
+	EVENT_TELEPORT,
+	EVENT_DRAGON_BREATH_INTRO
+};
+
+enum Timers
+{
+	TIMER_PYROBLAST_FIRST = 5 * IN_MILLISECONDS,
+	TIMER_PYROBLAST = 6 * IN_MILLISECONDS,
+	TIMER_FIREBALL_VOLLEY_FIRST = 15 * IN_MILLISECONDS,
+	TIMER_FIREBALL_VOLLEY = 30 * IN_MILLISECONDS,
+	TIMER_QUICKENED_MIND_FIRST = 9 * IN_MILLISECONDS,
+	TIMER_QUICKENED_MIND = 30 * IN_MILLISECONDS,
+	TIMER_GREATER_DRAGONS_BREATH_FIRST = 9 * IN_MILLISECONDS,
+	TIMER_GREATER_DRAGONS_BREATH = 30 * IN_MILLISECONDS,
+};
+
+enum Adds
+{
+	NPC_DRAGON_BREATH_TARGET = 59198,
+};
+
+enum Actions
+{
+	ACTION_FLAMEWEAVER_KOEGLER_INTRO = 1,
+};
+
+#define DRAGON_BREATH_POSITION_COUNT 4
+const Position dragonBreathPos[DRAGON_BREATH_POSITION_COUNT] =
+{
+	{1284.621704f, 549.195923f, 12.834718f, 6.175966f},
+	{1297.670044f, 536.281494f, 12.827723f, 0.885434f},
+	{1314.020874f, 550.135437f, 12.831744f, 3.130361f},
+	{1299.557861f, 563.362366f, 12.821470f, 3.090657f}
 };
 
 class boss_flameweaver_koegler : public CreatureScript
 {
-    public:
-        boss_flameweaver_koegler() : CreatureScript("boss_flameweaver_koegler") { }
+public:
+	boss_flameweaver_koegler() : CreatureScript("boss_flameweaver_koegler") { }
 
-        struct boss_flameweaver_koeglerAI : public BossAI
-        {
-            boss_flameweaver_koeglerAI(Creature* creature) : BossAI(creature, DATA_FLAMEWEAVER_KOEGLER) { }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new boss_flameweaver_koeglerAI(creature);
+	}
 
-            void Reset()
-            {
-                _Reset();
-                intro = false;
-                me->SetReactState(REACT_DEFENSIVE);
-            }
+	struct boss_flameweaver_koeglerAI : public BossAI
+	{
+		boss_flameweaver_koeglerAI(Creature* creature) : BossAI(creature, DATA_FLAMEWEAVER_KOEGLER)
+		{
+			//ApplyAllImmunities(true); -- Need to look into this function from PandaWoW
+			me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);
 
-            void EnterCombat(Unit* /*who*/)
-            {
-                _EnterCombat();
-                Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_BURNING_BOOKS, 30000);
-                events.ScheduleEvent(EVENT_QUICK_MIND, 15000);
-                events.ScheduleEvent(EVENT_TELEPORT, 38000);
-                events.ScheduleEvent(EVENT_FIREBALL, 5000);
-                events.ScheduleEvent(EVENT_PYROBLAST, 20000);
-            }
+			m_IsIntroDone = false;
+		}
 
-            void JustDied(Unit* /*killer*/)
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-            }
+		void Reset() override
+		{
+			_Reset();
 
-            void KilledUnit(Unit* victim)
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(RAND(SAY_KILLER_1, SAY_KILLER_2));
-            }
+			me->SetReactState(REACT_DEFENSIVE);
+		}
 
-            void MoveInLineOfSight(Unit* who)
-            {
-                if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsValidAttackTarget(who))
+		void EnterCombat(Unit* /*who*/) override
+		{
+			Talk(SAY_AGGRO);
 
-                if (!intro && me->IsWithinDistInMap(who, 25))
-                {
-                    intro = true;
-                    Talk(SAY_INTRO);
-                    ScriptedAI::MoveInLineOfSight(who);
-                }
-            }
+			events.ScheduleEvent(EVENT_PYROBLAST, TIMER_PYROBLAST_FIRST);
+			events.ScheduleEvent(EVENT_FIREBALL_VOLLEY, TIMER_FIREBALL_VOLLEY_FIRST);
+			events.ScheduleEvent(EVENT_QUICKENED_MIND, TIMER_QUICKENED_MIND_FIRST);
+			events.ScheduleEvent(EVENT_GREATER_DRAGONS_BREATH, TIMER_GREATER_DRAGONS_BREATH_FIRST);
 
-            void UpdateAI(uint32 const diff)
-            {
-                if(!UpdateVictim())
-                    return;
+			m_IsIntroDone = true;
 
-                events.Update(diff);
+			DoZoneInCombat();
+			instance->SetBossState(DATA_FLAMEWEAVER_KOEGLER, IN_PROGRESS);
+		}
 
-                if(me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+		void KilledUnit(Unit* victim) override
+		{
+			if (victim && victim->IsPlayer())
+			{
+				Talk(SAY_KILL);
+			}
+		}
 
-                if(uint32 eventId = events.ExecuteEvent())
-                {
-                    switch(eventId)
-                    {
-                        case EVENT_BURNING_BOOKS:
-                            DoCast(SPELL_BOOK_BURNER);
-                            events.ScheduleEvent(EVENT_BURNING_BOOKS, 30000); // should be 30sec after the first one
-                            break;
-                        case EVENT_TELEPORT:
-                            DoCast(SPELL_TELEPORT);
-                            me->UpdateMovementFlags();
-                            me->SetTarget(0);
-                            me->StopMoving();
-                            events.ScheduleEvent(EVENT_TELEPORT, 45000);
-                            events.ScheduleEvent(EVENT_DRAGON_BREATH, 1000);
-                            break;
-                        case EVENT_DRAGON_BREATH:
-                            Talk(RAND(SAY_DRAGON_BREATH_1, SAY_DRAGON_BREATH_2));
-                            DoCast(SPELL_DRAGON_BREATH);
-                            events.ScheduleEvent(EVENT_QUICK_MIND, 11000);
-                            break;
-                        case EVENT_QUICK_MIND:
-                            AttackStart(me->getVictim());
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            DoCast(me, SPELL_QUICKENED_MIND);
-                            break;
-                        case EVENT_FIREBALL:
-                            DoCastVictim(SPELL_FIREBALL_VOLLEY);
-                            events.ScheduleEvent(EVENT_FIREBALL, 15000);
-                            break;
-                        case EVENT_PYROBLAST:
-                            DoCastVictim(SPELL_PYROBLAST);
-                            events.ScheduleEvent(EVENT_PYROBLAST, urand (25000, 35000));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-            private:
-                bool intro;
-        };
+		void DoAction(const int32 action) override
+		{
+			if (action == ACTION_FLAMEWEAVER_KOEGLER_INTRO)
+			{
+				HandleIntro();
+			}
+		}
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_flameweaver_koeglerAI(creature);
-        }
+		void JustDied(Unit* /*killer*/) override
+		{
+			_JustDied();
+			Talk(SAY_DEATH);
+		}
+
+		void UpdateAI(uint32 const diff) override
+		{
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				ExecuteEvent(eventId);
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	private:
+
+		void ExecuteEvent(const uint32 eventId) override
+		{
+			switch (eventId)
+			{
+			case EVENT_PYROBLAST:
+				DoPyroblast();
+				events.ScheduleEvent(EVENT_PYROBLAST, TIMER_PYROBLAST);
+				break;
+			case EVENT_FIREBALL_VOLLEY:
+				DoFireballVolley();
+				events.ScheduleEvent(EVENT_FIREBALL_VOLLEY, TIMER_FIREBALL_VOLLEY);
+				break;
+			case EVENT_QUICKENED_MIND:
+				DoQuickenedMind();
+				events.ScheduleEvent(EVENT_QUICKENED_MIND, TIMER_QUICKENED_MIND);
+				break;
+			case EVENT_GREATER_DRAGONS_BREATH:
+				DoGreaterDragonsBreath();
+				events.ScheduleEvent(EVENT_GREATER_DRAGONS_BREATH, TIMER_GREATER_DRAGONS_BREATH);
+				break;
+				/*case EVENT_BURNING_BOOKS:
+					DoCast(SPELL_BOOK_BURNER);
+					events.ScheduleEvent(EVENT_BURNING_BOOKS, 30000); // should be 30sec after the first one
+					break;
+				case EVENT_TELEPORT:
+					DoCast(SPELL_TELEPORT);
+					me->SendMovementFlagUpdate();
+					me->SetTarget(0);
+					me->StopMoving();
+					events.ScheduleEvent(EVENT_TELEPORT, 45000);
+					events.ScheduleEvent(EVENT_DRAGON_BREATH, 1000);*/
+				break;
+			default:
+				break;
+			}
+		}
+
+		void HandleIntro()
+		{
+			if (m_IsIntroDone)
+				return;
+
+			m_IsIntroDone = true;
+
+			Talk(SAY_INTRO);
+		}
+
+		void DoPyroblast()
+		{
+			TryCastWithQuickenedMind(me->getVictim(), SPELL_PYROBLAST);
+		}
+
+		void DoFireballVolley()
+		{
+			TryCastWithQuickenedMind(me, SPELL_FIREBALL_VOLLEY);
+		}
+
+		void DoQuickenedMind()
+		{
+			DoCast(me, SPELL_QUICKENED_MIND);
+		}
+
+		void TryCastWithQuickenedMind(Unit* target, uint32 spellId)
+		{
+			if (me->HasAura(SPELL_QUICKENED_MIND))
+			{
+				me->CastCustomSpell(spellId, SPELLVALUE_INSTANT_CAST, true, target, false);
+				me->RemoveAuraFromStack(SPELL_QUICKENED_MIND);
+			}
+			else
+			{
+				DoCast(target, spellId);
+			}
+		}
+
+		void DoGreaterDragonsBreath()
+		{
+			uint8 index = urand(0, DRAGON_BREATH_POSITION_COUNT);
+			if (Creature* pTarget = me->SummonCreature(NPC_DRAGON_BREATH_TARGET, dragonBreathPos[index], TEMPSUMMON_TIMED_DESPAWN, 30000))
+			{
+				me->SetOrientation(me->GetAngle(pTarget));
+				me->SetFacingToObject(pTarget);
+				DoCast(pTarget, SPELL_GREATER_DRAGONS_BREATH);
+			}
+		}
+
+	private:
+
+		bool m_IsIntroDone;
+	};
 };
 
 class mob_book_case : public CreatureScript
 {
 public:
-    mob_book_case() : CreatureScript("mob_book_case") { }
+	mob_book_case() : CreatureScript("mob_book_case") { }
 
-    struct mob_book_caseAI : public ScriptedAI
-    {
-        mob_book_caseAI(Creature* creature) : ScriptedAI(creature) { }
+	struct mob_book_caseAI : public ScriptedAI
+	{
+		mob_book_caseAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() { }
+		void Reset() { }
 
-        void EnterCombat(Unit* /*who*/) { }
+		void EnterCombat(Unit* /*who*/) { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell)
-        {
-            if (spell->Id == SPELL_BOOK_BURNER)
-            {
-                DoCast(me, SPELL_BURNING_BOOKS);
-            }
-        }
-    };
+		void SpellHit(Unit* caster, SpellInfo const* spell)
+		{
+			if (spell->Id == SPELL_BOOK_BURNER)
+			{
+				DoCast(me, SPELL_BURNING_BOOKS);
+			}
+		}
+	};
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_book_caseAI (creature);
-    }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new mob_book_caseAI(creature);
+	}
+};
+
+class spell_flameweaver_koegler_greater_dragons_breath : public SpellScriptLoader
+{
+public:
+	spell_flameweaver_koegler_greater_dragons_breath() : SpellScriptLoader("spell_flameweaver_koegler_greater_dragons_breath") { }
+
+	class spell_flameweaver_koegler_greater_dragons_breath_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_flameweaver_koegler_greater_dragons_breath_AuraScript);
+
+		void HandleEffectPeriodic0(AuraEffect const* aurEff)
+		{
+			PreventDefaultAction();
+
+			if (!GetCaster() || !GetUnitOwner())
+				return;
+
+			GetCaster()->CastSpell(GetUnitOwner(), SPELL_GREATER_DRAGONS_BREATH_DMG, true);
+		}
+
+		void HandleEffectPeriodic1(AuraEffect const* aurEff)
+		{
+			PreventDefaultAction();
+
+			if (!GetCaster() || !GetUnitOwner())
+				return;
+
+			GetCaster()->CastSpell(GetUnitOwner(), SPELL_GREATER_DRAGONS_BREATH_DUMMY, true);
+		}
+
+		void Register()
+		{
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_flameweaver_koegler_greater_dragons_breath_AuraScript::HandleEffectPeriodic0, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_flameweaver_koegler_greater_dragons_breath_AuraScript::HandleEffectPeriodic1, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_flameweaver_koegler_greater_dragons_breath_AuraScript();
+	}
+};
+
+class at_flameweaver_koegler : public AreaTriggerScript
+{
+public:
+
+	at_flameweaver_koegler()
+		: AreaTriggerScript("at_flameweaver_koegler")
+	{
+	}
+
+	void OnEnter(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
+	{
+
+		if (Creature* pKoegler = GetFlameweaverKoegler(p_Player))
+		{
+			pKoegler->AI()->DoAction(ACTION_FLAMEWEAVER_KOEGLER_INTRO);
+		}
+	}
+
+private:
+
+	Creature* GetFlameweaverKoegler(WorldObject* searcher)
+	{
+		if (InstanceScript* pInstance = searcher->GetInstanceScript())
+		{
+			return pInstance->instance->GetCreature(pInstance->GetData64(DATA_FLAMEWEAVER_KOEGLER));
+		}
+
+		return NULL;
+	}
 };
 
 void AddSC_boss_flameweaver_koegler()
 {
-    new boss_flameweaver_koegler();
-    new mob_book_case();
+	new boss_flameweaver_koegler();     // 59150
+	new mob_book_case(); // 59155
+
+	new spell_flameweaver_koegler_greater_dragons_breath(); // 113641
+
+	new at_flameweaver_koegler();       // 8317
 }
