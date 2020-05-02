@@ -114,7 +114,18 @@ enum MageSpells
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS_EFFECT      = 171170,
     SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091,
     SPELL_MAGE_DRAGON_BREATH                     = 31661,
-    SPELL_MAGE_PRESENCE_OF_MIND                  = 12043
+    SPELL_MAGE_PRESENCE_OF_MIND                  = 12043,
+
+	// Tier
+
+
+	// T18
+	ITEM_MAGE_ARCANE_T18_2P						 = 186166,
+	ITEM_MAGE_ARCANE_T18_4P						 = 186165,
+	ITEM_MAGE_FIRE_T18_2P						 = 186167,
+	ITEM_MAGE_FIRE_T18_4P						 = 186168,
+	ITEM_MAGE_FROST_T18_2P						 = 185969,
+	ITEM_MAGE_FROST_T18_4P						 = 185971
 };
 
 /// Item - Mage WoD PvP Frost 2P Bonus - 180723
@@ -2170,41 +2181,6 @@ class spell_mage_pyroblast: public SpellScriptLoader
         }
 };
 
-// Conjure Phoenix - 186181 (T18 2P Fire)
-class spell_mage_conjure_phoenix : public SpellScriptLoader
-{
-public:
-	spell_mage_conjure_phoenix() : SpellScriptLoader("spell_mage_conjure_phoenix") { }
-
-	class spell_mage_conjure_phoenix_SpellScript : public SpellScript
-	{
-		PrepareSpellScript(spell_mage_conjure_phoenix_SpellScript);
-
-		void HandleAfterCast()
-		{
-			Unit* l_Caster = GetCaster();
-
-			if (l_Caster == nullptr)
-				return;
-
-			if (l_Caster->HasAura(186168)) // T18 4P Fire
-			{
-				l_Caster->CastCustomSpell(l_Caster, 186170, NULL, NULL, NULL, true); // Phoenix aura
-			}
-		}
-
-		void Register()
-		{
-			AfterCast += SpellCastFn(spell_mage_conjure_phoenix_SpellScript::HandleAfterCast);
-		}
-	};
-
-	SpellScript* GetSpellScript() const
-	{
-		return new spell_mage_conjure_phoenix_SpellScript();
-	}
-};
-
 // FrostFire Bolt - 44614
 class spell_mage_frostfire_bolt: public SpellScriptLoader
 {
@@ -3505,6 +3481,47 @@ public:
     }
 };
 
+/// Conjure Phoenix - 186181
+/// Called by T18 Fire P2 - 186167
+class spell_mage_T18_phoenix : public SpellScriptLoader
+{
+public:
+	spell_mage_T18_phoenix() : SpellScriptLoader("spell_mage_T18_phoenix") { }
+
+	class spell_mage_T18_phoenix_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_mage_T18_phoenix_AuraScript);
+
+		void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
+		{
+			PreventDefaultAction();
+
+			Unit* l_Caster = GetCaster();
+			if (!l_Caster)
+				return;
+
+			if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+				return;
+
+			if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+				return;
+
+			if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_PYROBLAST)
+				return;
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_mage_T18_phoenix_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_mage_T18_phoenix_AuraScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_mage_spell_scripts()
 {
@@ -3536,7 +3553,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_kindling();
     new spell_mage_frostfire_bolt();
     new spell_mage_pyroblast();
-	new spell_mage_conjure_phoenix();
     new spell_mage_ice_lance();
     new spell_mage_unstable_magic();
     new spell_mage_greater_invisibility_removed();
