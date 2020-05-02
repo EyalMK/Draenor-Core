@@ -3494,7 +3494,9 @@ public:
 			PreventDefaultAction();
 
 			Unit* l_Caster = GetCaster();
-			if (!l_Caster)
+			Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+
+			if (l_Caster == nullptr || l_Victim == nullptr)
 				return;
 
 			if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
@@ -3505,6 +3507,8 @@ public:
 
 			if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_PYROBLAST)
 				return;
+
+			l_Caster->CastSpell(l_Victim, SPELL_MAGE_CONJURE_PHOENIX, true);
 		}
 
 		void Register()
