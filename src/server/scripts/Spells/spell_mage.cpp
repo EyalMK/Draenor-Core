@@ -86,6 +86,7 @@ enum MageSpells
     SPELL_MAGE_THERMAL_VOID                      = 155149,
     SPELL_MAGE_HEATING_UP                        = 48108,
     SPELL_MAGE_KINDLING                          = 155148,
+	SPELL_MAGE_FLAMESTRIKE						 = 2120,
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
     SPELL_MAGE_FROST_BOMB_VISUAL                 = 64627,
@@ -126,7 +127,12 @@ enum MageSpells
 	ITEM_MAGE_FIRE_T18_2P						 = 186167,
 	ITEM_MAGE_FIRE_T18_4P						 = 186168,
 	ITEM_MAGE_FROST_T18_2P						 = 185969,
-	ITEM_MAGE_FROST_T18_4P						 = 185971
+	ITEM_MAGE_FROST_T18_4P						 = 185971,
+
+	// Tome of Shifting Words - 124516 (Archimonde's Trinket)
+	ITEM_MAGE_ARCANE_ARCH_TRINKET				 = 184903,
+	ITEM_MAGE_FIRE_ARCH_TRINKET					 = 184904,
+	ITEM_MAGE_FROST_ARCH_TRINKET				 = 184905,
 };
 
 /// Item - Mage WoD PvP Frost 2P Bonus - 180723
@@ -1448,6 +1454,16 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 
 						l_Caster->CastSpell(l_Target, SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
 
+						SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ITEM_MAGE_FIRE_ARCH_TRINKET); // Pyrosurge (Tome of Shifting Words)
+
+						if (l_Caster->HasAura(ITEM_MAGE_FIRE_ARCH_TRINKET))
+						{
+							if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+							{
+								l_Caster->CastSpell(l_Target, SPELL_MAGE_FLAMESTRIKE, true);
+							}
+						}
+							
 						/// Spreads any Pyroblast, Ignite, Living Bomb and Combustion effects to up to 2 nearby enemy targets within 10 yards
 						l_Target->GetAttackableUnitListInRange(l_TargetList, 10.0f);
 
@@ -1527,28 +1543,9 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 				}
 			}
 
-			void HandleAfterCast()
-			{
-				Unit* l_Caster = GetCaster();
-				Unit* l_Target = GetHitUnit();
-				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184904); // Pyrosurge (Tome of Shifting Words)
-
-				if (l_Target == nullptr || l_SpellInfo == nullptr)
-					return;
-
-				if (l_Caster->HasAura(184904)) // Pyrosurge (Tome of Shifting Words)
-				{
-					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-					{
-						l_Caster->CastSpell(l_Target, 2120); // Flamestrike
-					}
-				}
-			}
-
             void Register()
             {
                 OnHit += SpellHitFn(spell_mage_inferno_blast_SpellScript::HandleOnHit);
-				AfterCast += SpellCastFn(spell_mage_inferno_blast_SpellScript::HandleAfterCast);
             }
         };
 
