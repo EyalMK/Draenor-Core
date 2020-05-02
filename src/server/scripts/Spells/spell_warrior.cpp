@@ -16,6 +16,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
+#include "MoveSpline.h"
 
 enum WarriorSpells
 {
@@ -424,6 +425,58 @@ class spell_warr_staggering_shout: public SpellScriptLoader
         {
             return new spell_warr_staggering_shout_SpellScript();
         }
+};
+
+/// Glyph of the Blazing Trail - 123779
+// Called by: Warrior Charge Drop Fire Periodic - 126661
+class spell_warr_charge_drop_fire_periodic : public SpellScriptLoader
+{
+public:
+	spell_warr_charge_drop_fire_periodic() : SpellScriptLoader("spell_warr_charge_drop_fire_periodic") { }
+
+	class spell_warr_charge_drop_fire_periodic_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_warr_charge_drop_fire_periodic_AuraScript);
+
+		enum eSpells
+		{
+			GlyphOfTheBlazingTrail = 123779,
+			VisualBlazingCharge = 26423
+		};
+
+		bool Load() override
+		{
+			return GetCaster() && GetCaster()->HasAura(eSpells::GlyphOfTheBlazingTrail);
+		}
+
+		void DropFireVisual(AuraEffect const* p_AurEff)
+		{
+			PreventDefaultAction();
+
+			if (Unit* l_Target = GetTarget())
+			{
+				if (l_Target->IsSplineEnabled())
+				{
+					for (uint32 l_Itr = 0; l_Itr < 5; ++l_Itr)
+					{
+						int32 l_TimeOffset = 6 * l_Itr * p_AurEff->GetAmplitude() / 25;
+						Movement::Location l_Position = l_Target->movespline->ComputePosition();
+						l_Target->SendPlaySpellVisual(eSpells::VisualBlazingCharge, nullptr, 1.f, false, Position());
+					}
+				}
+			}
+		}
+
+		void Register() override
+		{
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_charge_drop_fire_periodic_AuraScript::DropFireVisual, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const override
+	{
+		return new spell_warr_charge_drop_fire_periodic_AuraScript();
+	}
 };
 
 /// Second Wind - 29838
@@ -3523,6 +3576,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_activate_battle_stance();
     new spell_warr_shield_charge_damage();
     new spell_warr_weaponmaster();
+	new spell_warr_charge_drop_fire_periodic();
 
     /// Playerscripts
     new PlayerScript_second_wind();
