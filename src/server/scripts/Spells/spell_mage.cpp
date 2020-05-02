@@ -86,6 +86,7 @@ enum MageSpells
     SPELL_MAGE_THERMAL_VOID                      = 155149,
     SPELL_MAGE_HEATING_UP                        = 48108,
     SPELL_MAGE_KINDLING                          = 155148,
+	SPELL_MAGE_FLAMESTRIKE						 = 2120,
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
     SPELL_MAGE_FROST_BOMB_VISUAL                 = 64627,
@@ -114,7 +115,24 @@ enum MageSpells
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS_EFFECT      = 171170,
     SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091,
     SPELL_MAGE_DRAGON_BREATH                     = 31661,
-    SPELL_MAGE_PRESENCE_OF_MIND                  = 12043
+    SPELL_MAGE_PRESENCE_OF_MIND                  = 12043,
+	SPELL_MAGE_CONJURE_PHOENIX					 = 186181,
+	SPELL_MAGE_ICARUS_UPRISING					 = 186170,
+
+	// Tier
+
+	// T18
+	ITEM_MAGE_ARCANE_T18_2P						 = 186166,
+	ITEM_MAGE_ARCANE_T18_4P						 = 186165,
+	ITEM_MAGE_FIRE_T18_2P						 = 186167,
+	ITEM_MAGE_FIRE_T18_4P						 = 186168,
+	ITEM_MAGE_FROST_T18_2P						 = 185969,
+	ITEM_MAGE_FROST_T18_4P						 = 185971,
+
+	// Tome of Shifting Words - 124516 (Archimonde's Trinket)
+	ITEM_MAGE_ARCANE_ARCH_TRINKET				 = 184903,
+	ITEM_MAGE_FIRE_ARCH_TRINKET					 = 184904,
+	ITEM_MAGE_FROST_ARCH_TRINKET				 = 184905,
 };
 
 /// Item - Mage WoD PvP Frost 2P Bonus - 180723
@@ -1436,6 +1454,16 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 
 						l_Caster->CastSpell(l_Target, SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
 
+						SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ITEM_MAGE_FIRE_ARCH_TRINKET); // Pyrosurge (Tome of Shifting Words)
+
+						if (l_Caster->HasAura(ITEM_MAGE_FIRE_ARCH_TRINKET))
+						{
+							if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+							{
+								l_Caster->CastSpell(l_Target, SPELL_MAGE_FLAMESTRIKE, true);
+							}
+						}
+							
 						/// Spreads any Pyroblast, Ignite, Living Bomb and Combustion effects to up to 2 nearby enemy targets within 10 yards
 						l_Target->GetAttackableUnitListInRange(l_TargetList, 10.0f);
 
@@ -1515,28 +1543,9 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 				}
 			}
 
-			void HandleAfterCast()
-			{
-				Unit* l_Caster = GetCaster();
-				Unit* l_Target = GetHitUnit();
-				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184904); // Pyrosurge (Tome of Shifting Words)
-
-				if (l_Target == nullptr || l_SpellInfo == nullptr)
-					return;
-
-				if (l_Caster->HasAura(184904)) // Pyrosurge (Tome of Shifting Words)
-				{
-					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-					{
-						l_Caster->CastSpell(l_Target, 2120); // Flamestrike
-					}
-				}
-			}
-
             void Register()
             {
                 OnHit += SpellHitFn(spell_mage_inferno_blast_SpellScript::HandleOnHit);
-				AfterCast += SpellCastFn(spell_mage_inferno_blast_SpellScript::HandleAfterCast);
             }
         };
 
@@ -2168,41 +2177,6 @@ class spell_mage_pyroblast: public SpellScriptLoader
         {
             return new spell_mage_pyroblast_SpellScript();
         }
-};
-
-// Conjure Phoenix - 186181 (T18 2P Fire)
-class spell_mage_conjure_phoenix : public SpellScriptLoader
-{
-public:
-	spell_mage_conjure_phoenix() : SpellScriptLoader("spell_mage_conjure_phoenix") { }
-
-	class spell_mage_conjure_phoenix_SpellScript : public SpellScript
-	{
-		PrepareSpellScript(spell_mage_conjure_phoenix_SpellScript);
-
-		void HandleAfterCast()
-		{
-			Unit* l_Caster = GetCaster();
-
-			if (l_Caster == nullptr)
-				return;
-
-			if (l_Caster->HasAura(186168)) // T18 4P Fire
-			{
-				l_Caster->CastCustomSpell(l_Caster, 186170, NULL, NULL, NULL, true); // Phoenix aura
-			}
-		}
-
-		void Register()
-		{
-			AfterCast += SpellCastFn(spell_mage_conjure_phoenix_SpellScript::HandleAfterCast);
-		}
-	};
-
-	SpellScript* GetSpellScript() const
-	{
-		return new spell_mage_conjure_phoenix_SpellScript();
-	}
 };
 
 // FrostFire Bolt - 44614
@@ -3505,6 +3479,80 @@ public:
     }
 };
 
+/// T18 Fire P2 - 186167
+class spell_mage_T18_phoenix : public SpellScriptLoader
+{
+public:
+	spell_mage_T18_phoenix() : SpellScriptLoader("spell_mage_T18_phoenix") { }
+
+	class spell_mage_T18_phoenix_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_mage_T18_phoenix_AuraScript);
+
+		void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
+		{
+			PreventDefaultAction();
+
+			Unit* l_Caster = GetCaster();
+			Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+
+			if (l_Caster == nullptr || l_Victim == nullptr)
+				return;
+
+			if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+				return;
+
+			if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+				return;
+
+			if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_PYROBLAST)
+				return;
+
+			l_Caster->CastSpell(l_Victim, SPELL_MAGE_CONJURE_PHOENIX, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_mage_T18_phoenix_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_mage_T18_phoenix_AuraScript();
+	}
+};
+
+/// Conjure Phoenix - 186181
+class spell_mage_conjure_phoenix : public SpellScriptLoader
+{
+public:
+	spell_mage_conjure_phoenix() : SpellScriptLoader("spell_mage_conjure_phoenix") { }
+
+	class spell_mage_conjure_phoenix_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_mage_conjure_phoenix_SpellScript);
+
+		void HandleOnCast()
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster->HasAura(ITEM_MAGE_FIRE_T18_4P))
+				l_Caster->CastSpell(l_Caster, SPELL_MAGE_ICARUS_UPRISING, true);
+		}
+
+		void Register()
+		{
+			OnCast += SpellCastFn(spell_mage_conjure_phoenix_SpellScript::HandleOnCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_mage_conjure_phoenix_SpellScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_mage_spell_scripts()
 {
@@ -3536,7 +3584,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_kindling();
     new spell_mage_frostfire_bolt();
     new spell_mage_pyroblast();
-	new spell_mage_conjure_phoenix();
     new spell_mage_ice_lance();
     new spell_mage_unstable_magic();
     new spell_mage_greater_invisibility_removed();
@@ -3574,6 +3621,8 @@ void AddSC_mage_spell_scripts()
     new spell_mage_item_t17_fire_4p_bonus();
     new spell_mage_item_t17_arcane_4p_bonus();
     new spell_mage_glyph_of_arcane_language();
+	new spell_mage_T18_phoenix();
+	new spell_mage_conjure_phoenix();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

@@ -102,183 +102,90 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
         }
 };
 
-/// Frozen Orb - 45322
-class spell_npc_mage_frozen_orb : public CreatureScript
+/*######
+# npc_frozen_orb
+######*/
+
+enum frozenOrbSpells
 {
-    public:
-        spell_npc_mage_frozen_orb() : CreatureScript("spell_npc_mage_frozen_orb") { }
+	SPELL_SELF_SNARE_90 = 82736,
+	SPELL_SNARE_DAMAGE = 84721,
+	SPELL_FINGERS_OF_FROST = 44544,
+};
 
-        enum Constants
-        {
-            DamageDelay        = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
-            HeightMaxStep      = 2,                   ///< Maximum step height the orb can go before stopping between 2 points
-        };
+/// Frozen Orb - 84714
+/// Frozen Orb (damage spell) - 84721
+class npc_frozen_orb : public CreatureScript
+{
+public:
+	npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
 
-        enum Spells
-        {
-            FingersOfFrostVisual    = 126084,
-            FingersOfFrost          = 44544,
-            FrozenOrbVisual         = 123605,
-            SelfSnare90Pct          = 82736,
-            TargetSnareAndDamage    = 84721,
-            T17Frost2P              = 165470
-        };
+	struct npc_frozen_orbAI : public ScriptedAI
+	{
+		npc_frozen_orbAI(Creature* creature)
+			: ScriptedAI(creature)
+			, frozenOrbTimer(0)
+			, m_FoFAdded(false) { }
 
-        enum eEvent
-        {
-            EventFingerOfFrost = 1
-        };
+		uint32 frozenOrbTimer;
+		bool m_FoFAdded;
 
-        struct spell_npc_mage_frozen_orbAI : public ScriptedAI
-        {
-            uint32 m_DamageTimer;
-            bool m_KeepMoving;
-            float m_Orientation;
-            float m_RotCos;
-            float m_RotSin;
-            Position m_StartPosition;
-            std::vector<Position> m_PathPoints;
-            uint32 m_PathPosition;
+		void IsSummonedBy(Unit* owner)
+		{
+			if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+			{
+				me->SetOrientation(owner->GetOrientation());
 
-            spell_npc_mage_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
-            {
-                m_DamageTimer = Constants::DamageDelay; ///< As we want the damage to proc on summon
-                m_KeepMoving = true;
-                m_Orientation = me->GetOrientation();
-                m_RotCos = std::cos(m_Orientation);
-                m_RotSin = std::sin(m_Orientation);
+				frozenOrbTimer = 50;
 
-                m_StartPosition = *me;
-                m_StartPosition.m_positionZ += me->GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
+				MoveForward();
+			}
+			else
+				me->DespawnOrUnsummon();
+		}
 
-                float l_MaxStep = float(Constants::HeightMaxStep);
-                static int s_StepCount = 60;
+		void MoveForward()
+		{
+			Position pos;
+			me->GetClosePoint(pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_COMBAT_REACH, 40.0f);
 
-                for (int l_I = 0; l_I < s_StepCount; ++l_I)
-                {
-                    float l_Distance = float(l_I);
+			me->GetMotionMaster()->Clear();
+			me->GetMotionMaster()->MovePoint(0, pos);
+		}
 
-                    Position l_Point;
-                    l_Point.m_positionX = m_StartPosition.m_positionX + (m_RotCos * l_Distance);
-                    l_Point.m_positionY = m_StartPosition.m_positionY + (m_RotSin * l_Distance);
-                    l_Point.m_positionZ = me->GetMap()->GetHeight(l_Point.m_positionX, l_Point.m_positionY, MAX_HEIGHT) + me->GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
+		void UpdateAI(const uint32 diff)
+		{
+			if (frozenOrbTimer <= diff)
+			{
+				me->CastSpell(me, SPELL_SNARE_DAMAGE, true, nullptr, nullptr, me->GetOwnerGUID());
+				frozenOrbTimer = 1000;
+			}
+			else
+				frozenOrbTimer -= diff;
+		}
 
-                    Position l_Origin;
-                    if (l_I > 1)
-                        l_Origin = m_PathPoints[l_I - 1];
-                    else
-                        l_Origin = m_StartPosition;
+		void SpellHitTarget(Unit* target, SpellInfo const* spellInfo)
+		{
+			if (target != me)
+			{
+				me->AddAura(SPELL_SELF_SNARE_90, me);
+				MoveForward();
 
-                    float l_Diff = std::abs(l_Origin.m_positionZ - l_Point.m_positionZ);
+				if (!m_FoFAdded)
+				{
+					if (auto owner = me->GetOwner())
+						owner->AddAura(SPELL_FINGERS_OF_FROST, owner);
 
-                    if (l_Diff > l_MaxStep)
-                        break;
+					m_FoFAdded = true;
+				}
+			}
+		}
+	};
 
-                    m_PathPoints.push_back(l_Point);
-                }
-
-                m_PathPosition = 0;
-
-                if (!m_PathPoints.empty())
-                    me->GetMotionMaster()->MovePoint(1, m_PathPoints[m_PathPosition], false);
-            }
-
-            /// Called at waypoint reached or PointMovement end
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
-            {
-                if (p_Type == POINT_MOTION_TYPE && p_ID == 1)
-                {
-                    m_PathPosition++;
-
-                    if (m_PathPosition < m_PathPoints.size())
-                        me->GetMotionMaster()->MovePoint(1, m_PathPoints[m_PathPosition], false);
-                }
-            }
-
-            void EnterEvadeMode() override
-            {
-                ///< No evade mode for orbs
-            }
-
-            void Reset() override
-            {
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->getHostileRefManager().setOnlineOfflineState(false);
-                me->AddAura(Spells::FrozenOrbVisual, me);
-                me->SetCanFly(true);
-
-                if (Unit* l_Owner = me->GetOwner())
-                {
-                    if (AuraEffect* l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
-                        events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
-                }
-            }
-
-            void UpdateAI(const uint32 p_Diff) override
-            {
-                events.Update(p_Diff);
-
-                if (events.ExecuteEvent() == eEvent::EventFingerOfFrost)
-                {
-                    if (Unit* l_Owner = me->GetOwner())
-                    {
-                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
-                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
-
-                        if (AuraEffect* l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
-                            events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
-                    }
-                }
-
-                m_DamageTimer += p_Diff;
-
-                if (m_DamageTimer > Constants::DamageDelay)
-                {
-                    /// Frozen Orb slows down when it damages an enemy
-                    if (!me->HasAura(Spells::SelfSnare90Pct))
-                    {
-                        const float l_MaxRadius = 10.0f; ///< Spell radius
-
-                        /// Find all the enemies in range
-                        std::list<Unit*> l_Targets;
-
-                        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(me, me, l_MaxRadius);
-                        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(me, l_Targets, l_Check);
-                        me->VisitNearbyObject(l_MaxRadius, l_Searcher);
-
-                        for (Unit* l_Target : l_Targets)
-                        {
-                            if (l_Target->isAlive() && me->GetExactDistSq(l_Target) < l_MaxRadius * l_MaxRadius && me->IsWithinLOSInMap(l_Target) && me->IsValidAttackTarget(l_Target))
-                            {
-                                me->AddAura(Spells::SelfSnare90Pct, me);
-
-                                /// Frozen Orb gives one stack of FoF on first hit
-                                if (Unit* l_Owner = me->GetOwner())
-                                {
-                                    if (l_Owner->HasAura(Spells::FingersOfFrost))
-                                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true); ///< Fingers of frost visual
-                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);  ///< Fingers of frost proc
-                                }
-                                break;
-                            }
-                        }
-                    }
-
-                    Unit* l_DamageCaster = me;
-                    if (Unit* l_Owner = me->GetOwner())
-                        l_DamageCaster = l_Owner;
-
-                    l_DamageCaster->CastSpell(me, TargetSnareAndDamage, true);
-
-                    m_DamageTimer -= Constants::DamageDelay;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_mage_frozen_orbAI(creature);
-        }
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_frozen_orbAI(creature);
+	}
 };
 
 /// Shadow Reflection - 77726
@@ -1796,7 +1703,7 @@ void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
-    new spell_npc_mage_frozen_orb();
+	new npc_frozen_orb();
 
     /// Monk NPC
     new spell_npc_black_ox_statue();
