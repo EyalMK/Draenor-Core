@@ -281,6 +281,95 @@ class spell_npc_mage_frozen_orb : public CreatureScript
         }
 };
 
+/*######
+# npc_frozen_orb
+######*/
+
+enum frozenOrbSpells
+
+{
+	SPELL_MAGE_FROZEN_ORB_VISUAL = 123605,
+	SPELL_MAGE_FROZEN_ORB_PERIODIC_AURA = 84717,
+	SPELL_MAGE_FROZEN_ORB_VISUAL_DMG = 113162,
+	SPELL_MAGE_FROZEN_ORB_DMG = 84721,
+	SPELL_MAGE_FROZEN_ORB_SELF_SNARE = 82736,
+	SPELL_MAGE_FINGERS_OF_FROST = 44544
+};
+
+class npc_frozen_orb : public CreatureScript
+{
+public:
+	npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
+
+	struct npc_frozen_orbAI : public ScriptedAI
+	{
+		npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
+		{
+			summoner = me->ToTempSummon()->GetSummoner();
+			summoner->GetPosition(&pos);
+			me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), true);
+			pos.m_positionX = pos.GetPositionX() + (15 * cos(pos.GetOrientation()));
+			pos.m_positionY = pos.GetPositionY() + (15 * sin(pos.GetOrientation()));
+			DamageTimer = 1000;
+			CombatCheck = false;
+		}
+
+
+		Position pos, temp;
+		Unit* summoner;
+		uint32 DamageTimer;
+		bool CombatCheck;
+		void EnterCombat(Unit* /*target*/) override
+		{
+			summoner->CastSpell(summoner, SPELL_MAGE_FINGERS_OF_FROST, true);
+			me->CastSpell(me, SPELL_MAGE_FROZEN_ORB_VISUAL_DMG, true);
+			me->SetSpeed(MOVE_RUN, 0.10f, false);
+			CombatCheck = true;
+		}
+
+		void Reset() override
+		{
+			me->AddUnitMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
+			me->CastSpell(me, SPELL_MAGE_FROZEN_ORB_VISUAL, true);
+			me->CastSpell(me, SPELL_MAGE_FROZEN_ORB_PERIODIC_AURA, true);
+			summoner->MovePositionToFirstCollision(pos, 200, 0.0f);
+			me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+			me->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+		}
+
+		void MoveInLineOfSight(Unit* /*who*/) override { }
+
+		void EnterEvadeMode() override { }
+
+		void UpdateAI(uint32 diff) override
+		{
+			if (DamageTimer <= diff)
+			{
+				if (summoner)
+					me->CastSpell(me, SPELL_MAGE_FROZEN_ORB_DMG, true, 0, 0, summoner->GetGUID());
+				if (CombatCheck)
+					me->CastSpell(me, SPELL_MAGE_FROZEN_ORB_VISUAL_DMG, true);
+
+				DamageTimer = 1000;
+			}
+			else
+				DamageTimer -= diff;
+			if (!CombatCheck)
+			{
+				if (Unit* target = me->SelectNearestTarget(10))
+					AttackStart(target);
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		if (!creature->ToTempSummon())
+			return NULL;
+		return new npc_frozen_orbAI(creature);
+	}
+};
+
 /// Shadow Reflection - 77726
 class spell_npc_rogue_shadow_reflection : public CreatureScript
 {
@@ -1797,6 +1886,7 @@ void AddSC_npc_spell_scripts()
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
     new spell_npc_mage_frozen_orb();
+	new npc_frozen_orb();
 
     /// Monk NPC
     new spell_npc_black_ox_statue();
