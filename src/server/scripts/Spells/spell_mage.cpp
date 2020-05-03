@@ -129,6 +129,12 @@ enum MageSpells
 	ITEM_MAGE_FROST_T18_2P						 = 185969,
 	ITEM_MAGE_FROST_T18_4P						 = 185971,
 
+	// Time Anomaly
+	SPELL_MAGE_ANOMALY_JAINA					 = 188217,
+	SPELL_MAGE_ANOMALY_SYLVANAS					 = 188280,
+	SPELL_MAGE_ANOMALY_TYRANDE					 = 188117,
+	SPELL_MAGE_ANOMALY_ARTHAS					 = 188289,
+
 	// Tome of Shifting Words - 124516 (Archimonde's Trinket)
 	ITEM_MAGE_ARCANE_ARCH_TRINKET				 = 184903,
 	ITEM_MAGE_FIRE_ARCH_TRINKET					 = 184904,
@@ -711,9 +717,9 @@ class spell_mage_arcane_missile: public SpellScriptLoader
 
                 GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_CHARGE, true);
 
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Aura* arcaneMissiles = _player->GetAura(SPELL_MAGE_ARCANE_MISSILES))
-                        arcaneMissiles->DropCharge();
+				if (Player* _player = GetCaster()->ToPlayer())
+					if (Aura* arcaneMissiles = _player->GetAura(SPELL_MAGE_ARCANE_MISSILES))
+						arcaneMissiles->DropCharge();
             }
 
             void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
@@ -765,30 +771,29 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                                 l_AuraArcaneFocus->SetDuration(l_Aura->GetDuration());
                         }
                     }
+
+					std::vector<uint32> l_TimeAnomaly =
+					{
+						// Time Anomaly
+						SPELL_MAGE_ANOMALY_JAINA,
+						SPELL_MAGE_ANOMALY_SYLVANAS,
+						SPELL_MAGE_ANOMALY_TYRANDE,
+						// SPELL_MAGE_ANOMALY_ARTHAS (We gotta find why it cannot AA, disabled until then so the mage doesn't loose DPS)
+					};
+
+					if (l_Caster->HasAura(ITEM_MAGE_ARCANE_T18_2P))
+					{
+						if (roll_chance_i(35))
+						{
+							l_Caster->CastSpell(GetCaster(), l_TimeAnomaly[urand(0, l_TimeAnomaly.size() - 1)], true);
+						}
+					}
                 }
             }
-
-			const uint32 anomalySpells[4] = { 188217, 188117, 188280, 188289 };
-
-			void HandleOnHit()
-			{
-				Unit* l_Caster = GetCaster();
-				if (!l_Caster)
-					return;
-
-				if (l_Caster->HasAura(186166)) // T18 P2 Arcane
-				{
-					if (roll_chance_i(30))
-					{
-						l_Caster->CastCustomSpell(l_Caster, anomalySpells[urand(0, 3)], NULL, NULL, NULL, true);
-					}
-				}
-			}
 
             void Register() override
             {
                 OnCast += SpellCastFn(spell_mage_arcane_missile_SpellScript::HandleOnCast);
-				OnHit += SpellHitFn(spell_mage_arcane_missile_SpellScript::HandleOnHit);
             }
         };
 
@@ -3553,6 +3558,46 @@ public:
 	}
 };
 
+/// Frostbolt (Time Anomaly) - 191764
+/// Shoot (Time Anomaly) - 191799
+class spell_mage_anomaly_spell : public SpellScriptLoader
+{
+public:
+	spell_mage_anomaly_spell() : SpellScriptLoader("spell_mage_anomaly_spell") { }
+
+	class spell_mage_anomaly_spell_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_mage_anomaly_spell_SpellScript);
+
+		void HandleDamage(SpellEffIndex /*effIndex*/)
+		{
+			if (Unit* l_Caster = GetCaster())
+			{
+				if (Unit* l_Owner = l_Caster->GetOwner())
+				{
+					/// Frostbolt and Shoot damage is increased by Mage's spellpower
+					int32 l_HitDamage = GetHitDamage();
+					float l_SpellPower = l_Owner->GetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PERCENT) * 500.0f;
+
+					l_HitDamage += CalculatePct(l_HitDamage, l_SpellPower);
+
+					SetHitDamage(l_HitDamage);
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_mage_anomaly_spell_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_mage_anomaly_spell_SpellScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_mage_spell_scripts()
 {
@@ -3623,6 +3668,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_glyph_of_arcane_language();
 	new spell_mage_T18_phoenix();
 	new spell_mage_conjure_phoenix();
+	new spell_mage_anomaly_spell();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

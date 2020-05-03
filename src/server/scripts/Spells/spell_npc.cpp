@@ -188,6 +188,168 @@ public:
 	}
 };
 
+/// Time Anomaly - 94946 <Arthas>, 94925 <Sylvanas>, 94879 <Tyrande>, 94922 <Jaina>
+class spell_npc_time_anomaly : public CreatureScript
+{
+public:
+	spell_npc_time_anomaly() : CreatureScript("spell_npc_time_anomaly") { }
+
+	enum eSpells
+	{
+		SpellFrostbolt = 191764,
+		SpellShoot     = 191799,
+		SpellAuto	   = 6603
+	};
+
+	struct spell_npc_time_anomalyAI : public ScriptedAI
+	{
+		spell_npc_time_anomalyAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+		enum eEvents
+		{
+			EventCast = 1,
+		};
+
+		EventMap m_Events;
+
+		void Reset()
+		{
+			m_Events.Reset();
+
+			Unit* l_Owner = me->GetOwner();
+
+			if (l_Owner == nullptr)
+				return;
+
+			if (me->GetEntry() == 94922) // Jaina
+			{
+				l_Owner->PlayDirectSound(7216);
+				SetEquipmentSlots(false, 72808, 0, 0);
+			}
+
+			if (me->GetEntry() == 94925) // Sylvanas
+			{
+				l_Owner->PlayDirectSound(7223);
+				SetEquipmentSlots(false, 72810, 0, 72810);
+			}
+
+			if (me->GetEntry() == 94879) // Tyrande
+			{
+				l_Owner->PlayDirectSound(7221);
+				SetEquipmentSlots(false, 72876, 0, 72876);
+			}
+
+			if (me->GetEntry() == 94946) // Arthas
+			{
+				l_Owner->PlayDirectSound(14326);
+			}
+
+			me->CastSpell(me, 26638, true); // Teleport visual
+
+			if (l_Owner->HasAura(186165)) // T18 Arcane P4
+				me->CastSpell(l_Owner, 190623, true);
+
+			me->SetMaxPower(me->getPowerType(), l_Owner->GetMaxPower(me->getPowerType()));
+			me->SetPower(me->getPowerType(), l_Owner->GetPower(me->getPowerType()));
+			me->SetMaxHealth(l_Owner->GetMaxHealth());
+			me->SetHealth(l_Owner->GetHealth());
+
+			for (uint32 l_AttackType = 0; l_AttackType < WeaponAttackType::MaxAttack; l_AttackType++)
+			{
+				WeaponAttackType l_AttackTypeEnum = static_cast<WeaponAttackType>(l_AttackType);
+				me->SetBaseWeaponDamage(l_AttackTypeEnum, WeaponDamageRange::MAXDAMAGE, l_Owner->GetWeaponDamageRange(l_AttackTypeEnum, WeaponDamageRange::MAXDAMAGE));
+				me->SetBaseWeaponDamage(l_AttackTypeEnum, WeaponDamageRange::MINDAMAGE, l_Owner->GetWeaponDamageRange(l_AttackTypeEnum, WeaponDamageRange::MINDAMAGE));
+			}
+
+			me->UpdateAttackPowerAndDamage();
+		}
+
+		void EnterCombat(Unit* p_Attacker)
+		{
+			if (me->GetEntry() == 94925 || me->GetEntry() == 94879 || me->GetEntry() == 94922)
+			{
+				m_Events.ScheduleEvent(eEvents::EventCast, 0);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+			}
+			else
+				me->AI()->AttackStart(p_Attacker);
+		}
+
+		void UpdateAI(uint32 const p_Diff)
+		{
+			m_Events.Update(p_Diff);
+
+			if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+				return;
+
+			Unit* l_Owner = me->GetOwner();
+
+			if (l_Owner == nullptr)
+				return;
+
+			Player* l_Player = l_Owner->ToPlayer();
+
+			if (!l_Player->isInCombat())
+			{
+				me->CombatStop();
+				return;
+			}
+
+			if (!UpdateVictim() || (l_Player->GetSelectedUnit() && me->getVictim() && l_Player->GetSelectedUnit() != me->getVictim()))
+			{
+				Unit* l_OwnerTarget = NULL;
+				if (Player* l_Plr = l_Owner->ToPlayer())
+					l_OwnerTarget = l_Plr->GetSelectedUnit();
+				else
+					l_OwnerTarget = l_Owner->getVictim();
+
+				if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
+					AttackStart(l_OwnerTarget);
+				return;
+			}
+
+			if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
+				return;
+
+			switch (m_Events.ExecuteEvent())
+			{
+				case eEvents::EventCast:
+				{
+					if (Unit* l_Target = me->getVictim())
+					{
+						if (me->GetEntry() == 94922) // Jaina
+						{
+							me->CastSpell(l_Target, eSpells::SpellFrostbolt, false);
+							m_Events.ScheduleEvent(eEvents::EventCast, 2000);
+						}
+
+						if (me->GetEntry() == 94925 || me->GetEntry() == 94879) // Tyrande or Sylvanas
+						{
+							me->CastSpell(l_Target, eSpells::SpellShoot, false);
+							me->HandleEmoteCommand(48);
+							m_Events.ScheduleEvent(eEvents::EventCast, 1500);
+						}
+
+						if (me->GetEntry() == 94946) // Arthas
+						{
+							me->CastSpell(l_Target, eSpells::SpellAuto, false);
+							m_Events.ScheduleEvent(eEvents::EventCast, 1000);
+						}
+					}
+					break;
+				default:
+					break;
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new spell_npc_time_anomalyAI(p_Creature);
+	}
+};
+
 /// Shadow Reflection - 77726
 class spell_npc_rogue_shadow_reflection : public CreatureScript
 {
@@ -1704,6 +1866,7 @@ void AddSC_npc_spell_scripts()
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
 	new npc_frozen_orb();
+	new spell_npc_time_anomaly();
 
     /// Monk NPC
     new spell_npc_black_ox_statue();
