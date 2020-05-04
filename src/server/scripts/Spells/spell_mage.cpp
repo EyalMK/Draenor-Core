@@ -3598,6 +3598,46 @@ public:
 	}
 };
 
+/// Called by Summon Time Anomaly - 188217, 188280, 188117, 188289
+/// T18 Arcane P2 - 186166
+class spell_mage_T18_arcane_anomaly : public SpellScriptLoader
+{
+public:
+	spell_mage_T18_arcane_anomaly() : SpellScriptLoader("spell_mage_T18_arcane_anomaly") { }
+
+	class spell_mage_T18_arcane_anomaly_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_mage_T18_arcane_anomaly_AuraScript);
+
+		void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
+		{
+			PreventDefaultAction();
+
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster == nullptr)
+				return;
+
+			if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+				return;
+
+			/// Can't proc from multistrike
+			if (p_EventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE)
+				return;
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_mage_T18_arcane_anomaly_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_mage_T18_arcane_anomaly_AuraScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_mage_spell_scripts()
 {
@@ -3669,6 +3709,7 @@ void AddSC_mage_spell_scripts()
 	new spell_mage_T18_phoenix();
 	new spell_mage_conjure_phoenix();
 	new spell_mage_anomaly_spell();
+	new spell_mage_T18_arcane_anomaly();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();
