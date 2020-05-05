@@ -53,6 +53,21 @@ set(scripts_STAT_SRCS
   Classic/Raids/BlackwingLair/boss_nefarian.cpp
   Classic/Raids/BlackwingLair/boss_flamegor.cpp
   Classic/Raids/BlackwingLair/blackwing_lair.h
+  Classic/Raids/ZulGurub/boss_hakkar.cpp
+  Classic/Raids/ZulGurub/boss_mandokir.cpp
+  Classic/Raids/ZulGurub/boss_marli.cpp
+  Classic/Raids/ZulGurub/boss_hazzarah.cpp
+  Classic/Raids/ZulGurub/boss_jeklik.cpp
+  Classic/Raids/ZulGurub/boss_grilek.cpp
+  Classic/Raids/ZulGurub/zulgurub.h
+  Classic/Raids/ZulGurub/boss_renataki.cpp
+  Classic/Raids/ZulGurub/boss_arlokk.cpp
+  Classic/Raids/ZulGurub/boss_gahzranka.cpp
+  Classic/Raids/ZulGurub/boss_venoxis.cpp
+  Classic/Raids/ZulGurub/instance_zulgurub.cpp
+  Classic/Raids/ZulGurub/boss_jindo.cpp
+  Classic/Raids/ZulGurub/boss_wushoolay.cpp
+  Classic/Raids/ZulGurub/boss_thekal.cpp
 )
 
 message("  -> Prepared: Classic")

@@ -28,17 +28,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Scholomance/scholomance.cpp
   EasternKingdoms/Scholomance/instance_scholomance.cpp
   EasternKingdoms/isle_of_queldanas.cpp
-  EasternKingdoms/ZulGurub/boss_grilek.cpp
-  EasternKingdoms/ZulGurub/boss_hazzarah.cpp
-  EasternKingdoms/ZulGurub/boss_jindo_the_godbreaker.cpp
-  EasternKingdoms/ZulGurub/boss_kilnara.cpp
-  EasternKingdoms/ZulGurub/boss_mandokir.cpp
-  EasternKingdoms/ZulGurub/boss_renataki.cpp
-  EasternKingdoms/ZulGurub/boss_venoxis.cpp
-  EasternKingdoms/ZulGurub/boss_wushoolay.cpp
-  EasternKingdoms/ZulGurub/boss_zanzil.cpp
-  EasternKingdoms/ZulGurub/instance_zulgurub.cpp
-  EasternKingdoms/ZulGurub/zulgurub.h
   EasternKingdoms/wetlands.cpp
   EasternKingdoms/arathi_highlands.cpp
   EasternKingdoms/Gnomeregan/instance_gnomeregan.cpp
