@@ -428,6 +428,8 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetExplTargetUnit();
 
+				if (l_Caster->HasUnitState(UNIT_STATE_ROOT))
+					return SPELL_FAILED_ROOTED;
 
                 if (l_Target == nullptr)
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;

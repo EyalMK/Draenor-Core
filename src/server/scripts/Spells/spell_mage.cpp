@@ -86,6 +86,7 @@ enum MageSpells
     SPELL_MAGE_THERMAL_VOID                      = 155149,
     SPELL_MAGE_HEATING_UP                        = 48108,
     SPELL_MAGE_KINDLING                          = 155148,
+	SPELL_MAGE_FLAMESTRIKE						 = 2120,
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
     SPELL_MAGE_FROST_BOMB_VISUAL                 = 64627,
@@ -114,7 +115,30 @@ enum MageSpells
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS_EFFECT      = 171170,
     SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091,
     SPELL_MAGE_DRAGON_BREATH                     = 31661,
-    SPELL_MAGE_PRESENCE_OF_MIND                  = 12043
+    SPELL_MAGE_PRESENCE_OF_MIND                  = 12043,
+	SPELL_MAGE_CONJURE_PHOENIX					 = 186181,
+	SPELL_MAGE_ICARUS_UPRISING					 = 186170,
+
+	// Tier
+
+	// T18
+	ITEM_MAGE_ARCANE_T18_2P						 = 186166,
+	ITEM_MAGE_ARCANE_T18_4P						 = 186165,
+	ITEM_MAGE_FIRE_T18_2P						 = 186167,
+	ITEM_MAGE_FIRE_T18_4P						 = 186168,
+	ITEM_MAGE_FROST_T18_2P						 = 185969,
+	ITEM_MAGE_FROST_T18_4P						 = 185971,
+
+	// Time Anomaly
+	SPELL_MAGE_ANOMALY_JAINA					 = 188217,
+	SPELL_MAGE_ANOMALY_SYLVANAS					 = 188280,
+	SPELL_MAGE_ANOMALY_TYRANDE					 = 188117,
+	SPELL_MAGE_ANOMALY_ARTHAS					 = 188289,
+
+	// Tome of Shifting Words - 124516 (Archimonde's Trinket)
+	ITEM_MAGE_ARCANE_ARCH_TRINKET				 = 184903,
+	ITEM_MAGE_FIRE_ARCH_TRINKET					 = 184904,
+	ITEM_MAGE_FROST_ARCH_TRINKET				 = 184905,
 };
 
 /// Item - Mage WoD PvP Frost 2P Bonus - 180723
@@ -693,9 +717,9 @@ class spell_mage_arcane_missile: public SpellScriptLoader
 
                 GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_CHARGE, true);
 
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Aura* arcaneMissiles = _player->GetAura(SPELL_MAGE_ARCANE_MISSILES))
-                        arcaneMissiles->DropCharge();
+				if (Player* _player = GetCaster()->ToPlayer())
+					if (Aura* arcaneMissiles = _player->GetAura(SPELL_MAGE_ARCANE_MISSILES))
+						arcaneMissiles->DropCharge();
             }
 
             void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
@@ -747,30 +771,29 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                                 l_AuraArcaneFocus->SetDuration(l_Aura->GetDuration());
                         }
                     }
+
+					std::vector<uint32> l_TimeAnomaly =
+					{
+						// Time Anomaly
+						SPELL_MAGE_ANOMALY_JAINA,
+						SPELL_MAGE_ANOMALY_SYLVANAS,
+						SPELL_MAGE_ANOMALY_TYRANDE,
+						// SPELL_MAGE_ANOMALY_ARTHAS (We gotta find why it cannot AA, disabled until then so the mage doesn't loose DPS)
+					};
+
+					if (l_Caster->HasAura(ITEM_MAGE_ARCANE_T18_2P))
+					{
+						if (roll_chance_i(35))
+						{
+							l_Caster->CastSpell(GetCaster(), l_TimeAnomaly[urand(0, l_TimeAnomaly.size() - 1)], true);
+						}
+					}
                 }
             }
-
-			const uint32 anomalySpells[4] = { 188217, 188117, 188280, 188289 };
-
-			void HandleOnHit()
-			{
-				Unit* l_Caster = GetCaster();
-				if (!l_Caster)
-					return;
-
-				if (l_Caster->HasAura(186166)) // T18 P2 Arcane
-				{
-					if (roll_chance_i(30))
-					{
-						l_Caster->CastCustomSpell(l_Caster, anomalySpells[urand(0, 3)], NULL, NULL, NULL, true);
-					}
-				}
-			}
 
             void Register() override
             {
                 OnCast += SpellCastFn(spell_mage_arcane_missile_SpellScript::HandleOnCast);
-				OnHit += SpellHitFn(spell_mage_arcane_missile_SpellScript::HandleOnHit);
             }
         };
 
@@ -1436,6 +1459,16 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 
 						l_Caster->CastSpell(l_Target, SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
 
+						SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ITEM_MAGE_FIRE_ARCH_TRINKET); // Pyrosurge (Tome of Shifting Words)
+
+						if (l_Caster->HasAura(ITEM_MAGE_FIRE_ARCH_TRINKET))
+						{
+							if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+							{
+								l_Caster->CastSpell(l_Target, SPELL_MAGE_FLAMESTRIKE, true);
+							}
+						}
+							
 						/// Spreads any Pyroblast, Ignite, Living Bomb and Combustion effects to up to 2 nearby enemy targets within 10 yards
 						l_Target->GetAttackableUnitListInRange(l_TargetList, 10.0f);
 
@@ -1515,28 +1548,9 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 				}
 			}
 
-			void HandleAfterCast()
-			{
-				Unit* l_Caster = GetCaster();
-				Unit* l_Target = GetHitUnit();
-				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184904); // Pyrosurge (Tome of Shifting Words)
-
-				if (l_Target == nullptr || l_SpellInfo == nullptr)
-					return;
-
-				if (l_Caster->HasAura(184904)) // Pyrosurge (Tome of Shifting Words)
-				{
-					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-					{
-						l_Caster->CastSpell(l_Target, 2120); // Flamestrike
-					}
-				}
-			}
-
             void Register()
             {
                 OnHit += SpellHitFn(spell_mage_inferno_blast_SpellScript::HandleOnHit);
-				AfterCast += SpellCastFn(spell_mage_inferno_blast_SpellScript::HandleAfterCast);
             }
         };
 
@@ -2168,41 +2182,6 @@ class spell_mage_pyroblast: public SpellScriptLoader
         {
             return new spell_mage_pyroblast_SpellScript();
         }
-};
-
-// Conjure Phoenix - 186181 (T18 2P Fire)
-class spell_mage_conjure_phoenix : public SpellScriptLoader
-{
-public:
-	spell_mage_conjure_phoenix() : SpellScriptLoader("spell_mage_conjure_phoenix") { }
-
-	class spell_mage_conjure_phoenix_SpellScript : public SpellScript
-	{
-		PrepareSpellScript(spell_mage_conjure_phoenix_SpellScript);
-
-		void HandleAfterCast()
-		{
-			Unit* l_Caster = GetCaster();
-
-			if (l_Caster == nullptr)
-				return;
-
-			if (l_Caster->HasAura(186168)) // T18 4P Fire
-			{
-				l_Caster->CastCustomSpell(l_Caster, 186170, NULL, NULL, NULL, true); // Phoenix aura
-			}
-		}
-
-		void Register()
-		{
-			AfterCast += SpellCastFn(spell_mage_conjure_phoenix_SpellScript::HandleAfterCast);
-		}
-	};
-
-	SpellScript* GetSpellScript() const
-	{
-		return new spell_mage_conjure_phoenix_SpellScript();
-	}
 };
 
 // FrostFire Bolt - 44614
@@ -3505,6 +3484,160 @@ public:
     }
 };
 
+/// T18 Fire P2 - 186167
+class spell_mage_T18_phoenix : public SpellScriptLoader
+{
+public:
+	spell_mage_T18_phoenix() : SpellScriptLoader("spell_mage_T18_phoenix") { }
+
+	class spell_mage_T18_phoenix_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_mage_T18_phoenix_AuraScript);
+
+		void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
+		{
+			PreventDefaultAction();
+
+			Unit* l_Caster = GetCaster();
+			Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+
+			if (l_Caster == nullptr || l_Victim == nullptr)
+				return;
+
+			if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+				return;
+
+			if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+				return;
+
+			if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_PYROBLAST)
+				return;
+
+			l_Caster->CastSpell(l_Victim, SPELL_MAGE_CONJURE_PHOENIX, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_mage_T18_phoenix_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_mage_T18_phoenix_AuraScript();
+	}
+};
+
+/// Conjure Phoenix - 186181
+class spell_mage_conjure_phoenix : public SpellScriptLoader
+{
+public:
+	spell_mage_conjure_phoenix() : SpellScriptLoader("spell_mage_conjure_phoenix") { }
+
+	class spell_mage_conjure_phoenix_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_mage_conjure_phoenix_SpellScript);
+
+		void HandleOnCast()
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster->HasAura(ITEM_MAGE_FIRE_T18_4P))
+				l_Caster->CastSpell(l_Caster, SPELL_MAGE_ICARUS_UPRISING, true);
+		}
+
+		void Register()
+		{
+			OnCast += SpellCastFn(spell_mage_conjure_phoenix_SpellScript::HandleOnCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_mage_conjure_phoenix_SpellScript();
+	}
+};
+
+/// Frostbolt (Time Anomaly) - 191764
+/// Shoot (Time Anomaly) - 191799
+class spell_mage_anomaly_spell : public SpellScriptLoader
+{
+public:
+	spell_mage_anomaly_spell() : SpellScriptLoader("spell_mage_anomaly_spell") { }
+
+	class spell_mage_anomaly_spell_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_mage_anomaly_spell_SpellScript);
+
+		void HandleDamage(SpellEffIndex /*effIndex*/)
+		{
+			if (Unit* l_Caster = GetCaster())
+			{
+				if (Unit* l_Owner = l_Caster->GetOwner())
+				{
+					/// Frostbolt and Shoot damage is increased by Mage's spellpower
+					int32 l_HitDamage = GetHitDamage();
+					float l_SpellPower = l_Owner->GetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PERCENT) * 500.0f;
+
+					l_HitDamage += CalculatePct(l_HitDamage, l_SpellPower);
+
+					SetHitDamage(l_HitDamage);
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_mage_anomaly_spell_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_mage_anomaly_spell_SpellScript();
+	}
+};
+
+/// Called by Summon Time Anomaly - 188217, 188280, 188117, 188289
+/// T18 Arcane P2 - 186166
+class spell_mage_T18_arcane_anomaly : public SpellScriptLoader
+{
+public:
+	spell_mage_T18_arcane_anomaly() : SpellScriptLoader("spell_mage_T18_arcane_anomaly") { }
+
+	class spell_mage_T18_arcane_anomaly_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_mage_T18_arcane_anomaly_AuraScript);
+
+		void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
+		{
+			PreventDefaultAction();
+
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster == nullptr)
+				return;
+
+			if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+				return;
+
+			/// Can't proc from multistrike
+			if (p_EventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE)
+				return;
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_mage_T18_arcane_anomaly_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_mage_T18_arcane_anomaly_AuraScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_mage_spell_scripts()
 {
@@ -3536,7 +3669,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_kindling();
     new spell_mage_frostfire_bolt();
     new spell_mage_pyroblast();
-	new spell_mage_conjure_phoenix();
     new spell_mage_ice_lance();
     new spell_mage_unstable_magic();
     new spell_mage_greater_invisibility_removed();
@@ -3574,6 +3706,10 @@ void AddSC_mage_spell_scripts()
     new spell_mage_item_t17_fire_4p_bonus();
     new spell_mage_item_t17_arcane_4p_bonus();
     new spell_mage_glyph_of_arcane_language();
+	new spell_mage_T18_phoenix();
+	new spell_mage_conjure_phoenix();
+	new spell_mage_anomaly_spell();
+	new spell_mage_T18_arcane_anomaly();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();
