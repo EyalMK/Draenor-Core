@@ -30,6 +30,7 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
 
         ObjectGuid i_frightGUID;
 		bool i_inPlace;
+		bool inStun;
         TimeTracker i_nextCheckTime;
 };
 
@@ -46,6 +47,7 @@ class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
 
     private:
         TimeTracker i_totalFleeTime;
+		bool inStun;
 };
 
 #endif
