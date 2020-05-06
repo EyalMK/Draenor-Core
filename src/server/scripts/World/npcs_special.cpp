@@ -2007,6 +2007,34 @@ class npc_mirror_image : public CreatureScript
         }
 };
 
+class npc_shadowfiend_mindbender : public CreatureScript
+{
+public:
+	npc_shadowfiend_mindbender() : CreatureScript("npc_shadowfiend_mindbender") { }
+
+	enum eSpells
+	{
+		PremonitionT18 = 188779
+	};
+
+	struct npc_shadowfiend_mindbenderAI : CasterAI
+	{
+		npc_shadowfiend_mindbenderAI(Creature* creature) : CasterAI(creature) {}
+
+		uint32 despawnTimer;
+
+		void Despawn()
+		{
+
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_shadowfiend_mindbenderAI(creature);
+	}
+};
+
 class npc_ebon_gargoyle : public CreatureScript
 {
     public:

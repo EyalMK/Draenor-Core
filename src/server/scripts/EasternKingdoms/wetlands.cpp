@@ -150,10 +150,57 @@ public:
     }
 };
 
+
+
+enum MarshFire
+{
+	NPC_MARSH_FIRE = 41628,
+	QUEST_FOR_PEATS_SAKE = 25939
+};
+
+/// Water Blast - 77571
+class spell_water_blast : public SpellScriptLoader
+{
+public:
+	spell_water_blast() : SpellScriptLoader("spell_water_blast") { }
+
+	class spell_water_blast_SpellScript : public SpellScript
+	{
+
+		PrepareSpellScript(spell_water_blast_SpellScript);
+
+		void HandleScript(SpellEffIndex /*effIndex*/)
+		{
+			if (!GetHitUnit() || !GetCaster()->IsPlayer() || !GetHitUnit()->ToCreature())
+				return;
+
+			GetCaster()->ToPlayer()->RewardPlayerAndGroupAtEvent(NPC_MARSH_FIRE, GetCaster());
+			//GetHitUnit()->ToCreature()->DisappearAndDie();
+		}
+
+		void SelectTarget(WorldObject*& target)
+		{
+			target = GetCaster()->FindNearestCreature(NPC_MARSH_FIRE, 10.0f, true);
+		}
+
+		void Register() override
+		{
+			OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_water_blast_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+			OnEffectHitTarget += SpellEffectFn(spell_water_blast_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_water_blast_SpellScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_wetlands()
 {
     new npc_tapoke_slim_jahn();
     new npc_mikhail();
+	new spell_water_blast();
 }
 #endif

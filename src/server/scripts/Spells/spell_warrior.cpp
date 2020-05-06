@@ -53,7 +53,19 @@ enum WarriorSpells
     WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184,
     WARRIOR_ENHANCED_WHIRLWIND                  = 157473,
     WARROR_MEAT_CLEAVER_TARGET_MODIFIER         = 85739,
-    WARRIOR_HEAVY_REPERCUSSIONS                 = 169680
+    WARRIOR_HEAVY_REPERCUSSIONS                 = 169680,
+
+
+	// Tier
+
+	// T18
+
+	ITEM_WARRIOR_T18_ARMS_2P					= 185800,
+	ITEM_WARRIOR_T18_ARMS_4P					= 185804,
+	ITEM_WARRIOR_T18_FURY_2P					= 185798,
+	ITEM_WARRIOR_T18_FURY_4P					= 185799,
+	ITEM_WARRIOR_T18_PROT_2P					= 185796,
+	ITEM_WARRIOR_T18_PROT_4P					= 185797
 };
 
 /// Last Update 6.2.3
@@ -2227,9 +2239,10 @@ class spell_warr_rend : public SpellScriptLoader
 			{
 				Player* l_Player = GetCaster()->ToPlayer();
 
-				if (l_Player->HasAura(185800) && roll_chance_i(50)) // T18 2P Arms
+				if (l_Player->HasAura(ITEM_WARRIOR_T18_ARMS_2P))
 				{
-					l_Player->RemoveSpellCooldown(167105, true); // Colossus Smash
+					if (roll_chance_i(50))
+						l_Player->RemoveSpellCooldown(12294, true); // Mortal Strike
 				}
 			}
 

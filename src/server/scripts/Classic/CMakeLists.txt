@@ -1,8 +1,4 @@
-#
-#  MILLENIUM-STUDIO
-#  Copyright 2016 Millenium-studio SARL
-#  All Rights Reserved.
-#
+
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
@@ -43,6 +39,8 @@ set(scripts_STAT_SRCS
   Classic/Raids/OnyxiasLair/boss_onyxia_classic.cpp 
   Classic/Raids/OnyxiasLair/instance_onyxias_lair.cpp 
   Classic/Raids/OnyxiasLair/onyxias_lair.h
+  
+  
   Classic/Raids/BlackwingLair/boss_chromaggus.cpp
   Classic/Raids/BlackwingLair/boss_razorgore.cpp
   Classic/Raids/BlackwingLair/boss_firemaw.cpp
@@ -53,6 +51,36 @@ set(scripts_STAT_SRCS
   Classic/Raids/BlackwingLair/boss_nefarian.cpp
   Classic/Raids/BlackwingLair/boss_flamegor.cpp
   Classic/Raids/BlackwingLair/blackwing_lair.h
+  
+  
+  Classic/Raids/ZulGurub/boss_hakkar.cpp
+  Classic/Raids/ZulGurub/boss_mandokir.cpp
+  Classic/Raids/ZulGurub/boss_marli.cpp
+  Classic/Raids/ZulGurub/boss_hazzarah.cpp
+  Classic/Raids/ZulGurub/boss_jeklik.cpp
+  Classic/Raids/ZulGurub/boss_grilek.cpp
+  Classic/Raids/ZulGurub/zulgurub.h
+  Classic/Raids/ZulGurub/boss_renataki.cpp
+  Classic/Raids/ZulGurub/boss_arlokk.cpp
+  Classic/Raids/ZulGurub/boss_gahzranka.cpp
+  Classic/Raids/ZulGurub/boss_venoxis.cpp
+  Classic/Raids/ZulGurub/instance_zulgurub.cpp
+  Classic/Raids/ZulGurub/boss_jindo.cpp
+  Classic/Raids/ZulGurub/boss_wushoolay.cpp
+  Classic/Raids/ZulGurub/boss_thekal.cpp
+  
+  Classic/Raids/MoltenCore/boss_gehennas.cpp
+  Classic/Raids/MoltenCore/boss_lucifron.cpp
+  Classic/Raids/MoltenCore/boss_golemagg.cpp
+  Classic/Raids/MoltenCore/boss_majordomo_executus.cpp
+  Classic/Raids/MoltenCore/boss_baron_geddon.cpp
+  Classic/Raids/MoltenCore/boss_ragnaros.cpp
+  Classic/Raids/MoltenCore/boss_garr.cpp
+  Classic/Raids/MoltenCore/molten_core.h
+  Classic/Raids/MoltenCore/instance_molten_core.cpp
+  Classic/Raids/MoltenCore/boss_sulfuron_harbinger.cpp
+  Classic/Raids/MoltenCore/boss_magmadar.cpp
+  Classic/Raids/MoltenCore/boss_shazzrah.cpp
 )
 
 message("  -> Prepared: Classic")

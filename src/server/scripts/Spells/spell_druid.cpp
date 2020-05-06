@@ -4894,7 +4894,7 @@ class spell_dru_starsurge : public SpellScriptLoader
 			void HandleOnCast()
 			{
 				Unit* l_Caster = GetCaster();
-				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184904); // Pyrosurge (Tome of Shifting Words)
+				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184904);
 
 				if (l_Caster->HasAura(184876)) // Seed of Creation (Starshards, balance)
 				{

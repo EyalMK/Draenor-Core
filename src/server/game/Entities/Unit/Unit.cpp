@@ -12308,6 +12308,10 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* /*p_Target*
     if (p_ProcSpell && (p_ProcSpell->Id == 22482 || p_ProcSpell->Id == 12654 || p_ProcSpell->Id == 77489))
         l_MaxProcTimes = 0;
 
+	// Hackfix for Mage T18 Arcane P2 (It shouldn't multistrike in any case)
+	if (p_ProcSpell && (p_ProcSpell->Id == 188217 || p_ProcSpell->Id == 188280 || p_ProcSpell->Id == 188117 || p_ProcSpell->Id == 188289))
+		l_ProcTimes = 0;
+
     for (uint8 l_Idx = 0; l_Idx < l_MaxProcTimes; l_Idx++)
     {
         if (IsSpellMultistrike())
@@ -12415,7 +12419,7 @@ uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32
                 if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(p_ProcSpell->GetSpellXSpellVisualId(this)))
                     l_VisualID = l_VisualEntry->VisualID;
 
-                if (l_VisualID && l_VisualID[0])
+                if (l_VisualID && l_VisualID[0] && p_ProcFlag != PROC_FLAG_DONE_PERIODIC || !p_ProcSpell->Id == 129250) // HoTs, DoTs, Power Word: Solace should not proc a visual
                     SendPlaySpellVisual(l_VisualID[0], p_Target, (p_ProcSpell->Speed * 2.0f), 0.0f, Position());
 
                 if (p_OwnerAuraEffect)

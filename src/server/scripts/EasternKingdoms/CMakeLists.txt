@@ -28,17 +28,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Scholomance/scholomance.cpp
   EasternKingdoms/Scholomance/instance_scholomance.cpp
   EasternKingdoms/isle_of_queldanas.cpp
-  EasternKingdoms/ZulGurub/boss_grilek.cpp
-  EasternKingdoms/ZulGurub/boss_hazzarah.cpp
-  EasternKingdoms/ZulGurub/boss_jindo_the_godbreaker.cpp
-  EasternKingdoms/ZulGurub/boss_kilnara.cpp
-  EasternKingdoms/ZulGurub/boss_mandokir.cpp
-  EasternKingdoms/ZulGurub/boss_renataki.cpp
-  EasternKingdoms/ZulGurub/boss_venoxis.cpp
-  EasternKingdoms/ZulGurub/boss_wushoolay.cpp
-  EasternKingdoms/ZulGurub/boss_zanzil.cpp
-  EasternKingdoms/ZulGurub/instance_zulgurub.cpp
-  EasternKingdoms/ZulGurub/zulgurub.h
   EasternKingdoms/wetlands.cpp
   EasternKingdoms/arathi_highlands.cpp
   EasternKingdoms/Gnomeregan/instance_gnomeregan.cpp
@@ -91,18 +80,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ScarletEnclave/chapter1.cpp
   EasternKingdoms/ScarletEnclave/the_scarlet_enclave.cpp
   EasternKingdoms/eastern_plaguelands.cpp
-  EasternKingdoms/MoltenCore/boss_gehennas.cpp
-  EasternKingdoms/MoltenCore/boss_lucifron.cpp
-  EasternKingdoms/MoltenCore/boss_golemagg.cpp
-  EasternKingdoms/MoltenCore/boss_majordomo_executus.cpp
-  EasternKingdoms/MoltenCore/boss_baron_geddon.cpp
-  EasternKingdoms/MoltenCore/boss_ragnaros.cpp
-  EasternKingdoms/MoltenCore/boss_garr.cpp
-  EasternKingdoms/MoltenCore/molten_core.h
-  EasternKingdoms/MoltenCore/instance_molten_core.cpp
-  EasternKingdoms/MoltenCore/boss_sulfuron_harbinger.cpp
-  EasternKingdoms/MoltenCore/boss_magmadar.cpp
-  EasternKingdoms/MoltenCore/boss_shazzrah.cpp
   EasternKingdoms/Stratholme/boss_baroness_anastari.cpp
   EasternKingdoms/Stratholme/boss_nerubenkan.cpp
   EasternKingdoms/Stratholme/instance_stratholme.cpp
@@ -165,6 +142,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ScarletMonastery/boss_thalnos_the_soulrender.cpp
   EasternKingdoms/ScarletMonastery/boss_headless_horseman.cpp
   EasternKingdoms/ScarletMonastery/instance_scarlet_monastery.cpp
+  EasternKingdoms/ScarletMonastery/scarlet_monastery.cpp
   EasternKingdoms/ScarletMonastery/scarlet_monastery.h
   EasternKingdoms/undercity.cpp
   EasternKingdoms/silvermoon_city.cpp

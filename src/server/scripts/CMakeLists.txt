@@ -1,12 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-#
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 
 # Enable precompiled headers when using the GCC compiler.
 if (USE_SCRIPTPCH)
@@ -40,10 +32,11 @@ if(SCRIPTS)
   include(PetBattle/CMakeLists.txt)
   include(Fun/CMakeLists.txt)
   include(BattlePay/CMakeLists.txt)
-  include(Firestorm/CMakeLists.txt)
+  include(Hellscream/CMakeLists.txt)
   include(Toys/CMakeLists.txt)
   include(Draenor/CMakeLists.txt)
   include(Classic/CMakeLists.txt)
+  include(Instant-100/CMakeLists.txt)
 endif()
 
 
