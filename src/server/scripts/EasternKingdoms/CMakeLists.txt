@@ -80,18 +80,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ScarletEnclave/chapter1.cpp
   EasternKingdoms/ScarletEnclave/the_scarlet_enclave.cpp
   EasternKingdoms/eastern_plaguelands.cpp
-  EasternKingdoms/MoltenCore/boss_gehennas.cpp
-  EasternKingdoms/MoltenCore/boss_lucifron.cpp
-  EasternKingdoms/MoltenCore/boss_golemagg.cpp
-  EasternKingdoms/MoltenCore/boss_majordomo_executus.cpp
-  EasternKingdoms/MoltenCore/boss_baron_geddon.cpp
-  EasternKingdoms/MoltenCore/boss_ragnaros.cpp
-  EasternKingdoms/MoltenCore/boss_garr.cpp
-  EasternKingdoms/MoltenCore/molten_core.h
-  EasternKingdoms/MoltenCore/instance_molten_core.cpp
-  EasternKingdoms/MoltenCore/boss_sulfuron_harbinger.cpp
-  EasternKingdoms/MoltenCore/boss_magmadar.cpp
-  EasternKingdoms/MoltenCore/boss_shazzrah.cpp
   EasternKingdoms/Stratholme/boss_baroness_anastari.cpp
   EasternKingdoms/Stratholme/boss_nerubenkan.cpp
   EasternKingdoms/Stratholme/instance_stratholme.cpp
