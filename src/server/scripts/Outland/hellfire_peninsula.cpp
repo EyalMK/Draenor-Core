@@ -6,22 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Hellfire_Peninsula
-SD%Complete: 100
-SDComment: Quest support: 9375, 9410, 9418, 10129, 10146, 10162, 10163, 10340, 10346, 10347, 10382 (Special flight paths)
-SDCategory: Hellfire Peninsula
-EndScriptData */
-
-/* ContentData
-npc_aeranas
-npc_ancestral_wolf
-go_haaleshi_altar
-npc_naladu
-npc_tracy_proudwell
-npc_trollbane
-npc_wounded_blood_elf
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -726,7 +710,9 @@ enum ExorcismMisc
 	NPC_COLONEL_JULES = 22432,
 
 	// Gossip
-	BARADAS_GOSSIP_MESSAGE = 10683,
+	BARADAS_GOSSIP_NPC_TEXT = 10683,
+	BARADAS_GOSSIP_MENU	    = 8539,
+	BARADAS_GOSSIP_OPTION   = 0,
 
 	// Quest
 	QUEST_THE_EXORCISM_OF_COLONEL_JULES = 10935,
@@ -736,6 +722,7 @@ enum ExorcismMisc
 	ACTION_JULES_HOVER = 2,
 	ACTION_JULES_FLIGHT = 3,
 	ACTION_JULES_MOVE_HOME = 4,
+	ACTION_FIND_JULES_BEGIN	= 5 // Find Jules and remove kneel and go to Jules
 };
 
 enum ExorcismEvents
@@ -908,6 +895,30 @@ class npc_barada : public CreatureScript
 public:
 	npc_barada() : CreatureScript("npc_barada") { }
 
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+	{
+		if (p_Player->GetQuestStatus(QUEST_THE_EXORCISM_OF_COLONEL_JULES) == QUEST_STATUS_INCOMPLETE)
+			p_Player->ADD_GOSSIP_ITEM_DB(BARADAS_GOSSIP_MENU, BARADAS_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+		p_Player->SEND_GOSSIP_MENU(BARADAS_GOSSIP_NPC_TEXT, p_Creature->GetGUID());
+
+		return true;
+	}
+
+	bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+	{
+		p_Player->PlayerTalkClass->ClearMenus();
+
+		if (p_Action == GOSSIP_ACTION_INFO_DEF)
+		{
+			p_Player->CLOSE_GOSSIP_MENU();
+
+			p_Creature->GetAI()->DoAction(ACTION_FIND_JULES_BEGIN);
+		}
+
+		return true;
+	}
+
 	struct npc_baradaAI : public ScriptedAI
 	{
 		npc_baradaAI(Creature* creature) : ScriptedAI(creature)
@@ -930,30 +941,6 @@ public:
 			me->CastSpell(me, 153964); // Kneel aura
 		}
 
-		void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-		{
-			player->PlayerTalkClass->ClearMenus();
-			switch (gossipListId)
-			{
-				case 0: // option id 0 in DB
-					player->CLOSE_GOSSIP_MENU();
-					if (Creature* jules = me->FindNearestCreature(NPC_COLONEL_JULES, 20.0f, true))
-					{
-						me->RemoveAurasDueToSpell(153964); // Kneel aura
-						me->SetFacingToObject(jules);
-						me->AI()->Talk(SAY_BARADA_1);
-						AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-						{
-							me->AI()->DoAction(ACTION_START_EVENT);
-						});
-						
-					}
-					break;
-				default:
-					break;
-			}
-		}
-
 		void DoAction(int32 action) override
 		{
 			if (action == ACTION_START_EVENT)
@@ -968,6 +955,21 @@ public:
 				Talk(SAY_BARADA_2);
 
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+			}
+
+			if (action == ACTION_FIND_JULES_BEGIN)
+			{
+				if (Creature* jules = me->FindNearestCreature(NPC_COLONEL_JULES, 20.0f, true))
+				{
+					me->RemoveAurasDueToSpell(153964); // Kneel aura
+					me->SetFacingToObject(jules);
+					me->AI()->Talk(SAY_BARADA_1);
+					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->AI()->DoAction(ACTION_START_EVENT);
+					});
+
+				}
 			}
 		}
 
