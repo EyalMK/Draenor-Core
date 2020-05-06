@@ -6,19 +6,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Stranglethorn_Vale
-SD%Complete: 100
-SDComment: Quest support: 592
-SDCategory: Stranglethorn Vale
-EndScriptData */
-
-/* ContentData
-mob_yenniku
-EndContentData */
 
 #include "ScriptMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "ScriptMgr.h"
+#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 
 /*######
@@ -239,7 +233,7 @@ public:
     };
 };
 
-#define GOSSIP_CHOICE_6 "Do you have the items I asked you ?"
+#define GOSSIP_CHOICE_6 "Do you have the items I asked you?"
 
 class mob_fleet_master_seahorn : public CreatureScript
 {
@@ -290,6 +284,81 @@ public:
     };
 };
 
+class npc_osborn_obnoticus : public CreatureScript
+{
+public:
+	npc_osborn_obnoticus() : CreatureScript("npc_osborn_obnoticus") { }
+
+	enum Data
+	{
+		QUEST_A_PHYSICAL_SPECIMEN = 26747,
+		NPC_BLOODLORD_MANDOKIR = 42790
+	};
+
+	bool OnQuestReward(Player* player, Creature* /*creature*/, Quest const* quest, uint32 /*opt*/) override
+	{
+		switch (quest->GetQuestId())
+		{
+		case QUEST_A_PHYSICAL_SPECIMEN:
+			player->SummonCreature(NPC_BLOODLORD_MANDOKIR, -11306.80f, -194.917f, 75.3878f, 2.92012f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000, true);
+			break;
+		default:
+			break;
+		}
+
+		return true;
+	}
+};
+
+class npc_bloodlord_mandokir : public CreatureScript
+{
+public:
+	npc_bloodlord_mandokir() : CreatureScript("npc_bloodlord_mandokir") { }
+
+	enum Data
+	{
+		QUEST_BLOODLORD_MANDOKIR = 26748
+	};
+
+	bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* quest, uint32 /*opt*/) override
+	{
+		switch (quest->GetQuestId())
+		{
+		case QUEST_BLOODLORD_MANDOKIR:
+			creature->DespawnOrUnsummon();
+			break;
+		default:
+			break;
+		}
+
+		return true;
+	}
+};
+
+
+
+enum AltarNaias
+{
+	NPC_NAIAS = 17207
+};
+
+class spell_summon_naias : public SpellScript
+{
+	PrepareSpellScript(spell_summon_naias);
+
+	void HandleSendEvent(SpellEffIndex /*effIndex*/)
+	{
+		if (GetCaster()->IsPlayer())
+			GetCaster()->SummonCreature(NPC_NAIAS, -12130.5000, 958.9940, 4.87148, 5.02655);
+	}
+
+	void Register() override
+	{
+		OnEffectHit += SpellEffectFn(spell_summon_naias::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+	}
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_stranglethorn_vale()
 {
@@ -297,5 +366,10 @@ void AddSC_stranglethorn_vale()
     new mob_bossy();
     new mob_narkk();
     new mob_fleet_master_seahorn();
+	new npc_osborn_obnoticus();
+	new npc_bloodlord_mandokir();
+
+	new spell_summon_naias();
+
 }
 #endif
