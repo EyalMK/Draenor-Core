@@ -117,6 +117,7 @@ namespace Movement
         bool unknown2            : 1;
         bool unknown3            : 1;
         bool orientationInversed : 1;
+		bool backward			 : 1;
         bool smoothGroundPath    : 1;
         bool walkmode            : 1;
         bool uncompressedPath    : 1;

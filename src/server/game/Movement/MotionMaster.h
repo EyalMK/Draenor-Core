@@ -65,6 +65,41 @@ enum RotateDirection
     ROTATE_DIRECTION_RIGHT
 };
 
+
+enum ForcedMovementTypes
+{
+	FORCED_NONE,
+	FORCED_PULL,
+	FORCED_PUSH,
+};
+class ForcedMovement
+{
+public:
+	ForcedMovement(Player* player);
+
+	bool IsActive() const;
+	bool IsPulling() const;
+	bool IsPushing() const;
+	bool StartPullingTo(Position positionTo, float speed);
+	bool StartPushingFrom(Position positionFrom, float speed);
+	bool StartPushingFrom(Position positionFrom, float speed, float awayDistance);
+	void Stop();
+	void Update(const uint32 diff);
+private:
+	void BuildStartPacket(WorldPacket& packet, Position const& position);
+	void BuildStopPacket(WorldPacket& packet);
+private:
+	Player* m_PlayerOwner;
+	bool m_IsActive;
+	bool m_IsFarAway;
+	ForcedMovementTypes m_Type;
+	Position m_ForcedPosition;
+	uint32 m_MapId;
+	float m_Speed;
+	float m_AwayDistance;
+	uint32 m_UpdateTimer;
+};
+
 // assume it is 25 yard per 0.6 second
 #define SPEED_CHARGE    42.0f
 
@@ -76,19 +111,15 @@ class MotionMaster //: private std::stack<MovementGenerator *>
 
         void pop()
         {
-            if (empty())
-                return;
 
             Impl[_top] = NULL;
-            while (!empty() && !top())
+            while (!top())
                 --_top;
         }
         void push(_Ty _Val) { ++_top; Impl[_top] = _Val; }
 
         bool needInitTop() const
         {
-            if (empty())
-                return false;
             return _needInit[_top];
         }
         void InitTop();
@@ -111,12 +142,10 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         int size() const { return _top + 1; }
         _Ty top() const
         {
-            ASSERT(!empty());
             return Impl[_top];
         }
         _Ty GetMotionSlot(int slot) const
         {
-            ASSERT(slot >= 0);
             return Impl[slot];
         }
 
@@ -155,51 +184,52 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void MoveTargetedHome();
         void MoveRandom(float spawndist = 0.0f);
         void MoveFollow(Unit* target, float dist, float angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
+		void MoveFollowExact(Unit* target, float dist, float angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveChase(Unit* target, float dist = 0.0f, float angle = 0.0f);
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
-        void MovePoint(uint32 id, Position const& pos, bool generatePath = true)
+        void MovePoint(uint32 id, const Position &pos, bool generatePath = true)
         {
             MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath);
         }
-        void MovePoint(uint32 id, G3D::Vector3 const& pos, bool generatePath = true)
-        {
-            MovePoint(id, pos.x, pos.y, pos.z, generatePath);
-        }
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true);
-        void MovePointWithRot(uint32 id, float x, float y, float z, float p_Orientation = -1000.0f, bool generatePath = true);
-
+		void MovePoint(uint32 id, G3D::Vector3 const& pos, bool generatePath = true)
+		{
+			MovePoint(id, pos.x, pos.y, pos.z, generatePath);
+		}
         // These two movement types should only be used with creatures having landing/takeoff animations
         void MoveLand(uint32 id, Position const& pos);
-        void MoveTakeoff(uint32 id, Position const& pos);
-        void MoveTakeoff(uint32 id, float p_X, float p_Y, float p_Z);
+		void MoveTakeoff(uint32 id, Position const& pos);
+		void MoveTakeoff(uint32 id, float x, float y, float z);
+		void MoveFollowCharge(Unit* target, float dist = 0.0f);
 
-        void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false);
-        void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE);
-        void MoveCharge(Position const* p_Pos, float p_Speed = SPEED_CHARGE, uint32 p_ID = EVENT_CHARGE, bool generatePath = false)
-        {
-            MoveCharge(p_Pos->m_positionX, p_Pos->m_positionY, p_Pos->m_positionZ, p_Speed, p_ID, generatePath);
-        }
+		void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = true);
+		void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE);
+		void MoveCharge(Position const* p_Pos, float p_Speed = SPEED_CHARGE, uint32 p_ID = EVENT_CHARGE, bool generatePath = false)
+		{
+			MoveCharge(p_Pos->m_positionX, p_Pos->m_positionY, p_Pos->m_positionZ, p_Speed, p_ID, generatePath);
+		}
+		void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
+		void MoveJumpTo(float angle, float speedXY, float speedZ);
 
-        void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
-        void MoveJumpTo(float angle, float speedXY, float speedZ);
-        void MoveJump(float x, float y, float z, float speedXY, float speedZ, float o = 10.0f, uint32 id = EVENT_JUMP, uint32 arrivalSpellId = 0, uint64 arrivalSpellTargetGuid = 0LL);
+		void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
+		void MoveCirclePath(Position const& pos, float radius, bool clockwise, uint8 stepCount)
+		{
+			MoveCirclePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ, radius, clockwise, stepCount);
+		}
+
+		void MoveJump(float x, float y, float z, float speedXY, float speedZ, float o = 10.0f, uint32 id = EVENT_JUMP, uint32 arrivalSpellId = 0, uint64 arrivalSpellTargetGuid = 0LL);
 		void MoveJump(Position const& p_Pos, float p_SpeedXY, float p_SpeedZ, float p_O = 10.0f, uint32 p_ID = EVENT_JUMP, uint32 arrivalSpellId = 0, uint64 arrivalSpellTargetGuid = 0LL)
 		{
 			MoveJump(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpeedXY, p_SpeedZ, p_O, p_ID, arrivalSpellId, arrivalSpellTargetGuid);
 		}
-        void MoveJump(uint32 p_LocEntry, float p_SpeedXY, float p_SpeedZ, uint32 p_ID = 0);
+		void MoveJump(uint32 p_LocEntry, float p_SpeedXY, float p_SpeedZ, uint32 p_ID = 0);
+		void CustomJump(float x, float y, float z, float speedXY, float speedZ, uint32 id = EVENT_JUMP, uint32 spellId = 0);
 
-        void CustomJump(float x, float y, float z, float speedXY, float speedZ, uint32 id = 0);
-        void CustomJump(Unit* p_Target, float speedXY, float speedZ, uint32 id = 0);
-        void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
-        void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk);
-		void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk, bool repeatable);   // Atonement custom
-		void MoveSmoothPath(uint32 pointId, Position const p_Position, bool walk);											// Atonement custom
-        void MoveSmoothFlyPath(uint32 p_PointID, G3D::Vector3 const* p_Path, size_t p_Size);
-		void MoveSmoothFlyPath(uint32 p_PointID, G3D::Vector3 const* p_Path, size_t p_Size, bool repeatable);				// Atonement custom
-        void MoveSmoothFlyPath(uint32 p_PointID, Position const p_Position);
         void MoveFall(uint32 id = 0);
+
+		void MoveForward(uint32 id, float x, float y, float z, float speed = 0.0f);
+		void MoveBackward(uint32 id, float x, float y, float z, float speed = 0.0f);
 
         void MoveSeekAssistance(float x, float y, float z);
         void MoveSeekAssistanceDistract(uint32 timer);
@@ -208,7 +238,12 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void MovePath(uint32 path_id, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
 
-        void MoveBackward(uint32 id, float x, float y, float z, float speed = 0.0f);
+		void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk);
+		void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk, bool repeatable);   // Atonement custom
+		void MoveSmoothPath(uint32 pointId, Position const p_Position, bool walk);											// Atonement custom
+		void MoveSmoothFlyPath(uint32 p_PointID, G3D::Vector3 const* p_Path, size_t p_Size);
+		void MoveSmoothFlyPath(uint32 p_PointID, G3D::Vector3 const* p_Path, size_t p_Size, bool repeatable);				// Atonement custom
+		void MoveSmoothFlyPath(uint32 p_PointID, Position const p_Position);
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
         MovementGeneratorType GetMotionSlotType(int slot) const;

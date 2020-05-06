@@ -7899,29 +7899,25 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     }
 }
 
-void Spell::EffectDeathGrip(SpellEffIndex effIndex)
+void Spell::EffectDeathGrip(SpellEffIndex p_EffIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
-        return;
+	if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+		return;
 
-    if (m_caster->isInFlight())
-        return;
+	if (m_caster->isInFlight())
+		return;
 
-    if (!m_targets.HasDst())
-        return;
+	if (!m_targets.HasDst())
+		return;
 
-    // Init dest coordinates
-    float x, y, z;
-    if (WorldObject* l_WorldObject = m_targets.GetObjectTarget())
-        l_WorldObject->GetPosition(x, y, z);
+	// Init dest coordinates
+	float x, y, z;
+	destTarget->GetPosition(x, y, z);
 
-    float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+	float speedXY, speedZ;
+	CalculateJumpSpeeds(p_EffIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
 
-    if (Unit* l_Target = m_targets.GetUnitTarget())
-        m_caster->GetMotionMaster()->CustomJump(l_Target, speedXY, speedZ, m_spellInfo->Id);
-    else
-        m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ, m_spellInfo->Id);
+	m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
 void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
