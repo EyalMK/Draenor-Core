@@ -2896,8 +2896,6 @@ class Unit : public WorldObject
         bool IsAlwaysVisibleFor(WorldObject const* seer) const;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;
 
-        void DisableSpline();
-
         uint32 m_SendTransportMoveTimer;
 
         uint32 m_lastRegenTime[MAX_POWERS];
@@ -2922,8 +2920,11 @@ class Unit : public WorldObject
         float GetCombatRatingReduction(CombatRating cr) const;
 
     public:
-        void UpdateSplineMovement(uint32 t_diff);
+		void DisableSpline();
+		void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition(bool _final = false);
+
+		bool CanMoveDuringCast() const;
 
     protected:
         void SendMoveRoot(uint32 value);

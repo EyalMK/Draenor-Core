@@ -27,13 +27,15 @@ class TargetedMovementGeneratorBase
 template<class T, typename D>
 class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
 {
-    protected:
-        TargetedMovementGeneratorMedium(Unit* target, float offset, float angle) :
-            TargetedMovementGeneratorBase(target), i_path(NULL),
-            i_recheckDistance(0), i_offset(offset), i_angle(angle),
-            i_recalculateTravel(false), i_targetReached(false)
-        {
-        }
+	protected:
+		TargetedMovementGeneratorMedium(Unit* target, float offset, float angle, bool isCharge = false, bool exact = false) :
+			TargetedMovementGeneratorBase(target), i_path(NULL),
+			i_recheckDistance(0), i_offset(offset), i_angle(angle), i_passedDistance(0.0f),
+			i_recalculateTravel(false), i_targetReached(false),
+			m_IsCharge(isCharge), i_exactPos(exact)
+		{
+			i_startPos.Relocate(0.0f, 0.0f, 0.0f);
+		}
         ~TargetedMovementGeneratorMedium() { delete i_path; }
 
     public:
@@ -49,8 +51,13 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         TimeTrackerSmall i_recheckDistance;
         float i_offset;
         float i_angle;
-        bool i_recalculateTravel : 1;
-        bool i_targetReached : 1;
+		float i_passedDistance;
+		Position i_startPos;
+		bool i_recalculateTravel;
+		bool i_targetReached;
+		bool i_exactPos;
+	public:
+		bool m_IsCharge;
 };
 
 template<class T>
@@ -83,9 +90,10 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
     public:
         FollowMovementGenerator(Unit* target)
             : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target){ }
-        FollowMovementGenerator(Unit* target, float offset, float angle)
-            : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle) { }
-        ~FollowMovementGenerator() { }
+		FollowMovementGenerator(Unit* target, float offset, float angle, bool isCharge = false, bool exact = false)
+			: TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle, isCharge, exact) { }
+
+		~FollowMovementGenerator() { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 

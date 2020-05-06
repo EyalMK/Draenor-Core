@@ -48,7 +48,7 @@ class PathGenerator
         // Calculate the path from owner to given destination
         // return: true if new path was calculated, false otherwise (no change needed)
         bool CalculatePath(float destX, float destY, float destZ, bool forceDest = false, bool straightLine = false);
-
+		bool IsInvalidDestinationZ(float Z) const;
         // option setters - use optional
         void SetUseStraightPath(bool useStraightPath) { _useStraightPath = useStraightPath; }
         void SetPathLengthLimit(float distance) { _pointPathLimit = std::min<uint32>(uint32(distance/SMOOTH_PATH_STEP_SIZE), MAX_POINT_PATH_LENGTH); }
@@ -60,9 +60,10 @@ class PathGenerator
 
         Movement::PointsArray const& GetPath() const { return _pathPoints; }
 
+		float GetPathLength() const;
         PathType GetPathType() const { return _type; }
 
-        void ReducePathLenghtByDist(float dist); // path must be already built
+		void ReducePathLenghtByDist(const float dist, Unit* target); // path must be already built
 
     private:
 
@@ -121,6 +122,10 @@ class PathGenerator
         dtStatus FindSmoothPath(float const* startPos, float const* endPos,
                               dtPolyRef const* polyPath, uint32 polyPathSize,
                               float* smoothPath, int* smoothPathSize, uint32 smoothPathMaxSize);
+
+		bool IsValidFinalPoint(const G3D::Vector3 finalPoint, Unit* target, float dist) const;
+		uint32 SearchForFirstValidPoint(int startAtIndex, Unit* target, float dist) const;
+		void CutAtFirstValidPoint(int startAtIndex, Unit* target, float dist);
 };
 
 #endif

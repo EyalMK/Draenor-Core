@@ -470,7 +470,7 @@ enum SpellAttr0
     SPELL_ATTR0_HIDE_IN_COMBAT_LOG               = 0x00000100, //  8 This attribite controls whether spell appears in combat logs
     SPELL_ATTR0_TARGET_MAINHAND_ITEM             = 0x00000200, //  9 Client automatically selects item from mainhand slot as a cast target
     SPELL_ATTR0_ON_NEXT_SWING_2                  = 0x00000400, // 10
-    SPELL_ATTR0_UNK11                            = 0x00000800, // 11
+	SPELL_ATTR0_UNK_11							 = 0x00000800, // 11
     SPELL_ATTR0_DAYTIME_ONLY                     = 0x00001000, // 12 only useable at daytime, not set in 2.4.2
     SPELL_ATTR0_NIGHT_ONLY                       = 0x00002000, // 13 only useable at night, not set in 2.4.2
     SPELL_ATTR0_INDOORS_ONLY                     = 0x00004000, // 14 only useable indoors, not set in 2.4.2
