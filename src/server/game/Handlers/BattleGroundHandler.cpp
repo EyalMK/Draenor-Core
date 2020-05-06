@@ -619,6 +619,17 @@ void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& /*p_RecvData*/)
         if (m_Player->GetBattleground()->GetStatus() == STATUS_WAIT_JOIN)
             return;
 
+	for (int i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+	{
+		MS::Battlegrounds::BattlegroundType::Type l_BgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i);
+
+		if (l_BgQueueTypeId != MS::Battlegrounds::BattlegroundType::None)
+		{
+			m_Player->RemoveBattlegroundQueueId(l_BgQueueTypeId);
+			sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true, l_BgQueueTypeId);
+		}
+	}
+
     m_Player->LeaveBattleground();
 #endif
 }
