@@ -186,8 +186,6 @@ public:
 	{
 		return new npc_frozen_orbAI(creature);
 	}
-<<<<<<< HEAD
-=======
 };
 
 /// Time Anomaly - 94946 <Arthas>, 94925 <Sylvanas>, 94879 <Tyrande>, 94922 <Jaina>
@@ -350,7 +348,6 @@ public:
 	{
 		return new spell_npc_time_anomalyAI(p_Creature);
 	}
->>>>>>> 6ed404de745ad4d5672c4cff3f33dfe5a3a6d61a
 };
 
 /// Shadow Reflection - 77726
@@ -1866,16 +1863,13 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_npc_spell_scripts()
 {
-<<<<<<< HEAD
 	/// Mage NPC
 	new spell_npc_mage_prismatic_crystal();
 	new npc_frozen_orb();
-=======
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
 	new npc_frozen_orb();
 	new spell_npc_time_anomaly();
->>>>>>> 6ed404de745ad4d5672c4cff3f33dfe5a3a6d61a
 
 	/// Monk NPC
 	new spell_npc_black_ox_statue();
