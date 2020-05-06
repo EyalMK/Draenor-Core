@@ -10,7 +10,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Cataclysm/deepholm.cpp
+  Cataclysm/Zones/deepholm.cpp
 )
 
 message("  -> Prepared: Cataclysm")

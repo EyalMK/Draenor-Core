@@ -18658,6 +18658,59 @@ bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
     return true;
 }
 
+void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
+{
+	AddQuest(quest, questGiver);
+
+	if (CanCompleteQuest(quest->GetQuestId()))
+		CompleteQuest(quest->GetQuestId());
+
+	if (!questGiver)
+		return;
+
+	switch (questGiver->GetTypeId())
+	{
+	case TYPEID_UNIT:
+		PlayerTalkClass->ClearMenus();
+		questGiver->ToCreature()->AI()->QuestAccept(this, quest);
+		break;
+	case TYPEID_ITEM:
+	case TYPEID_CONTAINER:
+	{
+		Item* item = static_cast<Item*>(questGiver);
+		sScriptMgr->OnQuestAccept(this, item, quest);
+
+		// There are two cases where the source item is not destroyed when the quest is accepted:
+		// - It is required to finish the quest, and is an unique item
+		// - It is the same item present in the source item field (item that would be given on quest accept)
+		bool destroyItem = true;
+
+		for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+		{
+			if (quest->RequiredSourceItemId[i] == item->GetEntry() && item->GetTemplate()->MaxCount > 0)
+			{
+				destroyItem = false;
+				break;
+			}
+		}
+
+		if (quest->GetSrcItemId() == item->GetEntry())
+			destroyItem = false;
+
+		if (destroyItem)
+			DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+
+		break;
+	}
+	case TYPEID_GAMEOBJECT:
+		PlayerTalkClass->ClearMenus();
+		questGiver->ToGameObject()->AI()->QuestAccept(this, quest);
+		break;
+	default:
+		break;
+	}
+}
+
 bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
 {
     // prevent receive reward with quest items in bank or for not completed quest

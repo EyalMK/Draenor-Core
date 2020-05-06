@@ -536,13 +536,13 @@ class Map : public GridRefManager<NGridType>
         void AddScriptedCollisionGameObject(uint64 p_Guid) { m_ScriptedCollisionGobs.insert(p_Guid); }
         void RemoveScriptedCollisionGameObject(uint64 p_Guid) { m_ScriptedCollisionGobs.erase(p_Guid); }
         bool CollideWithScriptedGameObject(float p_X, float p_Y, float p_Z, float* p_OutZ = nullptr) const;
+		GridMap* GetGrid(float x, float y);
 
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
         void LoadMap(int gx, int gy, bool reload = false);
         void LoadMMap(int gx, int gy);
-        GridMap* GetGrid(float x, float y);
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
