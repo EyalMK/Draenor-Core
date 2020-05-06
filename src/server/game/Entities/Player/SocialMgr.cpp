@@ -225,10 +225,10 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
         if (!pFriend || !pFriend->GetSession()->GetInterRealmBG())
             return;
 
-        if (pFriend->isAFK())
-            friendInfo.Status = FRIEND_STATUS_AFK;
-		else if (pFriend->isDND())
+        if (pFriend->isDND())
             friendInfo.Status = FRIEND_STATUS_DND;
+		else if (pFriend->isAFK())
+            friendInfo.Status = FRIEND_STATUS_AFK;
 		else 
 			friendInfo.Status = FRIEND_STATUS_ONLINE;
    
