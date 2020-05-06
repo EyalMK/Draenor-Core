@@ -1868,6 +1868,7 @@ void AddSC_npc_spell_scripts()
 	new npc_frozen_orb();
 	new spell_npc_time_anomaly();
 
+
 	/// Monk NPC
 	new spell_npc_black_ox_statue();
 	new npc_jade_serpent_statue();
