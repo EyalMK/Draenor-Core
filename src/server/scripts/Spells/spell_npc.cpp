@@ -1863,11 +1863,6 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_npc_spell_scripts()
 {
-
-	/// Mage NPC
-	new spell_npc_mage_prismatic_crystal();
-	new npc_frozen_orb();
-
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
 	new npc_frozen_orb();
