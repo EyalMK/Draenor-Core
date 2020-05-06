@@ -26,14 +26,17 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
         return;
 
-    if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
-        return;
+	//if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsFocusing(nullptr, true))
+	//	return;
+
+   // if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
+   //     return;
 
     float x, y, z;
 
     if (updateDestination || !i_path)
     {
-        if (!i_offset)
+        if (!i_offset && !i_exactPos)
         {
             if (i_target->IsWithinMeleeRange(owner))
                 return;
@@ -41,6 +44,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             // to nearest contact position
             i_target->GetContactPoint(owner, x, y, z);
         }
+		else if (i_exactPos)
+			GetTarget()->GetPosition(x, y, z);
         else
         {
             float dist;
@@ -54,8 +59,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             //   doing a "dance" while fighting
             if (owner->isPet() && i_target->GetTypeId() == TYPEID_PLAYER)
             {
-                dist = i_target->GetCombatReach();
-                size = i_target->GetCombatReach() - i_target->GetObjectSize();
+				dist = 1.0f;
+				size = 1.0f;
             }
             else
             {
@@ -156,6 +161,21 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
         && owner->HasUnitState(UNIT_STATE_FOLLOW));
 
     bool result = i_path->CalculatePath(x, y, z, forceDest);
+
+	if (!m_IsCharge && !i_exactPos)
+	{
+		float distFromTarget;
+		if (!i_offset)
+			distFromTarget = owner->GetCombatReach() + GetTarget()->GetCombatReach() + CONTACT_DISTANCE;
+		else if (owner->isPet() && GetTarget()->GetTypeId() == TYPEID_PLAYER) // special case for offset != 0 and pets. cf above
+			distFromTarget = 1.0f + GetTarget()->GetCombatReach() + i_offset;
+		else
+			distFromTarget = owner->GetCombatReach() + GetTarget()->GetCombatReach() + i_offset;
+		if (!result || (i_path->GetPathType() & (PATHFIND_INCOMPLETE | PATHFIND_NOPATH | PATHFIND_NOT_USING_PATH)))
+			result = i_path->CalculatePath(x, y, z, false);
+		i_path->ReducePathLenghtByDist(distFromTarget, GetTarget()->ToUnit());
+	}
+
     if (!result || (i_path->GetPathType() & PATHFIND_NOPATH))
     {
         // Cant reach target
@@ -170,11 +190,17 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(i_path->GetPath());
+	init.SetFacing(i_target.getTarget());
     init.SetWalk(((D*)this)->EnableWalking());
     // Using the same condition for facing target as the one that is used for SetInFront on movement end
     // - applies to ChaseMovementGenerator mostly
     if (i_angle == 0.0f)
         init.SetFacing(i_target.getTarget());
+
+	/// Charge - set special speed for follow
+	if (m_IsCharge)
+		init.SetVelocity(SPEED_CHARGE);
+	owner->GetPosition(&i_startPos);
 
     init.Launch();
 }
@@ -195,12 +221,18 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     }
 
     // prevent movement while casting spells with cast time or channel time
-    if (owner->HasUnitState(UNIT_STATE_CASTING))
-    {
-        if (!owner->IsStopped())
-            owner->StopMoving();
-        return true;
-    }
+	if (owner->HasUnitState(UNIT_STATE_CASTING))
+	{
+		bool l_GlyphOfWaterElemental = false;
+		if (owner->GetOwner() && owner->GetOwner()->HasAura(63090) && owner->GetCharmInfo() && owner->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && owner->ToPet() && owner->ToPet()->HasReactState(REACT_HELPER))
+			l_GlyphOfWaterElemental = true;
+		if (!l_GlyphOfWaterElemental)
+		{
+			if (!owner->IsStopped())
+				owner->StopMoving();
+			return true;
+		}
+	}
 
     // prevent crash after creature killed pet
     if (static_cast<D*>(this)->_lostTarget(owner))
@@ -216,16 +248,34 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     {
         i_recheckDistance.Reset(100);
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
-        float allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
-        G3D::Vector3 dest = owner->movespline->FinalDestination();
-        if (owner->movespline->onTransport)
-        {
-            if (TransportBase* transport = owner->GetDirectTransport())
-            {
-                float l_O;
-                transport->CalculatePassengerPosition(dest.x, dest.y, dest.z, l_O);
-            }
-        }
+		float allowed_dist = 0.0f;
+		if (i_target->isPet())
+			allowed_dist = 2.0f * i_target->GetObjectSize() + owner->GetObjectSize() + MELEE_RANGE - 0.5f;
+		else
+			allowed_dist = std::min<float>(i_target->GetCombatReach(), 4.0f) * 1.5f;
+		G3D::Vector3 dest = owner->movespline->FinalDestination();
+
+		if (owner->movespline->onTransport)
+			if (TransportBase* transport = owner->GetDirectTransport())
+			{
+				float l_O;
+				transport->CalculatePassengerPosition(dest.x, dest.y, dest.z, l_O);
+			}
+		if (m_IsCharge)
+		{
+			float step = i_startPos.GetExactDist(owner);
+			i_passedDistance += step;
+			owner->GetPosition(&i_startPos);
+			///< Charge can't go further than 25 yards
+			if (i_passedDistance >= 25.0f)
+			{
+				i_targetReached = true;
+				static_cast<D*>(this)->_reachTarget(owner);
+				if (!owner->IsStopped())
+					owner->StopMoving();
+				return false;
+			}
+		}
 
         ///if (i_target->isMoving() && i_target->GetTypeId() == TYPEID_PLAYER)
         ///{
@@ -259,11 +309,24 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
         if (i_angle == 0.0f && !owner->HasInArc(0.01f, i_target.getTarget()))
             owner->SetInFront(i_target.getTarget());
 
-        if (!i_targetReached)
-        {
-            i_targetReached = true;
-            static_cast<D*>(this)->_reachTarget(owner);
-        }
+		if (!i_targetReached && !m_IsCharge)
+		{
+			i_targetReached = true;
+			static_cast<D*>(this)->_reachTarget(owner);
+		}
+		else if (!i_targetReached && m_IsCharge)
+		{
+			/// If we've reached a target and it's Charge spell, we can stop follow, because we're done
+			if (i_target->ToUnit() && owner->GetDistance2d(i_target->ToUnit()) <= MIN_MELEE_REACH)
+			{
+				i_targetReached = true;
+				static_cast<D*>(this)->_reachTarget(owner);
+				return false;
+			}
+			/// If we didn't reach a target, we should continue our way
+			else
+				_setTargetLocation(owner, targetMoved);
+		}
     }
 
     return true;

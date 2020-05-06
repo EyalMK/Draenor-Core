@@ -22,8 +22,11 @@
 template<class T>
 void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
 {
-    if (!owner)
-        return;
+	if (!owner)
+		return;
+
+	if (i_inPlace)
+		return;
 
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
@@ -111,7 +114,13 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
         return;
 
     owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-    owner->AddUnitState(UNIT_STATE_FLEEING | UNIT_STATE_FLEEING_MOVE);
+	owner->AddUnitState(UNIT_STATE_FLEEING);
+	if (owner->HasUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING))
+	{
+		owner->StopMoving();
+		i_nextCheckTime.Reset(200);
+		return;
+	}
     _setTargetLocation(owner);
 }
 
@@ -120,6 +129,7 @@ void FleeingMovementGenerator<Player>::DoFinalize(Player* owner)
 {
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING | UNIT_STATE_FLEEING_MOVE);
+	inStun = false;
     owner->StopMoving();
 }
 
@@ -146,9 +156,12 @@ bool FleeingMovementGenerator<T>::DoUpdate(T* owner, uint32 time_diff)
 
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
     {
-        owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
+		inStun = true;
+		owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
         return true;
     }
+	else if (inStun)
+		owner->AddUnitState(UNIT_STATE_FLEEING);
 
     i_nextCheckTime.Update(time_diff);
     if (i_nextCheckTime.Passed() && owner->movespline->Finalized())
@@ -172,6 +185,7 @@ void TimedFleeingMovementGenerator::Finalize(Unit* owner)
 {
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
+	inStun = false;
     if (Unit* victim = owner->getVictim())
     {
         if (owner->isAlive())
@@ -189,9 +203,12 @@ bool TimedFleeingMovementGenerator::Update(Unit* owner, uint32 time_diff)
 
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
     {
+		inStun = true;
         owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
         return true;
     }
+	else if (inStun)
+		owner->AddUnitState(UNIT_STATE_FLEEING);
 
     i_totalFleeTime.Update(time_diff);
     if (i_totalFleeTime.Passed())

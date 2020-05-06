@@ -15,7 +15,7 @@ template<class T>
 class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovementGenerator<T> >
 {
     public:
-        FleeingMovementGenerator(ObjectGuid fright) : i_frightGUID(fright), i_nextCheckTime(0) { }
+        FleeingMovementGenerator(ObjectGuid fright, bool inPlace) : i_frightGUID(fright), i_inPlace(inPlace), i_nextCheckTime(0) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -29,14 +29,16 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
         void _getPoint(T*, float &x, float &y, float &z);
 
         ObjectGuid i_frightGUID;
+		bool i_inPlace;
+		bool inStun;
         TimeTracker i_nextCheckTime;
 };
 
 class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
 {
     public:
-        TimedFleeingMovementGenerator(ObjectGuid fright, uint32 time) :
-            FleeingMovementGenerator<Creature>(fright),
+        TimedFleeingMovementGenerator(ObjectGuid fright, bool inPlace, uint32 time) :
+            FleeingMovementGenerator<Creature>(fright, inPlace),
             i_totalFleeTime(time) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return TIMED_FLEEING_MOTION_TYPE; }
@@ -45,6 +47,7 @@ class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
 
     private:
         TimeTracker i_totalFleeTime;
+		bool inStun;
 };
 
 #endif

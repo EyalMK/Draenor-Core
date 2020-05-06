@@ -14718,15 +14718,6 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 else
                     speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
             }
-            // Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
-            // TODO: possible affect only on MOVE_RUN
-            if (int32 normalization = GetMaxPositiveAuraModifier(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED))
-            {
-                // Use speed from aura
-                float max_speed = normalization / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
-                if (speed > max_speed)
-                    speed = max_speed;
-            }
             break;
         }
         default:
@@ -23274,4 +23265,20 @@ void Unit::GetZoneAndAreaId(uint32& p_ZoneId, uint32& p_AreaId, bool p_ForceReca
     WorldObject::GetZoneAndAreaId(p_ZoneId, p_AreaId);
     *(const_cast<uint32*>(&m_LastZoneId)) = p_ZoneId;
     *(const_cast<uint32*>(&m_LastAreaId)) = p_AreaId;
+}
+
+bool Unit::CanMoveDuringCast() const
+{
+	if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+		if (spell->getState() != SPELL_STATE_FINISHED)
+			return spell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING) && spell->IsChannelActive();
+
+	for (uint8 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
+	{
+		if (Spell* spell = m_currentSpells[i])
+			if (spell->getState() != SPELL_STATE_FINISHED)
+				return spell->GetSpellInfo()->HasCustomAttribute(SpellCustomAttributes::SPELL_ATTR0_CU_CASTABLE_WHILE_MOVING);
+	}
+
+	return false;
 }

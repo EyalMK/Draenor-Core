@@ -6040,72 +6040,93 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
     m_caster->ToPlayer()->UpdateGatherSkill(skill, skillValue, reqValue, creature->isElite() ? 2 : 1);
 }
 
-void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
+void Spell::EffectCharge(SpellEffIndex effIndex)
 {
-    if (!unitTarget)
-        return;
+	if (!unitTarget)
+		return;
 
-    if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
-    {
-        if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
-        {
-            Position pos;
-            unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-            unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
-            unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f);
-            m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-        }
-        else
-            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath);
+	if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+	{
+		float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
+		//if (m_preGeneratedPath.GetPathType() & PATHFIND_BLANK)
+		{
+			Position pos;
+			unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+			unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
+			unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.f);
 
-        if (m_caster->IsPlayer())
-            m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
-    }
-    else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
-    {
-        // not all charge effects used in negative spells
-        if (m_caster->IsPlayer())
-        {
-            if (!m_spellInfo->IsPositive())
-                m_caster->Attack(unitTarget, true);
-        }
-    }
+			m_caster->GetMotionMaster()->MoveFollowCharge(unitTarget);
+		}
+		//else
+		//    m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath, speed);
 
-    if (m_caster->IsPlayer())
-        m_caster->ToPlayer()->SetFallInformation(0, unitTarget->GetPositionZ());
+		if (m_caster->GetTypeId() == TYPEID_PLAYER)
+			m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
+	}
+
+	if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
+	{
+		// not all charge effects used in negative spells
+		if (m_caster->GetTypeId() == TYPEID_PLAYER)
+		{
+			m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
+
+			if (!m_spellInfo->IsPositive())
+				m_caster->Attack(unitTarget, true);
+		}
+
+		if (m_spellInfo->Effects[effIndex].TriggerSpell)
+			m_caster->CastSpell(unitTarget, m_spellInfo->Effects[effIndex].TriggerSpell, true, nullptr, nullptr, m_originalCasterGUID);
+	}
+
+	if (m_caster->GetTypeId() == TYPEID_PLAYER)
+		m_caster->ToPlayer()->SetFallInformation(0, unitTarget->GetPositionZ());
 }
 
-void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
+void Spell::EffectChargeDest(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
-        return;
+	if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+		return;
 
-    if (m_targets.HasDst())
-    {
-        Position pos;
-        destTarget->GetPosition(&pos);
+	if (m_targets.HasDst())
+	{
+		Position pos;
+		destTarget->GetPosition(&pos);
 
-        if (m_caster->GetEntry() != 36609)       // hack fix for Valkyr Shadowguard, ignore first collision
-        {
-            float angle = m_caster->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
-            float dist = m_caster->GetDistance(pos);
+		// Ignore collision
+		// Clash, Fallen Protectors, Siege of Orgrimmar
+		if (m_spellInfo->Id != 143030)
+		{
+			if (m_caster->GetEntry() != 36609)       // hack fix for Valkyr Shadowguard, ignore first collision
+			{
+				float angle = m_caster->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
+				float dist = m_caster->GetDistance(pos);
 
-            m_caster->GetFirstCollisionPosition(pos, dist, angle);
-        }
+				// Hack Fix - Collision on charge for Clash
+				if (m_spellInfo->Id == 126452)
+					dist /= 2;
 
-        // Racer Slam Hit Destination
-        if (m_spellInfo->Id == 49302)
-        {
-            if (urand(0, 100) < 20)
-            {
-                m_caster->CastSpell(m_caster, 49336, false);
-                m_caster->CastSpell((Unit*)NULL, 49444, false); // achievement counter
-            }
-        }
+				m_caster->GetFirstCollisionPosition(pos, dist, angle);
+			}
+		}
 
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, 42.0f, m_spellValue->EffectBasePoints[0] > 0 ? m_spellInfo->Id : 1003);
-    }
+		// Racer Slam Hit Destination
+		if (m_spellInfo->Id == 49302)
+		{
+			if (urand(0, 100) < 20)
+			{
+				m_caster->CastSpell(m_caster, 49336, false);
+				m_caster->CastSpell((Unit*)NULL, 49444, false); // achievement counter
+			}
+		}
+
+		m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, SPEED_CHARGE, m_spellValue->EffectBasePoints[0] > 0 ? m_spellInfo->Id : EVENT_CHARGE);
+
+		if (m_spellInfo->Effects[effIndex].TriggerSpell)
+			m_caster->CastSpell(pos, m_spellInfo->Effects[effIndex].TriggerSpell, true);
+	}
 }
+
 
 void Spell::EffectKnockBack(SpellEffIndex effIndex)
 {
@@ -7899,29 +7920,25 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     }
 }
 
-void Spell::EffectDeathGrip(SpellEffIndex effIndex)
+void Spell::EffectDeathGrip(SpellEffIndex p_EffIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
-        return;
+	if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+		return;
 
-    if (m_caster->isInFlight())
-        return;
+	if (m_caster->isInFlight())
+		return;
 
-    if (!m_targets.HasDst())
-        return;
+	if (!m_targets.HasDst())
+		return;
 
-    // Init dest coordinates
-    float x, y, z;
-    if (WorldObject* l_WorldObject = m_targets.GetObjectTarget())
-        l_WorldObject->GetPosition(x, y, z);
+	// Init dest coordinates
+	float x, y, z;
+	destTarget->GetPosition(x, y, z);
 
-    float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+	float speedXY, speedZ;
+	CalculateJumpSpeeds(p_EffIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
 
-    if (Unit* l_Target = m_targets.GetUnitTarget())
-        m_caster->GetMotionMaster()->CustomJump(l_Target, speedXY, speedZ, m_spellInfo->Id);
-    else
-        m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ, m_spellInfo->Id);
+	m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
 void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
