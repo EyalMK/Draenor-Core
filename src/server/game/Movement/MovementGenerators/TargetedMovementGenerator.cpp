@@ -26,14 +26,11 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
         return;
 
-	if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringCast())
-		return;
+	//if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsFocusing(nullptr, true))
+	//	return;
 
-	if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsFocusing(nullptr, true))
-		return;
-
-    if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
-        return;
+   // if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
+   //     return;
 
     float x, y, z;
 
@@ -224,7 +221,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     }
 
     // prevent movement while casting spells with cast time or channel time
-	if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringCast())
+	if (owner->HasUnitState(UNIT_STATE_CASTING))
 	{
 		bool l_GlyphOfWaterElemental = false;
 		if (owner->GetOwner() && owner->GetOwner()->HasAura(63090) && owner->GetCharmInfo() && owner->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && owner->ToPet() && owner->ToPet()->HasReactState(REACT_HELPER))

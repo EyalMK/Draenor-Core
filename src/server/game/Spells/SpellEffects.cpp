@@ -6102,7 +6102,6 @@ void Spell::EffectChargeDest(SpellEffIndex effIndex)
 				float angle = m_caster->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
 				float dist = m_caster->GetDistance(pos);
 
-				// Custom MoP Script
 				// Hack Fix - Collision on charge for Clash
 				if (m_spellInfo->Id == 126452)
 					dist /= 2;
