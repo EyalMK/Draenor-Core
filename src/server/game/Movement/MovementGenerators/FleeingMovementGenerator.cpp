@@ -22,8 +22,11 @@
 template<class T>
 void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
 {
-    if (!owner)
-        return;
+	if (!owner)
+		return;
+
+	if (i_inPlace)
+		return;
 
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
@@ -111,7 +114,13 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
         return;
 
     owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-    owner->AddUnitState(UNIT_STATE_FLEEING | UNIT_STATE_FLEEING_MOVE);
+	owner->AddUnitState(UNIT_STATE_FLEEING);
+	if (owner->HasUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING))
+	{
+		owner->StopMoving();
+		i_nextCheckTime.Reset(200);
+		return;
+	}
     _setTargetLocation(owner);
 }
 

@@ -31,6 +31,9 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
 
     i_path = sWaypointMgr->GetPath(path_id);
 
+	if (const CreatureData* cd = creature->GetCreatureData())
+		i_currentNode = cd->currentwaypoint;
+
     if (!i_path)
     {
         // No path id found for entry

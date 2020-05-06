@@ -683,33 +683,27 @@ void MotionMaster::MoveSeekAssistanceDistract(uint32 time)
     }
 }
 
-void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
+void MotionMaster::MoveFleeing(Unit* enemy, bool inPlace, uint32 time)
 {
-    if (!enemy)
-        return;
+	if (!enemy)
+		return;
 
 	if (_owner->HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
 		return;
-	if (_owner->GetEntry() == ENTRY_PSYFIEND)
-		return;
 
-    if (_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        ///sLog->outDebug(LOG_FILTER_GENERAL, "Player (%llu) flee from (%llu)", _owner->GetGUID(),
-        ///    enemy->GetGUID());
-        Mutate(new FleeingMovementGenerator<Player>(enemy->GetGUID()), MOTION_SLOT_CONTROLLED);
-    }
-    else
-    {
-        ///sLog->outDebug(LOG_FILTER_GENERAL, "Creature (Entry: %u %llu) flee from (%s)%llu",
-        ///    _owner->GetEntry(), _owner->GetGUID(),
-        ///    enemy->GetGUID(),
-        ///   time ? " for a limited time" : "");
-        if (time)
-            Mutate(new TimedFleeingMovementGenerator(enemy->GetGUID(), time), MOTION_SLOT_CONTROLLED);
-        else
-            Mutate(new FleeingMovementGenerator<Creature>(enemy->GetGUID()), MOTION_SLOT_CONTROLLED);
-    }
+	if (_owner->GetTypeId() == TYPEID_PLAYER)
+	{
+		///TC_LOG_DEBUG("misc", "Player (GUID: %u) is now fleeing from %s (GUID: %u).", _owner->GetGUIDLow(), enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", enemy->GetTypeId() == TYPEID_PLAYER ? enemy->GetGUIDLow() : enemy->ToCreature()->GetDBTableGUIDLow());
+		Mutate(new FleeingMovementGenerator<Player>(enemy->GetGUID(), inPlace), MOTION_SLOT_CONTROLLED);
+	}
+	else
+	{
+		///TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) is now fleeing from %s (GUID: %u) %s", _owner->GetEntry(), _owner->GetGUIDLow(), enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", enemy->GetTypeId() == TYPEID_PLAYER ? enemy->GetGUIDLow() : enemy->ToCreature()->GetDBTableGUIDLow(), time ? " for a limited time." : ".");
+		if (time)
+			Mutate(new TimedFleeingMovementGenerator(enemy->GetGUID(), inPlace, time), MOTION_SLOT_CONTROLLED);
+		else
+			Mutate(new FleeingMovementGenerator<Creature>(enemy->GetGUID(), inPlace), MOTION_SLOT_CONTROLLED);
+	}
 }
 
 void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
