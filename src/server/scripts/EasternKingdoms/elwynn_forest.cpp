@@ -275,8 +275,6 @@ public:
 		Quest_Fear_no_Evil_8 = 29082
 	}; */
 
-
-
 	struct npc_injured_stormwind_soldierAI : public ScriptedAI
 	{
 		npc_injured_stormwind_soldierAI(Creature* creature) : ScriptedAI(creature) 
@@ -382,8 +380,6 @@ public:
 	}
 };
 
-
-
 /// Blackrock Invader - 42937
 class npc_blackrock_invader : public CreatureScript 
 {
@@ -451,8 +447,6 @@ public:
 	}
 };
 
-
-
 /// Wounded Trainee - 44564
 class npc_wounded_trainee : public CreatureScript
 {
@@ -491,7 +485,6 @@ public:
 		return new npc_wounded_traineeAI(p_Creature);
 	}
 };
-
 
 /// Marshal Mcbride - 197
 enum Marshal
@@ -672,20 +665,19 @@ public:
 		{
 			case GOSSIP_ACTION_INFO_DEF: // I wish to ride the Stormwind Charger, sir.
 			{
-					
-					Position l_Pos;
-					p_Player->GetPosition(&l_Pos);
-					GetPositionWithDistInFront(p_Player, 2.5f, l_Pos);
+				Position l_Pos;
+				p_Player->GetPosition(&l_Pos);
+				GetPositionWithDistInFront(p_Player, 2.5f, l_Pos);
 
-					float z = p_Player->GetMap()->GetHeight(p_Player->GetPhaseMask(), l_Pos.GetPositionX(), l_Pos.GetPositionY(), l_Pos.GetPositionZ());
-					l_Pos.m_positionZ = z;
+				float z = p_Player->GetMap()->GetHeight(p_Player->GetPhaseMask(), l_Pos.GetPositionX(), l_Pos.GetPositionY(), l_Pos.GetPositionZ());
+				l_Pos.m_positionZ = z;
 
-					if (Creature* Charger = p_Player->SummonCreature(NPC_STORMWIND_CHARGER, l_Pos))
-					{
-						p_Player->CastSpell(Charger, SPELL_RIDE_VEHICLE);
-						p_Player->EnterVehicle(Charger);
-					}
-				break;
+				if (Creature* Charger = p_Player->SummonCreature(NPC_STORMWIND_CHARGER, l_Pos))
+				{
+					p_Player->CastSpell(Charger, SPELL_RIDE_VEHICLE);
+					p_Player->EnterVehicle(Charger);
+				}
+			break;
 			}
 		default:
 			break;
@@ -743,8 +735,6 @@ public:
 	{
 		npc_stormwind_chargerAI(Creature* creature) : ScriptedAI(creature) { }
 
-
-
 		void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
 		{
 			if (!passenger->IsPlayer())
@@ -767,7 +757,6 @@ public:
 			}
 			return;
 		}
-
 
 		void UpdateAI(uint32 diff) override
 		{
@@ -803,11 +792,11 @@ public:
 			if (motionType == EFFECT_MOTION_TYPE && pointId == POINT_BRIDGE)
 				_events.ScheduleEvent(EVENT_EJECT_PASSENGER, 2000);
 		}
+
 	private:
 		EventMap _events;
 
 	};
-
 
 	CreatureAI* GetAI(Creature* creature) const
 	{

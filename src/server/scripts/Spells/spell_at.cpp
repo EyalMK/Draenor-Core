@@ -281,7 +281,8 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
 
         enum eSpells
         {
-            solarBeamSilence = 81261
+            solarBeamSilence = 81261,
+			solarBeamInterrupt = 97547
         };
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
@@ -302,6 +303,7 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
                 if (l_Caster->IsValidAttackTarget(l_Target) && std::find(m_TargetList.begin(), m_TargetList.end(), l_Target->GetGUID()) == m_TargetList.end())
                 {
                     m_TargetList.push_back(l_Target->GetGUID());
+					l_Caster->CastSpell(l_Target, eSpells::solarBeamInterrupt, true); ///< Should interrupt target while they're casting
                     l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
                 }
             }

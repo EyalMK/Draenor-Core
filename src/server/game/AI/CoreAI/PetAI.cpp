@@ -76,12 +76,11 @@ void PetAI::UpdateAI(uint32 diff)
 	else
 		m_updateAlliesTimer -= diff;
 
-	// me->getVictim() can't be used for check in case stop fighting, me->getVictim() clear at Unit death etc.
-	if (me->getVictim())
+	if (me->getVictim() && me->EnsureVictim()->isAlive())
 	{
 		// is only necessary to stop casting, the pet must not exit combat
-		if ((me->getVictim()->HasAuraType(SPELL_AURA_MOD_CONFUSE) || me->getVictim()->HasAura(82691)) &&
-			!me->HasAuraType(SPELL_AURA_MOD_TAUNT)) ///< Pets should attack when provoked
+		if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && // ignore channeled spells (Pin, Seduction)
+			me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
 		{
 			me->InterruptNonMeleeSpells(false);
 			return;
@@ -94,36 +93,24 @@ void PetAI::UpdateAI(uint32 diff)
 			return;
 		}
 
-		if (!me->GetEntry() == ENTRY_IMP && !me->GetEntry() == ENTRY_FEL_IMP && !me->GetEntry() == ENTRY_WATER_ELEMENTAL)
-			DoMeleeAttackIfReady();
-		else
+		// Check before attacking to prevent pets from leaving stay position
+		if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
 		{
-			if (!me->IsWithinLOSInMap(me->getVictim()))
-			{
-				me->GetMotionMaster()->Clear();
-				me->GetMotionMaster()->MoveChase(me->getVictim());
-			}
-			else if (!me->IsWithinDistInMap(me->getVictim(), 40.0f))
-			{
-				me->GetMotionMaster()->Clear();
-				me->GetMotionMaster()->MoveChase(me->getVictim(), 40.0f);
-			}
-			else
-			{
-				me->StopMoving();
-				me->GetMotionMaster()->Clear();
-			}
+			if (me->GetCharmInfo()->IsCommandAttack() || (me->GetCharmInfo()->IsAtStay() && me->IsWithinMeleeRange(me->getVictim())))
+				DoMeleeAttackIfReady();
 		}
+		else
+			DoMeleeAttackIfReady();
 	}
-	else if (owner && me->GetCharmInfo()) //no victim
+	else
 	{
-		// Only aggressive pets do target search every update.
-		// Defensive pets do target search only in these cases:
-		//  * Owner attacks something - handled by OwnerAttacked()
-		//  * Owner receives damage - handled by OwnerDamagedBy()
-		//  * Pet is in combat and current target dies - handled by KilledUnit()
-		if (me->HasReactState(REACT_AGGRESSIVE))
+		if (me->HasReactState(REACT_AGGRESSIVE) || me->GetCharmInfo()->IsAtStay())
 		{
+			// Every update we need to check targets only in certain cases
+			// Aggressive - Allow auto select if owner or pet don't have a target
+			// Stay - Only pick from pet or owner targets / attackers so targets won't run by
+			//   while chasing our owner. Don't do auto select.
+			// All other cases (ie: defensive) - Targets are assigned by AttackedBy(), OwnerAttackedBy(), OwnerAttacked(), etc.
 			Unit* nextTarget = SelectNextTarget(me->HasReactState(REACT_AGGRESSIVE));
 
 			if (nextTarget)
@@ -134,8 +121,6 @@ void PetAI::UpdateAI(uint32 diff)
 		else
 			HandleReturnMovement();
 	}
-	else if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW)) // no charm info and no victim
-		me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
 
 	// Autocast (cast only in combat or persistent spells in any state)
 	if (!me->HasUnitState(UNIT_STATE_CASTING))
@@ -433,22 +418,21 @@ void PetAI::HandleReturnMovement()
 	{
 		if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning())
 		{
+			// Return to previous position where stay was clicked
 			float x, y, z;
 
 			me->GetCharmInfo()->GetStayPosition(x, y, z);
+			ClearCharmInfoFlags();
 			me->GetCharmInfo()->SetIsReturning(true);
 			me->GetMotionMaster()->Clear();
 			me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, z);
 		}
 	}
-	else if (me->GetCharmInfo()->HasCommandState(COMMAND_MOVE_TO))
-	{
-		//TODO: Do we have to write something ?
-	}
 	else // COMMAND_FOLLOW
 	{
 		if (!me->GetCharmInfo()->IsFollowing() && !me->GetCharmInfo()->IsReturning() && !me->HasUnitState(UNIT_STATE_CONTROLLED))
 		{
+			ClearCharmInfoFlags();
 			me->GetCharmInfo()->SetIsReturning(true);
 			me->GetMotionMaster()->Clear();
 			me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
