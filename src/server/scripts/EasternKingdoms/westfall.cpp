@@ -14,30 +14,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
- /* ScriptData
- SkyFireScript_Name: Westfall
- %Complete: 90
- Comment: Alot of this needs moved to db... it doesnt belong in core script.
- Category: Westfall
- EndScriptData */
-
- /* ContentData
- npc_thug
- npc_horatio
- npc_westplains_drifter
- npc_crate_mine
- npc_homeless_citizen
- npc_shadowy_trigger
- npc_shadowy_tower
- npc_rise_br
- npc_defias_blackguard
- npc_fire_trigger
- npc_summoner
- npc_horatio_investigate
- EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 
  /// Phase handler
 class playerScript_westfall_phase_handler : public PlayerScript
@@ -2256,9 +2237,49 @@ public:
 	};
 };
 
+
+/// Westfall Unbound Energy - 79084
+class spell_westfall_unbound_energy : public SpellScriptLoader
+{
+public:
+	spell_westfall_unbound_energy() : SpellScriptLoader("spell_westfall_unbound_energy") { }
+
+	class spell_westfall_unbound_energy_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_westfall_unbound_energy_SpellScript);
+
+		void FilterTargets(std::list<WorldObject*>& targets)
+		{
+			if (targets.empty())
+				return;
+
+			Unit* caster = GetCaster();
+			targets.remove_if([caster](WorldObject const* target)->bool
+			{
+				return caster == target;
+			});
+
+			if (targets.size() > 1)
+				JadeCore::Containers::RandomResizeList(targets, 1);
+		}
+
+		void Register() override
+		{
+			OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_unbound_energy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+		}
+	};
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_westfall_unbound_energy_SpellScript();
+	}
+};
+
 void AddSC_westfall()
 {
+	/// Handler
 	new playerScript_westfall_phase_handler();
+
+	/// Npcs
 	new npc_thug();
 	new npc_horatio();
 	new npc_westplains_drifter();
@@ -2271,4 +2292,7 @@ void AddSC_westfall()
 	new npc_fire_trigger();
 	new npc_summoner();
 	new npc_horatio_investigate();
+
+	/// Spells
+	new spell_westfall_unbound_energy();
 }
