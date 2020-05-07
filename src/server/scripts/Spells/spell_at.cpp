@@ -373,6 +373,7 @@ class spell_at_flare : public AreaTriggerEntityScript
 				}
                 l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                 l_Target->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+				l_Target->AddAura(132951, l_Target);
             }
         }
 

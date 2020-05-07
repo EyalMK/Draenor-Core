@@ -7415,9 +7415,18 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             case SPELL_AURA_MOD_STEALTH:
             {
-                // Flare ///< @todo spell id removed && Smoke Bomb
-                if (m_caster->HasAura(94528) || m_caster->HasAuraWithNegativeCaster(88611))
-                    return SPELL_FAILED_CASTER_AURASTATE;
+				if (m_caster->HasAura(94528))                   // Flare
+				{
+					/// Stealth, Vanish, Stealth (subterfuge)
+					if (m_spellInfo->Id == 1784 || m_spellInfo->Id == 11327 || m_spellInfo->Id == 115191)
+					{
+						if (!IsTriggered())
+							return SPELL_FAILED_CASTER_AURASTATE;
+					}
+					else
+						return SPELL_FAILED_CASTER_AURASTATE;
+
+				}
 
                 break;
             }
