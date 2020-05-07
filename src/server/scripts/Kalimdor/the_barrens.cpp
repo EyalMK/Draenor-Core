@@ -648,6 +648,163 @@ public:
 	}
 
 };
+
+
+/// Chief Engineer Foote - 34754
+class npc_chief_engineer_foote : public CreatureScript
+{
+public:
+	npc_chief_engineer_foote() : CreatureScript("npc_chief_engineer_foote") { }
+
+	enum eData
+	{
+		// Quest
+		QUEST_CLUB_FOOTE = 14034,
+
+		// NPC
+		NPC_FOOTE = 34754,
+		NPC_THERAMORE_DECK_HAND = 34707,
+		NPC_CAROUSING_PEON = 34759,
+		NPC_SASHYA = 34651,
+
+		// Texts & gossip
+		FOOTE_GOSSIP_MENU_1 = 1,
+		FOOTE_GOSSIP_MENU_2 = 2,
+		FOOTE_NPC_TEXT_1 = 2,
+		FOOTE_NPC_TEXT_2 = 3,
+		FOOTE_GOSSIP_OPTION_1 = 0,
+		FOOTE_GOSSIP_OPTION_2 = 1,
+
+		// Spell
+		SPELL_CREATE_SHIP_SCHEMATICS = 66155,
+
+		// Action
+		ClubFoote = 0,
+		BarFight = 1,
+	};
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+	{
+		p_Creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE_NOSHEATHE); // Wave
+
+		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE)
+			p_Player->ADD_GOSSIP_ITEM_DB(FOOTE_GOSSIP_MENU_1, FOOTE_GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE && p_Creature->GetHealthPct() == 0.1f) // if he's dead, show second gossip menu
+			p_Player->ADD_GOSSIP_ITEM_DB(FOOTE_GOSSIP_MENU_2, FOOTE_GOSSIP_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+		p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_1, p_Creature->GetGUID());
+
+		return true;
+	}
+
+	bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+	{
+		player->PlayerTalkClass->ClearMenus();
+
+		if (action == GOSSIP_ACTION_INFO_DEF)
+		{
+			player->CLOSE_GOSSIP_MENU();
+			creature->GetAI()->DoAction(ClubFoote);
+		}
+		if (action == GOSSIP_ACTION_INFO_DEF + 1)
+		{
+			player->CLOSE_GOSSIP_MENU();
+			creature->CastSpell(player, SPELL_CREATE_SHIP_SCHEMATICS, true); // Award item
+		}
+
+		return true;
+	}
+
+	struct npc_chief_engineer_footeAI : public ScriptedAI
+	{
+		npc_chief_engineer_footeAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+
+		// Lists
+		std::list<Creature*> Peons;
+		std::list<Creature*> DeckHands;
+
+		// Drink
+		uint32 DrinkTimer;
+
+		void Reset() override
+		{
+			DrinkTimer = 7000;
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (me->GetHealthPct() != 100.0f) // If quest event undergoing - don't drink because ya dead
+				if (DrinkTimer <= diff)
+				{
+					me->CastSpell(me, 162442); // Drink while sitting spell
+					DrinkTimer = 7000;
+				}
+				else
+					DrinkTimer -= diff;
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case ClubFoote:
+			{
+				// No aggro/attacking + death emote
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->HandleEmoteCommand(EMOTE_STATE_DEAD);
+
+				// Death state
+				me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_DYNFLAG_DEAD);
+				me->SetStandState(UNIT_STAND_STATE_DEAD);   // lay down
+				me->SetHealth(me->CountPctFromMaxHealth(0.1f));
+				me->setRegeneratingHealth(false);
+
+				//me->AI()->DoAction(BarFight); -- Needs to be worked on.
+				break;
+			}
+			case BarFight:
+			{
+				if (Creature* Sashya = me->FindNearestCreature(NPC_SASHYA, 15.0f, true))
+					Sashya->AI()->Talk(0); //  Hahaha, very nice, $n!
+
+				me->GetCreatureListWithEntryInGrid(Peons, NPC_CAROUSING_PEON, 15.0f);
+				me->GetCreatureListWithEntryInGrid(DeckHands, NPC_THERAMORE_DECK_HAND, 15.0f);
+
+
+				for (auto peon : Peons)
+				{
+					if (peon->GetGUID() == 1)
+						//peon->GetMotionMaster()->MovePoint(0, l_Pos);
+						if (peon->GetGUID() == 2)
+							//peon->GetMotionMaster()->MovePoint(0, l_Pos);
+							break;
+				}
+
+				for (auto hand : DeckHands)
+				{
+					if (hand->GetGUID() == 1)
+						//hand->GetMotionMaster()->MovePoint(0, l_Pos);
+						hand->setFaction(14); // hostile faction
+					if (hand->GetGUID() == 2)
+						//hand->GetMotionMaster()->MovePoint(0, l_Pos);
+						hand->setFaction(14); // hostile faction
+					break;
+				}
+				break;
+			}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_chief_engineer_footeAI(p_Creature);
+	}
+
+};
+
+
+
 #ifndef __clang_analyzer__
 void AddSC_the_barrens()
 {
@@ -661,5 +818,6 @@ void AddSC_the_barrens()
     new npc_wizzlecrank_shredder();
 	new npc_baron_longshore();
 	new npc_gazlowe_3391();
+	new npc_chief_engineer_foote();
 }
 #endif
