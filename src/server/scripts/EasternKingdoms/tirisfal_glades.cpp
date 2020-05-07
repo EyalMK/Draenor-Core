@@ -119,7 +119,7 @@ public:
 
 	enum eAradne
 	{
-		SPELL_RAISE_UNDEAD			= 84197,
+		SPELL_RAISE_UNDEAD			= 93446,
 		NPC_DEATHKNELL_GRAVE_TARGET = 50373,
 		EVENT_RISE_DEAD				= 901,
 		EVENT_START_TALK,
@@ -145,23 +145,25 @@ public:
 			me->GetMotionMaster()->MovePath(5037200, true); // Aradne Path
 		}
 
-		void WaypointReached(uint32 waypointId)
+		void MovementInform(uint32 type, uint32 id) override
 		{
-			switch (waypointId)
+
+			if (type == WAYPOINT_MOTION_TYPE)
 			{
-				case 2:
-				case 4:
-				case 18:
-				case 25:
+				switch (id)
 				{
-					if (Creature* GraveTarget = me->FindNearestCreature(NPC_DEATHKNELL_GRAVE_TARGET, 1.0f))
-						me->SetFacingToObject(GraveTarget);
+					case 2:
+					case 4:
+					case 18:
+					case 25:
+						if (Creature* GraveTarget = me->FindNearestCreature(NPC_DEATHKNELL_GRAVE_TARGET, 5.0f))
+							me->SetFacingToObject(GraveTarget);
 
-					CanWalk = false;
-
-					m_events.ScheduleEvent(EVENT_RISE_DEAD, 100);
-					break;
+						CanWalk = false;
+						m_events.ScheduleEvent(EVENT_RISE_DEAD, 100);
+						break;
 				}
+				
 			}
 		}
 
@@ -192,7 +194,7 @@ public:
 							npc->CastSpell(npc, SPELL_RAISE_UNDEAD, true);
 
 						m_events.ScheduleEvent(EVENT_START_TALK, 500);
-						m_events.ScheduleEvent(EVENT_START_TALK, 3000);
+						m_events.ScheduleEvent(EVENT_START_WALK, 3000);
 						break;
 					case EVENT_START_TALK:
 						Talk(0); // Text after summon - rise, waken, you are returned to life, etc...
@@ -222,7 +224,7 @@ public:
 		NPC_RISEN_RECRUIT		= 50374,
 		SPELL_DIRT_EXPLOSION	= 89199,
 		SPELL_CHURNING_DIRT		= 92788,
-		SPELL_RISE_UNDEAD		= 84197
+		SPELL_RISE_UNDEAD		= 93446
 	};
 
 	enum eActions
@@ -315,7 +317,6 @@ public:
 		EVENT_SHOW_DEAD1,
 		EVENT_SHOW_DEAD2,
 		EVENT_SHOW_DEAD3,
-		EVENT_SHOW_DEAD4,
 		EVENT_SHOW_LIFE1,
 		EVENT_SHOW_LIFE2,
 		EVENT_SHOW_LIFE3,
@@ -359,19 +360,17 @@ public:
 						break;
 					case EVENT_SHOW_DEAD1:
 						Talk(2); // What's happening to me?
-						m_events.ScheduleEvent(EVENT_SHOW_DEAD2, 6000);
+						m_events.ScheduleEvent(EVENT_SHOW_DEAD2, 4000);
 						break;
 					case EVENT_SHOW_DEAD2:
 						Talk(0); // I never asked for this 
-						m_events.ScheduleEvent(EVENT_SHOW_DEAD3, 6000);
+						m_events.ScheduleEvent(EVENT_SHOW_DEAD3, 3000);
 						break;
 					case EVENT_SHOW_DEAD3:
 						Talk(4); // commits suicide
-						m_events.ScheduleEvent(EVENT_SHOW_DEAD4, 6000);
-						break;
-					case EVENT_SHOW_DEAD4:
 						me->Kill(me);
 						break;
+
 					case EVENT_SHOW_LIFE:
 						me->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);
 						m_events.ScheduleEvent(EVENT_SHOW_LIFE1, 100);
@@ -384,17 +383,17 @@ public:
 						std::list<Creature*> l_Aradne;
 						me->GetCreatureListWithEntryInGrid(l_Aradne, NPC_ARADNE, 5.0f);
 						if (l_Aradne.front() != nullptr)
-							l_Aradne.front()->AI()->DoAction(0); // Answer
+							l_Aradne.front()->AI()->DoAction(Answer); // Answer
 
 						break;
 					}
 					case EVENT_SHOW_LIFE2:
 						Talk(6); // If the Banshee Queen...
-						m_events.ScheduleEvent(EVENT_SHOW_LIFE3, 6000);
+						m_events.ScheduleEvent(EVENT_SHOW_LIFE3, 3000);
 						break;
 					case EVENT_SHOW_LIFE3:
 						Talk(7); // Walks off towards the barracks.
-						me->GetMotionMaster()->MovePath(5037401, false); // Risen Dead Path 2
+						me->GetMotionMaster()->MovePath(5037400, false); // Risen Dead Path 1 in waypoint_data
 						break;
 					case EVENT_SHOW_RUNNING:
 						me->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);
@@ -402,17 +401,17 @@ public:
 						break;
 					case EVENT_SHOW_RUNNING1:
 						Talk(2); // What's happening to me? 
-						m_events.ScheduleEvent(EVENT_SHOW_RUNNING2, 6000);
+						m_events.ScheduleEvent(EVENT_SHOW_RUNNING2, 4000);
 						break;
 					case EVENT_SHOW_RUNNING2:
 						Talk(0); // I never asked for this!
-						m_events.ScheduleEvent(EVENT_SHOW_RUNNING3, 6000);
+						m_events.ScheduleEvent(EVENT_SHOW_RUNNING3, 3000);
 						break;
 					case EVENT_SHOW_RUNNING3:
 						me->CastSpell(me, SPELL_ENRAGE, true);
 						Talk(1); // enrages and transforms into a mindless zombie
 						me->HandleEmoteCommand(EMOTE_ONESHOT_CRY);
-						me->GetMotionMaster()->MovePath(5037402, false); // Risen Dead Path 3
+						me->GetMotionMaster()->MovePath(5037401, false); // Risen Dead Path 2 in waypoint_data
 						break;
 					}
 				}
@@ -513,7 +512,7 @@ public:
 					{
 						Talk(0); // Let's see, I just saw a corpse with a jaw...
 						m_events.ScheduleEvent(EVENT_ANIM_PART_01, 3000);
-						m_events.RescheduleEvent(EVENT_MASTER_RESET, 150000);
+						//m_events.RescheduleEvent(EVENT_MASTER_RESET, 150000);
 						break;
 					}
 					case EVENT_ANIM_PART_01:
