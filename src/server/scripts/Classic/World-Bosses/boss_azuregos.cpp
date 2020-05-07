@@ -67,7 +67,7 @@ public:
 		if (action == GOSSIP_ACTION_INFO_DEF)
 		{
 			player->CLOSE_GOSSIP_MENU();
-			creature->AI()->DoAction(ActionHostile);
+			creature->GetAI()->DoAction(ActionHostile);
 		}
 
 		return true;
@@ -94,13 +94,13 @@ public:
 			Talk(SAY_AGGRO); // This place is under my protection.
 			_enraged = false;
 
-			events.ScheduleEvent(EVENT_MARK_OF_FROST, 35);
-			events.ScheduleEvent(EVENT_MANA_STORM, 5, 17);
-			events.ScheduleEvent(EVENT_CHILL, 10, 30);
-			events.ScheduleEvent(EVENT_BREATH, 2, 8);
-			events.ScheduleEvent(EVENT_TELEPORT, 30);
-			events.ScheduleEvent(EVENT_REFLECT, 15, 30);
-			events.ScheduleEvent(EVENT_CLEAVE, 7);
+			events.ScheduleEvent(EVENT_MARK_OF_FROST, 35000);
+			events.ScheduleEvent(EVENT_MANA_STORM, urand(5000, 17000));
+			events.ScheduleEvent(EVENT_CHILL, urand(1000, 30000));
+			events.ScheduleEvent(EVENT_BREATH, urand(2000, 8000));
+			events.ScheduleEvent(EVENT_TELEPORT, 30000);
+			events.ScheduleEvent(EVENT_REFLECT, urand(15000, 30000));
+			events.ScheduleEvent(EVENT_CLEAVE, 7000);
 		}
 
 		void KilledUnit(Unit* who) override
@@ -145,11 +145,11 @@ public:
 					break;
 				case EVENT_CHILL:
 					DoCastVictim(SPELL_CHILL);
-					events.ScheduleEvent(EVENT_CHILL, 13, 25);
+					events.ScheduleEvent(EVENT_CHILL, urand(13000, 25000));
 					break;
 				case EVENT_BREATH:
 					DoCastVictim(SPELL_FROST_BREATH);
-					events.ScheduleEvent(EVENT_BREATH, 10, 15);
+					events.ScheduleEvent(EVENT_BREATH, urand(10000, 15000));
 					break;
 				case EVENT_TELEPORT:
 				{
@@ -166,17 +166,17 @@ public:
 						}
 					}
 					DoResetThreat();
-					events.ScheduleEvent(EVENT_TELEPORT, 30);
+					events.ScheduleEvent(EVENT_TELEPORT, 30000);
 					break;
 				}
 				case EVENT_REFLECT:
 					DoCast(me, SPELL_REFLECT);
 					Talk(SAY_REFLECT);
-					events.ScheduleEvent(EVENT_REFLECT, 20, 35);
+					events.ScheduleEvent(EVENT_REFLECT, urand(20000, 35000));
 					break;
 				case EVENT_CLEAVE:
 					DoCastVictim(SPELL_CLEAVE);
-					events.ScheduleEvent(EVENT_CLEAVE, 7);
+					events.ScheduleEvent(EVENT_CLEAVE, 7000);
 					break;
 				default:
 					break;
@@ -186,7 +186,7 @@ public:
 					return;
 			}
 
-			if (HealthBelowPct(26) && !_enraged)
+			if (HealthBelowPct(26.0f) && !_enraged)
 			{
 				DoCast(me, SPELL_ENRAGE);
 				_enraged = true;
