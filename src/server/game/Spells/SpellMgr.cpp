@@ -5235,8 +5235,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 140023: ///< Ring of Peace (dummy)
             case 138234: ///< Lightning Storm (damage) (Lei Shen trash - Throne of Thunder)
             case 81782:  ///< Power Word: Barrier (buff)
+			case 132951: ///< Flare (Aura)
             case 139485: ///< Dark Winds
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); ///< 1s
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(596); ///< 1s 596
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 break;
             case 134821: ///< Discharged Energy (Lei Shen - Throne of Thunder)
@@ -7641,6 +7642,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->SetDurationIndex(18); ///< 20s Duration
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+				spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 break;
             case 123011: ///< Terrorize Player (tsulong spell)
                 spellInfo->MaxAffectedTargets = 1;

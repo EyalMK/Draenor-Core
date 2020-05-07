@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `gossip_menu_id`=15000 WHERE `entry`=6109;

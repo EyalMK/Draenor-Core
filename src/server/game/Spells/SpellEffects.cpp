@@ -1142,6 +1142,21 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         // special cases
         switch (triggered_spell_id)
         {
+			// Vanish (not exist)
+			case 18461:
+			{
+				unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+
+				// If this spell is given to an NPC, it must handle the rest using its own AI
+				if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+					return;
+
+				// Fix Vanish with Flare
+				if (unitTarget->HasAura(94528))
+					unitTarget->RemoveAura(11327);
+
+				return;
+			}
             // Demonic Empowerment -- succubus
             case 54437:
             {
@@ -6102,6 +6117,7 @@ void Spell::EffectChargeDest(SpellEffIndex effIndex)
 				float angle = m_caster->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
 				float dist = m_caster->GetDistance(pos);
 
+				// Custom MoP Script
 				// Hack Fix - Collision on charge for Clash
 				if (m_spellInfo->Id == 126452)
 					dist /= 2;

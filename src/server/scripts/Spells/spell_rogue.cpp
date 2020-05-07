@@ -2235,7 +2235,7 @@ class spell_rog_stealth: public SpellScriptLoader
                         l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
                     }
 
-                    if (GetSpellInfo()->Id == eSpells::StealthSubterfuge)
+                    if (GetSpellInfo()->Id == eSpells::StealthSubterfuge && removeMode != AURA_REMOVE_BY_SPECIAL)
                     {
                         if (!l_Caster->HasAura(eSpells::StealthSubterfugeEffect))
                             l_Caster->CastSpell(l_Caster, eSpells::StealthSubterfugeEffect, true);

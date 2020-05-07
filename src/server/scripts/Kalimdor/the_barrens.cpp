@@ -597,14 +597,11 @@ public:
 		ActionCompletedQuest = 0,
 	};
 
-	uint64 m_GagsprocketGUID = 265164;
-
 	bool OnQuestComplete(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
 	{
 		if (p_Quest->GetQuestId() == QUEST_UNUSUAL_MAP)
 		{
-			if (Creature* Gagsprocket = sObjectAccessor->GetCreature(*p_Creature, m_GagsprocketGUID))
-				p_Creature->GetAI()->DoAction(ActionCompletedQuest);
+			p_Creature->GetAI()->DoAction(ActionCompletedQuest);
 		}
 		return false;
 	}
@@ -613,7 +610,10 @@ public:
 	{
 		npc_gazlowe_3391AI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
 
-		uint64 m_GagsprocketGUID = 265164;
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
 
 		void DoAction(int32 const p_Action) override
 		{
@@ -627,13 +627,12 @@ public:
 					});
 					AddTimedDelayedOperation(2.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-						if(Creature* Gagsprocket = sObjectAccessor->GetCreature(*me, m_GagsprocketGUID))
+						if (Creature* Gagsprocket = me->FindNearestCreature(NPC_GAGSPROCKET, 10.0f, true))
 							Gagsprocket->AI()->Talk(GAGSPROCKET_TEXT_1);
 					});
 					AddTimedDelayedOperation(3.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->AI()->Talk(GAZLOWE_TEXT_2);
-						ClearDelayedOperations();
 					});
 					break;
 				}
@@ -668,12 +667,11 @@ public:
 		NPC_SASHYA = 34651,
 
 		// Texts & gossip
-		FOOTE_GOSSIP_MENU_1 = 1,
-		FOOTE_GOSSIP_MENU_2 = 2,
-		FOOTE_NPC_TEXT_1 = 2,
-		FOOTE_NPC_TEXT_2 = 3,
-		FOOTE_GOSSIP_OPTION_1 = 0,
-		FOOTE_GOSSIP_OPTION_2 = 1,
+		FOOTE_GOSSIP_MENU_1		= 10556,
+		FOOTE_GOSSIP_MENU_2		= 10560,
+		FOOTE_NPC_TEXT_1		= 14612,
+		FOOTE_NPC_TEXT_2		= 14616,
+		FOOTE_GOSSIP_OPTION		= 0,
 
 		// Spell
 		SPELL_CREATE_SHIP_SCHEMATICS = 66155,
@@ -681,18 +679,20 @@ public:
 		// Action
 		ClubFoote = 0,
 		BarFight = 1,
+		SetHostileFaction = 2
 	};
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
 	{
 		p_Creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE_NOSHEATHE); // Wave
 
-		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE)
-			p_Player->ADD_GOSSIP_ITEM_DB(FOOTE_GOSSIP_MENU_1, FOOTE_GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE && p_Creature->GetHealthPct() == 0.1f) // if he's dead, show second gossip menu
-			p_Player->ADD_GOSSIP_ITEM_DB(FOOTE_GOSSIP_MENU_2, FOOTE_GOSSIP_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-		p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_1, p_Creature->GetGUID());
+		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE && p_Creature->GetHealthPct() > 0.0f) // if he's not dead, show first gossip menu
+			p_Player->ADD_GOSSIP_ITEM_DB(FOOTE_GOSSIP_MENU_1, FOOTE_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE && p_Creature->GetHealthPct() == 0.0f) // if he's dead, show second gossip menu
+			p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_2, p_Creature->GetGUID());
+			p_Player->ADD_GOSSIP_ITEM_DB(FOOTE_GOSSIP_MENU_2, FOOTE_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
+		p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_1, p_Creature->GetGUID());
 		return true;
 	}
 
@@ -708,7 +708,8 @@ public:
 		if (action == GOSSIP_ACTION_INFO_DEF + 1)
 		{
 			player->CLOSE_GOSSIP_MENU();
-			creature->CastSpell(player, SPELL_CREATE_SHIP_SCHEMATICS, true); // Award item
+			player->CastSpell(player, SPELL_CREATE_SHIP_SCHEMATICS, true); // Award item
+			creature->DespawnOrUnsummon(5000);
 		}
 
 		return true;
@@ -732,7 +733,7 @@ public:
 
 		void UpdateAI(const uint32 diff)
 		{
-			if (me->GetHealthPct() != 100.0f) // If quest event undergoing - don't drink because ya dead
+			if (me->GetHealthPct() == 100.0f) // If quest event undergoing - don't drink because ya dead
 				if (DrinkTimer <= diff)
 				{
 					me->CastSpell(me, 162442); // Drink while sitting spell
@@ -748,18 +749,17 @@ public:
 			{
 			case ClubFoote:
 			{
-				// No aggro/attacking + death emote
+				// Die
+				me->setRegeneratingHealth(false);
+				me->SetHealth(me->CountPctFromMaxHealth(0));
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-				me->HandleEmoteCommand(EMOTE_STATE_DEAD);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+				me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-				// Death state
-				me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_DYNFLAG_DEAD);
-				me->SetStandState(UNIT_STAND_STATE_DEAD);   // lay down
-				me->SetHealth(me->CountPctFromMaxHealth(0.1f));
-				me->setRegeneratingHealth(false);
 
-				//me->AI()->DoAction(BarFight); -- Needs to be worked on.
+				me->AI()->DoAction(BarFight);
 				break;
 			}
 			case BarFight:
@@ -767,28 +767,30 @@ public:
 				if (Creature* Sashya = me->FindNearestCreature(NPC_SASHYA, 15.0f, true))
 					Sashya->AI()->Talk(0); //  Hahaha, very nice, $n!
 
-				me->GetCreatureListWithEntryInGrid(Peons, NPC_CAROUSING_PEON, 15.0f);
-				me->GetCreatureListWithEntryInGrid(DeckHands, NPC_THERAMORE_DECK_HAND, 15.0f);
+				me->GetCreatureListWithEntryInGrid(Peons, NPC_CAROUSING_PEON, 20.0f);
+				me->GetCreatureListWithEntryInGrid(DeckHands, NPC_THERAMORE_DECK_HAND, 20.0f);
 
 
 				for (auto peon : Peons)
 				{
-					if (peon->GetGUID() == 1)
-						//peon->GetMotionMaster()->MovePoint(0, l_Pos);
-						if (peon->GetGUID() == 2)
-							//peon->GetMotionMaster()->MovePoint(0, l_Pos);
-							break;
+					if (peon->GetGUIDLow() == 265060)
+						peon->GetMotionMaster()->MovePoint(0, -1044.2826, -3652.5847, 23.8791, true);
+					else if (peon->GetGUIDLow() == 265059)
+						peon->GetMotionMaster()->MovePoint(0, -1048.0774, -3643.3633, 23.8791, true);
 				}
 
 				for (auto hand : DeckHands)
 				{
-					if (hand->GetGUID() == 1)
-						//hand->GetMotionMaster()->MovePoint(0, l_Pos);
-						hand->setFaction(14); // hostile faction
-					if (hand->GetGUID() == 2)
-						//hand->GetMotionMaster()->MovePoint(0, l_Pos);
-						hand->setFaction(14); // hostile faction
-					break;
+					if (hand->GetGUIDLow() == 265490)
+					{
+						hand->GetMotionMaster()->MovePoint(0, -1048.6938, -3654.7166, 23.8777, true);
+						hand->AI()->DoAction(SetHostileFaction);
+					}
+					else if (hand->GetGUIDLow() == 265488)
+					{
+						hand->GetMotionMaster()->MovePoint(0, -1049.5637, -3642.4080, 23.8778, true);
+						hand->AI()->DoAction(SetHostileFaction);
+					}
 				}
 				break;
 			}
@@ -799,6 +801,91 @@ public:
 	CreatureAI* GetAI(Creature* p_Creature) const override
 	{
 		return new npc_chief_engineer_footeAI(p_Creature);
+	}
+
+};
+
+/// Theramore Deckhand - 34707
+class npc_theramore_deckhand : public CreatureScript
+{
+public:
+	npc_theramore_deckhand() : CreatureScript("npc_theramore_deckhand") { }
+
+	enum eData
+	{
+		// Quest
+		QUEST_CLUB_FOOTE = 14034,
+
+		// NPC
+		NPC_THERAMORE_DECK_HAND = 34707,
+		NPC_CAROUSING_PEON = 34759,
+
+		// Action
+		SetHostileFaction = 2
+	};
+
+
+	struct npc_theramore_deckhandAI : public ScriptedAI
+	{
+		npc_theramore_deckhandAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+
+		std::list<Creature*> Peons;
+
+		void Reset() override
+		{
+			if (me->GetGUID() == 265490 || 265488)
+				me->setFaction(35); // Friendly faction to horde inside Ratchet Pub
+				ClearDelayedOperations();
+		}
+
+		void JustDied(Unit* killer) override
+		{
+			if (Creature* hand = me->FindNearestCreature(NPC_THERAMORE_DECK_HAND, 20.0f, true)) // Find alive Theramore Deckhand nearby, if none, return peons to home position
+			{
+				return;
+			}	
+			else
+			{
+				me->GetCreatureListWithEntryInGrid(Peons, NPC_CAROUSING_PEON, 20.0f);
+				for (auto peon : Peons)
+				{
+					Position l_Pos = peon->GetHomePosition();
+					peon->GetMotionMaster()->MovePoint(0, l_Pos, true); // Need to test if this actually returns peons to home position
+					peon->SetFacingTo(l_Pos.m_orientation);
+				}
+			}
+			
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case SetHostileFaction:
+					AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (me->GetGUID() == 265490 || 265488)
+						{
+							me->setFaction(1077); // hostile faction
+							Player* player = me->FindNearestPlayer(20.0f, true);
+							me->CombatStart(player, true);
+						}
+							
+					});
+					break;
+			}
+		}
+
+		void UpdateAI(uint32 const p_Diff)
+		{
+			UpdateOperations(p_Diff);
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_theramore_deckhandAI(p_Creature);
 	}
 
 };
@@ -819,5 +906,6 @@ void AddSC_the_barrens()
 	new npc_baron_longshore();
 	new npc_gazlowe_3391();
 	new npc_chief_engineer_foote();
+	new npc_theramore_deckhand();
 }
 #endif
