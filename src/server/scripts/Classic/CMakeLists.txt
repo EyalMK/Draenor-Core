@@ -81,6 +81,9 @@ set(scripts_STAT_SRCS
   Classic/Raids/MoltenCore/boss_sulfuron_harbinger.cpp
   Classic/Raids/MoltenCore/boss_magmadar.cpp
   Classic/Raids/MoltenCore/boss_shazzrah.cpp
+  
+  
+  Classic/World-Bosses/boss_azuregos.cpp
 )
 
 message("  -> Prepared: Classic")

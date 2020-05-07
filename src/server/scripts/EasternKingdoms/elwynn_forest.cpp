@@ -271,8 +271,6 @@ public:
 		Quest_Fear_no_Evil_8 = 29082
 	}; */
 
-
-
 	struct npc_injured_stormwind_soldierAI : public ScriptedAI
 	{
 		npc_injured_stormwind_soldierAI(Creature* creature) : ScriptedAI(creature) 
@@ -378,8 +376,6 @@ public:
 	}
 };
 
-
-
 /// Blackrock Invader - 42937
 class npc_blackrock_invader : public CreatureScript 
 {
@@ -447,8 +443,6 @@ public:
 	}
 };
 
-
-
 /// Wounded Trainee - 44564
 class npc_wounded_trainee : public CreatureScript
 {
@@ -487,7 +481,6 @@ public:
 		return new npc_wounded_traineeAI(p_Creature);
 	}
 };
-
 
 /// Marshal Mcbride - 197
 enum Marshal
@@ -633,21 +626,31 @@ class npc_marshal_dughan : public CreatureScript
 public:
 	npc_marshal_dughan() : CreatureScript("npc_marshal_dughan") { }
 
-	enum eActions
+	enum eData
 	{
-		SelectGossip = 0
+		// Quest
+		QUEST_FURTHER_CONCERNS	= 35,
+
+		// NPCs
+		NPC_STORMWIND_CHARGER	= 42260,
+
+		// Spells
+		SPELL_RIDE_VEHICLE		= 59119,
+
+		// Gossip Menu
+		DUGHAN_GOSSIP_MENU_ID	= 11611,
+		DUGHAN_GOSSIP_OPTION	= 0,
+		DUGHAN_NPC_TEXT			= 16211,
 	};
 
 	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
 	{
 		p_Player->PrepareQuestMenu(p_Creature->GetGUID());
 
-		if (p_Player->GetQuestStatus(35))
-		{
-			p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I wish to ride the Stormwind gryphon, sir.", GOSSIP_SENDER_MAIN, eActions::SelectGossip);
-		}
+		if (p_Player->GetQuestStatus(QUEST_FURTHER_CONCERNS) == QUEST_STATUS_INCOMPLETE)
+			p_Player->ADD_GOSSIP_ITEM_DB(DUGHAN_GOSSIP_MENU_ID, DUGHAN_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-		p_Player->SEND_GOSSIP_MENU(16211, p_Creature->GetGUID());
+		p_Player->SEND_GOSSIP_MENU(DUGHAN_NPC_TEXT, p_Creature->GetGUID());
 
 		return true;
 	}
@@ -656,19 +659,21 @@ public:
 	{
 		switch (p_Action)
 		{
-			case eActions::SelectGossip: // I wish to ride the Stormwind Gryphon, sir.
+			case GOSSIP_ACTION_INFO_DEF: // I wish to ride the Stormwind Charger, sir.
 			{
-				if (p_Player->GetQuestStatus(35))
-				{
-					Position l_Pos;
-					p_Player->GetPosition(&l_Pos);
+				Position l_Pos;
+				p_Player->GetPosition(&l_Pos);
+				GetPositionWithDistInFront(p_Player, 2.5f, l_Pos);
 
-					if (Creature* l_Creature = p_Player->SummonCreature(42260, l_Pos))
-					{
-						l_Creature->GetAI()->DoAction(0);
-					}
+				float z = p_Player->GetMap()->GetHeight(p_Player->GetPhaseMask(), l_Pos.GetPositionX(), l_Pos.GetPositionY(), l_Pos.GetPositionZ());
+				l_Pos.m_positionZ = z;
+
+				if (Creature* Charger = p_Player->SummonCreature(NPC_STORMWIND_CHARGER, l_Pos))
+				{
+					p_Player->CastSpell(Charger, SPELL_RIDE_VEHICLE);
+					p_Player->EnterVehicle(Charger);
 				}
-				break;
+			break;
 			}
 		default:
 			break;
@@ -691,142 +696,95 @@ public:
 	}
 };
 
+/// Further Concerns - Quest ID: 35
+enum eData
+{
+	// Events
+	EVENT_PLAY_MOUNT_ANIMATION = 1,
+	EVENT_START_RIDING = 2,
+	EVENT_EJECT_PASSENGER = 3,
+	EVENT_DESPAWN = 4,
+
+	// Path Data
+	POINT_BRIDGE = 1,
+	MaxStormwindChargerMoves = 39,
+
+	// Sound Ids
+	SOUND_ID_MOUNTSPECIAL = 4066,
+
+	// Spells
+	SPELL_RIDE_VEHICLE = 59119,
+};
+
 /// Stormwind Gryphon - 42260
-/// Used to be Stormwind Charger - changed due to issues with movement for ground mount.
-enum eMovepointsData
-{
-	MaxStormwindChargerMoves = 19
-};
-
-static std::array<G3D::Vector3, eMovepointsData::MaxStormwindChargerMoves> g_StormwindChargerMoves =
-{
-	{
-		{ -9472.65f, 64.87f, 71.095f   },
-		{ -9488.76f, 65.68f, 71.019f   },
-		{ -9499.33f, 45.78f, 70.828f   },
-		{ -9544.13f, -47.17f, 71.672f  },
-		{ -9552.60f, -132.82f, 72.394f },
-		{ -9573.70f, -159.34f, 72.569f },
-		{ -9619.31f, -305.55f, 72.359f },
-		{ -9617.16f, -408.72f, 72.105f },
-		{ -9606.15f, -440.79f, 72.488f },
-		{ -9590.33f, -487.42f, 72.738f },
-		{ -9615.00f, -540.68f, 69.344f },
-		{ -9625.86f, -634.08f, 66.309f },
-		{ -9645.11f, -675.84f, 63.514f },
-		{ -9656.27f, -726.09f, 59.377f },
-		{ -9646.74f, -798.64f, 58.495f },
-		{ -9584.79f, -877.63f, 58.836f },
-		{ -9589.34f, -933.82f, 58.544f },
-		{ -9619.54f, -979.84f, 58.692f },
-		{ -9619.13f, -1031.14f, 39.681f }
-	}
-};
-
-class npc_stormwind_gryphon : public CreatureScript
+class npc_stormwind_charger : public CreatureScript
 {
 public:
-	npc_stormwind_gryphon() : CreatureScript("npc_stormwind_gryphon") {}
+	npc_stormwind_charger() : CreatureScript("npc_stormwind_charger") {}
 
-	enum eActions
+
+	struct npc_stormwind_chargerAI : public ScriptedAI
 	{
-		StartPath = 0,
-		EndPath =  1
-	};
+		npc_stormwind_chargerAI(Creature* creature) : ScriptedAI(creature) { }
 
-	enum eMoves
-	{
-		StartQuestMove = 0
-	};
-
-	struct npc_stormwind_gryphonAI : public ScriptedAI
-	{
-		npc_stormwind_gryphonAI(Creature* creature) : ScriptedAI(creature)
+		void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
 		{
-			m_PlayerGuid = 0;
-		}
+			if (!passenger->IsPlayer())
+				return;
 
-		uint64 m_PlayerGuid;
+			me->PlayDirectSound(SOUND_ID_MOUNTSPECIAL, passenger->ToPlayer());
 
-		void Reset() override
-		{
-			me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 3.0f, true);
-
-			ClearDelayedOperations();
-		}
-
-		void IsSummonedBy(Unit* p_Summoner) override
-		{
-			m_PlayerGuid = p_Summoner->GetGUID();
-		}
-
-		void DoAction(int32 const p_Action) override
-		{
-			switch (p_Action)
+			if (apply)
 			{
-				case eActions::StartPath:
-				{
-					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						if (Player* p_Player = sObjectAccessor->GetPlayer(*me, m_PlayerGuid))
-						{
-							me->HandleEmoteCommand(553); // Special emote
-						}
-					});
-
-					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						if (Player* p_Player = sObjectAccessor->GetPlayer(*me, m_PlayerGuid))
-						{
-							me->CastSpell(p_Player, 59119); // ride vehicle
-							p_Player->EnterVehicle(me);
-						}
-					});
-
-					AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						if (Player* p_Player = sObjectAccessor->GetPlayer(*me, m_PlayerGuid))
-						{
-							me->GetMotionMaster()->MoveSmoothFlyPath(eMoves::StartQuestMove, g_StormwindChargerMoves.data(), g_StormwindChargerMoves.size(), false);
-						}
-					});
-
-					AddTimedDelayedOperation(36 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->GetAI()->DoAction(eActions::EndPath);
-					});
-				break;
-				}
-
-				case eActions::EndPath:
-				{
-					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->HandleEmoteCommand(553); // Special emote
-						me->GetVehicleKit()->RemoveAllPassengers();
-					});
-
-					AddTimedDelayedOperation(1.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						me->DespawnOrUnsummon();
-					});
-					break;
-				}
-			default:
-				break;
+				me->SetControlled(true, UNIT_STATE_ROOT);
+				_events.ScheduleEvent(EVENT_PLAY_MOUNT_ANIMATION, 200);
 			}
 		}
 
-		void UpdateAI(uint32 const p_Diff) override
+		void UpdateAI(uint32 diff) override
 		{
-			UpdateOperations(p_Diff);
+			_events.Update(diff);
+			while (uint32 eventId = _events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_PLAY_MOUNT_ANIMATION:
+					me->HandleEmoteCommand(EMOTE_ONESHOT_MOUNTSELFSPECIAL);
+					_events.ScheduleEvent(EVENT_START_RIDING, 1200);
+					break;
+				case EVENT_START_RIDING:
+					me->GetMotionMaster()->MovePath(4226000, false); // Implemented in waypoint_data
+					break;
+				case EVENT_EJECT_PASSENGER:
+					me->HandleEmoteCommand(EMOTE_ONESHOT_MOUNTSELFSPECIAL);
+					me->GetVehicleKit()->RemoveAllPassengers();
+					_events.ScheduleEvent(EVENT_DESPAWN, 2000);
+					break;
+				case EVENT_DESPAWN:
+					me->DespawnOrUnsummon();
+					break;
+				default:
+					break;
+				}
+			}
 		}
+
+		void MovementInform(uint32 motionType, uint32 pointId) override
+		{
+			if (motionType == EFFECT_MOTION_TYPE && pointId == POINT_BRIDGE)
+				_events.ScheduleEvent(EVENT_EJECT_PASSENGER, 2000);
+		}
+
+	private:
+		EventMap _events;
+
 	};
 
 	CreatureAI* GetAI(Creature* creature) const
 	{
-		return new npc_stormwind_gryphonAI(creature);
+		return new npc_stormwind_chargerAI(creature);
 	}
+
 };
 
 /// Hogger - 448
@@ -1277,11 +1235,11 @@ void AddSC_elwyn_forest()
 	//new npc_blackrock_spy();
 
 	/// Goldshire
-	new npc_stormwind_gryphon();
+	new npc_stormwind_charger();
 	new	npc_marshal_dughan();
 
+	/// Elwynn Forest
 	new npc_hogger();
-
 	new npc_henze_faulk();
 }
 #endif
