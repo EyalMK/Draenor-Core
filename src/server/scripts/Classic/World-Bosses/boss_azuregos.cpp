@@ -169,6 +169,7 @@ public:
 		bool Validate(SpellInfo const* /*spellInfo*/) override
 		{
 		//	return validateSpellInfo({ SPELL_MARK_OF_FROST, SPELL_AURA_OF_FROST });
+			return true;
 		}
 
 		void FilterTargets(std::list<WorldObject*>& targets)
