@@ -9,6 +9,9 @@
 #include "AnticheatMgr.h"
 #include "ScriptLoader.h"
 
+/// Classic
+void AddSC_boss_azuregos();
+
 /// Customs
 void AddSC_event_april();
 void AddSC_promotion_new_players();
@@ -2144,6 +2147,9 @@ void AddDraenorScripts()
     AddSC_boss_Araknath();
     AddSC_boss_Rukhran();
     AddSC_boss_HighSaveViryx();
+
+	/// Classic
+	AddSC_boss_azuregos();
 
     /// Instance Bloodmaul Slag Mines
     AddSC_instance_Bloodmaul();
