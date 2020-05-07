@@ -364,13 +364,15 @@ class spell_at_flare : public AreaTriggerEntityScript
 
             for (Unit* l_Target : l_NewTargetList)
             {
+				if (l_Target->getClass() == CLASS_ROGUE)
+				{
+					if (Aura* subterfuge = l_Target->GetAura(eSpells::Subterfuge))
+						subterfuge->Remove(AURA_REMOVE_BY_SPECIAL);
+					//l_Target->RemoveAura(eSpells::Subterfuge, AURA_REMOVE_BY_SPECIAL);
+					l_Target->RemoveAura(eSpells::RogueStealth, AURA_REMOVE_BY_SPECIAL);
+				}
                 l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                 l_Target->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
-                if (l_Target->getClass() == CLASS_ROGUE)
-                {
-                    l_Target->RemoveAura(eSpells::Subterfuge);
-                    l_Target->RemoveAura(eSpells::RogueStealth);
-                }
             }
         }
 

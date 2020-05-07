@@ -444,7 +444,8 @@ enum AuraRemoveMode
     AURA_REMOVE_BY_CANCEL,
     AURA_REMOVE_BY_ENEMY_SPELL,       // dispel and absorb aura destroy
     AURA_REMOVE_BY_EXPIRE,            // aura duration has ended
-    AURA_REMOVE_BY_DEATH
+    AURA_REMOVE_BY_DEATH,
+	AURA_REMOVE_BY_SPECIAL            // Used by special spells such as Flare
 };
 
 enum TriggerCastFlags
