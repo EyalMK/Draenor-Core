@@ -2381,10 +2381,10 @@ void AddSC_npc_custom()
 	new Anti_Advertising();
 	new Anti_Farming();
 	new Npc_Beastmaster();
-	new System_OnPVPKill();
-	new Reset_OnDuelEnd;
-	new BloodMoneyReward();
-	new npc_blood_money();
+	//new System_OnPVPKill();
+	//new Reset_OnDuelEnd;
+	//new BloodMoneyReward();
+	//new npc_blood_money();
 	new npc_hellscream_ffa();
 	new npc_pve_tests_manager();
 	new npc_hellscream_booster();

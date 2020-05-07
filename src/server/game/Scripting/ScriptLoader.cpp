@@ -11,6 +11,7 @@
 
 /// Classic
 void AddSC_boss_azuregos();
+void AddSC_boss_classic_kazzak();
 
 /// Customs
 void AddSC_event_april();
@@ -2150,6 +2151,7 @@ void AddDraenorScripts()
 
 	/// Classic
 	AddSC_boss_azuregos();
+	AddSC_boss_classic_kazzak();
 
     /// Instance Bloodmaul Slag Mines
     AddSC_instance_Bloodmaul();
