@@ -2281,30 +2281,40 @@ class spell_warl_demonic_gateway: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demonic_gateway_SpellScript);
 
-            SpellCastResult CheckElevation()
-            {
-                if (!GetCaster() || !GetCaster()->ToPlayer())
-                    return SPELL_FAILED_DONT_REPORT;
+			SpellCastResult CheckElevation()
+			{
+				WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
+				if (!dest)
+					return SPELL_FAILED_DONT_REPORT;
 
-                Player* l_Player = GetCaster()->ToPlayer();
+				PathGenerator path(GetCaster());
+				path.SetPathLengthLimit(100.0f);
+				bool result = path.CalculatePath(dest->m_positionX, dest->m_positionY, dest->m_positionZ, false, true);
+				if (path.GetPathType() & PATHFIND_SHORT)
+					return SPELL_FAILED_OUT_OF_RANGE;
+				else if (!result || (path.GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE)))
+				{
+					result = path.CalculatePath(dest->m_positionX, dest->m_positionY, dest->m_positionZ, false, false);
+					if (path.GetPathType() & PATHFIND_SHORT)
+						return SPELL_FAILED_OUT_OF_RANGE;
+					else if (!result || path.GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
+						return SPELL_FAILED_NOPATH;
+					else if (path.IsInvalidDestinationZ(dest->m_positionZ)) // Check position z, if not in a straight line
+						return SPELL_FAILED_NOPATH;
+				}
+				else if (path.IsInvalidDestinationZ(dest->m_positionZ)) // Check position z, if in a straight line
+					return SPELL_FAILED_NOPATH;
+				else if (GetCaster()->GetMap()->IsBattlegroundOrArena())
+				{
+					if (Battleground* bg = GetCaster()->ToPlayer()->GetBattleground())
+					{
+						if (bg->GetStatus() != STATUS_IN_PROGRESS)
+							return SPELL_FAILED_NOT_READY;
+					}
+				}
 
-                WorldLocation* l_SpellDest = const_cast<WorldLocation*>(GetExplTargetDest());
-                if (!l_SpellDest)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                Map* l_Map = l_Player->GetMap();
-                if (l_Map == nullptr)
-                    return SPELL_FAILED_SUCCESS;
-
-                PathGenerator l_Path(l_Player);
-                l_Path.SetPathLengthLimit(40.0f);
-                bool l_Result = l_Path.CalculatePath(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ());
-
-                if (!l_Result || (l_Path.GetPathType() != PATHFIND_NORMAL))
-                    return SPELL_FAILED_NOPATH;
-
-                return SPELL_CAST_OK;
-            }
+				return SPELL_CAST_OK;
+			}
 
             void HandleAfterCast()
             {
