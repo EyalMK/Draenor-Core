@@ -60,7 +60,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
 
 	uint32 const l_Dummy[2] = { 0, 0 };
 	uint32 const* l_VisualID = l_Dummy;
-	if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellproto->GetSpellXSpellVisualId(p_Caster)))
+	if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellproto->GetSpellXSpellVisualId(target)))
 		l_VisualID = l_VisualEntry->VisualID;
 
 	// Explicit Diminishing Groups
