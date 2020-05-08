@@ -20,7 +20,6 @@ enum Spells
     SPELL_VOID_BOLT                 = 22709,
     SPELL_MARK_OF_KAZZAK            = 21056,
     SPELL_MARK_OF_KAZZAK_DAMAGE     = 21058,
-    SPELL_ENRAGE                    = 21340,
     SPELL_CAPTURE_SOUL              = 21054,
     SPELL_TWISTED_REFLECTION        = 21063,
     SPELL_TWISTED_REFLECTION_HEAL   = 21064,
@@ -34,9 +33,8 @@ enum Events
     EVENT_THUNDERCLAP           = 3,
     EVENT_VOID_BOLT             = 4,
     EVENT_MARK_OF_KAZZAK        = 5,
-    EVENT_ENRAGE                = 6,
-    EVENT_TWISTED_REFLECTION    = 7,
-    EVENT_BERSERK               = 8
+    EVENT_TWISTED_REFLECTION    = 6,
+    EVENT_BERSERK               = 7
 };
 
 class boss_classic_kazzak : public CreatureScript
@@ -58,7 +56,6 @@ class boss_classic_kazzak : public CreatureScript
                 _events.ScheduleEvent(EVENT_THUNDERCLAP, urand(14000, 18000));
                 _events.ScheduleEvent(EVENT_VOID_BOLT, 30000);
                 _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 25000);
-                _events.ScheduleEvent(EVENT_ENRAGE, 180000);
                 _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 33000);
                 _events.ScheduleEvent(EVENT_BERSERK, 180000);
             }
@@ -171,18 +168,15 @@ class boss_classic_kazzak : public CreatureScript
 							_events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20000);
 							break;
 						}	
-                        case EVENT_ENRAGE:
-							Talk(SAY_SURPREME);
-                            DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, 600000);
-                            break;
                         case EVENT_TWISTED_REFLECTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_TWISTED_REFLECTION);
                             _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 15000);
                             break;
                         case EVENT_BERSERK:
+							Talk(SAY_SURPREME);
                             DoCast(me, SPELL_BERSERK);
+							_events.ScheduleEvent(EVENT_BERSERK, 600000);
                             break;
                         default:
                             break;
