@@ -263,7 +263,7 @@ public:
 		ActionHeal = 0
 	};
 
-	/* enum eQuests
+	enum eQuests
 	{
 		Quest_Fear_no_Evil_1 = 28806,
 		Quest_Fear_no_Evil_2 = 28808,
@@ -273,7 +273,7 @@ public:
 		Quest_Fear_no_Evil_6 = 28812,
 		Quest_Fear_no_Evil_7 = 28813,
 		Quest_Fear_no_Evil_8 = 29082
-	}; */
+	};
 
 	struct npc_injured_stormwind_soldierAI : public ScriptedAI
 	{
@@ -285,30 +285,43 @@ public:
 		EventMap m_CosmeticEvents;
 		EventMap m_Events;
 		uint64 m_PlayerGuid;
+		float randHealth = urand(30.0f, 45.0f);
+
+		std::list<uint32> Quests;
 		
 
 		void Reset()
 		{
 			ClearDelayedOperations();
 			m_Events.Reset();
+
+			Quests.push_back(28806);
+			Quests.push_back(28808);
+			Quests.push_back(28809);
+			Quests.push_back(28810);
+			Quests.push_back(28811);
+			Quests.push_back(28812);
+			Quests.push_back(28813);
+			Quests.push_back(29082);
+
 			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 			me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
-			me->SetHealth(me->CountPctFromMaxHealth(30.0f));
+			me->SetHealth(me->CountPctFromMaxHealth(randHealth));
 			me->setRegeneratingHealth(false);
 		}
 
 		void OnSpellClick(Unit* clicker) override
 		{
 
-			// Need to rework this - currently any player can trigger the DoAction even if said player doesn't have quest.
-			// Tested with OR statements inside an if statement as well as a for loop - both don't work
-			// Suspected issue is clicker Unit and the functions it has.
-			m_PlayerGuid = clicker->GetGUID();
+			for (auto quest : Quests)
+				if (clicker->ToPlayer()->GetQuestStatus(quest) == QUEST_STATUS_INCOMPLETE)
+				{
+					m_PlayerGuid = clicker->GetGUID();
 
-			me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-			me->CastSpell(me, SPELL_RENEWEDLIFE, true);
-			DoAction(eActions::ActionHeal);
-
+					me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+					me->CastSpell(me, SPELL_RENEWEDLIFE, true);
+					DoAction(eActions::ActionHeal);
+				}
 		}
 
 		void DoAction(int32 const p_Action) override
@@ -341,8 +354,11 @@ public:
 
 					AddTimedDelayedOperation(2.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-						Talk(0);
-						me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+						if (m_PlayerGuid)
+						{
+							Talk(0, m_PlayerGuid);
+							me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+						}
 					});
 
 					AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -749,14 +765,7 @@ public:
 			}
 		}
 
-		void OnRemovePassenger(Vehicle* vehicle, Unit* passenger)
-		{
-			if (passenger->ToPlayer() && passenger->ToPlayer()->HasQuest(QUEST_FURTHER_CONCERNS));
-			{
-				me->DespawnOrUnsummon(2000);
-			}
-			return;
-		}
+		// Make mount despawn on eject
 
 		void UpdateAI(uint32 diff) override
 		{
