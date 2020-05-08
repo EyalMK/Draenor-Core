@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_addon` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_template_addon: 25,066 rows
+-- Dumping data for table worldlive.creature_template_addon: 25,069 rows
 DELETE FROM `creature_template_addon`;
 /*!40000 ALTER TABLE `creature_template_addon` DISABLE KEYS */;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
@@ -3842,7 +3842,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(11322, 0, 0, 0, 2, 0, NULL, 0),
 	(11323, 0, 0, 0, 2, 0, NULL, 0),
 	(11324, 0, 0, 0, 2, 0, NULL, 0),
-	(11328, 0, 0, 0, 2, 0, '', 0),
+	(11328, 0, 0, 0, 1, 173, '156784', 0),
 	(11361, 0, 0, 1536, 2, 0, NULL, 0),
 	(11378, 0, 0, 0, 1, 0, '', 0),
 	(11383, 0, 0, 0, 1, 0, '79452', 0),
@@ -24884,7 +24884,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(3477, 0, 0, 0, 1, 233, NULL, 0),
 	(34261, 0, 0, 0, 1, 233, NULL, 0),
 	(3934, 0, 0, 0, 4097, 93, '43905', 0),
-	(34759, 0, 0, 0, 4097, 93, '43905', 0),
+	(34759, 0, 0, 0, 4097, 0, '', 0),
 	(3659, 0, 0, 0, 4097, 93, '43905', 0),
 	(3292, 0, 0, 0, 4097, 93, '43905', 0),
 	(43945, 0, 0, 0, 4097, 93, '43905', 0),
@@ -25083,17 +25083,20 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(21739, 0, 0, 0, 1, 0, '', 0),
 	(21738, 0, 0, 0, 1, 0, '', 0),
 	(41463, 0, 0, 0, 0, 0, '170010', 0),
+	(31029, 0, 0, 50331648, 1, 0, '58102', 0),
 	(31016, 0, 0, 0, 1, 0, '61081', 0),
 	(31083, 0, 0, 0, 1, 0, '34427', 0),
-	(31029, 0, 0, 50331648, 1, 0, '58102', 0),
-	(31050, 0, 0, 50331648, 1, 0, '', 0),
 	(27355, 0, 0, 0, 1, 0, '48695', 0),
 	(94925, 0, 0, 0, 2, 0, NULL, 0),
 	(94879, 0, 0, 0, 2, 0, NULL, 0),
 	(94946, 0, 0, 0, 1, 0, NULL, 0),
 	(43925, 0, 0, 0, 0, 0, '82199', 0),
 	(43885, 0, 0, 65536, 257, 0, '49414', 0),
-	(43884, 0, 0, 65536, 1, 0, '49414', 0);
+	(31050, 0, 0, 50331648, 1, 0, '', 0),
+	(12397, 1239700, 0, 0, 0, 0, NULL, 0),
+	(43884, 0, 0, 65536, 1, 0, '49414', 0),
+	(34754, 0, 0, 0, 0, 426, '', 0),
+	(6109, 610900, 0, 0, 0, 0, NULL, 0);
 /*!40000 ALTER TABLE `creature_template_addon` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

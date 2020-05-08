@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `creature_model_info` (
   PRIMARY KEY (`modelid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Creature System (Model related info)';
 
--- Dumping data for table worldlive.creature_model_info: 47,137 rows
+-- Dumping data for table worldlive.creature_model_info: 47,143 rows
 DELETE FROM `creature_model_info`;
 /*!40000 ALTER TABLE `creature_model_info` DISABLE KEYS */;
 INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`) VALUES
@@ -47162,7 +47162,13 @@ INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`,
 	(64712, 2, 0, 0, 0),
 	(64711, 2, 0, 1, 0),
 	(64709, 2, 0, 1, 0),
-	(64710, 2, 0, 1, 0);
+	(64710, 2, 0, 1, 0),
+	(62388, 3, 5, 0, 0),
+	(62389, 3, 5, 1, 0),
+	(63958, 5, 20, 2, 0),
+	(62417, 5, 20, 0, 0),
+	(62410, 5, 20, 0, 0),
+	(64659, 5, 20, 0, 0);
 /*!40000 ALTER TABLE `creature_model_info` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

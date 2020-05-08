@@ -6358,6 +6358,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 173545: /// Chi Wave (healing bolt)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+				spellInfo->AttributesEx3 |= SPELL_ATTR3_UNK28;
                 break;
             case 53397: /// Invigoration
                 spellInfo->ProcFlags = PROC_FLAG_DONE_RANGED_AUTO_ATTACK;

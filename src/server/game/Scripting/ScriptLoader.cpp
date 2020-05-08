@@ -11,6 +11,7 @@
 
 /// Classic
 void AddSC_boss_azuregos();
+void AddSC_boss_classic_kazzak();
 
 /// Customs
 void AddSC_event_april();
@@ -618,7 +619,7 @@ void AddSC_mechanar();
 
 /// Zone
 void AddSC_blades_edge_mountains();
-void AddSC_boss_doomlordkazzak();
+void AddSC_boss_doomlord_kazzak();
 void AddSC_boss_doomwalker();
 void AddSC_hellfire_peninsula();
 void AddSC_nagrand();
@@ -1821,7 +1822,7 @@ void AddOutlandScripts()
     AddSC_mechanar();
 
     AddSC_blades_edge_mountains();
-    AddSC_boss_doomlordkazzak();
+    AddSC_boss_doomlord_kazzak();
     AddSC_boss_doomwalker();
     AddSC_hellfire_peninsula();
     AddSC_nagrand();
@@ -2150,6 +2151,7 @@ void AddDraenorScripts()
 
 	/// Classic
 	AddSC_boss_azuregos();
+	AddSC_boss_classic_kazzak();
 
     /// Instance Bloodmaul Slag Mines
     AddSC_instance_Bloodmaul();
