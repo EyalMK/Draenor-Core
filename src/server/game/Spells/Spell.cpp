@@ -3077,7 +3077,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 			enablePvP = true;
 
 		/// Chi Wave
-		if (m_spellInfo->Id == 132467 || m_spellInfo->Id == 132466)
+		if (m_spellInfo->Id == 132467 || m_spellInfo->Id == 132466 || m_spellInfo->Id == 115098 || m_spellInfo->Id == 22011)
 			enablePvP = false;
 
 		/// Renewing Mist
