@@ -84,6 +84,7 @@ set(scripts_STAT_SRCS
   
   
   Classic/World-Bosses/boss_azuregos.cpp
+  Classic/World-Bosses/boss_classic_kazzak.cpp
 )
 
 message("  -> Prepared: Classic")
