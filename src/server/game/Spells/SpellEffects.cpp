@@ -1553,6 +1553,13 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
                     m_targets.SetDst(1174.85f, -763.24f, 48.72f, 6.26f, 628);
             }
             break;
+		case 36563: ///< Shadowstep teleport effect
+		case 57840: ///< Killing Spree teleport effect
+		{
+			if (Unit* target = m_targets.GetUnitTarget())
+				destTarget->m_positionZ = target->GetPositionZ();
+			break;
+		}
     }
 
     // If not exist data for dest location - return
@@ -1568,10 +1575,10 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     if (!orientation && m_targets.GetUnitTarget())
         orientation = m_targets.GetUnitTarget()->GetOrientation();
 
-    if (mapid == unitTarget->GetMapId())
-        unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
-    else if (unitTarget->IsPlayer())
-        unitTarget->ToPlayer()->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL : 0);
+	if (mapid == unitTarget->GetMapId())
+		unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
+	else if (unitTarget->IsPlayer())
+		unitTarget->ToPlayer()->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL : 0);
 
     // post effects for TARGET_DEST_DB
     switch (m_spellInfo->Id)
