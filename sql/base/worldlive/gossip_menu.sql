@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `gossip_menu` (
   PRIMARY KEY (`entry`,`text_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.gossip_menu: 6,324 rows
+-- Dumping data for table worldlive.gossip_menu: 6,346 rows
 DELETE FROM `gossip_menu`;
 /*!40000 ALTER TABLE `gossip_menu` DISABLE KEYS */;
 INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
@@ -89,6 +89,7 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 	(441, 938),
 	(443, 940),
 	(444, 941),
+	(472, 50022),
 	(523, 1040),
 	(523, 4985),
 	(524, 1041),
@@ -4247,6 +4248,7 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 	(10557, 14613),
 	(10558, 14614),
 	(10559, 14615),
+	(10560, 14616),
 	(10561, 14617),
 	(10562, 14618),
 	(10563, 14619),
@@ -4428,6 +4430,18 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 	(10857, 15074),
 	(10858, 15076),
 	(10860, 15081),
+	(10862, 7880),
+	(10863, 7881),
+	(10864, 7882),
+	(10865, 7883),
+	(10866, 7884),
+	(10867, 7885),
+	(10868, 7886),
+	(10869, 7887),
+	(10870, 7888),
+	(10871, 7889),
+	(10872, 7890),
+	(10873, 7891),
 	(10875, 15101),
 	(10876, 15103),
 	(10878, 559),
@@ -5823,6 +5837,7 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 	(14979, 21175),
 	(14980, 21176),
 	(14995, 21202),
+	(15000, 61090),
 	(15001, 21210),
 	(15033, 21267),
 	(15042, 19525),
@@ -6224,6 +6239,13 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 	(55000, 14267),
 	(55015, 30003),
 	(56314, 56314),
+	(57020, 50016),
+	(57023, 50019),
+	(57024, 50020),
+	(57025, 50021),
+	(57026, 50023),
+	(57027, 50024),
+	(57029, 50026),
 	(57800, 57800),
 	(60000, 75000),
 	(60002, 75002),

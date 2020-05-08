@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `gossip_menu_option` (
   PRIMARY KEY (`menu_id`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.gossip_menu_option: 6,347 rows
+-- Dumping data for table worldlive.gossip_menu_option: 6,359 rows
 DELETE FROM `gossip_menu_option`;
 /*!40000 ALTER TABLE `gossip_menu_option` DISABLE KEYS */;
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
@@ -4623,8 +4623,8 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(10953, 0, 0, 'We are ready to go, High Overlord. The Lich King must fall!', 0, 0, 0, 0, 0, 0, ''),
 	(9157, 1, 20, 'Queue for The Frost Lord Ahune battle.', 0, 0, 0, 0, 0, 0, ''),
 	(11304, 0, 2, 'Show me where I can fly.', 4, 8192, 0, 0, 0, 0, ''),
-	(10556, 0, 0, '<Club him unconscious.>', 0, 0, 0, 0, 0, 0, ''),
-	(10560, 0, 0, '<Rifle through his pockets.>', 0, 0, 0, 0, 0, 0, ''),
+	(10556, 0, 0, '<Club him unconscious.>', 1, 1, 0, 0, 0, 0, ''),
+	(10560, 0, 0, '<Rifle through his pockets.>', 1, 1, 0, 0, 0, 0, ''),
 	(10567, 0, 0, 'Never, you two-timing dog!', 0, 0, 0, 0, 0, 0, ''),
 	(6889, 4, 0, 'Where is Elder Riversong?', 1, 1, 50130, 0, 0, 0, ''),
 	(10514, 0, 0, 'Yes, I\'m ready. Let\'s do this thing!', 0, 0, 0, 0, 0, 0, ''),
@@ -6377,7 +6377,19 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 	(7967, 1, 0, 'Send me to the Abyssal Shelf!', 1, 1, 0, 0, 0, 0, ''),
 	(7967, 4, 0, 'Lend me a Windrider.  I\'m going to Spinebreaker Post!', 1, 1, 0, 0, 0, 0, ''),
 	(7967, 5, 0, 'I\'m on a bombing mission for Forward Commander To\'arch.  I need a wyvern destroyer!', 1, 1, 0, 0, 0, 0, ''),
-	(9212, 0, 0, 'I am ready to leave, Durkot.', 1, 1, 0, 0, 0, 0, NULL);
+	(9212, 0, 0, 'I am ready to leave, Durkot.', 1, 1, 0, 0, 0, 0, NULL),
+	(15000, 0, 0, 'I am a treasure hunter in search of powerful artifacts. Give them to me and you will not be harmed.', 1, 1, 0, 0, 0, 0, NULL),
+	(10862, 0, 0, 'Kalecgos sent me...', 1, 1, 10863, 0, 0, 0, NULL),
+	(10863, 0, 0, 'No, no, no. You don\'t understand. I\'m here to help.', 1, 1, 10864, 0, 0, 0, NULL),
+	(10864, 0, 0, 'Met someone? I didn\'t know there were any other dragons out here.', 1, 1, 10865, 0, 0, 0, NULL),
+	(10865, 0, 0, '... the spirit healer?', 1, 1, 10866, 0, 0, 0, NULL),
+	(10866, 0, 0, 'I\'m sorry, I didn\'t mean to be rude. I just...', 1, 1, 10867, 0, 0, 0, NULL),
+	(10867, 0, 0, 'That\'s not what I was saying at all.', 1, 1, 10868, 0, 0, 0, NULL),
+	(10868, 0, 0, 'I\'m the... forget it. I\'m here to warn you that the black dragonflight is here hunting you.', 1, 1, 10869, 0, 0, 0, NULL),
+	(10869, 0, 0, 'You already know? Why don\'t you go stop them then?', 1, 1, 10870, 0, 0, 0, NULL),
+	(10870, 0, 0, 'But Kalecgos is already out there trying to stop them. He needs your help.', 1, 1, 10871, 0, 0, 0, NULL),
+	(10871, 0, 0, 'You\'ll come then?', 1, 1, 10872, 0, 0, 0, NULL),
+	(10872, 0, 0, 'I\'m going to let him know right away. Meet us at Sable Ridge', 1, 1, 10873, 0, 0, 0, NULL);
 /*!40000 ALTER TABLE `gossip_menu_option` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

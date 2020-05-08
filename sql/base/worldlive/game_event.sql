@@ -106,7 +106,7 @@ INSERT INTO `game_event` (`eventEntry`, `start_time`, `end_time`, `occurence`, `
 	(73, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 5184000, 2592000, 0, 'Arena Season 13', 0),
 	(74, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 5184000, 2592000, 0, 'Arena Season 14', 0),
 	(75, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 5184000, 2592000, 0, 'Arena Season 15', 0),
-	(76, '2013-03-09 19:00:00', '2020-12-30 17:00:00', 90720, 10080, 515, 'Call to Arms: Deepwind Gorge', 0);
+	(76, '2020-01-01 07:00:00', '2022-01-01 08:00:00', 1440, 60, 0, 'Childeren of Goldshire', 0);
 /*!40000 ALTER TABLE `game_event` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

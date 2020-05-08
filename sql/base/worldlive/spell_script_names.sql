@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `spell_script_names` (
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.spell_script_names: 3,608 rows
+-- Dumping data for table worldlive.spell_script_names: 3,612 rows
 DELETE FROM `spell_script_names`;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -357,6 +357,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(20783, 'spell_destroy_karangs_banner'),
 	(20895, 'spell_hun_glyph_of_animal_bond'),
 	(20925, 'spell_pal_sacred_shield'),
+	(21058, 'spell_mark_of_kazzak'),
+	(21063, 'spell_twisted_reflection'),
 	(21562, 'spell_pri_power_word_fortitude'),
 	(22482, 'spell_rog_blade_flurry_damage'),
 	(22568, 'spell_dru_ferocious_bite'),
@@ -369,6 +371,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(23076, 'spell_item_mechanical_dragonling'),
 	(23133, 'spell_item_gnomish_battle_chicken'),
 	(23161, 'spell_warl_glyph_of_nightmares'),
+	(23182, 'spell_mark_of_frost'),
 	(23214, 'spell_pal_glyph_of_the_luminous_charger'),
 	(23448, 'spell_gen_gadgetzan_transporter_backfire'),
 	(23453, 'spell_gen_gnomish_transporter'),
@@ -1390,6 +1393,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(78741, 'spell_omnotron_active_trigger'),
 	(78838, 'spell_item_enohar_explosive_arrows'),
 	(78941, 'spell_parasitic_infection'),
+	(79084, 'spell_westfall_unbound_energy'),
 	(79140, 'spell_rog_enhanced_vendetta'),
 	(79206, 'spell_sha_spiritwalkers_grace'),
 	(79251, 'high_priestess_azil_gravity_well_script'),

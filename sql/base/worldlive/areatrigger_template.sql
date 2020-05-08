@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `areatrigger_template` (
   KEY `spell_id_i` (`spell_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.areatrigger_template: ~975 rows (approximately)
+-- Dumping data for table worldlive.areatrigger_template: ~1,067 rows (approximately)
 DELETE FROM `areatrigger_template`;
 /*!40000 ALTER TABLE `areatrigger_template` DISABLE KEYS */;
 INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `scale_curve_id`, `morph_curve_id`, `facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`, `creature_visual`) VALUES
@@ -1107,7 +1107,8 @@ INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `s
 	(156859, 0, 6423, 2, 1, 1, 16388, 0, 0, 0, 0, 70, 70, 5, 70, 70, 5, 0, 0, 'areatrigger_foundry_overheated', 0),
 	(163295, 0, 7022, 3, 2, 2, 8192, 0, 0, 0, 0, 2, 2, 6, 6, 0.3, 0.3, 0, 0, 'areatrigger_foundry_falling_ash', 0),
 	(185250, 0, 4321, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 0),
-	(115290, 1, 220, 0, 2, 2, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'spell_area_thalos_the_soulrender_spirit_gale', 0);
+	(115290, 1, 220, 0, 2, 2, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'spell_area_thalos_the_soulrender_spirit_gale', 0),
+	(182168, 0, 6380, 2, 40, 40, 16388, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'areatrigger_citadel_mannoroth_blood', 0);
 /*!40000 ALTER TABLE `areatrigger_template` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

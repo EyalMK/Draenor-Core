@@ -760,6 +760,7 @@ class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
 };
 
 /// Last Update 6.2.3
+/// These are the individual damage or healing spells, no animations
 /// Chi Wave (damage) - 132467 and Chi Wave (heal) - 132463
 class spell_monk_chi_wave_bolt: public SpellScriptLoader
 {
@@ -768,7 +769,7 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
 
         enum eSpells
         {
-            ChiWaveTriggerHeal = 173545
+            ChiWaveTriggerHeal = 173545 // This one is the bolt animation
         };
 
         class spell_monk_chi_wave_bolt_SpellScript : public SpellScript
