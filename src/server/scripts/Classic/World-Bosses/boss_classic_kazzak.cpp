@@ -9,21 +9,19 @@ enum Texts
     SAY_AGGRO       = 1,
     SAY_SURPREME    = 2,
     SAY_KILL        = 3,
-    SAY_DEATH       = 4,
-    EMOTE_FRENZY    = 5,
-    SAY_RAND        = 6
+    SAY_DEATH       = 4
 };
 
 enum Spells
 {
-    SPELL_SHADOW_VOLLEY             = 32963,
-    SPELL_CLEAVE                    = 31779,
-    SPELL_THUNDERCLAP               = 36706,
-    SPELL_VOID_BOLT                 = 39329,
-    SPELL_MARK_OF_KAZZAK            = 32960,
-    SPELL_MARK_OF_KAZZAK_DAMAGE     = 32961,
-    SPELL_ENRAGE                    = 32964,
-    SPELL_CAPTURE_SOUL              = 32966,
+    SPELL_SHADOW_VOLLEY             = 21341,
+    SPELL_CLEAVE                    = 16044,
+    SPELL_THUNDERCLAP               = 8078,
+    SPELL_VOID_BOLT                 = 22709,
+    SPELL_MARK_OF_KAZZAK            = 21056,
+    SPELL_MARK_OF_KAZZAK_DAMAGE     = 21058,
+    SPELL_ENRAGE                    = 21340,
+    SPELL_CAPTURE_SOUL              = 21054,
     SPELL_TWISTED_REFLECTION        = 21063,
     SPELL_TWISTED_REFLECTION_HEAL   = 21064,
     SPELL_BERSERK                   = 32965,
@@ -55,12 +53,12 @@ class boss_classic_kazzak : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 6000, 10000);
+                _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(6000, 10000));
                 _events.ScheduleEvent(EVENT_CLEAVE, 7000);
-                _events.ScheduleEvent(EVENT_THUNDERCLAP, 14000, 18000);
+                _events.ScheduleEvent(EVENT_THUNDERCLAP, urand(14000, 18000));
                 _events.ScheduleEvent(EVENT_VOID_BOLT, 30000);
                 _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 25000);
-                _events.ScheduleEvent(EVENT_ENRAGE, 60000);
+                _events.ScheduleEvent(EVENT_ENRAGE, 180000);
                 _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 33000);
                 _events.ScheduleEvent(EVENT_BERSERK, 180000);
             }
@@ -77,9 +75,36 @@ class boss_classic_kazzak : public CreatureScript
 
             void KilledUnit(Unit* victim) override
             {
-                // When Kazzak kills a player (not pets/totems), he regens some health
-                if (victim->GetTypeId() != TYPEID_PLAYER)
-                    return;
+				Player* affectedPlayer;
+				Creature* creature;
+
+				switch (victim->GetTypeId())
+				{
+					/** Prevent Kazzak to use his healing spell if player got a level lower than 50 */
+				case TYPEID_PLAYER:
+					affectedPlayer = victim->GetAffectingPlayer();
+					if (!affectedPlayer)
+						return;
+					if (affectedPlayer->getLevel() < 50)
+						return;
+					break;
+
+				case TYPEID_UNIT:
+					/** Kazzak can use his healing ability on Totem and Pets */
+					creature = victim->ToCreature();
+					if (!creature->isPet() && !creature->isTotem())
+						return;
+
+					/** Prevent Kazzak to use his healing spell if the pet got a level lower than 50 */
+					if (creature->getLevel() < 50)
+						return;
+					break;
+
+				default:
+					return;
+					break;
+				}
+
 
                 DoCast(me, SPELL_CAPTURE_SOUL);
 
@@ -123,14 +148,33 @@ class boss_classic_kazzak : public CreatureScript
                             _events.ScheduleEvent(EVENT_VOID_BOLT, 15000, 18000);
                             break;
                         case EVENT_MARK_OF_KAZZAK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_MARK_OF_KAZZAK);
-                            _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20000);
-                            break;
+						{
+							Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+							if (pTarget && pTarget->getPowerType() == POWER_MANA && pTarget->GetPower(POWER_MANA) > 1000)
+							{
+								DoCast(pTarget, SPELL_MARK_OF_KAZZAK);
+							}
+
+							// Mark of Kazzak - Explode the target when does not have more mana
+							std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
+							std::list<HostileReference*>::iterator i = m_threatlist.begin();
+							for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+							{
+								Unit* pMarked = Unit::GetUnit((*me), (*i)->getUnitGuid());
+								if (pMarked && pMarked->HasAura(SPELL_MARK_OF_KAZZAK) && pMarked->GetPower(POWER_MANA) < 250)
+								{
+									pMarked->RemoveAurasDueToSpell(SPELL_MARK_OF_KAZZAK);
+									pMarked->CastSpell(pMarked, SPELL_MARK_OF_KAZZAK_DAMAGE, false);
+									break;
+								}
+							}
+							_events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20000);
+							break;
+						}	
                         case EVENT_ENRAGE:
-                            Talk(EMOTE_FRENZY);
+							Talk(SAY_SURPREME);
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, 30000);
+                            _events.ScheduleEvent(EVENT_ENRAGE, 600000);
                             break;
                         case EVENT_TWISTED_REFLECTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
