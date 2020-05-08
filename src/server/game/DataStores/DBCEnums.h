@@ -487,7 +487,7 @@ enum CurrencyTypes
     CURRENCY_TYPE_ARCHAEOLOGY_TOLVIR               = 401, // ARCHAEOLOGY Cataclysm
     CURRENCY_TYPE_IRONPAW                          = 402, // Cook token MoP
     CURRENCY_TYPE_WORLD_TREE                       = 416, // 4.2 token Molten front
-    CURRENCY_TYPE_CONQUEST_META_ARENA_BG           = 483, // PvP
+    CURRENCY_TYPE_CONQUEST_META_ARENA_BG           = 390, // PvP
     CURRENCY_TYPE_CONQUEST_META_RBG                = 484, // Deprecated since WoD (merge of arena/rbg weekcap)
     CURRENCY_TYPE_DARKMOON_TICKET                  = 515, // Darkmoon fair
     CURRENCY_TYPE_MOTE_OF_DARKNESS                 = 614, // 4.3.4 token Dragon soul
