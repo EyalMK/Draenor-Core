@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `battlepay_display_info` (
   UNIQUE KEY `DisplayInfoId` (`DisplayInfoId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=854 DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.battlepay_display_info: ~1,094 rows (approximately)
+-- Dumping data for table worldlive.battlepay_display_info: ~803 rows (approximately)
 DELETE FROM `battlepay_display_info`;
 /*!40000 ALTER TABLE `battlepay_display_info` DISABLE KEYS */;
 INSERT INTO `battlepay_display_info` (`DisplayInfoId`, `CreatureDisplayInfoID`, `FileDataID`, `Name1`, `Name2`, `Name3`, `Flags`) VALUES

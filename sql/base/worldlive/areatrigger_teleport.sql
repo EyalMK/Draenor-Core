@@ -324,7 +324,6 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(5061, 'q12710: ground', 571, 6179.99, -2023.06, 245.26, 5.46005),
 	(8314, 'Heart of Fear - Entrance Target', 1009, -2373.58, 460.01, 422.341, 359.933),
 	(8313, 'Heart of Fear - Exit Target', 870, 167.83, 4054.73, 256.2, 280.239),
-	(7802, 'Scarlet Monastery - Monastery (Exit)', 0, 2906.14, -813.772, 160.333, 1.95739),
 	(8028, 'Terrace of Endless Spring', 870, 954.877, -56.4318, 511.554, 0.972922),
 	(8027, 'Terrace of Endless Spring', 996, -1021.12, -3141.6, 27.7123, 1.5453),
 	(6769, 'ZulGurub Exit', 0, -11916.2, -1209.47, 92.2873, 1.5708),
@@ -354,6 +353,7 @@ INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position
 	(2548, 'Scholomance - Exit Porch Target 001', 0, 1399.42, -2574.59, 107.786, 6.28319),
 	(2549, 'Scholomance - Exit Porch Target 001', 0, 1399.42, -2574.59, 107.786, 6.28319),
 	(5046, 'The Gate Classic', 1, -6162, -1331, -169, 2.3),
+	(7802, 'Scarlet Monastery - Monastery (Exit)', 0, 2906.14, -813.772, 160.333, 1.95739),
 	(7539, 'Scholomance - Stairs Exit Target 001 (panda new)', 0, 1273.91, -2553.09, 91.8393, 3.57792),
 	(7801, 'Scarlet Monastery - Halls (Exit)', 0, 2870.9, -820.164, 160.333, 0.387856);
 /*!40000 ALTER TABLE `areatrigger_teleport` ENABLE KEYS */;

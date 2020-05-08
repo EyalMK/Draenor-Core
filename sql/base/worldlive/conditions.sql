@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `conditions` (
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Condition System';
 
--- Dumping data for table worldlive.conditions: 8,500 rows
+-- Dumping data for table worldlive.conditions: 8,501 rows
 DELETE FROM `conditions`;
 /*!40000 ALTER TABLE `conditions` DISABLE KEYS */;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -7184,9 +7184,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(23, 12944, 19212, 0, 0, 5, 0, 59, 128, 0, 0, 0, '', 'Lokhtos Darkbargainer - Only sell item if Exalted with Thorium Brotherhood'),
 	(23, 12944, 20040, 0, 0, 5, 0, 59, 128, 0, 0, 0, '', 'Lokhtos Darkbargainer - Only sell item if Exalted with Thorium Brotherhood'),
 	(15, 9586, 0, 0, 0, 2, 0, 37888, 1, 0, 1, 0, '', 'Chromie - Show gossip option only if player has no item Arcane Disruptor'),
-	(22, 1, 184833, 2, 0, 1, 0, 37097, 0, 0, 0, 0, '', 'SAI Legion Communication Device triggers only if player has aura Crate Disguise'),
 	(22, 1, 4548, 2, 0, 29, 0, 21633, 50, 0, 1, 0, '', 'SAI areatrigger 4548 triggers only if there is no Deathbringer Jovaan present'),
-	(22, 1, 4548, 2, 0, 1, 0, 37097, 0, 0, 0, 0, '', 'SAI areatrigger 4548 triggers only if player has aura Crate Disguise'),
+	(22, 1, 184833, 2, 0, 1, 0, 37097, 0, 0, 0, 0, '', 'SAI Legion Communication Device triggers only if player has aura Crate Disguise'),
 	(13, 1, 57891, 0, 0, 30, 0, 192861, 10, 0, 1, 0, '', 'Spell Through the Eye: Summon Image of Vardmadra will be casted only if target is not within 10y of Eye of the Lichking'),
 	(13, 1, 57891, 0, 0, 31, 0, 3, 23837, 0, 0, 0, '', 'Spell Through the Eye: Summon Image of Vardmadra targets Elm General Purpose Bunny'),
 	(13, 1, 57885, 0, 0, 31, 0, 3, 23837, 0, 0, 0, '', 'Spell Through the Eye: Summon Image of a Shadow Cultist targets Elm General Purpose Bunny'),
@@ -8528,12 +8527,14 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(19, 0, 11586, 0, 0, 14, 0, 10172, 0, 0, 0, 0, '', 'Accept quest 11586 - Quest 10172 needs to be incomplete'),
 	(19, 0, 11585, 0, 0, 8, 0, 10172, 0, 0, 0, 0, '', 'Accept quest 11585 - Quest 10172 needs to be rewarded'),
 	(22, 1, 17508, 0, 0, 29, 0, 17426, 20, 0, 1, 0, '', 'Galaen\'s Corpse - Do not summon Galaen if creature is in 20 yards range'),
+	(22, 2, 27355, 0, 0, 1, 1, 48695, 0, 0, 1, 0, '', 'Only execute SAI if Rothin the Decaying does not have aura Imbue Power Shield State'),
+	(22, 10, 27355, 0, 0, 36, 1, 0, 0, 0, 0, 0, '', 'Only execute SAI if Rothin the Decaying alive'),
 	(13, 1, 48685, 0, 0, 31, 0, 3, 27418, 0, 0, 0, '', 'Imbue Power targets Rothins Spell Bunny'),
 	(13, 1, 48685, 0, 1, 31, 0, 3, 26475, 0, 0, 0, '', 'Imbue Power targets Magmawyrm'),
-	(22, 10, 27355, 0, 0, 36, 1, 0, 0, 0, 0, 0, '', 'Only execute SAI if Rothin the Decaying alive'),
-	(22, 2, 27355, 0, 0, 1, 1, 48695, 0, 0, 1, 0, '', 'Only execute SAI if Rothin the Decaying does not have aura Imbue Power Shield State'),
+	(19, 0, 28563, 0, 0, 8, 0, 26503, 0, 0, 1, 0, '', 'Show quest Hero\'s Call: Redridge Mountains! if quest Still Assessing the Threat has not been rewarded.'),
 	(19, 0, 26365, 0, 0, 8, 0, 26503, 0, 0, 1, 0, '', 'Show quest Hero\'s Call: Redridge Mountains! if quest Still Assessing the Threat has not been rewarded.'),
-	(19, 0, 28563, 0, 0, 8, 0, 26503, 0, 0, 1, 0, '', 'Show quest Hero\'s Call: Redridge Mountains! if quest Still Assessing the Threat has not been rewarded.');
+	(22, 1, 4548, 2, 0, 1, 0, 37097, 0, 0, 0, 0, '', 'SAI areatrigger 4548 triggers only if player has aura Crate Disguise'),
+	(13, 1, 79084, 0, 0, 31, 0, 3, 42381, 0, 0, 0, '', 'Unbound Energy - Target Overloaded Harvest Golem');
 /*!40000 ALTER TABLE `conditions` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
