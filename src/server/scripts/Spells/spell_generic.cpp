@@ -3646,7 +3646,7 @@ namespace Resolve
                 if (!ResolveIsAvailable(p_Player))
                     return;
 
-                if (!p_Player->HasAura(Resolve::InCombatAura))
+                if (!p_Player->HasAura(Resolve::PassiveAura))
                     p_Player->CastSpell(p_Player, Resolve::InCombatAura, true);
 
                 m_Timers[p_Player->GetGUID()] = Resolve::TickTimer;
