@@ -3076,8 +3076,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 		if (unit->IsPvP() && m_caster->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->HasAura(AuraType::SPELL_AURA_CLONE_CASTER))
 			enablePvP = true;
 
-		/// Chi Wave
-		if (m_spellInfo->Id == 132467 || m_spellInfo->Id == 132466 || m_spellInfo->Id == 115098 || m_spellInfo->Id == 22011)
+		///			 Chi Wave (spell)			 Chi Wave (damage)				Chi Wave (heal)			   Chi Wave (visual)
+		if (m_spellInfo->Id == 115098 || m_spellInfo->Id == 132467 || m_spellInfo->Id == 132466 || m_spellInfo->Id == 173545 || m_spellInfo->Id == 22011)
 			enablePvP = false;
 
 		/// Renewing Mist
