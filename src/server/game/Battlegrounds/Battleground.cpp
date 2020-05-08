@@ -1079,7 +1079,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 uint32 rating = l_Player->GetArenaPersonalRating(slot);
                 l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                 l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
-				l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
+				l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
             }
             else
             {
