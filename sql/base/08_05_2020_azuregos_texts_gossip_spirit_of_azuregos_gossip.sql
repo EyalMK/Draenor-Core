@@ -3,7 +3,7 @@ DELETE FROM `creature_template_addon` WHERE `entry`=6109;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`) VALUES
 (6109, 610900);
 
-UPDATE `creature` SET `position_x`=2469.7661, `position_y`=-6240.0020, `position_z`=100.4743, `orientation`=1.620678, `MovementType`=2, `spawndist`=0 WHERE `id`=6109;
+UPDATE `creature` SET `position_x`=2469.7661, `position_y`=-6240.0020, `position_z`=100.4743, `orientation`=1.620678, `currentwaypoint`=1, `MovementType`=2, `spawndist`=0 WHERE `id`=6109;
 
 DELETE FROM `waypoint_data` WHERE `id`=6109 * 100;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) values
