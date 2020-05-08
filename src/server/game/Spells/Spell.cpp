@@ -3395,7 +3395,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     }
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_originalCaster);
+    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_triggeredByAuraSpell, unit);
     if (m_diminishGroup)
     {
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
@@ -3406,10 +3406,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
             type == DRTYPE_ALL)
         {
             unit->IncrDiminishing(m_diminishGroup);
-
-            /// Frostjaw triggers both Root and Silence DR
-            if (m_spellInfo->Id == 102051)
-                unit->IncrDiminishing(DIMINISHING_SILENCE);
 
             /// Hack Fix Wod - Hunter WoD PvP Beast Mastery 4P Bonus
             /// Pet and owner are sharing same diminishing return

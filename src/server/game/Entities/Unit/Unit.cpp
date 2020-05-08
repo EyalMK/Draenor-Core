@@ -15610,7 +15610,7 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
             }
             break;
         }
-        case DIMINISHING_AOE_KNOCKBACK:
+        case DIMINISHING_KNOCKBACK:
         {
             if ((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
                                                                             || (ToCreature() && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
