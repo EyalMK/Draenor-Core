@@ -217,7 +217,7 @@ namespace Arena
 		if (won)
 		{
 			if (ownRating >= 1500 && ownRating < 1750)
-				k = 50.0f;
+				k = 40.0f;
 			else if (ownRating >= 1750 && ownRating < 2500)
 				k = 32.0f;
 			else if (ownRating >= 2500 && ownRating < 2750)
@@ -235,11 +235,21 @@ namespace Arena
 					k += 10;
 			}
 		}
+		else
+			if (ownRating >= 1500 && ownRating<1750)
+				k = 20.0f;
+			else if (ownRating >= 1750 && ownRating<2000)
+				k = 25.0f;
+			else if (ownRating >= 2000)
+				k = 32.0f;
 
 		if (k > 96.0f)
 			k = 96.0f;
 
 		k = k * (won_mod - chance);
+
+		if (!won && k > 23)
+			k = 24;
 
         return (int32)ceil(k);
     }
