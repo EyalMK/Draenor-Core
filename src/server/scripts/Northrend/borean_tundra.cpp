@@ -822,112 +822,50 @@ public:
     }
 };
 
-/*######
-## npc_nexus_drake_hatchling
-######*/
-
-enum eNexusDrakeHatchling
+/// Spell - Red Dragonblood
+enum red_dragonblood
 {
-    SPELL_DRAKE_HARPOON             = 46607,
-    SPELL_RED_DRAGONBLOOD           = 46620,
     SPELL_DRAKE_HATCHLING_SUBDUED   = 46691,
-    SPELL_SUBDUED                   = 46675,
-
-    NPC_RAELORASZ                   = 26117,
-
-    QUEST_DRAKE_HUNT                = 11919,
-    QUEST_DRAKE_HUNT_D              = 11940
+    SPELL_SUBDUED                   = 46675
 };
 
-class npc_nexus_drake_hatchling : public CreatureScript
+class spell_red_dragonblood : public SpellScriptLoader
 {
 public:
-    npc_nexus_drake_hatchling() : CreatureScript("npc_nexus_drake_hatchling") { }
+	spell_red_dragonblood() : SpellScriptLoader("spell_red_dragonblood") { }
 
-    struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
+    class spell_red_dragonblood_AuraScript : public AuraScript
     {
-        npc_nexus_drake_hatchlingAI(Creature* creature) : FollowerAI(creature) {}
+		PrepareAuraScript(spell_red_dragonblood_AuraScript);
 
-        uint64 HarpoonerGUID;
-        bool WithRedDragonBlood;
+		void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+		{
+			if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || !GetCaster())
+				return;
 
-        void Reset()
-        {
-           WithRedDragonBlood = false;
-        }
+			Creature* owner = GetOwner()->ToCreature();
+			owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
+			owner->CombatStop(true);
+			owner->DeleteThreatList();
+			owner->GetMotionMaster()->Clear(false);
+			owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
+			owner->CastSpell(owner, SPELL_SUBDUED, true);
+			GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
+			owner->setFaction(35);
+			owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+			owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
+		}
 
-        void EnterCombat(Unit* who)
-        {
-            if (me->IsValidAttackTarget(who))
-                AttackStart(who);
-        }
+		void Register()
+		{
+			AfterEffectRemove += AuraEffectRemoveFn(spell_red_dragonblood_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+		}
+	};
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
-        {
-            if (spell->Id == SPELL_DRAKE_HARPOON && caster->IsPlayer())
-            {
-                HarpoonerGUID = caster->GetGUID();
-                DoCast(me, SPELL_RED_DRAGONBLOOD, true);
-            }
-            WithRedDragonBlood = true;
-        }
-
-        void MoveInLineOfSight(Unit* who)
-        {
-            FollowerAI::MoveInLineOfSight(who);
-
-            if (!HarpoonerGUID)
-                return;
-
-            if (me->HasAura(SPELL_SUBDUED) && who->GetEntry() == NPC_RAELORASZ)
-            {
-                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
-                {
-                    if (Player* pHarpooner = Unit::GetPlayer(*me, HarpoonerGUID))
-                    {
-                        pHarpooner->KilledMonsterCredit(26175, 0);
-                        pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
-                        SetFollowComplete();
-                        HarpoonerGUID = 0;
-                        me->DisappearAndDie();
-                    }
-                }
-            }
-        }
-
-        void UpdateAI(const uint32 /*diff*/)
-        {
-            if (WithRedDragonBlood && HarpoonerGUID && !me->HasAura(SPELL_RED_DRAGONBLOOD))
-            {
-                if (Player* pHarpooner = Unit::GetPlayer(*me, HarpoonerGUID))
-                {
-                    EnterEvadeMode();
-                    StartFollow(pHarpooner, 35, NULL);
-
-                    DoCast(me, SPELL_SUBDUED, true);
-                    pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
-
-                    me->AttackStop();
-                    WithRedDragonBlood = false;
-                }
-            }
-            if ((me->getFaction() == 35) && (!me->HasAura(SPELL_SUBDUED)))
-            {
-                HarpoonerGUID = 0;
-                me->DisappearAndDie();
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_nexus_drake_hatchlingAI(creature);
-    }
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_red_dragonblood_AuraScript();
+	}
 };
 
 /*######
@@ -2596,7 +2534,7 @@ void AddSC_borean_tundra()
     new npc_fezzix_geartwist();
     new npc_nesingwary_trapper();
     new npc_lurgglbr();
-    new npc_nexus_drake_hatchling();
+    new spell_red_dragonblood();
     new npc_thassarian();
     new npc_image_lich_king();
     new npc_counselor_talbot();
