@@ -3346,6 +3346,8 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return; 
 
+				l_Caster->SendPlaySpellVisual(24208, l_Target, 8.0f, false, Position());
+
                 Unit* l_JadeStatue = GetStatueOfUnit(l_Caster);
 
                 if (l_JadeStatue == nullptr)
@@ -3383,8 +3385,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 				Unit* l_Caster = GetCaster();
 				Unit* l_Target = GetTarget();
 
-				// l_Caster->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
-				l_Caster->SendPlaySpellVisual(24208, l_Target, 1.f, false, Position());
+				l_Caster->SendPlaySpellVisual(24208, l_Target, 8.0f, false, Position());
 
 	            /// Every time your Soothing Mist heals a target your multistrike chance is increased by 5%.
                 if (Unit* l_Caster = GetCaster())
@@ -3477,12 +3478,23 @@ public:
 	{
 		PrepareAuraScript(spell_monk_soothing_mist_statue_AuraScript);
 
+		void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetTarget();
+
+			if (l_Target == nullptr || l_Caster == nullptr)
+				return;
+
+			l_Caster->SendPlaySpellVisual(24208, l_Target, 8.0f, false, Position());
+		}
+
 		void OnTick(AuraEffect const* /*p_AurEff*/)
 		{
 			Unit* l_Caster = GetCaster();
 			Unit* l_Target = GetTarget();
 
-			l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL_STATUE, true);
+			l_Caster->SendPlaySpellVisual(24208, l_Target, 8.0f, false, Position());
 		}
 
 		void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
@@ -3503,6 +3515,7 @@ public:
 
 		void Register() override
 		{
+			AfterEffectApply += AuraEffectApplyFn(spell_monk_soothing_mist_statue_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
 			OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_soothing_mist_statue_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
 			DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_soothing_mist_statue_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
 		}
