@@ -54,6 +54,8 @@ enum WarriorSpells
     WARRIOR_ENHANCED_WHIRLWIND                  = 157473,
     WARROR_MEAT_CLEAVER_TARGET_MODIFIER         = 85739,
     WARRIOR_HEAVY_REPERCUSSIONS                 = 169680,
+	WARRIOR_SPELL_RAGING_WIND					= 115317,
+	WARRIOR_SPELL_RAGING_BLOW					= 85288,
 
 
 	// Tier
@@ -2501,6 +2503,55 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
         }
 };
 
+/// Glyph of Raging Wind - 58370
+class spell_warr_raging_wind : public SpellScriptLoader
+{
+public:
+	spell_warr_raging_wind() : SpellScriptLoader("spell_warr_raging_wind") { }
+
+	class spell_warr_raging_wind_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_warr_raging_wind_Aurascript);
+
+		enum eSpells
+		{
+			RagingBlow = 96103,
+			RagingBlowOffHand = 85384
+		};
+
+		void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+
+			Unit* l_Caster = GetCaster();
+			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
+				return;
+
+			/// Should proc when Raging Blow (main hand and offhand)...
+			if (l_SpellInfoTriggerSpell->Id != eSpells::RagingBlow && l_SpellInfoTriggerSpell->Id != eSpells::RagingBlowOffHand)
+				return;
+
+			/// Can't proc from multistrike
+			if (p_ProcEventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE)
+				return;
+
+			l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_RAGING_WIND, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_warr_raging_wind_Aurascript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_warr_raging_wind_Aurascript();
+	}
+};
+
 /// last update : 6.1.2 19802
 /// Shield Slam - 23922
 class spell_warr_shield_slam : public SpellScriptLoader
@@ -3353,7 +3404,6 @@ class spell_warr_impending_victory : public SpellScriptLoader
         }
 };
 
-
 /// Raging Blow! - 131116
 class spell_warr_raging_blow_proc : public SpellScriptLoader
 {
@@ -3590,6 +3640,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shield_charge_damage();
     new spell_warr_weaponmaster();
 	new spell_warr_charge_drop_fire_periodic();
+	new spell_warr_raging_wind();
 
     /// Playerscripts
     new PlayerScript_second_wind();

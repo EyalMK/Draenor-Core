@@ -560,12 +560,12 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto, Unit* p_Or
         }
         case SPELLFAMILY_DRUID:
         {
-            /// Faerie Swarm - 8 seconds in PvP
+            /// Faerie Swarm - 18 seconds in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x100)
-                return 8 * IN_MILLISECONDS;
-            /// Faerie Swarm (Decrease Speed) - 8 seconds in Pvp
+                return 18 * IN_MILLISECONDS;
+            /// Faerie Swarm (Decrease Speed) - 15 seconds in Pvp
             if (spellproto->Id == 102354)
-                return 8 * IN_MILLISECONDS;
+                return 15 * IN_MILLISECONDS;
             /// Faerie Fire - 20 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return 20 * IN_MILLISECONDS;
@@ -6362,6 +6362,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
+			case 125950: // Soothing Mist (statue)
+				spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_HEAL;
+				spellInfo->Effects[0].BonusMultiplier = 1.0f;
+				break;
 			case 115151: // Renewing Mist
 				spellInfo->Effects[EFFECT_2].Effect = 0;
 				break;

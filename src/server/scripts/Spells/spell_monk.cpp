@@ -1939,7 +1939,7 @@ class spell_monk_mana_tea_stacks: public SpellScriptLoader
                     chiConsumed = 0;
                     data = data > 4 ? data - 4: 0;
 
-                    if (GetCaster() && GetCaster()->isInCombat() == true)
+                    if (GetCaster())
                     {
                         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
                         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
@@ -1950,11 +1950,8 @@ class spell_monk_mana_tea_stacks: public SpellScriptLoader
                     crit_chance += GetCaster()->GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
                     if (roll_chance_f(crit_chance))
                     {
-                        if (GetCaster() && GetCaster()->isInCombat())
-                        {
-                            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
-                            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
-                        }
+						GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
+                        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
                     }
                 }
             }
@@ -3349,6 +3346,8 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return; 
 
+				l_Caster->SendPlaySpellVisual(24208, l_Target, 8.0f, false, Position());
+
                 Unit* l_JadeStatue = GetStatueOfUnit(l_Caster);
 
                 if (l_JadeStatue == nullptr)
@@ -3386,7 +3385,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 				Unit* l_Caster = GetCaster();
 				Unit* l_Target = GetTarget();
 
-				l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
+				l_Caster->SendPlaySpellVisual(24208, l_Target, 8.0f, false, Position());
 
 	            /// Every time your Soothing Mist heals a target your multistrike chance is increased by 5%.
                 if (Unit* l_Caster = GetCaster())
@@ -3438,25 +3437,8 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 l_JadeStatue->CastStop();
             }
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster == nullptr)
-                    return;
-
-                Unit* l_Owner = l_Caster->GetOwner();
-
-                if (l_Owner == nullptr)
-                    return;
-
-                /// Apply amount with stats of owner
-                p_Amount = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) * p_AurEff->GetSpellEffectInfo()->BonusMultiplier;
-            }
-
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_soothing_mist_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 AfterEffectApply += AuraEffectApplyFn(spell_monk_soothing_mist_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_soothing_mist_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_monk_soothing_mist_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
@@ -3479,12 +3461,26 @@ public:
 	{
 		PrepareAuraScript(spell_monk_soothing_mist_statue_AuraScript);
 
+		void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetTarget();
+
+			if (l_Target == nullptr || l_Caster == nullptr)
+				return;
+
+			l_Caster->SendPlaySpellVisual(24208, l_Target, 8.0f, false, Position());
+		}
+
 		void OnTick(AuraEffect const* /*p_AurEff*/)
 		{
 			Unit* l_Caster = GetCaster();
 			Unit* l_Target = GetTarget();
 
-			l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL_STATUE, true);
+			if (l_Target == nullptr || l_Caster == nullptr)
+				return;
+
+			l_Caster->SendPlaySpellVisual(24208, l_Target, 8.0f, false, Position());
 		}
 
 		void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
@@ -3505,6 +3501,7 @@ public:
 
 		void Register() override
 		{
+			AfterEffectApply += AuraEffectApplyFn(spell_monk_soothing_mist_statue_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
 			OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_soothing_mist_statue_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
 			DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_soothing_mist_statue_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
 		}
