@@ -93,6 +93,7 @@ public:
 			DoCast(me, SPELL_MARK_OF_FROST_AURA, true);
 			Talk(SAY_AGGRO); // This place is under my protection.
 			_enraged = false;
+			me->SetInCombatWithZone();
 
 			events.ScheduleEvent(EVENT_MARK_OF_FROST, 35000);
 			events.ScheduleEvent(EVENT_MANA_STORM, urand(5000, 17000));
