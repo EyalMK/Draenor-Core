@@ -1939,7 +1939,7 @@ class spell_monk_mana_tea_stacks: public SpellScriptLoader
                     chiConsumed = 0;
                     data = data > 4 ? data - 4: 0;
 
-                    if (GetCaster() && GetCaster()->isInCombat() == true)
+                    if (GetCaster())
                     {
                         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
                         GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
@@ -1950,11 +1950,8 @@ class spell_monk_mana_tea_stacks: public SpellScriptLoader
                     crit_chance += GetCaster()->GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
                     if (roll_chance_f(crit_chance))
                     {
-                        if (GetCaster() && GetCaster()->isInCombat())
-                        {
-                            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
-                            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
-                        }
+						GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
+                        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
                     }
                 }
             }
