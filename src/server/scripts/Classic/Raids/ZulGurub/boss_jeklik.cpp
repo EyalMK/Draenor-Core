@@ -219,10 +219,13 @@ public:
 		npc_batriderAI(Creature* creature) : ScriptedAI(creature)
 		{
 			instance = creature->GetInstanceScript();
+			m_bIsSummon = creature->ToTempSummon();
+			Reset();
 		}
 
 		InstanceScript* instance;
 
+		bool m_bIsSummon;
 		uint32 Bomb_Timer;
 		uint32 Check_Timer;
 
@@ -234,7 +237,16 @@ public:
 			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 		}
 
-		void EnterCombat(Unit* /*who*/) {}
+		void EnterCombat(Unit* /*who*/) {
+
+			// Don't attack if is summoned by Jeklik - the npc gets aggro because of the Liquid Fire
+			if (m_bIsSummon)
+				return;
+
+			// Spells are handled in SmartAI
+			// For normal mobs flag needs to be removed
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+		}
 
 		void UpdateAI(uint32 diff)
 		{

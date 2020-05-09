@@ -6362,6 +6362,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
+			case 125950: // Soothing Mist (statue)
+				spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_HEAL;
+				break;
 			case 115151: // Renewing Mist
 				spellInfo->Effects[EFFECT_2].Effect = 0;
 				break;

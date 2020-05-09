@@ -68,6 +68,7 @@ class boss_classic_kazzak : public CreatureScript
 			void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
+				me->SetInCombatWithZone();
             }
 
             void KilledUnit(Unit* victim) override
@@ -259,26 +260,26 @@ class spell_twisted_reflection : public SpellScriptLoader
 				return true;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo || !damageInfo->GetDamage())
-                    return;
+			void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+			{
+				PreventDefaultAction();
+				DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+				if (!damageInfo || !damageInfo->GetDamage())
+					return;
 
-                eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(), SPELL_TWISTED_REFLECTION_HEAL, aurEff);
-            }
+				eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(), SPELL_TWISTED_REFLECTION_HEAL, true, nullptr, aurEff);
+			}
 
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_twisted_reflection_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
+			void Register() override
+			{
+				OnEffectProc += AuraEffectProcFn(spell_twisted_reflection_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+			}
         };
 
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_twisted_reflection_AuraScript();
-        }
+		AuraScript* GetAuraScript() const override
+		{
+			return new spell_twisted_reflection_AuraScript();
+		}
 };
 
 void AddSC_boss_classic_kazzak()

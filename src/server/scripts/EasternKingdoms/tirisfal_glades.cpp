@@ -2058,6 +2058,7 @@ public:
 					}
 					case EVENT_START_ANIM: // Start the event (triggered by gossip selection)
 					{
+						me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 						Talk(m_sayPriestess); // Talk (0) - Very well. Follow me.
 						m_sayPriestess++; // Next line will be Talk(1)
 						m_events.ScheduleEvent(EVENT_ANIM + 1, 2000); // Schedule event to start waypath
@@ -2352,7 +2353,7 @@ public:
 
 						if (!m_fatherSequence1)
 						{
-							m_events.ScheduleEvent(EVENT_TALK_PART + 5, 750);
+							m_events.ScheduleEvent(EVENT_TALK_PART + 5, 1000);
 							m_fatherSequence1 = true;
 						}
 						break;
@@ -2468,7 +2469,7 @@ public:
 					}
 					case EVENT_TALK_PART + 15:
 					{
-						me->SetWalk(false);
+						me->SetSpeed(UnitMoveType::MOVE_RUN, 1.0f, true);
 						me->GetMotionMaster()->MovePath(3903803, false); // Exit tower
 						m_events.ScheduleEvent(EVENT_TALK_PART + 16, 7000);
 						break;
