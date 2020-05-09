@@ -3383,7 +3383,8 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 				Unit* l_Caster = GetCaster();
 				Unit* l_Target = GetTarget();
 
-				l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
+				// l_Caster->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
+				l_Caster->SendPlaySpellVisual(24208, l_Target, 1.f, false, Position());
 
 	            /// Every time your Soothing Mist heals a target your multistrike chance is increased by 5%.
                 if (Unit* l_Caster = GetCaster())
