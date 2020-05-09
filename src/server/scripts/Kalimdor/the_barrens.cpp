@@ -615,6 +615,12 @@ public:
 			ClearDelayedOperations();
 		}
 
+
+		void UpdateAI(const uint32 diff)
+		{
+			UpdateOperations(diff);
+		}
+
 		void DoAction(int32 const p_Action) override
 		{
 			switch (p_Action)
@@ -686,11 +692,11 @@ public:
 	{
 		p_Creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE_NOSHEATHE); // Wave
 
-		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE && p_Creature->GetHealthPct() > 0.0f) // if he's not dead, show first gossip menu
+		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE && p_Creature->GetHealthPct() == 100.0f) // if he's not dead, show first gossip menu
 			p_Player->ADD_GOSSIP_ITEM_DB(FOOTE_GOSSIP_MENU_1, FOOTE_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE && p_Creature->GetHealthPct() == 0.0f) // if he's dead, show second gossip menu
-			p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_2, p_Creature->GetGUID());
 			p_Player->ADD_GOSSIP_ITEM_DB(FOOTE_GOSSIP_MENU_2, FOOTE_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+			p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_2, p_Creature->GetGUID());
 
 		p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_1, p_Creature->GetGUID());
 		return true;
@@ -704,6 +710,8 @@ public:
 		{
 			player->CLOSE_GOSSIP_MENU();
 			creature->GetAI()->DoAction(ClubFoote);
+			if (Creature* Sashya = player->FindNearestCreature(NPC_SASHYA, 15.0f, true))
+				Sashya->AI()->Talk(0, player->GetGUID()); //  Hahaha, very nice, $n!
 		}
 		if (action == GOSSIP_ACTION_INFO_DEF + 1)
 		{
@@ -764,9 +772,6 @@ public:
 			}
 			case BarFight:
 			{
-				if (Creature* Sashya = me->FindNearestCreature(NPC_SASHYA, 15.0f, true))
-					Sashya->AI()->Talk(0); //  Hahaha, very nice, $n!
-
 				me->GetCreatureListWithEntryInGrid(Peons, NPC_CAROUSING_PEON, 20.0f);
 				me->GetCreatureListWithEntryInGrid(DeckHands, NPC_THERAMORE_DECK_HAND, 20.0f);
 
@@ -850,8 +855,9 @@ public:
 				for (auto peon : Peons)
 				{
 					Position l_Pos = peon->GetHomePosition();
-					peon->GetMotionMaster()->MovePoint(0, l_Pos, true); // Need to test if this actually returns peons to home position
-					peon->SetFacingTo(l_Pos.m_orientation);
+					float orientation = peon->GetHomePosition().m_orientation;
+					peon->GetMotionMaster()->MovePoint(0, l_Pos, true); // Need to figure out a way to reset their orientation
+					peon->SetOrientation(orientation);
 				}
 			}
 			
@@ -867,8 +873,8 @@ public:
 						if (me->GetGUID() == 265490 || 265488)
 						{
 							me->setFaction(1077); // hostile faction
-							Player* player = me->FindNearestPlayer(20.0f, true);
-							me->CombatStart(player, true);
+							Player* player = me->FindNearestPlayer(10.0f, true);
+							me->CombatStart(player);
 						}
 							
 					});

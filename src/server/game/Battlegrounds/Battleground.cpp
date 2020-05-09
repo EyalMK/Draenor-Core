@@ -650,21 +650,24 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
                     for (Unit* l_Unit : l_ListUnit)
                     {
-                        // remove auras with duration lower than 30s
-                        Unit::AuraApplicationMap & auraMap = l_Unit->GetAppliedAuras();
-                        for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
-                        {
-                            AuraApplication * aurApp = iter->second;
-                            Aura* aura = aurApp->GetBase();
-                            if (!aura->IsPermanent()
-                                && aura->GetDuration() <= 30 * IN_MILLISECONDS
-                                && aurApp->IsPositive()
-                                && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
-                                && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
-                                l_Unit->RemoveAura(iter);
-                            else
-                                ++iter;
-                        }
+						// remove auras with duration lower than 30s
+						Unit::AuraApplicationMap & auraMap = l_Player->GetAppliedAuras();
+						for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+						{
+							AuraApplication * aurApp = iter->second;
+							Aura* aura = aurApp->GetBase();
+							if (!aura->IsPermanent()
+								&& aura->GetDuration() <= 30 * IN_MILLISECONDS
+								&& aurApp->IsPositive()
+								&& (aura->GetSpellInfo()->Id != 66) ///< Mage Invisibility
+								&& (aura->GetSpellInfo()->Id != 32612) ///< Mage Invisibility trigger
+								&& (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+								&& (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY))
+								&& (aura->GetSpellInfo()->Id != 114018)) ///< Shroud of Concealment
+								l_Player->RemoveAura(iter);
+							else
+								++iter;
+						}
                     }
                 }
 
@@ -1076,7 +1079,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 uint32 rating = l_Player->GetArenaPersonalRating(slot);
                 l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                 l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD), true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
+				l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
             }
             else
             {
