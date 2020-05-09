@@ -106,7 +106,7 @@ class boss_classic_kazzak : public CreatureScript
 
                 DoCast(me, SPELL_CAPTURE_SOUL);
 
-                Talk(SAY_KILL);
+                Talk(SAY_KILL, victim->GetGUID());
             }
 
             void JustDied(Unit* /*killer*/) override

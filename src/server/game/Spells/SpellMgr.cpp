@@ -6364,6 +6364,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
 			case 125950: // Soothing Mist (statue)
 				spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_HEAL;
+				spellInfo->Effects[0].BonusMultiplier = 1.0f;
 				break;
 			case 115151: // Renewing Mist
 				spellInfo->Effects[EFFECT_2].Effect = 0;

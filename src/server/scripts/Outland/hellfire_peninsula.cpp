@@ -176,21 +176,6 @@ public:
     };
 };
 
-/*######
-## go_haaleshi_altar
-######*/
-
-class go_haaleshi_altar : public GameObjectScript
-{
-public:
-    go_haaleshi_altar() : GameObjectScript("go_haaleshi_altar") { }
-
-    bool OnGossipHello(Player* /*player*/, GameObject* go)
-    {
-        go->SummonCreature(C_AERANAS, -1321.79f, 4043.80f, 116.24f, 1.25f, TEMPSUMMON_TIMED_DESPAWN, 180000);
-        return false;
-    }
-};
 
 /*######
 ## npc_naladu
@@ -1216,6 +1201,263 @@ public:
 };
 
 
+/// Honor Hold Infernal Attack Event
+enum WatchCommanderLeonus
+{
+	SAY_COVER = 0,
+	EVENT_LEONUS_TALK = 1,
+	EVENT_INFERNAL_RAIN_ATTACK = 2,
+	EVENT_FEAR_CONTROLLER_CAST = 3,
+	EVENT_ACTIVE_FALSE = 4,
+	NPC_INFERNAL_RAIN = 18729,
+	SPELL_INFERNAL_RAIN = 33814,
+	NPC_FEAR_CONTROLLER = 19393,
+	DATA_ACTIVE = 1,
+};
+
+/// Watch-Commander Leonus - 19392
+class npc_watch_commander_leonus : public CreatureScript
+{
+public:
+	npc_watch_commander_leonus() : CreatureScript("npc_watch_commander_leonus") { }
+
+	struct npc_watch_commander_leonusAI : public ScriptedAI
+	{
+		npc_watch_commander_leonusAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset() override
+		{
+			_events.Reset();
+			_events.ScheduleEvent(EVENT_LEONUS_TALK, urand(120000, 600000));
+			_events.ScheduleEvent(EVENT_INFERNAL_RAIN_ATTACK, urand(120000, 600000));
+			_events.ScheduleEvent(EVENT_FEAR_CONTROLLER_CAST, urand(120000, 600000));
+		}
+
+		void SetData(uint32 /*type*/, uint32 data) override
+		{
+			switch (data)
+			{
+			case DATA_ACTIVE:
+				_events.ScheduleEvent(EVENT_ACTIVE_FALSE, 1000);
+				break;
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(uint32 diff) override
+		{
+			_events.Update(diff);
+
+			while (uint32 eventId = _events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_LEONUS_TALK:
+					Talk(SAY_COVER);
+					me->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
+					break;
+				case EVENT_INFERNAL_RAIN_ATTACK:
+				{
+					std::list<Creature*> infernalrainList;
+					JadeCore::AllCreaturesOfEntryInRange checkerInfernalrain(me, NPC_INFERNAL_RAIN, 200.0f);
+					JadeCore::CreatureListSearcher<JadeCore::AllCreaturesOfEntryInRange> searcherInfernal(me, infernalrainList, checkerInfernalrain);
+					me->VisitNearbyObject(200.0f, searcherInfernal);
+
+					for (Creature* infernal : infernalrainList)
+						if (!infernal->IsMoving() && infernal->GetPositionZ() > 118.0f)
+							infernal->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+
+					break;
+				}
+				case EVENT_FEAR_CONTROLLER_CAST:
+				{
+					std::list<Creature*> fearcontrollerList;
+					JadeCore::AllCreaturesOfEntryInRange checkerFear(me, NPC_FEAR_CONTROLLER, 200.0f);
+					JadeCore::CreatureListSearcher<JadeCore::AllCreaturesOfEntryInRange> searcherFear(me, fearcontrollerList, checkerFear);
+					me->VisitNearbyObject(200.0f, searcherFear);
+
+					for (Creature* fearController : fearcontrollerList)
+						fearController->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+
+					break;
+				}
+				case EVENT_ACTIVE_FALSE:
+					_events.ScheduleEvent(EVENT_LEONUS_TALK, 3600000);
+					_events.ScheduleEvent(EVENT_INFERNAL_RAIN_ATTACK, 3600000);
+					_events.ScheduleEvent(EVENT_FEAR_CONTROLLER_CAST, 3600000);
+					break;
+				}
+			}
+
+			if (!UpdateVictim())
+				return;
+
+			DoMeleeAttackIfReady();
+		}
+
+	private:
+		EventMap _events;
+	};
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_watch_commander_leonusAI(p_Creature);
+	}
+};
+
+enum InfernalRainHellfire
+{
+	EVENT_INFERNAL_RAIN_CAST = 1,
+	EVENT_INFERNAL_RAIN_STOP = 2,
+	NPC_WATCH_COMMANDER_LEONUS = 19392
+};
+
+/// Infernal Rain Hellfire - 18729
+class npc_infernal_rain_hellfire : public CreatureScript
+{
+public:
+	npc_infernal_rain_hellfire() : CreatureScript("npc_infernal_rain_hellfire") { }
+
+
+	struct npc_infernal_rain_hellfireAI : public ScriptedAI
+	{
+		npc_infernal_rain_hellfireAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void SetData(uint32 /*type*/, uint32 data) override
+		{
+			switch (data)
+			{
+			case DATA_ACTIVE:
+				_events.ScheduleEvent(EVENT_INFERNAL_RAIN_CAST, urand(1000, 2000));
+				_events.ScheduleEvent(EVENT_INFERNAL_RAIN_STOP, 60000);
+				break;
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(uint32 diff) override
+		{
+			_events.Update(diff);
+
+			while (uint32 eventId = _events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_INFERNAL_RAIN_CAST:
+				{
+					std::list<Creature*> infernalrainList;
+					JadeCore::AllCreaturesOfEntryInRange checker(me, NPC_INFERNAL_RAIN, 200.0f);
+					JadeCore::CreatureListSearcher<JadeCore::AllCreaturesOfEntryInRange> searcher(me, infernalrainList, checker);
+					me->VisitNearbyObject(200.0f, searcher);
+
+					if (!infernalrainList.empty())
+					{
+						Creature* random = JadeCore::Containers::SelectRandomContainerElement(infernalrainList);
+						if (random->IsMoving() && random->GetPositionZ() < 118.0f)
+						{
+							me->CastSpell(random, SPELL_INFERNAL_RAIN, true);
+						}
+					}
+
+					_events.ScheduleEvent(EVENT_INFERNAL_RAIN_CAST, urand(1000, 2000));
+					break;
+				}
+				case EVENT_INFERNAL_RAIN_STOP:
+					_events.CancelEvent(EVENT_INFERNAL_RAIN_CAST);
+					if (Creature* watchcommanderLeonus = me->FindNearestCreature(NPC_WATCH_COMMANDER_LEONUS, 200))
+						watchcommanderLeonus->AI()->SetData(DATA_ACTIVE, DATA_ACTIVE);
+
+					break;
+				}
+			}
+		}
+
+	private:
+		EventMap _events;
+	};
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_infernal_rain_hellfireAI(p_Creature);
+	}
+};
+
+enum fear_controller
+{
+	EVENT_FEAR_CAST = 1,
+	EVENT_FEAR_STOP = 2,
+	SPELL_FEAR = 33815 // Serverside spell
+};
+
+/// Fear Controller - 19393
+class npc_fear_controller : public CreatureScript
+{
+public:
+	npc_fear_controller() : CreatureScript("npc_fear_controller") { }
+
+
+	struct npc_fear_controllerAI : public ScriptedAI
+	{
+		npc_fear_controllerAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void SetData(uint32 /*type*/, uint32 data) override
+		{
+			if (data == DATA_ACTIVE)
+			{
+				_events.ScheduleEvent(EVENT_FEAR_CAST, 1000);
+				_events.ScheduleEvent(EVENT_FEAR_STOP, 60000);
+			}
+		}
+
+		void UpdateAI(uint32 diff) override
+		{
+			_events.Update(diff);
+
+			while (uint32 eventId = _events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_FEAR_CAST:
+					DoCastAOE(SPELL_FEAR);
+					_events.RepeatEvent(10000);
+					break;
+				case EVENT_FEAR_STOP:
+					_events.CancelEvent(EVENT_FEAR_CAST);
+					break;
+				}
+			}
+		}
+
+	private:
+		EventMap _events;
+	};
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_fear_controllerAI(p_Creature);
+	}
+};
+
+
+
+
+
+/*######
+## go_haaleshi_altar
+######*/
+
+class go_haaleshi_altar : public GameObjectScript
+{
+public:
+	go_haaleshi_altar() : GameObjectScript("go_haaleshi_altar") { }
+
+	bool OnGossipHello(Player* /*player*/, GameObject* go)
+	{
+		go->SummonCreature(C_AERANAS, -1321.79f, 4043.80f, 116.24f, 1.25f, TEMPSUMMON_TIMED_DESPAWN, 180000);
+		return false;
+	}
+};
+
+
 /// Force Commander Gorax's Corpse - 185223
 class gob_force_commander_gorax_corpse_185223 : public GameObjectScript
 {
@@ -1238,12 +1480,13 @@ public:
 	}
 };
 
+
 #ifndef __clang_analyzer__
 void AddSC_hellfire_peninsula()
 {
+	// Npcs
     new npc_aeranas();
     new npc_ancestral_wolf();
-    new go_haaleshi_altar();
     new npc_naladu();
     new npc_tracy_proudwell();
     new npc_trollbane();
@@ -1253,6 +1496,13 @@ void AddSC_hellfire_peninsula()
 	new npc_colonel_jules();
 	new npc_barada();
 	new npc_force_commander_gorax();
+	new npc_watch_commander_leonus();
+	new npc_infernal_rain_hellfire();
+	new npc_fear_controller();
+
+
+	// Gameobjects
 	new gob_force_commander_gorax_corpse_185223();
+	new go_haaleshi_altar();
 }
 #endif
