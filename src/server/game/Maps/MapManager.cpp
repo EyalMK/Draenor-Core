@@ -174,7 +174,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         // Send aborted message for dungeons / raids.
         if (entry->IsNonRaidDungeon())
         {
-            player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, player->GetDungeonDifficultyID());
+            player->SendTransferAborted(mapid, TRANSFER_ABORT_NONE, player->GetDungeonDifficultyID());
             return false;
         }
 		else    // attempt to downscale
