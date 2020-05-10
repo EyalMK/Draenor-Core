@@ -23625,7 +23625,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
                 if (missingQuest && !ar->questFailedText.empty())
                     ChatHandler(GetSession()).PSendSysMessage("%s", ar->questFailedText.c_str());
                 else if (mapDiff->HasErrorMessage) // if (missingAchievement) covered by this case
-                    SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty);
+                    SendTransferAborted(target_map, TRANSFER_ABORT_NONE, target_difficulty);
             }
             return false;
         }
