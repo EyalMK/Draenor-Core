@@ -349,6 +349,7 @@ void AddSC_eastern_plaguelands();
 void AddSC_eversong_woods();
 void AddSC_elwyn_forest();
 void AddSC_dun_morogh();
+void AddSC_dun_morogh_coldridge_valley();
 void AddSC_ghostlands();
 void AddSC_hinterlands();
 void AddSC_ironforge();
