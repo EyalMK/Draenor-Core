@@ -13,6 +13,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ghostlands.cpp
   EasternKingdoms/eversong_woods.cpp
   EasternKingdoms/elwynn_forest.cpp
+  EasternKingdoms/dun_morogh_coldridge_valley.cpp
   EasternKingdoms/dun_morogh.cpp
   EasternKingdoms/AlteracValley/boss_galvangar.cpp
   EasternKingdoms/AlteracValley/boss_balinda.cpp
