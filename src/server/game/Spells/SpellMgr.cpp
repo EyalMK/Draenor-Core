@@ -6376,6 +6376,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;
 				spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NATURE;
                 break;
+			case 132169:// Storm Bolt (stun effect)
+				spellInfo->Speed = 0;
+				spellInfo->SetRangeIndex(6);  // 100yd
+				break;
             case 109186: ///< Surge of light
                 spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
                 break;
