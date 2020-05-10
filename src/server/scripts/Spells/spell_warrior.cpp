@@ -2237,22 +2237,10 @@ class spell_warr_rend : public SpellScriptLoader
                 l_Owner->CastSpell(l_Target, eSpells::RendFinalBurst, true);
             }
 
-			void HandleOnTick(AuraEffect const* p_AurEff)
-			{
-				Player* l_Player = GetCaster()->ToPlayer();
-
-				if (l_Player->HasAura(ITEM_WARRIOR_T18_ARMS_2P))
-				{
-					if (roll_chance_i(50))
-						l_Player->RemoveSpellCooldown(12294, true); // Mortal Strike
-				}
-			}
-
             void Register()
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_warr_rend_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-				OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_rend_AuraScript::HandleOnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
+			}
         };
 
         AuraScript* GetAuraScript() const
