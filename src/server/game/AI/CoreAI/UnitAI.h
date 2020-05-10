@@ -417,10 +417,11 @@ class UnitAI
             UNUSED(p_Player);
             UNUSED(p_Quest);
         }
-        virtual void sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 /*p_Opt*/)
+        virtual void sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Option)
         {
             UNUSED(p_Player);
             UNUSED(p_Quest);
+            UNUSED(p_Option);
         }
         virtual bool sOnDummyEffect(Unit* p_Caster, uint32 p_SpellID, SpellEffIndex p_EffIndex)
         {

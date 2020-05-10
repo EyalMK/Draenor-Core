@@ -377,52 +377,75 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
             case TYPEID_UNIT:
             case TYPEID_PLAYER:
             {
-				//For AutoSubmition was added plr case there as it almost same exclute AI script cases.
+                //For AutoSubmition was added plr case there as it almost same exclude AI script cases.
                 Creature* l_CreatureQGiver = l_Object->ToCreature();
-				// Send next quest
-				if (Quest const* l_NextQuest = m_Player->GetNextQuest(l_Guid, l_Quest))
-				{
-					// Only send the quest to the player if the conditions are met
-					if (m_Player->CanTakeQuest(l_NextQuest, false))
-					{
-						if (l_NextQuest->IsAutoAccept() && m_Player->CanAddQuest(l_NextQuest, true))
-							m_Player->AddQuestAndCheckCompletion(l_NextQuest, l_Object);
+                if (!l_CreatureQGiver || !(sScriptMgr->OnQuestReward(m_Player, l_CreatureQGiver, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry)))
+                {
+                    // Send next quest
+                    if (Quest const* l_NextQuest = m_Player->GetNextQuest(l_Guid, l_Quest))
+                    {
+                        if (m_Player->CanAddQuest(l_NextQuest, true) && m_Player->CanTakeQuest(l_NextQuest, true) && l_NextQuest->IsAutoTake())
+                        {
+                            if (l_NextQuest->IsAutoAccept())
+                            {
+                                m_Player->AddQuest(l_NextQuest, l_Object);
 
-						m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
-					}
-				}
+                                if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
+                                    m_Player->CompleteQuest(l_NextQuest->GetQuestId(), false);
+                            }
 
-				m_Player->PlayerTalkClass->ClearMenus();
-				l_CreatureQGiver->GetAI()->sQuestReward(m_Player, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry);
+                            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
+                        }
+                    }
+                    else
+                        l_CloseGossip = true;
+
+                    if (l_CreatureQGiver)
+                    {
+                        l_CreatureQGiver->AI()->sQuestReward(m_Player, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry);
+
+                        sScriptMgr->OnQuestComplete(m_Player, (l_Object->ToCreature()), l_Quest);
+                        (l_Object->ToCreature())->AI()->sQuestComplete(m_Player, l_Quest);
+                    }
+                }
                 break;
             }
             case TYPEID_GAMEOBJECT:
             {
-				GameObject* questGiver = l_Object->ToGameObject();
+                if (!sScriptMgr->OnQuestReward(m_Player, ((GameObject*)l_Object), l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry))
+                {
+                    // Send next quest
+                    if (Quest const* l_NextQuest = m_Player->GetNextQuest(l_Guid, l_Quest))
+                    {
+                        if (m_Player->CanAddQuest(l_NextQuest, true) && m_Player->CanTakeQuest(l_NextQuest, true) && l_NextQuest->IsAutoTake())
+                        {
+                            if (l_NextQuest->IsAutoAccept())
+                            {
+                                m_Player->AddQuest(l_NextQuest, l_Object);
 
-				// Send next quest
-				if (Quest const* l_NextQuest = m_Player->GetNextQuest(l_Guid, l_Quest))
-				{
-					// Only send the quest to the player if the conditions are met
-					if (m_Player->CanTakeQuest(l_NextQuest, false))
-					{
-						if (l_NextQuest->IsAutoAccept() && m_Player->CanAddQuest(l_NextQuest, true))
-							m_Player->AddQuestAndCheckCompletion(l_NextQuest, l_Object);
+                                if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
+                                    m_Player->CompleteQuest(l_NextQuest->GetQuestId(), false);
+                            }
 
-						m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
-					}
-				}
+                            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
+                        }
+                    }
+                    else
+                        l_CloseGossip = true;
 
-				m_Player->PlayerTalkClass->ClearMenus();
-				l_Object->ToGameObject()->AI()->QuestReward(m_Player, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry);
+                    l_Object->ToGameObject()->AI()->QuestReward(m_Player, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry);
+                }
                 break;
             }
-           default:
-              break;
-       }
+            default:
+                break;
+        }
     }
     else
         m_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, l_Guid);
+
+    if (l_CloseGossip)
+        m_Player->PlayerTalkClass->SendCloseGossip();
 }
 
 void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
