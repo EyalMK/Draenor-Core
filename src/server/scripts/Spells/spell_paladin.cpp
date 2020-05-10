@@ -130,10 +130,13 @@ enum PaladinSpells
     PALADIN_SPELL_RIGHTEOUS_DETERMINATION       = 165889,
     PALADIN_PVP_RETRIBUTION_4P_BONUS            = 165895,
     PALADIN_VINDICATORS_FURY                    = 165903,
-    PALADIN_HOLY_POWER_ENERGIZE                 = 138248
+    PALADIN_HOLY_POWER_ENERGIZE                 = 138248,
+	PALADIN_SPELL_SERAPHIM_VISUAL				= 172320,
+	PALADIN_SPELL_SERAPHIM_VISUAL_DPS			= 172321
+
 };
 
-/// Glyph of devotion aura - 146955
+/// Glyph of Devotion Aura - 146955
 class spell_pal_glyph_of_devotian_aura: public SpellScriptLoader
 {
     public:
@@ -4103,6 +4106,41 @@ class spell_pal_hammer_of_justice : public SpellScriptLoader
 		}
 };
 
+/// Seraphim - 152262
+class spell_pal_seraphim : public SpellScriptLoader
+{
+public:
+	spell_pal_seraphim() : SpellScriptLoader("spell_pal_seraphim") { }
+
+	class spell_pal_seraphim_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_pal_seraphim_SpellScript);
+
+		void HandleOnCast()
+		{
+			Player* l_Player = GetCaster()->ToPlayer();
+
+			if (l_Player == nullptr)
+				return;
+
+			if (l_Player->GetSpecializationId(SPEC_PALADIN_RETRIBUTION))
+				l_Player->CastSpell(l_Player, PALADIN_SPELL_SERAPHIM_VISUAL_DPS, true);
+			else
+				l_Player->CastSpell(l_Player, PALADIN_SPELL_SERAPHIM_VISUAL, true);
+		}
+
+		void Register() override
+		{
+			OnCast += SpellCastFn(spell_pal_seraphim_SpellScript::HandleOnCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const override
+	{
+		return new spell_pal_seraphim_SpellScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_paladin_spell_scripts()
 {
@@ -4177,6 +4215,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sword_of_light_damage();
     new spell_pal_glyph_of_denounce();
     new spell_pal_glyph_of_the_luminous_charger();
+	new spell_pal_seraphim();
 
     /// PlayerScripts
     new PlayerScript_empowered_divine_storm();
