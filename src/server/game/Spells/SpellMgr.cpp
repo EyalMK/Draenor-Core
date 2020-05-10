@@ -6329,7 +6329,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 122355: ///< Molten Core
                 spellInfo->StackAmount = 255;
                 break;
-            case 6203: ///< Soulstone
+			case 20707: ///< Soulstone
+				spellInfo->ExcludeTargetAuraSpell = 0;
+				spellInfo->Effects[1].TriggerSpell = 95750;
+				break;
+            case 6203: ///< Soulstone (triggered by 20707)
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
                 break;
             case 106707: ///< Faerie Swarm (talent)
@@ -6376,6 +6380,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;
 				spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NATURE;
                 break;
+			case 132169:// Storm Bolt (stun effect)
+				spellInfo->Speed = 0;
+				spellInfo->SetRangeIndex(6);  // 100yd
+				break;
             case 109186: ///< Surge of light
                 spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
                 break;

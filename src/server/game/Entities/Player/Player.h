@@ -2394,7 +2394,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura, SpellInfo const* p_ResSpell = nullptr)
         {
-            ASSERT(!IsRessurectRequested());
+            ASSERT(!IsResurrectRequested());
             _resurrectionData = new ResurrectionData();
             _resurrectionData->GUID = caster->GetGUID();
             _resurrectionData->Location.WorldRelocate(*caster);
@@ -2409,17 +2409,18 @@ class Player : public Unit, public GridObject<Player>
             delete _resurrectionData;
             _resurrectionData = NULL;
         }
-        bool IsRessurectRequestedBy(uint64 guid) const
+
+        bool IsResurrectRequestedBy(uint64 guid) const
         {
-            if (!IsRessurectRequested())
+            if (!IsResurrectRequested())
                 return false;
 
             return _resurrectionData->GUID == guid;
         }
 
-        bool IsRessurectRequested() const { return _resurrectionData != NULL; }
+        bool IsResurrectRequested() const { return _resurrectionData != NULL; }
 
-        void ResurectUsingRequestData();
+        void ResurrectUsingRequestData();
 
         void SendForcedDeathUpdate();
         void SendGameError(GameError::Type p_Error, uint32 p_Data1 = 0xF0F0F0F0, uint32 p_Data2 = 0xF0F0F0F0);

@@ -2336,8 +2336,6 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 			{
 				if (Unit* l_Caster = GetCaster())
 				{
-					l_Caster->RemoveAura(SPELL_MONK_UPLIFT_ALLOWING_CAST);
-
 					AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
 
 					if ((l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE) ||

@@ -304,24 +304,24 @@ class spell_warr_storm_bolt: public SpellScriptLoader
                 StormBoltStun = 132169
             };
 
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
+			void HandleOnHit()
+			{
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (Unit* l_Target = GetHitUnit())
+					{
+						if (l_Target->GetTypeId() == TYPEID_UNIT && l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), 0))
+							SetHitDamage(GetHitDamage() * 4);
 
-                if (l_Target == nullptr)
-                    return;
-
-                if (GetSpellInfo()->Id == eSpells::StormBoltOffHand && !l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
-                    l_Caster->CastSpell(l_Target, eSpells::StormBoltStun, true);
-
-                if (l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
-                    SetHitDamage(GetHitDamage() * 4); ///< Deals quadruple damage to targets permanently immune to stuns
-            }
+						if (GetSpellInfo()->Id == 107570 && !l_Target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS))
+							l_Player->CastSpell(l_Target, StormBoltStun, true);
+					}
+				}
+			}
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+				OnHit += SpellHitFn(spell_warr_storm_bolt_SpellScript::HandleOnHit);
             }
         };
 
@@ -2237,22 +2237,10 @@ class spell_warr_rend : public SpellScriptLoader
                 l_Owner->CastSpell(l_Target, eSpells::RendFinalBurst, true);
             }
 
-			void HandleOnTick(AuraEffect const* p_AurEff)
-			{
-				Player* l_Player = GetCaster()->ToPlayer();
-
-				if (l_Player->HasAura(ITEM_WARRIOR_T18_ARMS_2P))
-				{
-					if (roll_chance_i(50))
-						l_Player->RemoveSpellCooldown(12294, true); // Mortal Strike
-				}
-			}
-
             void Register()
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_warr_rend_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-				OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_rend_AuraScript::HandleOnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
+			}
         };
 
         AuraScript* GetAuraScript() const

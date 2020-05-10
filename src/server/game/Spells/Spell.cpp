@@ -6458,7 +6458,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             if (Player* l_Target = m_targets.GetUnitTarget()->ToPlayer())
             {
-                if (l_Target->IsRessurectRequested())
+                if (l_Target->IsResurrectRequested())
                     return SPELL_FAILED_TARGET_HAS_RESURRECT_PENDING;
             }
         }
