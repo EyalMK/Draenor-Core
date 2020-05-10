@@ -1440,7 +1440,7 @@ public:
 
 
 #ifndef __clang_analyzer__
-void AddSC_dun_morogh_area_coldridge_valley()
+void AddSC_dun_morogh_coldridge_valley()
 {
 	/// Npcs
 	new npc_joren_ironstock();

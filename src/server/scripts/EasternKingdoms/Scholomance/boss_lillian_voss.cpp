@@ -697,7 +697,7 @@ public:
 	}
 };
 
-void AddSC_boss_lilian_voss()
+void AddSC_boss_lillian_voss()
 {
 	new boss_lilian_voss();
 	new npc_lilian_voss_lilians_soul();

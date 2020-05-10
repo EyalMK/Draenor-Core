@@ -223,6 +223,7 @@ void AddSC_the_scarlet_enclave_c5();
 void AddSC_boss_armsmaster_harlan();
 void AddSC_boss_flameweaver_koegler();
 void AddSC_boss_houndmaster_braun();
+void AddSC_scarlet_halls();
 void AddSC_instance_scarlet_halls();
 
 
@@ -246,6 +247,7 @@ void AddSC_boss_commander_durand();
 void AddSC_boss_headless_horseman();
 void AddSC_boss_thalnos_the_soulrender();
 void AddSC_instance_scarlet_monastery();
+void AddSC_scarlet_monastery();
 
 /// Old Scholomance
 //void AddSC_boss_darkmaster_gandling();
@@ -269,6 +271,7 @@ void AddSC_boss_jandice_barov();
 void AddSC_boss_lillian_voss();
 void AddSC_boss_rattlegore();
 void AddSC_instance_scholomance();
+void AddSC_scholomance();
 
 /// Shadowfang keep
 void AddSC_boss_baron_ashbury();
@@ -366,10 +369,10 @@ void AddSC_undercity();
 void AddSC_western_plaguelands();
 void AddSC_westfall();
 void AddSC_wetlands();
-void AddSC_Gilneas();
+//void AddSC_Gilneas();
 void AddSC_Gilneas_city_part1();
 void AddSC_Gilneas_city_part2();
-void AddSC_Gilneas_city_part3();
+//void AddSC_Gilneas_city_part3();
 void AddSC_Duskhaven();
 void AddSC_ashenvale();
 void AddSC_azshara();
@@ -1448,15 +1451,12 @@ void AddEasternKingdomsScripts()
     //AddSC_boss_arcanist_doan();
     //AddSC_boss_azshir_the_sleepless();
     //AddSC_boss_bloodmage_thalnos();
-    AddSC_boss_headless_horseman();
     //AddSC_boss_herod();
     //AddSC_boss_high_inquisitor_fairbanks();
     //AddSC_boss_houndmaster_loksey();
     //AddSC_boss_interrogator_vishas();
     //AddSC_boss_scorn();
-    AddSC_instance_scarlet_monastery();
     //AddSC_boss_mograine_and_whitemane();
-    AddSC_boss_darkmaster_gandling();
     //AddSC_boss_death_knight_darkreaver();
     //AddSC_boss_theolenkrastinov();
     //AddSC_boss_illuciabarov();
@@ -1468,7 +1468,32 @@ void AddEasternKingdomsScripts()
     //AddSC_boss_rasfrost();
     //AddSC_boss_theravenian();
     //AddSC_boss_vectus();
+	/// New Scarlet Halls Scripts
+	AddSC_boss_armsmaster_harlan();
+	AddSC_boss_flameweaver_koegler();
+	AddSC_boss_houndmaster_braun();
+	AddSC_instance_scarlet_halls();
+	AddSC_scarlet_halls();
+
+
+	/// New Scarlet Monastery Scripts
+	AddSC_boss_brother_korloff();
+	AddSC_boss_commander_durand();
+	AddSC_boss_headless_horseman();
+	AddSC_boss_thalnos_the_soulrender();
+	AddSC_instance_scarlet_monastery();
+	AddSC_scarlet_monastery();
+
+
+	/// New Scholomance Scripts
+	AddSC_boss_darkmaster_gandling();
+	AddSC_boss_instructor_chillheart();
+	AddSC_boss_jandice_barov();
+	AddSC_boss_lillian_voss();
+	AddSC_boss_rattlegore();
     AddSC_instance_scholomance();
+	AddSC_scholomance();
+
     AddSC_boss_baron_ashbury();
     AddSC_boss_baron_silverlaine();
     AddSC_boss_commander_springvale();
@@ -1533,6 +1558,7 @@ void AddEasternKingdomsScripts()
     AddSC_eversong_woods();
     AddSC_elwyn_forest();
     AddSC_dun_morogh();
+	AddSC_dun_morogh_coldridge_valley();
     AddSC_ghostlands();
     AddSC_hinterlands();
     AddSC_ironforge();
@@ -1668,11 +1694,10 @@ void AddKalimdorScripts()
     AddSC_zulfarrak();
     AddSC_instance_zulfarrak();
     /// Gilneas Scripts
-	void AddSC_Gilneas();
-	void AddSC_Gilneas_city_part1();
-	void AddSC_Gilneas_city_part2();
-	void AddSC_Gilneas_city_part3();
-	void AddSC_Duskhaven();
+	AddSC_Gilneas_city_part1();
+	AddSC_Gilneas_city_part2();
+	//AddSC_Gilneas_city_part3();
+	AddSC_Duskhaven();
 
     AddSC_ashenvale();
     AddSC_azshara();

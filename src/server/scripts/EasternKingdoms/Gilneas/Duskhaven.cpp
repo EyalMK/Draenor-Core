@@ -934,8 +934,10 @@ public:
 								for (std::list<Creature*>::const_iterator itr = trigger.begin(); itr != trigger.end(); ++itr)
 								{
 								
-									Position const pos = { (*itr)->GetPositionX() + 5.0f, (*itr)->GetPositionY(), (*itr)->GetPositionZ(), frand(0.0f, 6.28f) };
-									me->SummonCreature(NPC_MASTIFF, pos, TEMPSUMMON_TIMED_DESPAWN, urand(30000, 60000)); // Check position solution to GetNearPosition -> 5 yrds dist
+									Position pos;
+									(*itr)->GetPosition(&pos);
+									(*itr)->GetNearPosition(pos, 5.0f, frand(0.0f, 6.28f));
+									me->SummonCreature(NPC_MASTIFF, pos, TEMPSUMMON_TIMED_DESPAWN, urand(30000, 60000));
 								}
                             }
 
@@ -3369,7 +3371,7 @@ public:
 
 // from here phase 262144 is active.. battle for gilneas in zone_gilneas_city3
 
-void AddSC_zone_gilneas_duskhaven()
+void AddSC_Duskhaven()
 {
     new player_zone_duskhaven();
     new npc_slain_watchman_36205();

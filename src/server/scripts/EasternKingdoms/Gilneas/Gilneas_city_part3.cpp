@@ -2158,7 +2158,7 @@ public:
     }
 };
 
-void AddSC_zone_gilneas_city3()
+void AddSC_Gilneas_city_part3()
 {
     new npc_tobias_mistmantle_38507();
     new npc_lady_sylvanas_windrunner_38530();
