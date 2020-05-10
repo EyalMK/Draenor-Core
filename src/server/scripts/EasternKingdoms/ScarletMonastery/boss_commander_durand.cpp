@@ -292,7 +292,7 @@ public:
 	};
 };
 
-void AddSC_boss_inquisitor_whitemane()
+void AddSC_boss_commander_durand()
 {
 	new boss_inquisitor_whitemane();
 	new npc_inquisitor_whitemane_commander_durand();
