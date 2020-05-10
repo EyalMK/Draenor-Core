@@ -974,14 +974,14 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    if (!m_Player->IsRessurectRequestedBy(l_Guid))
+    if (!m_Player->IsResurrectRequestedBy(l_Guid))
     {
         /// Resurrecting - 60s aura preventing client from new res spells
         m_Player->RemoveAura(160029);
         return;
     }
 
-    m_Player->ResurectUsingRequestData();
+    m_Player->ResurrectUsingRequestData();
 }
 
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
