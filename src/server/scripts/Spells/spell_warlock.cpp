@@ -4229,7 +4229,7 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
 				if (l_Caster->HasAura(ITEM_WARLOCK_T18_DEST_4P))
 				{
 					if (roll_chance_i(12))
-						l_Caster->ModifyPower(Powers::POWER_BURNING_EMBERS, 1);
+						l_Caster->ModifyPower(POWER_BURNING_EMBERS, 10);
 				}
 			}
 
@@ -4250,6 +4250,7 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
 
             void Register()
             {
+				OnCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleOnCast);
                 AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
             }
         };
