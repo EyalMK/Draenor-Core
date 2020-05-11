@@ -137,10 +137,10 @@ enum PriestSpells
 	// Tier 18
 	ITEM_PRIEST_DISCI_T18_2P						= 186477,
 	ITEM_PRIEST_DISCI_T18_4P						= 186492,
-	/*ITEM_PRIEST_HOLY_T18_2P							= 123123,
+	ITEM_PRIEST_HOLY_T18_2P							= 123123,
 	ITEM_PRIEST_HOLY_T18_4P							= 123123,
 	ITEM_PRIEST_SHADOW_T18_2P						= 123123,
-	ITEM_PRIEST_SHADOW_T18_4P						= 123123*/
+	ITEM_PRIEST_SHADOW_T18_4P						= 186981
 };
 
 // Shadow Orb - 77487 & Glyph of Shadow ravens - 57985
@@ -4210,7 +4210,7 @@ class spell_pri_saving_grace : public SpellScriptLoader
                 if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
-                /// HotFixe February 27, 2015 : Saving Grace now heals for 25% less in PvP combat.
+                /// HotFix February 27, 2015 : Saving Grace now heals for 25% less in PvP combat.
                 if (l_Player->GetMap()->IsBattlegroundOrArena() || l_Player->IsInPvPCombat())
                     SetHitHeal(GetHitHeal() - CalculatePct(GetHitHeal(), 25));
             }
@@ -4521,7 +4521,7 @@ class spell_pri_focused_will : public SpellScriptLoader
                     return;
 
                 /// Should proc only from damage
-                if (p_EventInfo.GetDamageInfo()->GetDamage() == 0)
+                if (p_EventInfo.GetDamageInfo()->GetDamageType() == SELF_DAMAGE || p_EventInfo.GetDamageInfo()->GetDamageType() == NODAMAGE || p_EventInfo.GetDamageInfo()->GetDamageType() == HEAL)
                     return;
 
                 if (p_EventInfo.GetActor()->GetGUID() == l_Caster->GetGUID())

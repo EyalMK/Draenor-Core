@@ -2014,18 +2014,56 @@ public:
 
 	enum eSpells
 	{
+		ShadowT184P	   = 186981,
 		PremonitionT18 = 188779
 	};
 
-	struct npc_shadowfiend_mindbenderAI : CasterAI
+	struct npc_shadowfiend_mindbenderAI : ScriptedAI
 	{
-		npc_shadowfiend_mindbenderAI(Creature* creature) : CasterAI(creature) {}
-
-		uint32 despawnTimer;
-
-		void Despawn()
+		npc_shadowfiend_mindbenderAI(Creature* creature) : ScriptedAI(creature) 
 		{
+			m_Entry = creature->GetEntry();
+			m_Scheduled = false;
+		}
 
+		uint32 m_Entry;
+		bool m_Scheduled;
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+
+			Unit* l_Owner = me->GetOwner();
+
+			if (l_Owner->HasAura(ShadowT184P))
+			{
+				if (m_Entry == 19668 && m_Scheduled == false)
+				{
+					AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Unit* l_Owner = me->GetOwner();
+						me->AddAura(eSpells::PremonitionT18, l_Owner);
+						m_Scheduled = true;
+					});
+				}
+
+				if (m_Entry == 62982 && m_Scheduled == false)
+				{
+					AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Unit* l_Owner = me->GetOwner();
+						me->AddAura(eSpells::PremonitionT18, l_Owner);
+						m_Scheduled = true;
+					});
+				}
+			}
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			DoMeleeAttackIfReady();
 		}
 	};
 
@@ -5117,6 +5155,7 @@ void AddSC_npcs_special()
 	new npc_void_demon_t18();
     new npc_frozen_trail_packer();
 	new npc_void_demon_t18();
+	new npc_shadowfiend_mindbender();
 
     /////////////////////////////////////////////////////////////
     /// Ethereal Soul-Trader
