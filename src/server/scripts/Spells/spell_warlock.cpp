@@ -5434,11 +5434,11 @@ public:
 			PreventDefaultAction();
 
 			Player* l_Caster = GetCaster()->ToPlayer();
-			Unit* l_Target = GetTarget();
+			Unit* l_Victim = p_ProcEventInfo.GetDamageInfo()->GetVictim();
 
 			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
 
-			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr || l_Victim == nullptr)
 				return;
 
 			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
@@ -5447,7 +5447,7 @@ public:
 			if (l_SpellInfoTriggerSpell->Id != eSpells::Incinerate)
 				return;
 
-			l_Caster->CastSpell(l_Target, eSpells::Flamelicked, true);
+			l_Caster->CastSpell(l_Victim, eSpells::Flamelicked, true);
 		}
 
 		void Register()
