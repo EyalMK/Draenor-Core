@@ -4222,6 +4222,17 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
                 Backdraft = 117828
             };
 
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(ITEM_WARLOCK_T18_DEST_4P))
+				{
+					if (roll_chance_i(12))
+						l_Caster->ModifyPower(Powers::POWER_BURNING_EMBERS, 1);
+				}
+			}
+
             void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
