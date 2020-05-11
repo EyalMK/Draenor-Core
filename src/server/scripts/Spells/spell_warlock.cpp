@@ -2216,6 +2216,7 @@ class spell_warl_soul_swap: public SpellScriptLoader
 enum DrainSoulSpells
 {
     SPELL_WARL_IMPROVED_DRAIN_SOUL = 157077
+
 };
 
 // Drain Soul - 103103
@@ -2234,7 +2235,9 @@ class spell_warl_drain_soul: public SpellScriptLoader
             UnstableAfflictionDoT       = 30108,
             UnstableAfflictionTriggered = 131736,
             CorruptionDoT               = 146739,
-            CorruptionTriggered         = 131740
+            CorruptionTriggered         = 131740,
+			Haunt						= 48181,
+			DarkSoulMisery				= 113860
         };
 
         class spell_warl_drain_soul_AuraScript : public AuraScript
@@ -2246,8 +2249,18 @@ class spell_warl_drain_soul: public SpellScriptLoader
             void HandlePeriodicDamage(AuraEffect* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
+
+				if (!l_Caster)
+					return;
+
+				if (l_Caster->HasAura(ITEM_WARLOCK_T18_AFF_2P))
+				{
+					if (roll_chance_i(10) && l_Caster->HasAura(eSpells::DarkSoulMisery))
+					{
+						if (Aura* l_DarkSoulMisery = l_Caster->GetAura(eSpells::DarkSoulMisery))
+							l_DarkSoulMisery->SetDuration(l_DarkSoulMisery->GetDuration() + 2000);
+					}
+				}
 
                 std::list<Unit*> l_TargetList;
 
@@ -2273,6 +2286,15 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[SpellEffIndex::EFFECT_0].BasePoints));
                         }
                     }
+
+					if (l_Caster->HasAura(ITEM_WARLOCK_T18_AFF_4P))
+					{
+						if (l_Caster->HasAura(eSpells::DarkSoulMisery))
+						{
+							if (Aura* l_Haunt = l_Target->GetAura(eSpells::Haunt))
+								l_Haunt->SetDuration(10000); // Maximum duration
+						}
+					}
 
                     /// Associate DoT spells to their damage spells
                     std::map<uint32, uint32> l_DotAurasMap =
