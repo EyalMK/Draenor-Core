@@ -4269,14 +4269,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
+			case 137384: ///< Combo Breaker
+				spellInfo->Attributes &= -SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+				break;
             case 157607: ///< Instant Poison
-                /*spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(29); ///< 12s
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;*/
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(29); ///< 12s
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
 				spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
 			case 32645: ///< Envenom
 				spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
+				break;
+			case 13750:  ///< Adredaline Rush
+			case 186286: ///< Adredaline Rush
+				spellInfo->Effects[0].BasePoints = 100;
 				break;
             case 157675: ///< Chi Explosion
             case 182078: ///< Chi Explosion
