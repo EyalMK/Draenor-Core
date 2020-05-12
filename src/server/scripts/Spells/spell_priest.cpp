@@ -3607,9 +3607,6 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                         if (l_Caster->HasAura(eSpells::T17Holy4P) && roll_chance_i(20))
                             l_Caster->CastSpell(l_Caster, eSpells::SerendipityStack, true);
 
-						if (oldTarget != nullptr)
-							l_Target = oldTarget;
-
                         AuraEffect* l_AurEff = l_Target->GetAuraEffect(PrayerOfMendingSpells::PrayerOfMendingAura, EFFECT_0, l_Caster->GetGUID());
 
                         if (l_AurEff == nullptr)
