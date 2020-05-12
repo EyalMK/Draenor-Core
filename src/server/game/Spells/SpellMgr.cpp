@@ -6373,21 +6373,21 @@ void SpellMgr::LoadSpellCustomAttr()
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
-			case 125950: // Soothing Mist (statue)
+			case 125950: ///< Soothing Mist (statue)
 				spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_HEAL;
 				spellInfo->Effects[0].BonusMultiplier = 1.0f;
 				break;
-			case 115151: // Renewing Mist
+			case 115151: ///< Renewing Mist
 				spellInfo->Effects[EFFECT_2].Effect = 0;
 				break;
-			case 119607:  // Renewing Mist AoE Jump
+			case 119607: ///< Renewing Mist AoE Jump
 				spellInfo->Effects[EFFECT_1].SetRadiusIndex(EFFECT_RADIUS_20_YARDS);
 				break;
             case 119611: ///< Renewing Mist HoT
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;
 				spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NATURE;
                 break;
-			case 132169:// Storm Bolt (stun effect)
+			case 132169: ///< Storm Bolt (stun effect)
 				spellInfo->Speed = 0;
 				spellInfo->SetRangeIndex(6);  // 100yd
 				break;
