@@ -7,15 +7,28 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
-#include "CombatAI.h"
-#include "MotionMaster.h"
-#include "MoveSplineInit.h"
-#include "ObjectAccessor.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellInfo.h"
+#include "ScriptedGossip.h"
+#include "ScriptedEscortAI.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "World.h"
+#include "PetAI.h"
+#include "PassiveAI.h"
+#include "CombatAI.h"
+#include "GameEventMgr.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "SpellAuras.h"
+#include "Vehicle.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "GameEventMgr.h"
+#include "CreatureGroups.h"
+#include "Player.h"
 #include "SpellScript.h"
-#include "TemporarySummon.h"
 
 enum zone_coldridge_valley
 {
@@ -33,6 +46,10 @@ enum zone_coldridge_valley
 	NPC_TROLLING_FOR_INFORMATION_KILL_CREDIT_BUNNY_W = 37111,
 	NPC_JOREN_IRONSTOCK = 37081,
 	NPC_ROCKJAW_INVADER = 37070,
+	NPC_FROSTMANE_SCOUT = 41175,
+	NPC_FROSTMANE_SCAVENGER = 41146,
+	NPC_KHARANOS_MOUNTAINEER = 41181,
+	NPC_KHARANOS_RIFLEMAN	 = 41182,
 
 	/// Spells
 	SPELL_HEAL_WOUNDED_MOUNTAINEER = 69855,
@@ -69,6 +86,11 @@ public:
 		return new npc_joren_ironstockAI(creature);
 	}
 
+	enum eMisc
+	{
+		EVENT_SUMMON_INVADERS = 0,
+	};
+
 	struct npc_joren_ironstockAI : public ScriptedAI
 	{
 		npc_joren_ironstockAI(Creature* creature) : ScriptedAI(creature) {}
@@ -76,16 +98,25 @@ public:
 		uint32 invaders;
 		uint64 rockjawTarget;
 
-
-		bool Continue;
+		// Positions for Rockjaw Invaders
+		Position const spawnPts[7] =
+		{
+			{ -6257.2813f, 328.7897f, 382.1249f },
+			{ -6257.2900f, 337.4182f, 381.6851f },
+			{ -6257.5322f, 345.7486f, 381.7038f },
+			{ -6260.5698f, 358.6521f, 383.6841f },
+			{ -6248.7549f, 371.9600f, 383.7324f },
+			{ -6201.4927f, 334.7021f, 390.3081f },
+			{ -6209.2056f, 308.1535f, 388.2065f }
+		};
 
 		void Reset() override
 		{
-			invaders = 0;
 			rockjawTarget = 0;
 			me->SetSheath(SHEATH_STATE_MELEE);
 			me->setRegeneratingHealth(true);
 		}
+		
 
 		void EnterCombat(Unit * who) override
 		{
@@ -94,61 +125,49 @@ public:
 				me->AddUnitState(UNIT_STATE_ROOT);
 		}
 
-		void DamageTaken(Unit* doneBy, uint32& damage)
+		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
 		{
-			if (doneBy->ToCreature())
+			if (doneBy->ToCreature()->GetEntry() == NPC_ROCKJAW_INVADER)
+					damage = 0;
+		}
+
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+		{
+			if (target->ToCreature()->GetEntry() == NPC_ROCKJAW_INVADER)
 					damage = 0;
 		}
 
 		void UpdateAI(uint32 diff) override
 		{
-			DoMeleeAttackIfReady();
 
-			if (rockjawTarget != 0)
+			if (!UpdateVictim())
 			{
-				if (Creature* invader = Unit::GetCreature(*me, rockjawTarget))
+				Creature* rjInvader = me->FindNearestCreature(NPC_ROCKSAW_INVADER, 5.0f, true);
+				if (rjInvader)
 				{
-					if (invader->isAlive())
+					rjInvader->getThreatManager().addThreat(me, 1000000.0f);
+					me->AI()->AttackStart(rjInvader);
+				}	
+				else {
+					/// <<<< This is a hackfix, Joren is supposed to summon each invader at its spawnPt if it's killed after about 10 seconds.
+					for (uint8 i = 0; i < 7; ++i)
 					{
-						if (me->getVictim() != invader)
+						if (Creature* invader = me->SummonCreature(NPC_ROCKJAW_INVADER, spawnPts[i], TEMPSUMMON_DEAD_DESPAWN))
 						{
-							me->getThreatManager().addThreat(invader, 1000000.0f);
-							invader->getThreatManager().addThreat(me, 1000000.0f);
-							me->Attack(invader, true);
+							invader->AI()->AttackStart(me);
+							/// 3rd Summon is the main target
+							if (invader->GetHomePosition() == spawnPts[3])
+							{
+								invader->getThreatManager().addThreat(me, 1000000.0f);
+								me->AI()->AttackStart(invader);
+							}
 						}
 					}
-					else
-					{
-						me->AttackStop();
-						invader->DespawnOrUnsummon();
-						rockjawTarget = 0;
-						invaders = 0;
-
-					}
 				}
+				
 			}
-			else
-			{
-				for (uint8 i = 0; i < 5; ++i) // Summon invaders 5 times
-				{
-					Position source;
-					Position destination;
-					// Get Joren's source destination and get the position in front of Joren by 50 yards. Bind it to destination.
-					me->GetPosition(&source);
-					GetPositionWithDistInFront(me, 75.0f, destination);
-					// Summon each time at a random close position
-					float z = me->GetMap()->GetHeight(me->GetPhaseMask(), destination.GetPositionX() + urand(2, 5), destination.GetPositionY() + urand(2, 5), destination.GetPositionZ());
-					destination.m_positionZ = z;
-
-					if (Creature* invader = me->SummonCreature(NPC_ROCKJAW_INVADER, destination))
-					{
-						invader->GetMotionMaster()->MoveChase(me, 55.0f);
-						AttackStart(invader);
-						invader->SetFacingToObject(me);
-						rockjawTarget = invader->GetGUID();
-					}
-				}
-			}
+				
+			DoMeleeAttackIfReady();
 
 		}
 	};
@@ -167,8 +186,6 @@ public:
 			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
 		}
 
-		EventMap events;
-
 		void EnterCombat(Unit * who)
 		{
 			me->AddUnitState(UNIT_STATE_ROOT);
@@ -180,14 +197,28 @@ public:
 			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
 		}
 
-		void DamageTaken(Unit* attacker, uint32& damage)
+
+		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
 		{
-			if (attacker->GetEntry() == NPC_ROCKJAW_INVADER && ((me->GetHealth() - damage) <= me->GetHealth() / 2))
-				return;
+			if (doneBy->ToCreature()->GetEntry() == NPC_ROCKJAW_INVADER)
+				if (me->GetHealth() <= damage || me->GetHealthPct() <= 87.0f)
+					damage = 0;
 		}
+
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+		{
+			if (target->ToCreature()->GetEntry() == NPC_ROCKJAW_INVADER)
+				if (target->GetHealth() <= damage || target->GetHealthPct() <= 91.0f)
+					damage = 0;
+		}
+
 
 		void UpdateAI(const uint32 diff)
 		{
+			if (!UpdateVictim())
+				if (Creature* invader = me->FindNearestCreature(NPC_ROCKJAW_INVADER, 6.0f, true))
+					me->AI()->AttackStart(invader);
+
 			DoMeleeAttackIfReady();
 		}
 	};
@@ -212,28 +243,52 @@ public:
 	{
 		npc_rockjaw_invaderAI(Creature* creature) : ScriptedAI(creature) { }
 
-		void DamageTaken(Unit* who, uint32& damage)
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
 		{
-			if (who->GetEntry() == NPC_COLDRIDGE_DEFENDER && ((me->GetHealth() - damage) <= me->GetHealth() / 2))
-				return;
+			if (target->ToCreature())
+					damage = 0;
+		}
 
-			if (who->GetTypeId() == TYPEID_PLAYER || who->isPet())
+		void DamageTaken(Unit* pWho, uint32& uiDamage, SpellInfo const* /*p_SpellInfo*/)
+		{
+			if (Creature* npc = pWho->ToCreature())
 			{
-				if (Creature* guard = me->FindNearestCreature(NPC_COLDRIDGE_DEFENDER, 6.0f, true))
+				if (npc->GetEntry() == NPC_COLDRIDGE_DEFENDER)
+					uiDamage = 0;
+				if (npc->GetEntry() == NPC_JOREN_IRONSTOCK)
+					uiDamage = 0;
+			}
+				
+
+			if (pWho->GetTypeId() == TYPEID_PLAYER || pWho->isPet())
+			{
+				if (Creature* guard = me->FindNearestCreature(NPC_COLDRIDGE_DEFENDER, 5.0f, true))
 				{
 					guard->getThreatManager().resetAllAggro();
 					guard->CombatStop(true);
 				}
+				if (Creature* joren = me->FindNearestCreature(NPC_JOREN_IRONSTOCK, 7.5f, true))
+				{
+					joren->getThreatManager().resetAllAggro();
+					joren->CombatStop(true);
+				}
 
 				me->getThreatManager().resetAllAggro();
-				me->GetMotionMaster()->MoveChase(who);
-				me->AI()->AttackStart(who);
+				me->GetMotionMaster()->MoveChase(pWho);
+				me->AI()->AttackStart(pWho);
 			}
 		}
 
 		void UpdateAI(const uint32 diff)
 		{
 			if (!UpdateVictim())
+				if (me->isSummon())
+					if (Creature* joren = me->FindNearestCreature(NPC_JOREN_IRONSTOCK, 75.0f, true))
+					{
+						me->SetTarget(joren->GetGUID());
+						me->AI()->AttackStart(joren);
+					}
+						
 				if (Creature* guard = me->FindNearestCreature(NPC_COLDRIDGE_DEFENDER, 6.0f, true))
 					me->AI()->AttackStart(guard);
 
@@ -273,6 +328,7 @@ public:
 					_tapped = true;
 					_playerGUID = caster->GetGUID();
 					me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_KNEEL);
+					me->SetHealth(me->CountPctFromMaxHealth(80.0f));
 					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 					me->SetStandState(UNIT_STAND_STATE_STAND);
 					_events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 2000);
@@ -300,7 +356,7 @@ public:
 					_events.ScheduleEvent(EVENT_MOVE_TO_SAFETY, 5000);
 					break;
 				case EVENT_MOVE_TO_SAFETY:
-					if (Creature* joren = me->FindNearestCreature(NPC_JOREN_IRONSTOCK, 75.0f, true))
+					if (Creature* joren = me->FindNearestCreature(NPC_JOREN_IRONSTOCK, 250.0f, true))
 					{
 						Position l_Pos;
 						joren->GetPosition(&l_Pos);
@@ -740,10 +796,11 @@ enum eQuest24491
 
 	NPC_HANDS_SPRINGSPROCKET = 6782,
 
-	SPELL_SEE_COLDRIGE_TUNNEL_ROCKS_SEE_QUEST_INVIS_1 = 70042,
-	SPELL_SEE_MILO_GEARTWINGE_SEE_QUEST_INVIS_2 = 70044,
+	SPELL_SEE_COLDRIGE_TUNNEL_ROCKS_SEE_QUEST_INVIS_1 = 70042, /// <<<< Triggered by SPELL_A_TRIP_TO_IRONFORGE_QUEST_COMPLETE - 70046
+	SPELL_SEE_MILO_GEARTWINGE_SEE_QUEST_INVIS_2 = 70044, /// <<<< Triggered by Follow That Gyro-Copter - Quest Start - 70047
 	SPELL_MILO_GEARTWINGE_INVISIBILITY_QUEST_INVIS_2 = 70045,
 	SPELL_A_TRIP_TO_IRONFORGE_QUEST_COMPLETE = 70046,
+	SPELL_FOLLOW_THAT_GYRO_COPTER_QUEST_START = 70047,
 };
 
 /// Hands Springsprocket - 6782
@@ -752,10 +809,44 @@ class npc_hands_springsprocket : public CreatureScript
 public:
 	npc_hands_springsprocket() : CreatureScript("npc_hands_springsprocket") { }
 
+	enum eMisc
+	{
+		// Gameobject
+		GOBJECT_COLDRIDGE_BOULDER_TUNNEL = 201711,
+
+		// Spell
+		SPELL_SIGNAL_FLARE	= 70048,
+
+		// Actions
+		ActionFlare			= 0,
+		ActionBoulder		= 1,
+
+		// Gossip Menu
+		SPRINGSPROCKET_NPC_TEXT_HEY	  = 15145,
+		SPRINGSPROCKET_NPC_TEXT_ROCKS = 15141,
+
+	};
+
+
+
+	bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+	{
+		p_Player->PrepareQuestMenu(p_Creature->GetGUID());
+
+		if (p_Player->GetQuestStatus(QUEST_A_TRIP_TO_IRONFORGE) == QUEST_STATUS_REWARDED)
+			p_Player->SEND_GOSSIP_MENU(SPRINGSPROCKET_NPC_TEXT_ROCKS, p_Creature->GetGUID());
+
+		p_Player->SEND_GOSSIP_MENU(SPRINGSPROCKET_NPC_TEXT_HEY, p_Creature->GetGUID());
+		return true;
+	}
+
+
 	bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
 	{
+		/// <<<< -- IMPORTANT -- This spell triggers two effects: 1) invisibilityType Misc 8 detection (Milo and the Gyro down near Joren) 2) InvisibilityType Misc 7 detection (boulder ID 201711)
+		/// <<<< Since gameobjects have no template_addon in the DB and it hasn't been implemented yet. No option but to not create the gameobject spawn at all.
 		if (quest->GetQuestId() == QUEST_A_TRIP_TO_IRONFORGE)
-			creature->AI()->Talk(0, player->GetGUID());
+			creature->AI()->DoAction(ActionBoulder);
 			player->CastSpell(player, SPELL_A_TRIP_TO_IRONFORGE_QUEST_COMPLETE, true);
 
 		return true;
@@ -765,12 +856,52 @@ public:
 	{
 		if (quest->GetQuestId() == QUEST_FOLLOW_THAT_GYRO_COPTER)
 			if (!player->HasAura(SPELL_SEE_MILO_GEARTWINGE_SEE_QUEST_INVIS_2))
-			{
-				player->CastSpell(player, SPELL_SEE_MILO_GEARTWINGE_SEE_QUEST_INVIS_2, true);
-			}
+				creature->AI()->Talk(1, player->GetGUID());
+				creature->AI()->DoAction(ActionFlare);
+				player->CastSpell(player, SPELL_FOLLOW_THAT_GYRO_COPTER_QUEST_START, true);
 
 		return true;
 	}
+
+	struct npc_hands_springsprocketAI : public ScriptedAI
+	{
+		npc_hands_springsprocketAI(Creature* creature) : ScriptedAI(creature) {	}
+
+		void Reset()
+		{
+			ClearDelayedOperations();
+		}
+
+		void UpdateAI(uint32 const p_Diff)
+		{
+			UpdateOperations(p_Diff);
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case ActionFlare:
+					AddTimedDelayedOperation(1.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						DoCast(SPELL_SIGNAL_FLARE);
+					});
+					AddTimedDelayedOperation(3.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Talk(2);
+					});
+					break;
+
+			}
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_hands_springsprocketAI(creature);
+	}
+
 };
 
 
@@ -803,6 +934,7 @@ public:
 		void Reset() override
 		{
 			Initialize();
+			me->setRegeneratingHealth(false);
 			me->SetHealth(me->CountPctFromMaxHealth(_percentHP));
 		}
 
@@ -816,7 +948,19 @@ public:
 
 			if (spell->Id == SPELL_FLASH_HEAL)
 				if (Player* player = caster->ToPlayer())
+				{
 					player->KilledMonsterCredit(QUEST_KILL_CREDIT);
+					switch (urand(0, 2))
+					{
+						case 0: me->MonsterSay("Right on! Could use a beer, now!", LANG_UNIVERSAL, 0); break;
+						case 1: me->MonsterSay("Thanks, lad!", LANG_UNIVERSAL, 0); break;
+						case 2: me->MonsterSay("Wow! Suddenly feelin' me power comin' back!", LANG_UNIVERSAL, 0); break;
+						default: break;
+					}
+					me->SetStandState(UNIT_STAND_STATE_STAND);
+					me->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
+				}
+					
 		}
 
 		void UpdateAI(uint32 diff) override
@@ -832,6 +976,7 @@ public:
 				{
 				case EVENT_RESET_HEALTH:
 					me->SetHealth(me->CountPctFromMaxHealth(_percentHP));
+					me->setRegeneratingHealth(false);
 					_hitBySpell = false;
 					break;
 				default:
@@ -855,7 +1000,7 @@ public:
 enum MilosGyro
 {
 	NPC_MILO = 37518,
-	SPELL_RIDE_VEHICLE_HARD_CODED = 46598,
+	SPELL_RIDE_MILOS_GYRO = 70036,
 	SPELL_EJECT_ALL_PASSENGERS = 50630,
 	SAY_MILO_FLIGHT_1 = 0,
 	SAY_MILO_FLIGHT_2 = 1,
@@ -937,7 +1082,6 @@ public:
 				{
 					_waitBeforePath = false;
 					_miloGUID = milo->GetGUID();
-					milo->CastSpell(me, SPELL_RIDE_VEHICLE_HARD_CODED);
 					_events.ScheduleEvent(EVENT_START_PATH, 1000);
 				}
 			}
@@ -1028,7 +1172,7 @@ public:
 enum eMiscQuest
 {
 	QUEST_FORCED_TO_WATCH_FROM_AFAR	= 313,
-	SPELL_SUMMON_ALARM_BOT			= 23004, // Wrong ID, couldn't find the spell that summons the official bot
+	NPC_OBSERVATION_BOT				= 41052,
 
 	// Gossips
 	GOSSIP_MENU_DUNSTAN	= 11455,
@@ -1069,6 +1213,7 @@ public:
 			{
 				if (player->GetQuestStatus(QUEST_FORCED_TO_WATCH_FROM_AFAR) == QUEST_STATUS_INCOMPLETE)
 				{
+					creature->SetFacingToObject(player);
 					creature->AI()->DoAction(0);
 					player->KilledMonsterCredit(40991);
 					player->CLOSE_GOSSIP_MENU();
@@ -1096,23 +1241,30 @@ public:
 			switch (p_Action)
 			{
 			case 0:
-				AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					Talk(0);
-
 				});
-				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
 				});
-				AddTimedDelayedOperation(2.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					me->HandleEmoteCommand(EMOTE_STATE_USESTANDING);
+					me->HandleEmoteCommand(EMOTE_ONESHOT_USESTANDING);
 				});
-				AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					DoCast(SPELL_SUMMON_ALARM_BOT);
+					Position l_Pos;
+					me->GetPosition(&l_Pos);
+					GetPositionWithDistInFront(me, 2.5f, l_Pos);
+					float z = me->GetMap()->GetHeight(me->GetPhaseMask(), l_Pos.GetPositionX(), l_Pos.GetPositionY(), l_Pos.GetPositionZ());
+					l_Pos.m_positionZ = z;
+
+					if (Creature* AlarmBot = me->SummonCreature(NPC_OBSERVATION_BOT, l_Pos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+						me->SetFacingToObject(AlarmBot);
+
 				});
 				break;
 			}
@@ -1156,8 +1308,9 @@ public:
 		{
 			if (player->GetQuestStatus(QUEST_FORCED_TO_WATCH_FROM_AFAR) == QUEST_STATUS_INCOMPLETE)
 			{
+				creature->SetFacingToObject(player);
 				creature->AI()->DoAction(0);
-				player->KilledMonsterCredit(40991);
+				player->KilledMonsterCredit(40994);
 				player->CLOSE_GOSSIP_MENU();
 			}
 		}
@@ -1183,23 +1336,29 @@ public:
 			switch (p_Action)
 			{
 			case 0:
-				AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					Talk(0);
-
 				});
-				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
 					me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
 				});
-				AddTimedDelayedOperation(2.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					me->HandleEmoteCommand(EMOTE_STATE_USESTANDING);
+					me->HandleEmoteCommand(EMOTE_ONESHOT_USESTANDING);
 				});
-				AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					DoCast(SPELL_SUMMON_ALARM_BOT);
+					Position l_Pos;
+					me->GetPosition(&l_Pos);
+					GetPositionWithDistInFront(me, 2.5f, l_Pos);
+					float z = me->GetMap()->GetHeight(me->GetPhaseMask(), l_Pos.GetPositionX(), l_Pos.GetPositionY(), l_Pos.GetPositionZ());
+					l_Pos.m_positionZ = z;
+
+					if (Creature* AlarmBot = me->SummonCreature(NPC_OBSERVATION_BOT, l_Pos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+						me->SetFacingToObject(AlarmBot);
 				});
 				break;
 			}
@@ -1243,8 +1402,9 @@ public:
 		{
 			if (player->GetQuestStatus(QUEST_FORCED_TO_WATCH_FROM_AFAR) == QUEST_STATUS_INCOMPLETE)
 			{
+				creature->SetFacingToObject(player);
 				creature->AI()->DoAction(0);
-				player->KilledMonsterCredit(40991);
+				player->KilledMonsterCredit(41056);
 				player->CLOSE_GOSSIP_MENU();
 			}
 		}
@@ -1270,23 +1430,29 @@ public:
 			switch (p_Action)
 			{
 			case 0:
-				AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-				{
-					Talk(0);
-					
-				});
 				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
+					Talk(0);
+				});
+				AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
 					me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-					
+
 				});
-				AddTimedDelayedOperation(2.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					me->HandleEmoteCommand(EMOTE_STATE_USESTANDING);
+					me->HandleEmoteCommand(EMOTE_ONESHOT_USESTANDING);
 				});
-				AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					DoCast(SPELL_SUMMON_ALARM_BOT);
+					Position l_Pos;
+					me->GetPosition(&l_Pos);
+					GetPositionWithDistInFront(me, 2.5f, l_Pos);
+					float z = me->GetMap()->GetHeight(me->GetPhaseMask(), l_Pos.GetPositionX(), l_Pos.GetPositionY(), l_Pos.GetPositionZ());
+					l_Pos.m_positionZ = z;
+
+					if (Creature* AlarmBot = me->SummonCreature(NPC_OBSERVATION_BOT, l_Pos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+						me->SetFacingToObject(AlarmBot);
 				});
 				break;
 			}
@@ -1329,76 +1495,340 @@ public:
 
 	struct npc_constriction_totemAI : public ScriptedAI
 	{
-		npc_constriction_totemAI(Creature* creature) : ScriptedAI(creature) {
-			MountaineerGUID = 0;
-		}
+		npc_constriction_totemAI(Creature* creature) : ScriptedAI(creature) {	}
 
-		uint64 MountaineerGUID;
+		bool MountaineerFreed;
+		Creature* MyMountaineer;
+		uint32 CastTimer;
+
 		void Reset()
 		{
-			ClearDelayedOperations();
-
-			if (Creature* kharanosMountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 7.0f, true))
+			if (Creature* Mountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 8.0f, true))
 			{
-				MountaineerGUID = kharanosMountaineer->GetGUID();
-				me->CastSpell(kharanosMountaineer, SPELL_CONST_TOTEM_AURA, true);
+				if (!Mountaineer->HasAura(SPELL_CONST_TOTEM_AURA))
+				{
+					MyMountaineer = Mountaineer;
+					me->AddAura(SPELL_CONST_TOTEM_AURA, Mountaineer);
+					Mountaineer->SetReactState(REACT_PASSIVE);
+				}
+			}
+			else MyMountaineer = NULL;
+			MountaineerFreed = false;
+			CastTimer = 2000;
+		}
+
+		void SpellHit(Unit* caster, const SpellInfo* spell)
+		{
+			if (spell->Id == 77314 && !MountaineerFreed && MyMountaineer)
+			{
+				MyMountaineer->RemoveAurasDueToSpell(SPELL_CONST_TOTEM_AURA);
+				MyMountaineer->AI()->Talk(0);
+				float x, y, z;
+				MyMountaineer->GetClosePoint(x, y, z, MyMountaineer->GetObjectSize() / 3, 5.0f);
+				MyMountaineer->GetMotionMaster()->MovePoint(1, x, y, z);
+				MyMountaineer->DespawnOrUnsummon(5000);
+				me->DespawnOrUnsummon(1000);
+				MountaineerFreed = true;
 			}
 		}
 
-		void SpellHit(Unit* Caster, const SpellInfo* Spell) override
+		void UpdateAI(uint32 const diff)
 		{
-			if (Caster->ToPlayer() && Caster->ToPlayer()->GetQuestStatus(QUEST_PUSHING_FORWARD) == QUEST_STATUS_INCOMPLETE)
-				if (Spell->Id == SPELL_BURN_CONST_TOTEM)
-					me->AI()->DoAction(ActionDeath);
-			return;
-		}
-
-		void DoAction(int32 const p_Action) override
-		{
-			switch (p_Action)
+			if (CastTimer <= diff)
 			{
-				case 0:
-					AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				if (!MyMountaineer && !MountaineerFreed)
+				{
+					if (Creature* Mountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 8.0f, true))
 					{
-						me->DisappearAndDie(); // Kill credit
-
-					});
-					AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						if (Creature* kharanosMountaineer = sObjectAccessor->GetCreature(*me, MountaineerGUID))
+						if (!Mountaineer->HasAura(SPELL_CONST_TOTEM_AURA))
 						{
-							kharanosMountaineer->RemoveAurasDueToSpell(SPELL_CONST_TOTEM_AURA);
-							kharanosMountaineer->AI()->Talk(0, me->GetGUID()); /// <-- From sniffs, apparently the receiver is the constriction totem.
-							kharanosMountaineer->AI()->Talk(1, me->GetGUID());
+							MyMountaineer = Mountaineer;
+							me->AddAura(SPELL_CONST_TOTEM_AURA, Mountaineer);
+							Mountaineer->SetReactState(REACT_PASSIVE);
+							CastTimer = -1;
 						}
-							
-					});
-					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						if (Creature* kharanosMountaineer = sObjectAccessor->GetCreature(*me, MountaineerGUID))
-						{
-							kharanosMountaineer->GetMotionMaster()->MoveRandom(10.0f);
-						}
-					});
-					AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						if (Creature* kharanosMountaineer = sObjectAccessor->GetCreature(*me, MountaineerGUID))
-						{
-							kharanosMountaineer->DespawnOrUnsummon();
-						}
-					});
-					break;
+						else CastTimer = 2000;
+					}
+					else CastTimer = 2000;
+				}
+				else CastTimer = -1;
 			}
+			else CastTimer -= diff;
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_constriction_totemAI(creature);
+	}
+};
+
+
+/// Kharanos Mountaineer - 41181
+class npc_kharanos_mountaineer_41181 : public CreatureScript
+{
+public:
+	npc_kharanos_mountaineer_41181() : CreatureScript("npc_kharanos_mountaineer_41181") { }
+
+	struct npc_kharanos_mountaineer_41181AI : public ScriptedAI
+	{
+		npc_kharanos_mountaineer_41181AI(Creature* creature) : ScriptedAI(creature)
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
 		}
 
-		void UpdateAI(uint32 const p_Diff)
+		uint32 uiSayCombatTimer;
+
+		void EnterCombat(Unit* who)
 		{
-			UpdateOperations(p_Diff);
+			me->AddUnitState(UNIT_STATE_ROOT);
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+			uiSayCombatTimer = urand(10000, 190000);
+		}
+
+		void Reset()
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+		}
+
+
+		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
+		{
+			if (doneBy->ToCreature()->GetEntry() == (NPC_FROSTMANE_SCOUT || NPC_FROSTMANE_SCAVENGER))
+				if (me->GetHealth() <= damage || me->GetHealthPct() <= 87.0f)
+					damage = 0;
+		}
+
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+		{
+			if (target->ToCreature()->GetEntry() == (NPC_FROSTMANE_SCOUT || NPC_FROSTMANE_SCAVENGER))
+				if (target->GetHealth() <= damage || target->GetHealthPct() <= 91.0f)
+					damage = 0;
+		}
+
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (uiSayCombatTimer <= diff)
+			{
+				switch (urand(0, 2))
+				{
+				case 0: me->MonsterSay("Take 'em down!", LANG_UNIVERSAL, 0); break;
+				case 1: me->MonsterSay("Time ta' crack some troll skulls!", LANG_UNIVERSAL, 0); break;
+				case 2: me->MonsterSay("Push 'em back!", LANG_UNIVERSAL, 0); break;
+				default: break;
+				}
+				uiSayCombatTimer = urand(10000, 250000);
+			}
+			else uiSayCombatTimer -= diff;
+
+			if (!UpdateVictim())
+				if (Creature* scout = me->FindNearestCreature(NPC_FROSTMANE_SCOUT, 5.0f, true))
+					me->AI()->AttackStart(scout);
+				if (Creature* scavenger = me->FindNearestCreature(NPC_FROSTMANE_SCAVENGER, 5.0f, true))
+					me->AI()->AttackStart(scavenger);
+
+				
+
+			DoMeleeAttackIfReady();
 		}
 	};
 	CreatureAI* GetAI(Creature* creature) const
 	{
-		return new npc_constriction_totemAI(creature);
+		return new npc_kharanos_mountaineer_41181AI(creature);
+	}
+};
+
+
+/// Kharanos Rifleman - 41182
+class npc_kharanos_rifleman_41182 : public CreatureScript
+{
+public:
+	npc_kharanos_rifleman_41182() : CreatureScript("npc_kharanos_rifleman_41182") { }
+
+	struct npc_kharanos_rifleman_41182AI : public ScriptedAI
+	{
+		npc_kharanos_rifleman_41182AI(Creature* creature) : ScriptedAI(creature)
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READYRIFLE);
+		}
+
+		void EnterCombat(Unit* who)
+		{
+			me->AddUnitState(UNIT_STATE_ROOT);
+			me->HandleEmoteCommand(EMOTE_STATE_READYRIFLE);
+		}
+
+		void Reset()
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READYRIFLE);
+		}
+
+
+		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
+		{
+			if (doneBy->ToCreature()->GetEntry() == NPC_FROSTMANE_SCOUT)
+				if (me->GetHealth() <= damage || me->GetHealthPct() <= 87.0f)
+					damage = 0;
+		}
+
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+		{
+			if (target->ToCreature()->GetEntry() == NPC_FROSTMANE_SCOUT)
+				if (target->GetHealth() <= damage || target->GetHealthPct() <= 91.0f)
+					damage = 0;
+		}
+
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				if (Creature* scout = me->FindNearestCreature(NPC_FROSTMANE_SCOUT, 5.0f, true))
+					me->CombatStart(scout);
+
+			DoMeleeAttackIfReady();
+		}
+	};
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_kharanos_rifleman_41182AI(creature);
+	}
+};
+
+/// Frostmane Scout - 41175
+class npc_frostmane_scout_41175 : public CreatureScript
+{
+public:
+	npc_frostmane_scout_41175() : CreatureScript("npc_frostmane_scout_41175") { }
+
+	struct npc_frostmane_scout_41175AI : public ScriptedAI
+	{
+		npc_frostmane_scout_41175AI(Creature* creature) : ScriptedAI(creature)
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+		}
+
+		uint32 uiSayCombatTimer;
+
+		void EnterCombat(Unit* who)
+		{
+			me->AddUnitState(UNIT_STATE_ROOT);
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+		}
+
+		void Reset()
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+			uiSayCombatTimer = urand(10000, 190000);
+		}
+
+
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
+		{
+			if (target->ToCreature())
+				damage = 0;
+		}
+
+		void DamageTaken(Unit* pWho, uint32& uiDamage, SpellInfo const* /*p_SpellInfo*/)
+		{
+			if (Creature* npc = pWho->ToCreature())
+			{
+				if (npc->GetEntry() == NPC_KHARANOS_MOUNTAINEER)
+					uiDamage = 0;
+				if (npc->GetEntry() == NPC_KHARANOS_RIFLEMAN)
+					uiDamage = 0;
+			}
+
+
+			if (pWho->GetTypeId() == TYPEID_PLAYER || pWho->isPet())
+			{
+				if (Creature* mountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 10.0f, true))
+				{
+					mountaineer->getThreatManager().resetAllAggro();
+					mountaineer->CombatStop(true);
+				}
+				if (Creature* rifleman = me->FindNearestCreature(NPC_KHARANOS_RIFLEMAN, 10.0f, true))
+				{
+					rifleman->getThreatManager().resetAllAggro();
+					rifleman->CombatStop(true);
+				}
+
+				me->getThreatManager().resetAllAggro();
+				me->GetMotionMaster()->MoveChase(pWho);
+				me->AI()->AttackStart(pWho);
+			}
+		}
+
+
+		void UpdateAI(const uint32 diff)
+		{
+
+			if (uiSayCombatTimer <= diff)
+			{
+				switch (urand(0, 3))
+				{
+				case 0: me->MonsterSay("I gonna make you into mojo!", LANG_UNIVERSAL, 0); break;
+				case 1: me->MonsterSay("Killing you be easy.", LANG_UNIVERSAL, 0); break;
+				case 2: me->MonsterSay("My weapon be thirsty!", LANG_UNIVERSAL, 0); break;
+				case 3: me->MonsterSay("You be dead soon!", LANG_UNIVERSAL, 0); break;
+				default: break;
+				}
+				uiSayCombatTimer = urand(10000, 250000);
+			}
+			else uiSayCombatTimer -= diff;
+
+			if (!UpdateVictim())
+				if (Creature* mountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 10.0f, true))
+					me->AI()->AttackStart(mountaineer);
+				if (Creature* rifleman = me->FindNearestCreature(NPC_KHARANOS_RIFLEMAN, 10.0f, true))
+					me->AI()->AttackStart(rifleman);
+
+			DoMeleeAttackIfReady();
+		}
+	};
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_frostmane_scout_41175AI(creature);
+	}
+};
+
+
+class npc_repaired_mechano_tank : public CreatureScript
+{
+public:
+	npc_repaired_mechano_tank() : CreatureScript("npc_repaired_mechano_tank") { }
+
+	struct npc_repaired_mechano_tankAI : ScriptedAI
+	{
+		npc_repaired_mechano_tankAI(Creature* creature) : ScriptedAI(creature)
+		{
+			SetCombatMovement(false);
+		}
+
+		void SpellHit(Unit* caster, SpellInfo const* spell) {
+			//Get the player who cast the spell
+			if (Player* p = caster->ToPlayer()) {
+				//Get the id of the spell 
+				if (spell->Id == 79751) {
+					//if player has that quest incomplete
+					if (p->GetQuestStatus(26333) == QUEST_STATUS_INCOMPLETE) {
+						//reward the monster
+						Quest const* qInfo = sObjectMgr->GetQuestTemplate(26333);
+						if (qInfo)
+						{
+							p->KilledMonsterCredit(42224);
+							me->DisappearAndDie();
+						}
+					}
+				}
+			}
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_repaired_mechano_tankAI(creature);
 	}
 };
 
@@ -1413,8 +1843,6 @@ public:
 
 	class spell_low_health_SpellScript : public SpellScript
 	{
-		float randHealth = urand(10, 20);
-
 		PrepareSpellScript(spell_low_health_SpellScript);
 
 		void HandleDummyEffect(SpellEffIndex /*eff*/)
@@ -1422,7 +1850,7 @@ public:
 			if (Creature* target = GetHitCreature())
 			{
 				target->setRegeneratingHealth(false);
-				target->SetHealth(target->CountPctFromMaxHealth(randHealth));
+				target->SetHealth(target->CountPctFromMaxHealth(13.0f)); // Retail value
 			}
 		}
 
@@ -1435,6 +1863,55 @@ public:
 	SpellScript* GetSpellScript() const override
 	{
 		return new spell_low_health_SpellScript();
+	}
+};
+
+
+class item_paint : public ItemScript
+{
+public:
+	item_paint() : ItemScript("item_paint") {}
+
+	bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets) {
+		if (Creature* c = player->FindNearestCreature(42291, 5.0f, true)) {
+			if (c->GetEntry() == 42291) {
+				if (player->GetQuestStatus(26342) == QUEST_STATUS_INCOMPLETE) {
+					Quest const* qInfo = sObjectMgr->GetQuestTemplate(26342);
+					player->KilledMonsterCredit(42796);
+					c->DisappearAndDie();
+				}
+			}
+		}
+		return true;
+	}
+};
+
+class item_techno_granade : public ItemScript
+{
+public:
+	item_techno_granade() : ItemScript("item_techno_granade") {}
+
+	bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/) {
+		player->CastSpell(player->getVictim(), 79751);
+		return true;
+	}
+};
+
+
+class item_orbit : public ItemScript
+{
+public:
+	item_orbit() : ItemScript("item_orbit") {}
+
+	bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets) {
+		if (Creature* c = player->FindNearestCreature(42839, 10.0f, true)) {
+			if (player->GetQuestStatus(26364) == QUEST_STATUS_INCOMPLETE) {
+				Quest const* qInfo = sObjectMgr->GetQuestTemplate(26364);
+				player->KilledMonsterCredit(42860);
+				c->DisappearAndDie();
+			}
+		}
+		return true;
 	}
 };
 
@@ -1458,8 +1935,17 @@ void AddSC_dun_morogh_coldridge_valley()
 	new npc_mountaineer_lewin();
 	new npc_mountaineer_valgrum();
 	new npc_constriction_totem();
+	new npc_kharanos_mountaineer_41181();
+	new npc_kharanos_rifleman_41182();
+	new npc_frostmane_scout_41175();
+	new npc_repaired_mechano_tank();
 
 	/// Spells
 	new spell_low_health();
+
+	/// Items
+	new item_paint();
+	new item_techno_granade();
+	new item_orbit();
 }
 #endif
