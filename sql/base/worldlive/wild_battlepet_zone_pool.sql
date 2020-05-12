@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `wild_battlepet_zone_pool` (
   `Breed9` int(10) unsigned NOT NULL DEFAULT '3'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldlive.wild_battlepet_zone_pool: ~954 rows (approximately)
+-- Dumping data for table worldlive.wild_battlepet_zone_pool: ~832 rows (approximately)
 DELETE FROM `wild_battlepet_zone_pool`;
 /*!40000 ALTER TABLE `wild_battlepet_zone_pool` DISABLE KEYS */;
 INSERT INTO `wild_battlepet_zone_pool` (`Zone`, `Species`, `Replace`, `Max`, `RespawnTime`, `MinLevel`, `MaxLevel`, `Breed0`, `Breed1`, `Breed2`, `Breed3`, `Breed4`, `Breed5`, `Breed6`, `Breed7`, `Breed8`, `Breed9`) VALUES

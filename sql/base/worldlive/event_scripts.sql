@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `event_scripts` (
   `o` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.event_scripts: 726 rows
+-- Dumping data for table worldlive.event_scripts: 729 rows
 DELETE FROM `event_scripts`;
 /*!40000 ALTER TABLE `event_scripts` DISABLE KEYS */;
 INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES
@@ -78,6 +78,9 @@ INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, 
 	(6138, 0, 10, 2179, 3000000, 0, 6873.65, -659.95, 84.16, 0.76),
 	(6138, 0, 10, 12321, 3000000, 0, 6881.62, -651.81, 84.59, 1.05),
 	(5246, 0, 10, 12319, 3000000, 0, 331.5, -2272.41, 241.82, 5.23),
+	(17499, 5, 10, 26373, 5000, 0, 3791.8, 6545.93, 173.47, 0),
+	(17497, 0, 10, 26310, 130000, 0, 3767.67, 6843.96, 544.487, 4.06662),
+	(17497, 0, 8, 26237, 0, 0, 0, 0, 0, 0),
 	(20108, 0, 16, 14969, 0, 0, 0, 0, 0, 0),
 	(20108, 0, 10, 31029, 1800000, 0, 7116.82, 4308.36, 883.384, 2.46227),
 	(8328, 0, 10, 14467, 3000000, 0, 5803.74, -986, 409.76, 3.08),

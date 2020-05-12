@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `gameobject_questender` (
   PRIMARY KEY (`id`,`quest`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.gameobject_questender: 630 rows
+-- Dumping data for table worldlive.gameobject_questender: 631 rows
 DELETE FROM `gameobject_questender`;
 /*!40000 ALTER TABLE `gameobject_questender` DISABLE KEYS */;
 INSERT INTO `gameobject_questender` (`id`, `quest`) VALUES
@@ -86,6 +86,7 @@ INSERT INTO `gameobject_questender` (`id`, `quest`) VALUES
 	(177544, 27391),
 	(179485, 27118),
 	(179517, 27111),
+	(179880, 7761),
 	(180025, 7937),
 	(180055, 7944),
 	(180056, 7945),

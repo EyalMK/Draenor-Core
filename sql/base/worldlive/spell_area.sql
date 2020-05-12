@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `spell_area` (
   PRIMARY KEY (`spell`,`area`,`quest_start`,`aura_spell`,`racemask`,`gender`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.spell_area: 1,082 rows
+-- Dumping data for table worldlive.spell_area: 1,083 rows
 DELETE FROM `spell_area`;
 /*!40000 ALTER TABLE `spell_area` DISABLE KEYS */;
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES
@@ -1111,7 +1111,8 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 	(70889, 4872, 25163, 0, 0, 0, 2, 1, 10, 65),
 	(59074, 2618, 28261, 0, 0, 0, 2, 1, 10, 65),
 	(70889, 415, 13947, 0, 0, 0, 2, 1, 10, 65),
-	(82210, 99, 26736, 0, 0, 0, 2, 3, 66, 0);
+	(82210, 99, 26736, 0, 0, 0, 2, 3, 66, 0),
+	(69991, 132, 24489, 0, 0, 0, 2, 1, 8, 0);
 /*!40000 ALTER TABLE `spell_area` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

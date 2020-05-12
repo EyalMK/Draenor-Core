@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `quest_poi` (
   PRIMARY KEY (`QuestID`,`BlobIndex`,`ObjectiveIndex`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.quest_poi: 41,504 rows
+-- Dumping data for table worldlive.quest_poi: 41,505 rows
 DELETE FROM `quest_poi`;
 /*!40000 ALTER TABLE `quest_poi` DISABLE KEYS */;
 INSERT INTO `quest_poi` (`QuestID`, `BlobIndex`, `ObjectiveIndex`, `MapID`, `WorldMapAreaId`, `Floor`, `Priority`, `Flags`, `WorldEffectID`, `PlayerConditionID`, `Unk`) VALUES
@@ -41535,7 +41535,8 @@ INSERT INTO `quest_poi` (`QuestID`, `BlobIndex`, `ObjectiveIndex`, `MapID`, `Wor
 	(34496, 1, 1, 1116, 947, 0, 0, 0, 0, 0, 0),
 	(34496, 1, 3, 1116, 947, 0, 0, 0, 0, 0, 0),
 	(34728, 0, 0, 1116, 947, 0, 0, 0, 0, 0, 0),
-	(34728, 0, 1, 1116, 947, 0, 0, 0, 0, 0, 0);
+	(34728, 0, 1, 1116, 947, 0, 0, 0, 0, 0, 0),
+	(71, 0, 32, 0, 30, 0, 0, 0, 0, 0, 0);
 /*!40000 ALTER TABLE `quest_poi` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

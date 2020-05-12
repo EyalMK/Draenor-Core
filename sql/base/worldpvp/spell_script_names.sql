@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `spell_script_names` (
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldpvp.spell_script_names: 3,582 rows
+-- Dumping data for table worldpvp.spell_script_names: 3,594 rows
 DELETE FROM `spell_script_names`;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -810,6 +810,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(57955, 'spell_pal_glyph_of_flash_of_light'),
 	(58070, 'spell_warl_glyph_of_soul_consumption'),
 	(58096, 'spell_warr_glyph_of_mystic_shout'),
+	(58370, 'spell_warr_raging_wind'),
 	(58601, 'spell_gen_remove_flight_auras'),
 	(58640, 'spell_dk_glyph_of_the_geist'),
 	(58677, 'spell_dk_glyph_of_deaths_embrace'),
@@ -1740,6 +1741,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(103964, 'spell_warl_touch_of_chaos'),
 	(103985, 'spell_monk_stance_of_tiger'),
 	(104025, 'spell_warl_immolation_aura'),
+	(104027, 'spell_warl_decimate'),
 	(104027, 'spell_warl_demonic_call'),
 	(104027, 'spell_warl_soul_leech'),
 	(104135, 'spell_warl_demonic_circle_summon'),
@@ -1761,6 +1763,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(104994, 'spell_alizabal_blade_dance_dmg'),
 	(104998, 'spell_mannoroth_gift_of_sargeras'),
 	(105065, 'spell_alizabal_seething_hate'),
+	(105174, 'spell_warl_hand_of_guldan_cast'),
 	(105241, 'spell_spine_of_deathwing_absorb_blood'),
 	(105287, 'spell_hagara_the_stormbinder_ice_lance_target'),
 	(105367, 'spell_hagara_the_stormbinder_crystal_conduit_target'),
@@ -1985,6 +1988,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(114163, 'spell_pal_eternal_flame'),
 	(114165, 'spell_pal_glyph_of_flash_light'),
 	(114165, 'spell_pal_holy_prism'),
+	(114175, 'spell_warl_decimate'),
+	(114175, 'spell_warl_demonic_call'),
 	(114192, 'spell_warr_mocking_banner'),
 	(114232, 'spell_pal_sanctified_wrath_bonus'),
 	(114255, 'spell_pri_surge_of_light'),
@@ -2773,6 +2778,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(152245, 'spell_hun_focusing_shot'),
 	(152255, 'spell_sha_liquid_magma'),
 	(152261, 'spell_pal_holy_shield'),
+	(152262, 'spell_pal_seraphim'),
 	(152277, 'spell_warr_ravager'),
 	(152278, 'spell_warr_anger_management'),
 	(152279, 'spell_dk_breath_of_sindragosa'),
@@ -3568,14 +3574,20 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(182483, 'spell_gen_selfie_camera'),
 	(182576, 'spell_gen_selfie_camera'),
 	(184762, 'spell_gen_kilroggs_dead_eye'),
+	(184912, 'spell_pri_naaru_discipline'),
+	(184915, 'spell_pri_mental_fatigue'),
+	(184924, 'spell_warl_flamelicked'),
 	(184989, 'spell_dru_starfall_update'),
 	(185002, 'spell_dru_starfall_update'),
 	(185099, 'spell_monk_rising_sun_kick'),
 	(185099, 'spell_monk_rising_sun_kick_free'),
+	(185884, 'spell_warl_t18_demon_2p'),
 	(185915, 'spell_garrison_shipyard'),
 	(186007, 'spell_garrison_shipyard'),
 	(186167, 'spell_mage_T18_phoenix'),
 	(186181, 'spell_mage_conjure_phoenix'),
+	(186298, 'spell_pri_t18_holy_2p'),
+	(186477, 'spell_pri_t18_disci_2p'),
 	(186723, 'spell_pri_penance_triggered'),
 	(187150, 'spell_gen_jewel_of_hellfire_trigger'),
 	(187150, 'spell_item_jewel_of_hellfire'),

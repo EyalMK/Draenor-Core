@@ -18,18 +18,9 @@ CREATE TABLE IF NOT EXISTS `spellregulator` (
   `notes` char(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldpvp.spellregulator: ~8 rows (approximately)
+-- Dumping data for table worldpvp.spellregulator: ~0 rows (approximately)
 DELETE FROM `spellregulator`;
 /*!40000 ALTER TABLE `spellregulator` DISABLE KEYS */;
-INSERT INTO `spellregulator` (`id`, `percentage`, `notes`) VALUES
-	(2098, 115, 'Eviscerate'),
-	(32645, 75, 'Envenom'),
-	(8676, 115, 'Ambush'),
-	(53, 150, 'Backstab'),
-	(16511, 125, 'Hemorrhage'),
-	(47666, 125, 'Penance'),
-	(49184, 100, 'Howling Blast'),
-	(49143, 100, 'Frost Strike');
 /*!40000 ALTER TABLE `spellregulator` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

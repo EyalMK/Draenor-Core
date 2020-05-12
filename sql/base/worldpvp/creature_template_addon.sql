@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `creature_template_addon` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldpvp.creature_template_addon: 25,054 rows
+-- Dumping data for table worldpvp.creature_template_addon: 25,057 rows
 DELETE FROM `creature_template_addon`;
 /*!40000 ALTER TABLE `creature_template_addon` DISABLE KEYS */;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES
@@ -46,7 +46,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(78, 0, 0, 0, 1, 0, '', 0),
 	(79, 0, 0, 0, 1, 0, '', 0),
 	(80, 0, 0, 0, 2, 0, NULL, 0),
-	(89, 0, 0, 0, 1, 0, '', 0),
+	(89, 0, 0, 0, 1, 0, '45631 4525', 0),
 	(90, 0, 0, 0, 1, 0, '', 0),
 	(92, 0, 0, 0, 1, 0, '', 0),
 	(94, 0, 0, 0, 1, 0, '', 0),
@@ -25081,7 +25081,10 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 	(58287, 0, 0, 50331648, 1, 0, '', 0),
 	(94925, 0, 0, 0, 2, 0, NULL, 0),
 	(94879, 0, 0, 0, 2, 0, NULL, 0),
-	(94946, 0, 0, 0, 1, 0, NULL, 0);
+	(94946, 0, 0, 0, 1, 0, NULL, 0),
+	(58997, 0, 0, 0, 1, 0, '45631 4525', 0),
+	(59000, 0, 0, 0, 0, 0, '45631', 0),
+	(11859, 0, 0, 0, 0, 0, '45631', 0);
 /*!40000 ALTER TABLE `creature_template_addon` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
