@@ -1,0 +1,107 @@
+DugisGuide data files are fairly simple. The format is the same as Tekkub's old TourGuide format, you can easily convert your old TourGuide files to work with DugisGuideViewerZ by renameing TourGuide:RegisterGuide to DugisGuideViewer:RegisterGuide and you will also need to add a catergory value  L, D, or E
+
+Each file should cover one logical zone/level block of leveling. Note that the user may travel between more than one zone in a guide, if the travel is not a relocation to a new quest hub. The file simply registers a guide withe the core addon by passing 4 things...
+
+Title    A string describing the zone and level range
+Next Guide     An optional string, the next guide to load when this guide is completed
+Faction   Required, :Alliance" or "Horde" or nil, of course. Guides that aren't for the player's faction are dropped to save memory 
+Category  Required, Values can be L for Leveling, D for Dailies, E for Events, M for Maps
+Data function  A function that returns a string block containing the actual guide data. Note that blank lines are allowed to make this more readable, just make sure those lines don't contain any stray whitespace (spaces, tabs, etc) 
+
+Example
+
+DugisGuideViewer:RegisterGuide("Tanaris (47-48)", "Hinterlands (48)", "Alliance", "L", function()
+return [[
+F Gadgetzan
+A The Thirsty Goblin |QID|2605|
+h Gadgetzan
+A The Dunemaul Compound |QID|5863|
+A Thistleshrub Valley |QID|3362|
+]]
+end)
+
+Data format
+
+A single objective in a guide will look something like this:
+
+A Quest Name |N|A note with coords (12,34)| |QID|1234|
+
+A
+    The objective type. Accept, Complete, Turnin, Buy, etc... 
+Quest Name
+    The objective title. This is displayed to the user and in many cases, used for auto-detection of completion. 
+|N|...|
+    A note tag, there are a number of different tags. There are all optional 
+
+Quest chains
+
+There are a number of quests that have the same name due to quest chains. |QID| tags help solve this problem, but you should still let the user know where in the chain they are:
+
+A Panther Mastery (Part 1) |QID|190|
+
+If the user starts a guide when they're already in the middle of a chain, they will have to manually check the quests in the chain they've already finished... just like they must do with the normal quests they've finished.
+Objective types
+
+A - Accept quest
+    Tells the user to accept a quest. Displays a "!" icon. Autocompletes when the objective name (minus "(Part 1)") is found in the quest log. 
+C - Complete
+    Complete a quest's objectives. Kill something, loot something, whatever. Note that some quests do not need this step, mainly delivery-type quests. Autocompletes when the title is found in the quest log and is marked "Complete" there. 
+T - Turn-in
+    Turn in the quest. Like A and C, uses the tile to complete when the quest is turned in. 
+R - Run, F - Fly, b - Boat, H - Hearth
+    Run/fly/boat/hearth to a destination. Only difference is the icon shown. Completes on (sub-)zone change when the title matches the new zone or subzone name. Run objectives should only be used if the player is relocating, not for "run back to town and turn in quests". For quest turnins just note where to go in the tooltip: "|N|Back in Refugee Point|" 
+    Note that guides should generally start with a travel objective, and not end with them. The player may load any guide they want and the first thing you want them to do is travel to the quest hub. There's no reason to send them to the next area at the very end of a guide, instead let the next guide send the player where he needs to be. 
+B - Buy
+    Buy an item. If a 'loot' tag is provided, completes when the loot is received, otherwise completes when an item that matches the title is received. For title match use the format "[Item Name]" 
+U - Use
+    Use an item in your inventory, like a potion that allows you to see the quest mob. Completes when you use the item. Requires a |U|...| tag to function. 
+h - Set hearth
+    Set your hearth to a new location. Auto-completes when it detects the text "<title> is now your home." 
+f - Get flight path
+    Remind the user to grab the flight path. Completes on the popup text "Discovered flight path". As with Train objectives, these should only be used in the starter zones, or if the flight path is out of the way and might not be seen on the minimap tracking. 
+N - Note
+    Give the user a general note. Note objectives can auto-complete with a loot tag or quest-objective tag pair, otherwise no auto-completion. Do not rely heavily on these, they should only be used when no other type works. 
+K - Kill
+    Kill a specific mob (usually many times). Can auto-complete with a loot tag or quest-objective tag pair
+
+Tags
+
+Tags are appended onto an objective line. They are optional, and any number can be used on one line. Order does not matter, as long as they come after the title.
+
+|D|
+    Specify that this quest is a Daily Quest and ticks are not permanent and also change the ! ? to a blue icon, need to be applied on all A C T actions. 
+|I|    
+    Change icon to a dungeon finder icon to be used with R action to help user identify that the action requires them to use the Dungeon finder tool. 
+|N|...| 
+    The primary tag, Note. This text is displayed in the tooltip and in the OH frame. It is also parsed for coords in the format "(12,56)" or "(12.34, 56.78)", and these are mapped with TomTom or Cartographer if available. 
+|QID|1234|
+    Quest ID. Every ACCEPT, COMPLETE and TURNIN objective must have one of these. You can find these IDs easily by looking at the URL for the quest on Wowhead. 
+|O|
+    Optional, objective is not shown if the quest is not in the user's log. For ACCEPT objectives, if a loot or item tag are also provided the objective is not displayed if the player does not have the items needed. 
+|L|1234| |L|1234 2|
+    Loot, objective auto-completes or is shown (if optional) when the user has the items. Takes an ItemID and optional quantity. If used with "|O|" on an ACCEPT objective, the objective will be skipped if the user does not have the item (and quantity) needed. 
+|U|1234|
+    An item to be used. Gives the user a button to click. Useful for quests where you must use an item on a mob, equip something, drink something, etc. Should not be used if the player must have an item to be able to interact with a node, only if the player is FORCED to open their bags and use the item. If used along with "|O|" on an ACCEPT objective, the objective will only appear if the user has the item to use. 
+|C|Priest|
+    Only displays the objective if the player is of the same class. Useful for class-specific quests. Only accepts one class, and uses the localized name. 
+|R|NightElf|
+    Only displayed if the player's race matches. Like |C|, only one race is supported per objective, and it takes a localized value. 
+|Z|Darnassus|
+    Overrides the mapping zone for the objective. If not defined the objective's waypoints will use the guide title for the zone. If the title isn't a valid zone name, the player's current zone is used. These should not be used heavily, if the player is changing locations to another zone and doing more than turnins, accepts and maybe one or two completes, a new guide should be started. Remember, relocation to a new quest hub usually means you should start a new guide! 
+|QID|1234| |QO|Some Mob slain: 10/10|
+    Completes when a sub-objective of the quest matches the QO tag. Both values must be specified. Works with Note and Kill objectives. Like quest titles, this is case-sensitive and must match the quest log text EXACTLY. 
+    
+Map Guides 
+
+Map guides are in SimpleHTML format, to be used to write text and images style guides.  eg 
+
+DugisGuideViewer:RegisterGuide("The Deadmines (15-20 Map)", nil, "Alliance", "M", function()
+return [[
+ <html><body>
+<img align="center" src='Interface\Addons\DugisGuideViewerZ\DugisGuide_Maps_Alliance_En\Artwork\The_Deadmines_A' />
+<p>This is a map for The Deadmines</p>
+<br> 
+<p>Another paragraph</p>
+ </body></html>
+]]
+end)

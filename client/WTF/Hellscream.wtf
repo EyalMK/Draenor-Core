@@ -1,0 +1,7 @@
+SET portal "logon.hellscream.org"
+SET textLocale "enUS"
+SET audioLocale "enUS"
+SET synchronizeConfig "0"
+SET synchronizeBindings "0"
+SET synchronizeMacros "0"
+SET synchronizeSettings "0"
