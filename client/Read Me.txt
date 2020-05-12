@@ -1,0 +1,9 @@
+Project Hellscream - Mini Installer Information
+
+Our mini installer is only to be used until your game has downloaded once you have downloaded the whole 28gb,
+via the mis installer .exe please delete it and only use Project Hellscream.exe as it is our supported .exe after mini install is done.
+
+
+Best regards,
+Project Hellscream Staff
+https://hellscream.org

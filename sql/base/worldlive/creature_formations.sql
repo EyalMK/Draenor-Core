@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `creature_formations` (
   PRIMARY KEY (`memberGUID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_formations: 261 rows
+-- Dumping data for table worldlive.creature_formations: 277 rows
 DELETE FROM `creature_formations`;
 /*!40000 ALTER TABLE `creature_formations` DISABLE KEYS */;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
@@ -228,9 +228,9 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 	(178791, 178790, 3, 270, 515, 0, 0),
 	(178791, 178792, 3, 90, 515, 0, 0),
 	(178791, 178791, 0, 0, 515, 0, 0),
-	(177931, 177932, 5, 180, 2, 0, 0),
-	(177931, 177930, 5, 135, 2, 0, 0),
-	(177931, 177929, 5, 90, 2, 0, 0),
+	(177931, 177932, 3, 180, 2, 0, 0),
+	(177931, 177930, 3, 135, 2, 0, 0),
+	(177931, 177929, 3, 90, 2, 0, 0),
 	(177931, 177931, 0, 0, 2, 0, 0),
 	(185280, 185282, 3, 45, 2, 0, 0),
 	(185280, 185281, 3, 315, 2, 0, 0),
@@ -287,7 +287,23 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 	(178018, 178019, 3, 180, 515, 0, 0),
 	(178018, 178023, 3, 130, 515, 0, 0),
 	(178018, 178021, 3, 310, 515, 0, 0),
-	(178018, 178022, 3, 50, 515, 0, 0);
+	(178018, 178022, 3, 50, 515, 0, 0),
+	(67281, 67281, 0, 0, 2, 0, 0),
+	(67281, 67282, 3, 90, 2, 0, 0),
+	(119330, 119330, 0, 0, 1, 0, 0),
+	(119330, 119331, 2, 90, 2, 0, 0),
+	(72631, 72631, 0, 0, 2, 0, 0),
+	(72631, 72632, 3, 270, 2, 0, 0),
+	(92974, 92974, 0, 0, 2, 0, 0),
+	(92974, 92976, 3, 270, 2, 0, 0),
+	(87200, 87200, 0, 0, 1, 0, 0),
+	(87200, 87201, 2, 90, 2, 0, 0),
+	(887202, 887202, 0, 0, 1, 0, 0),
+	(887202, 887203, 2, 90, 2, 0, 0),
+	(87206, 87206, 0, 0, 1, 0, 0),
+	(87206, 87207, 2, 90, 2, 0, 0),
+	(167841, 167841, 0, 0, 2, 0, 0),
+	(167841, 167843, 2, 80, 2, 0, 0);
 /*!40000 ALTER TABLE `creature_formations` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

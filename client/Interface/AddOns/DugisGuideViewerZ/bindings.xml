@@ -1,0 +1,4 @@
+<Bindings>
+  <Binding name="CLICK DugisGuideViewer_TargetFrame:RightButton" header="DUGI"/>
+  <Binding name="CLICK DugisSecureQuestButton:LeftButton"/>
+</Bindings>

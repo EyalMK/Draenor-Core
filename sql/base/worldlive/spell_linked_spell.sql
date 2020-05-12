@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `spell_linked_spell` (
   UNIQUE KEY `trigger_effect_type` (`spell_trigger`,`spell_effect`,`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Spell System';
 
--- Dumping data for table worldlive.spell_linked_spell: 329 rows
+-- Dumping data for table worldlive.spell_linked_spell: 330 rows
 DELETE FROM `spell_linked_spell`;
 /*!40000 ALTER TABLE `spell_linked_spell` DISABLE KEYS */;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
@@ -352,7 +352,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 	(89821, 89824, 0, 'Stitch : Bâtonnet d\'Helcular, donne-moi ta force 28331-Bâtonnet d\'Helcular'),
 	(71, 23691, 0, 'Stitch :  Guerrier - +20 rage avec Posture défensive'),
 	(-38708, 38991, 0, 'Upon Demoniac Visitation expiring cast Summon Demonaic Visitation'),
-	(42578, 42576, 0, 'Theramore Cannon blast');
+	(42578, 42576, 0, 'Theramore Cannon blast'),
+	(-46813, 46814, 0, 'On spellfade Taxi - Coldarra Ledge to Transitus Shield - Spellcast Coldarra to Transitus');
 /*!40000 ALTER TABLE `spell_linked_spell` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

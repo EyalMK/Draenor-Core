@@ -1,0 +1,2 @@
+Branch!STRING:0|Active!DEC:1|Build Key!HEX:16|CDN Key!HEX:16|Install Key!HEX:16|IM Size!DEC:4|CDN Path!STRING:0|CDN Hosts!STRING:0|Tags!STRING:0|Armadillo!STRING:0|Last Activated!STRING:0|Version!STRING:0|Keyring!HEX:16|KeyService!STRING:0
+eu|1|dcff4b96b0461d42f3af5aa56304f2e1|21e159b6f61d3b932fce5aabc9e7240e|99bf59ce0accb45dab1dbdb744ed2c44|21285|/tpr/wow|blzddist1-a.akamaihd.net blzddist2-a.akamaihd.net|Windows x86_32 x86_64 EU? frFR speech?:Windows x86_32 x86_64 EU? frFR text?||2016-02-17T13:59:23Z|6.2.3.20886||

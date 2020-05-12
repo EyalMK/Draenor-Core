@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `creature_questender` (
   PRIMARY KEY (`id`,`quest`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
 
--- Dumping data for table worldlive.creature_questender: 13,665 rows
+-- Dumping data for table worldlive.creature_questender: 13,664 rows
 DELETE FROM `creature_questender`;
 /*!40000 ALTER TABLE `creature_questender` DISABLE KEYS */;
 INSERT INTO `creature_questender` (`id`, `quest`) VALUES
@@ -8000,7 +8000,6 @@ INSERT INTO `creature_questender` (`id`, `quest`) VALUES
 	(44365, 27193),
 	(44365, 27195),
 	(44372, 27934),
-	(44374, 26896),
 	(44395, 27273),
 	(44395, 28289),
 	(44402, 26901),

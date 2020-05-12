@@ -1,0 +1,82 @@
+## Interface: 60200
+## Title: Dugi Questing Essential |cffffffff3.310|r
+## Notes: Questing Addon Copyright 2010-2016 UltimateWoWGuide.com
+## Version: 3.310
+## X-Website: http://www.ultimatewowguide.com/
+## X-Email: support@ultimatewowguide.com
+## X-Category: Quest
+## SavedVariablesPerCharacter: CurrentTitle, CurrentZone, DugisGuideUser, DugisGuideViewerDB, DugisArrowDb, DugisFlightmasterDataTable, DugisNPCFrameDB
+## SavedVariables: MapOverlays, DugisFlightmasterLookupTable, TaxiDataCollection, DugisGuideViewerProfiles, CollectedWorldMapTrackingPoints
+## X-CompatibleLocales: enUS, enGB, deDE, frFR, esES, esMX, koKR, ruRU
+
+# Library Files
+Libs\Astrolabe\Load.xml
+Libs\Load.xml
+
+# Localization
+Localization\Localization.enUS.lua
+Localization\Localization.esMX.lua
+Localization\Localization.deDE.lua
+Localization\Localization.frFR.lua
+Localization\Localization.itIT.lua
+Localization\Localization.koKR.lua
+Localization\Localization.ptBR.lua
+Localization\Localization.ruRU.lua
+Localization\Localization.zhTW.lua
+Localization\LibBabble-SubZone-3.0\Lib.xml
+Localization\LibBabble-Class-3.0\Lib.xml
+Localization\LibBabble-Race-3.0\Lib.xml
+Localization\LibBabble-Faction-3.0\Lib.xml
+
+# Base
+DugisGuideViewer.lua
+Util.lua
+Debug.lua
+Test.lua
+Modules.lua
+BossButtonWorkaround.lua
+
+# NPC Localization
+Localization\NPCs_deDE.lua
+Localization\NPCs_enUS.lua
+Localization\NPCs_esES.lua
+Localization\NPCs_frFR.lua
+Localization\NPCs_koKR.lua
+Localization\NPCs_ruRU.lua
+Localization\NPCs_zhCN.lua
+Localization\NPCs_zhTW.lua
+Localization\NPCs_ptBR.lua
+Localization\NPCs_itIT.lua
+
+# Implementation
+LuaUtils.lua
+Widget.lua
+MapUtils.lua
+Localization\Translator.lua
+DugisGuideViewer.xml
+WatchFrame.lua
+ItemButton.lua
+arrow.lua
+Ants.lua
+Corpse.lua
+AutoQuestAccept.lua
+MapOverlays.lua
+AutoSell.lua
+AutoRepair.lua
+QuestPOI.lua
+MiniBlobs.lua
+libs\menu.lua
+LDB.lua
+MapPreview.lua
+WorldMapTracking.lua
+WorldMapTrackingPoints.lua
+ExplorationTrackingPoints.lua
+Taxi.lua
+TaxiDB.lua
+TaxiData.lua
+AutoQuestLoot.lua
+LFG.lua
+TomTomEmulation.lua
+GearAdvisor.lua
+WorldMapTrackingCollection.lua
+NPCJournalFrame\GUIUtils.lua

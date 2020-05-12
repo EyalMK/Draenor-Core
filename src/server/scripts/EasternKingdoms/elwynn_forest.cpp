@@ -202,7 +202,7 @@ public:
 			}
 			else
 			{
-				if (Creature* guard = me->FindNearestCreature(NPC_BLACKROCK_BATTLE_WORG, 5.0f, true))
+				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 5.0f, true))
 				{
 					me->getThreatManager().addThreat(guard, 1000000.0f);
 					guard->getThreatManager().addThreat(me, 1000000.0f);
@@ -214,7 +214,7 @@ public:
 		}
 	
 
-		void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
 		{
 			if (target->ToCreature())
 				if (target->GetHealth() <= damage || target->GetHealthPct() <= 87.0f)
@@ -314,6 +314,7 @@ public:
 		{
 
 			for (auto quest : Quests)
+			{
 				if (clicker->ToPlayer()->GetQuestStatus(quest) == QUEST_STATUS_INCOMPLETE)
 				{
 					m_PlayerGuid = clicker->GetGUID();
@@ -321,7 +322,13 @@ public:
 					me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 					me->CastSpell(me, SPELL_RENEWEDLIFE, true);
 					DoAction(eActions::ActionHeal);
+					break;
 				}
+				
+				return;
+			}
+				
+
 		}
 
 		void DoAction(int32 const p_Action) override
@@ -396,6 +403,7 @@ public:
 	}
 };
 
+/// <<<< Needs to be disabled. Could be done easily though SmartAI - wandering: UPDATE `creature` SET `spawndist`=5, `MovementType`=1 WHERE `id`=42937; & on event enter combat, Talk(0)
 /// Blackrock Invader - 42937
 class npc_blackrock_invader : public CreatureScript 
 {
