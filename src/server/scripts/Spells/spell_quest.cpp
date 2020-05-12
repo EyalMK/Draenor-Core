@@ -1672,26 +1672,43 @@ class spell_q25792_burn_constriction_totem: public SpellScriptLoader
 {
     public:
         spell_q25792_burn_constriction_totem() : SpellScriptLoader("spell_q25792_burn_constriction_totem") { }
+		
+		enum eMisc
+		{
+			// Quest
+			QUEST_PUSHING_FORWARD	= 25792,
 
+			// Npcs
+			NPC_KHARANOS_MOUNTAINEER = 41237,
+			NPC_CONSTRICTION_TOTEM = 41202,
+
+			// Spells
+			SPELL_BURN_CONST_TOTEM = 77314,
+			SPELL_CONST_TOTEM_AURA = 77311,
+
+			SetFree					= 0,
+		};
         class spell_q25792_burn_constriction_totem_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_q25792_burn_constriction_totem_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                // GetHitCreature don't work
-                Creature* target  = caster->FindNearestCreature(41202, 4.0f, true);
-                if (target && caster)
-                {
-                    caster->KilledMonsterCredit(41202, 0);
-                    target->ForcedDespawn();
-                }
-            }
+			void HandleOnHit()
+			{
+				Player* caster = GetCaster()->ToPlayer();
+				Unit* victim = GetHitUnit()->ToCreature();
+
+				if (!caster || !victim)
+					return;
+
+				if (victim->ToCreature()->GetEntry() == NPC_CONSTRICTION_TOTEM)
+					if (caster->GetQuestStatus(QUEST_PUSHING_FORWARD) == QUEST_STATUS_INCOMPLETE)
+						caster->KilledMonsterCredit(NPC_CONSTRICTION_TOTEM);
+						victim->ToCreature()->GetAI()->DoAction(SetFree);
+			}
 
             void Register()
             {
-                OnEffectHit += SpellEffectFn(spell_q25792_burn_constriction_totem_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+				OnHit += SpellHitFn(spell_q25792_burn_constriction_totem_SpellScript::HandleOnHit);
             }
         };
 

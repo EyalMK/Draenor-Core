@@ -76,102 +76,104 @@ enum WoundedColdridgeMountaineer
 
 
 /// Joren Ironstock - 37081
-class npc_joren_ironstock : public CreatureScript
-{
-public:
-	npc_joren_ironstock() : CreatureScript("npc_joren_ironstock") { }
-
-	CreatureAI* GetAI(Creature* creature) const override
-	{
-		return new npc_joren_ironstockAI(creature);
-	}
-
-	enum eMisc
-	{
-		EVENT_SUMMON_INVADERS = 0,
-	};
-
-	struct npc_joren_ironstockAI : public ScriptedAI
-	{
-		npc_joren_ironstockAI(Creature* creature) : ScriptedAI(creature) {}
-
-		uint32 invaders;
-		uint64 rockjawTarget;
-
-		// Positions for Rockjaw Invaders
-		Position const spawnPts[7] =
-		{
-			{ -6257.2813f, 328.7897f, 382.1249f },
-			{ -6257.2900f, 337.4182f, 381.6851f },
-			{ -6257.5322f, 345.7486f, 381.7038f },
-			{ -6260.5698f, 358.6521f, 383.6841f },
-			{ -6248.7549f, 371.9600f, 383.7324f },
-			{ -6201.4927f, 334.7021f, 390.3081f },
-			{ -6209.2056f, 308.1535f, 388.2065f }
-		};
-
-		void Reset() override
-		{
-			rockjawTarget = 0;
-			me->SetSheath(SHEATH_STATE_MELEE);
-			me->setRegeneratingHealth(true);
-		}
-		
-
-		void EnterCombat(Unit * who) override
-		{
-			Talk(urand(0, 2)); // Random aggro text
-			if (!me->HasUnitState(UNIT_STATE_ROOT))
-				me->AddUnitState(UNIT_STATE_ROOT);
-		}
-
-		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
-		{
-			if (doneBy->ToCreature()->GetEntry() == NPC_ROCKJAW_INVADER)
-					damage = 0;
-		}
-
-		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
-		{
-			if (target->ToCreature()->GetEntry() == NPC_ROCKJAW_INVADER)
-					damage = 0;
-		}
-
-		void UpdateAI(uint32 diff) override
-		{
-
-			if (!UpdateVictim())
-			{
-				Creature* rjInvader = me->FindNearestCreature(NPC_ROCKSAW_INVADER, 5.0f, true);
-				if (rjInvader)
-				{
-					rjInvader->getThreatManager().addThreat(me, 1000000.0f);
-					me->AI()->AttackStart(rjInvader);
-				}	
-				else {
+//class npc_joren_ironstock : public CreatureScript
+//{
+//public:
+//	npc_joren_ironstock() : CreatureScript("npc_joren_ironstock") { }
+//
+//	CreatureAI* GetAI(Creature* creature) const override
+//	{
+//		return new npc_joren_ironstockAI(creature);
+//	}
+//
+//	enum eMisc
+//	{
+//		EVENT_SUMMON_INVADERS = 0,
+//	};
+//
+//	struct npc_joren_ironstockAI : public ScriptedAI
+//	{
+//		npc_joren_ironstockAI(Creature* creature) : ScriptedAI(creature) {}
+//
+//		uint32 invaders;
+//		uint64 rockjawTarget;
+//
+//		// Positions for Rockjaw Invaders
+//		Position const spawnPts[7] =
+//		{
+//			{ -6257.2813f, 328.7897f, 382.1249f },
+//			{ -6257.2900f, 337.4182f, 381.6851f },
+//			{ -6257.5322f, 345.7486f, 381.7038f },
+//			{ -6260.5698f, 358.6521f, 383.6841f },
+//			{ -6248.7549f, 371.9600f, 383.7324f },
+//			{ -6201.4927f, 334.7021f, 390.3081f },
+//			{ -6209.2056f, 308.1535f, 388.2065f }
+//		};
+//
+//		void Reset() override
+//		{
+//			rockjawTarget = 0;
+//			me->SetSheath(SHEATH_STATE_MELEE);
+//			me->setRegeneratingHealth(true);
+//		}
+//		
+//
+//		void EnterCombat(Unit * who) override
+//		{
+//			Talk(urand(0, 2)); // Random aggro text
+//			if (!me->HasUnitState(UNIT_STATE_ROOT))
+//				me->AddUnitState(UNIT_STATE_ROOT);
+//		}
+//
+//		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
+//		{
+//			if (doneBy->ToCreature()->GetEntry() == NPC_ROCKJAW_INVADER)
+//					damage = 0;
+//		}
+//
+//		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+//		{
+//			if (target->ToCreature()->GetEntry() == NPC_ROCKJAW_INVADER)
+//					damage = 0;
+//		}
+//
+//		void UpdateAI(uint32 diff) override
+//		{
+//
+//			if (!UpdateVictim())
+//			{
+//				Creature* rjInvader = me->FindNearestCreature(NPC_ROCKSAW_INVADER, 5.0f, true);
+//				if (rjInvader)
+//				{
+//					rjInvader->getThreatManager().addThreat(me, 1000000.0f);
+//					me->AI()->AttackStart(rjInvader);
+//				}	
+//				else {
 					/// <<<< This is a hackfix, Joren is supposed to summon each invader at its spawnPt if it's killed after about 10 seconds.
-					for (uint8 i = 0; i < 7; ++i)
-					{
-						if (Creature* invader = me->SummonCreature(NPC_ROCKJAW_INVADER, spawnPts[i], TEMPSUMMON_DEAD_DESPAWN))
-						{
-							invader->AI()->AttackStart(me);
-							/// 3rd Summon is the main target
-							if (invader->GetHomePosition() == spawnPts[3])
-							{
-								invader->getThreatManager().addThreat(me, 1000000.0f);
-								me->AI()->AttackStart(invader);
-							}
-						}
-					}
-				}
-				
-			}
-				
-			DoMeleeAttackIfReady();
-
-		}
-	};
-};
+//
+					/// <<<<<<<<<<<<<<<<<< IMPORTANT -- The invaders keep trying to get to home position and eventually they do and the server crashes. Disabled until a fix is found <<<<<<<<<<<<<<
+//					for (uint8 i = 0; i < 7; ++i)
+//					{
+//						if (Creature* invader = me->SummonCreature(NPC_ROCKJAW_INVADER, spawnPts[i], TEMPSUMMON_DEAD_DESPAWN))
+//						{
+//							invader->AI()->AttackStart(me);
+//							/// 3rd Summon is the main target
+//							if (invader->GetHomePosition() == spawnPts[3])
+//							{
+//								invader->getThreatManager().addThreat(me, 1000000.0f);
+//								me->AI()->AttackStart(invader);
+//							}
+//						}
+//					}
+//				}
+//				
+//			}
+//				
+//			DoMeleeAttackIfReady();
+//
+//		}
+//	};
+//};
 
 /// Coldridge Defender - 37177
 class npc_coldridge_defender : public CreatureScript
@@ -282,12 +284,12 @@ public:
 		void UpdateAI(const uint32 diff)
 		{
 			if (!UpdateVictim())
-				if (me->isSummon())
+				/*if (me->isSummon())
 					if (Creature* joren = me->FindNearestCreature(NPC_JOREN_IRONSTOCK, 75.0f, true))
 					{
 						me->SetTarget(joren->GetGUID());
 						me->AI()->AttackStart(joren);
-					}
+					}*/
 						
 				if (Creature* guard = me->FindNearestCreature(NPC_COLDRIDGE_DEFENDER, 6.0f, true))
 					me->AI()->AttackStart(guard);
@@ -397,7 +399,7 @@ public:
 
 		bool _hasCasted;
 
-		void DamageTaken(Unit* Hitter, uint32& Damage)
+		void DamageTaken(Unit* Hitter, uint32& Damage, SpellInfo const* /*p_SpellInfo*/) override
 		{
 			if (Player* player = Hitter->ToPlayer())
 				if (player->GetQuestStatus(QUEST_MAKE_HAY_WHILE_THE_SUN_SHINES) == QUEST_STATUS_INCOMPLETE)
@@ -1108,7 +1110,7 @@ public:
 				switch (eventId)
 				{
 				case EVENT_START_PATH:
-					me->GetMotionMaster()->MoveSmoothPath(pathSize, g_kharanosPath.data(), g_kharanosPath.size(), false, true);
+					me->GetMotionMaster()->MoveSmoothPath(0, g_kharanosPath.data(), g_kharanosPath.size(), false);
 					_events.ScheduleEvent(EVENT_MILO_SAY_0, 5000);
 					break;
 				case EVENT_MILO_SAY_0:
@@ -1485,10 +1487,12 @@ public:
 		// Npcs
 		NPC_KHARANOS_MOUNTAINEER	= 41237,
 
-		// Misc
-		SPELL_BURN_CONST_TOTEM		= 77314,  /// <-- Instead of making a spell script and return an error if it's cast on the wrong entry: I scripted it to kill this entry and put in a condition to only be used on this creature.
+		// Spell
+		SPELL_BURN_CONST_TOTEM		= 77314,  
 		SPELL_CONST_TOTEM_AURA		= 77311,
-		ActionDeath					= 0
+
+		// Action
+		SetFree						= 0,
 
 		
 	};
@@ -1503,13 +1507,14 @@ public:
 
 		void Reset()
 		{
+			ClearDelayedOperations();
+
 			if (Creature* Mountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 8.0f, true))
 			{
 				if (!Mountaineer->HasAura(SPELL_CONST_TOTEM_AURA))
 				{
 					MyMountaineer = Mountaineer;
 					me->AddAura(SPELL_CONST_TOTEM_AURA, Mountaineer);
-					Mountaineer->SetReactState(REACT_PASSIVE);
 				}
 			}
 			else MyMountaineer = NULL;
@@ -1517,26 +1522,50 @@ public:
 			CastTimer = 2000;
 		}
 
-		void SpellHit(Unit* caster, const SpellInfo* spell)
+		void DoAction(int32 const p_Action) override
 		{
-			if (spell->Id == 77314 && !MountaineerFreed && MyMountaineer)
+			switch (p_Action)
 			{
-				MyMountaineer->RemoveAurasDueToSpell(SPELL_CONST_TOTEM_AURA);
-				MyMountaineer->AI()->Talk(0);
-				float x, y, z;
-				MyMountaineer->GetClosePoint(x, y, z, MyMountaineer->GetObjectSize() / 3, 5.0f);
-				MyMountaineer->GetMotionMaster()->MovePoint(1, x, y, z);
-				MyMountaineer->DespawnOrUnsummon(5000);
-				me->DespawnOrUnsummon(1000);
-				MountaineerFreed = true;
+				case SetFree:
+				{
+					AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (Creature* Mountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 8.0f, true))
+							if (Mountaineer->HasAura(SPELL_CONST_TOTEM_AURA))
+							{
+								Mountaineer->RemoveAurasDueToSpell(SPELL_CONST_TOTEM_AURA);
+								Mountaineer->AI()->Talk(0, me->GetGUID());
+								Mountaineer->AI()->Talk(1, me->GetGUID());
+							}
+					});
+
+					AddTimedDelayedOperation(2.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (Creature* Mountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 8.0f, true))
+						{
+							me->ForcedDespawn();
+							float x, y, z;
+							Mountaineer->GetClosePoint(x, y, z, Mountaineer->GetObjectSize() / 3, 5.0f);
+							Mountaineer->GetMotionMaster()->MovePoint(1, x, y, z);
+							Mountaineer->DespawnOrUnsummon(5000);
+							
+						}
+					});
+
+					break;
+				}
+				default:
+					break;
 			}
 		}
 
 		void UpdateAI(uint32 const diff)
 		{
+			UpdateOperations(diff);
+
 			if (CastTimer <= diff)
 			{
-				if (!MyMountaineer && !MountaineerFreed)
+				if (!MyMountaineer)
 				{
 					if (Creature* Mountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 8.0f, true))
 					{
@@ -1544,7 +1573,6 @@ public:
 						{
 							MyMountaineer = Mountaineer;
 							me->AddAura(SPELL_CONST_TOTEM_AURA, Mountaineer);
-							Mountaineer->SetReactState(REACT_PASSIVE);
 							CastTimer = -1;
 						}
 						else CastTimer = 2000;
@@ -1581,13 +1609,13 @@ public:
 
 		void EnterCombat(Unit* who)
 		{
-			me->AddUnitState(UNIT_STATE_ROOT);
-			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+			me->ClearUnitState(UNIT_STATE_ROOT);
 			uiSayCombatTimer = urand(10000, 190000);
 		}
 
 		void Reset()
 		{
+			me->AddUnitState(UNIT_STATE_ROOT);
 			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
 		}
 
@@ -1655,26 +1683,26 @@ public:
 
 		void EnterCombat(Unit* who)
 		{
-			me->AddUnitState(UNIT_STATE_ROOT);
-			me->HandleEmoteCommand(EMOTE_STATE_READYRIFLE);
+			me->ClearUnitState(UNIT_STATE_ROOT);
 		}
 
 		void Reset()
 		{
+			me->AddUnitState(UNIT_STATE_ROOT);
 			me->HandleEmoteCommand(EMOTE_STATE_READYRIFLE);
 		}
 
 
 		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
 		{
-			if (doneBy->ToCreature()->GetEntry() == NPC_FROSTMANE_SCOUT)
+			if (doneBy->ToCreature()->GetEntry() == (NPC_FROSTMANE_SCOUT || NPC_FROSTMANE_SCAVENGER))
 				if (me->GetHealth() <= damage || me->GetHealthPct() <= 87.0f)
 					damage = 0;
 		}
 
 		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
 		{
-			if (target->ToCreature()->GetEntry() == NPC_FROSTMANE_SCOUT)
+			if (target->ToCreature()->GetEntry() == (NPC_FROSTMANE_SCOUT || NPC_FROSTMANE_SCAVENGER))
 				if (target->GetHealth() <= damage || target->GetHealthPct() <= 91.0f)
 					damage = 0;
 		}
@@ -1684,7 +1712,17 @@ public:
 		{
 			if (!UpdateVictim())
 				if (Creature* scout = me->FindNearestCreature(NPC_FROSTMANE_SCOUT, 5.0f, true))
+				{
+					me->Attack(scout, false);
 					me->CombatStart(scout);
+				}
+					
+				if (Creature* scout = me->FindNearestCreature(NPC_FROSTMANE_SCAVENGER, 5.0f, true))
+				{
+					me->Attack(scout, false);
+					me->CombatStart(scout);
+				}
+					
 
 			DoMeleeAttackIfReady();
 		}
@@ -1712,14 +1750,15 @@ public:
 
 		void EnterCombat(Unit* who)
 		{
-			me->AddUnitState(UNIT_STATE_ROOT);
 			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+			me->ClearUnitState(UNIT_STATE_ROOT);
+			uiSayCombatTimer = urand(10000, 190000);
 		}
 
 		void Reset()
 		{
+			me->AddUnitState(UNIT_STATE_ROOT);
 			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
-			uiSayCombatTimer = urand(10000, 190000);
 		}
 
 
@@ -1780,8 +1819,10 @@ public:
 			if (!UpdateVictim())
 				if (Creature* mountaineer = me->FindNearestCreature(NPC_KHARANOS_MOUNTAINEER, 10.0f, true))
 					me->AI()->AttackStart(mountaineer);
+					me->AddUnitState(UNIT_STATE_ROOT);
 				if (Creature* rifleman = me->FindNearestCreature(NPC_KHARANOS_RIFLEMAN, 10.0f, true))
 					me->AI()->AttackStart(rifleman);
+					me->AddUnitState(UNIT_STATE_ROOT);
 
 			DoMeleeAttackIfReady();
 		}
@@ -1920,7 +1961,7 @@ public:
 void AddSC_dun_morogh_coldridge_valley()
 {
 	/// Npcs
-	new npc_joren_ironstock();
+	//new npc_joren_ironstock();
 	new npc_coldridge_defender();
 	new npc_rockjaw_invader();
 	new npc_rockjaw_scavenger();
