@@ -4275,6 +4275,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;*/
 				spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+			case 32645: ///< Envenom
+				spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
+				break;
             case 157675: ///< Chi Explosion
             case 182078: ///< Chi Explosion
                 spellInfo->CastTimeEntry = 0;
