@@ -5040,17 +5040,17 @@ public:
 			PreventDefaultAction();
 
 			Player* l_Caster = GetCaster()->ToPlayer();
+			SpellInfo const* l_SpellInfoTriggerDamageSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+			SpellInfo const* l_SpellInfoTriggerHealSpell = p_ProcEventInfo.GetHealInfo()->GetSpellInfo();
 
-			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetSpellInfo();
-
-			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
+			if (l_Caster == nullptr || l_SpellInfoTriggerDamageSpell == nullptr || l_SpellInfoTriggerHealSpell == nullptr)
 				return;
 
 			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
 				return;
 
-			// Only proc from		   Penance (dmg)						  Penance (heal)					    Penance T18 (heal)
-			if (l_SpellInfoTriggerSpell->Id != 47666 || l_SpellInfoTriggerSpell->Id != 47750 || l_SpellInfoTriggerSpell->Id != 186723)
+			// Only proc from				 Penance (dmg)								 Penance (heal)							  Penance T18 (heal)
+			if (l_SpellInfoTriggerDamageSpell->Id != 47666 && l_SpellInfoTriggerHealSpell->Id != 47750 && l_SpellInfoTriggerHealSpell->Id != 186723)
 				return;
 
 			l_Caster->CastSpell(l_Caster, eSpells::Reparation, true);
@@ -5098,7 +5098,7 @@ public:
 				return;
 
 			// Only proc from Prayer of Mending bounces
-			if (l_SpellInfoTriggerSpell->Id != 33076 || l_SpellInfoTriggerSpell->Id != 123259)
+			if (l_SpellInfoTriggerSpell->Id != 33076 && l_SpellInfoTriggerSpell->Id != 123259)
 				return;
 
 			l_Caster->CastSpell(l_Caster, eSpells::PrayerReprise, true);
@@ -5148,7 +5148,7 @@ public:
 			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
 				return;
 
-			if (l_SpellInfoTriggerSpell->Id != eSpells::MindFly || l_SpellInfoTriggerSpell->Id != eSpells::Insanity)
+			if (l_SpellInfoTriggerSpell->Id != eSpells::MindFly && l_SpellInfoTriggerSpell->Id != eSpells::Insanity)
 				return;
 
 			l_Caster->CastSpell(l_Victim, eSpells::MentalFatigue, true);
@@ -5156,7 +5156,7 @@ public:
 
 		void Register()
 		{
-			OnEffectProc += AuraEffectProcFn(spell_pri_mental_fatigue_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+			OnEffectProc += AuraEffectProcFn(spell_pri_mental_fatigue_Aurascript::HandleOnProc, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
 		}
 	};
 
@@ -5197,15 +5197,15 @@ public:
 				return;
 
 			// Only proc from		  Penance (heal)			   Penance T18 trigger (heal)							  Flash Heal							   	   Heal						Prayer of Healing
-			if (l_SpellInfoTriggerSpell->Id != 47750 || l_SpellInfoTriggerSpell->Id != 186723 || l_SpellInfoTriggerSpell->Id != 2061 || l_SpellInfoTriggerSpell->Id != 2060 || l_SpellInfoTriggerSpell->Id != 596)
+			if (l_SpellInfoTriggerSpell->Id != 47750 && l_SpellInfoTriggerSpell->Id != 186723 && l_SpellInfoTriggerSpell->Id != 2061 && l_SpellInfoTriggerSpell->Id != 2060 && l_SpellInfoTriggerSpell->Id != 596)
 				return;
 
-			l_Caster->CastSpell(l_Victim, eSpells::NaaruDiscipline, true);
+			l_Caster->CastCustomSpell(l_Victim, eSpells::NaaruDiscipline, nullptr, nullptr, nullptr, true);
 		}
 
 		void Register()
 		{
-			OnEffectProc += AuraEffectProcFn(spell_pri_naaru_discipline_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+			OnEffectProc += AuraEffectProcFn(spell_pri_naaru_discipline_Aurascript::HandleOnProc, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
 		}
 	};
 

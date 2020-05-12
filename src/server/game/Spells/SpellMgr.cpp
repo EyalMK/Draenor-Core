@@ -5012,6 +5012,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 1329: ///< Mutilate
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
+			case 186723: ///< Penance (T18)
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_ALLY_OR_RAID;
+				spellInfo->Effects[0].TargetB = 0;
+				break;
             case 113828: ///< Healing Touch (treant)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[0].TargetB = 0;
