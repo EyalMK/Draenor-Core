@@ -137,10 +137,10 @@ enum PriestSpells
 	// Tier 18
 	ITEM_PRIEST_DISCI_T18_2P						= 186477,
 	ITEM_PRIEST_DISCI_T18_4P						= 186492,
-	/*ITEM_PRIEST_HOLY_T18_2P							= 123123,
-	ITEM_PRIEST_HOLY_T18_4P							= 123123,
-	ITEM_PRIEST_SHADOW_T18_2P						= 123123,
-	ITEM_PRIEST_SHADOW_T18_4P						= 123123*/
+	ITEM_PRIEST_HOLY_T18_2P							= 186298,
+	ITEM_PRIEST_HOLY_T18_4P							= 186378,
+	ITEM_PRIEST_SHADOW_T18_2P						= 186980,
+	ITEM_PRIEST_SHADOW_T18_4P						= 186981
 };
 
 // Shadow Orb - 77487 & Glyph of Shadow ravens - 57985
@@ -3403,7 +3403,7 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
                 PrayerOfMending         = 33076,
                 PrayerOfMendingDivineSpell = 123259,
                 PrayerOfMendingDivineI  = 123262,
-                DivineInsight           = 123267
+                DivineInsight           = 123267,
             };
 
             void HandleOnHit()
@@ -3413,6 +3413,7 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         uint8 l_Stacks = 0;
+
                         if (GetSpellInfo()->Id == eSpells::PrayerOfMending)
                         {
 							if (l_Target->HasAura(PrayerOfMendingSpells::PrayerOfMendingAura))
@@ -3429,6 +3430,7 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
                         }
 
                         Aura* l_PrayerOfMendingAura = nullptr;
+
                         if (GetSpellInfo()->Id == eSpells::PrayerOfMending)
                             l_PrayerOfMendingAura = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID());
                         else
@@ -3437,6 +3439,7 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
 						if (l_PrayerOfMendingAura != nullptr)
 						{
 							l_Stacks += 5;
+
 							if (l_Caster->HasAura(eSpells::GlypheOfPrayerOfMending))
 								--l_Stacks;
 
@@ -3452,6 +3455,32 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
 
                         if (GetSpellInfo()->Id == eSpells::PrayerOfMendingDivineSpell && l_Caster->HasAura(eSpells::DivineInsight))
                             l_Caster->RemoveAura(eSpells::DivineInsight);
+						
+						if (l_Caster->HasAura(ITEM_PRIEST_HOLY_T18_4P))
+						{
+							if (roll_chance_i(10))
+							{
+								float l_Radius = 40.0f;
+
+								std::list<Unit*> l_FriendlyUnitList;
+								JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
+								JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
+								l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+								/// Sort friendly unit by pourcentage of health and get the most injured
+								if (l_FriendlyUnitList.size() > 1)
+								{
+									l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+									l_FriendlyUnitList.resize(1);
+								}
+
+								/// Cast triggered Prayer of Mending on him
+								for (auto l_Itr : l_FriendlyUnitList)
+								{
+									l_Target->CastSpell(l_Itr, 123259, true);
+								}
+							}
+						}
                     }
                 }
             }
@@ -4210,7 +4239,7 @@ class spell_pri_saving_grace : public SpellScriptLoader
                 if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
-                /// HotFixe February 27, 2015 : Saving Grace now heals for 25% less in PvP combat.
+                /// HotFix February 27, 2015 : Saving Grace now heals for 25% less in PvP combat.
                 if (l_Player->GetMap()->IsBattlegroundOrArena() || l_Player->IsInPvPCombat())
                     SetHitHeal(GetHitHeal() - CalculatePct(GetHitHeal(), 25));
             }
@@ -4521,7 +4550,7 @@ class spell_pri_focused_will : public SpellScriptLoader
                     return;
 
                 /// Should proc only from damage
-                if (p_EventInfo.GetDamageInfo()->GetDamage() == 0)
+                if (p_EventInfo.GetDamageInfo()->GetDamageType() == SELF_DAMAGE || p_EventInfo.GetDamageInfo()->GetDamageType() == NODAMAGE || p_EventInfo.GetDamageInfo()->GetDamageType() == HEAL)
                     return;
 
                 if (p_EventInfo.GetActor()->GetGUID() == l_Caster->GetGUID())
@@ -4991,6 +5020,201 @@ class spell_pri_divine_star : public SpellScriptLoader
 		}
 };
 
+/// Priest T18 Discipline 2P - 186477
+class spell_pri_t18_disci_2p : public SpellScriptLoader
+{
+public:
+	spell_pri_t18_disci_2p() : SpellScriptLoader("spell_pri_t18_disci_2p") { }
+
+	class spell_pri_t18_disci_2p_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_pri_t18_disci_2p_Aurascript);
+
+		enum eSpells
+		{
+			Reparation = 186478
+		};
+
+		void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+
+			Player* l_Caster = GetCaster()->ToPlayer();
+
+			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetSpellInfo();
+
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
+				return;
+
+			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
+				return;
+
+			// Only proc from		   Penance (dmg)						  Penance (heal)					    Penance T18 (heal)
+			if (l_SpellInfoTriggerSpell->Id != 47666 || l_SpellInfoTriggerSpell->Id != 47750 || l_SpellInfoTriggerSpell->Id != 186723)
+				return;
+
+			l_Caster->CastSpell(l_Caster, eSpells::Reparation, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_pri_t18_disci_2p_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_pri_t18_disci_2p_Aurascript();
+	}
+};
+
+/// Priest T18 Holy 2P - 186298
+class spell_pri_t18_holy_2p : public SpellScriptLoader
+{
+public:
+	spell_pri_t18_holy_2p() : SpellScriptLoader("spell_pri_t18_holy_2p") { }
+
+	class spell_pri_t18_holy_2p_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_pri_t18_holy_2p_Aurascript);
+
+		enum eSpells
+		{
+			PrayerReprise = 186367
+		};
+
+		void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+
+			Player* l_Caster = GetCaster()->ToPlayer();
+
+			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetHealInfo()->GetSpellInfo();
+
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
+				return;
+
+			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_HOLY)
+				return;
+
+			// Only proc from Prayer of Mending bounces
+			if (l_SpellInfoTriggerSpell->Id != 33076 || l_SpellInfoTriggerSpell->Id != 123259)
+				return;
+
+			l_Caster->CastSpell(l_Caster, eSpells::PrayerReprise, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_pri_t18_holy_2p_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_pri_t18_holy_2p_Aurascript();
+	}
+};
+
+/// Mental Fatigue (Repudiation of War) - 184915
+class spell_pri_mental_fatigue : public SpellScriptLoader
+{
+public:
+	spell_pri_mental_fatigue() : SpellScriptLoader("spell_pri_mental_fatigue") { }
+
+	class spell_pri_mental_fatigue_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_pri_mental_fatigue_Aurascript);
+
+		enum eSpells
+		{
+			MindFly	= 15407,
+			Insanity = 129197,
+			MentalFatigue = 185104
+		};
+
+		void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+
+			Player* l_Caster = GetCaster()->ToPlayer();
+			Unit* l_Victim = p_ProcEventInfo.GetDamageInfo()->GetVictim();
+
+			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr || l_Victim == nullptr)
+				return;
+
+			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
+				return;
+
+			if (l_SpellInfoTriggerSpell->Id != eSpells::MindFly || l_SpellInfoTriggerSpell->Id != eSpells::Insanity)
+				return;
+
+			l_Caster->CastSpell(l_Victim, eSpells::MentalFatigue, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_pri_mental_fatigue_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_pri_mental_fatigue_Aurascript();
+	}
+};
+
+/// Naaru's Discipline (Repudiation of War) - 184912
+class spell_pri_naaru_discipline : public SpellScriptLoader
+{
+public:
+	spell_pri_naaru_discipline() : SpellScriptLoader("spell_pri_naaru_discipline") { }
+
+	class spell_pri_naaru_discipline_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_pri_naaru_discipline_Aurascript);
+
+		enum eSpells
+		{
+			NaaruDiscipline = 185103
+		};
+
+		void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+
+			Player* l_Caster = GetCaster()->ToPlayer();
+			Unit* l_Victim = p_ProcEventInfo.GetDamageInfo()->GetVictim();
+
+			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetHealInfo()->GetSpellInfo();
+
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr || l_Victim == nullptr)
+				return;
+
+			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
+				return;
+
+			// Only proc from		  Penance (heal)			   Penance T18 trigger (heal)							  Flash Heal							   	   Heal						Prayer of Healing
+			if (l_SpellInfoTriggerSpell->Id != 47750 || l_SpellInfoTriggerSpell->Id != 186723 || l_SpellInfoTriggerSpell->Id != 2061 || l_SpellInfoTriggerSpell->Id != 2060 || l_SpellInfoTriggerSpell->Id != 596)
+				return;
+
+			l_Caster->CastSpell(l_Victim, eSpells::NaaruDiscipline, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_pri_naaru_discipline_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_pri_naaru_discipline_Aurascript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_priest_spell_scripts()
 {
@@ -5080,6 +5304,10 @@ void AddSC_priest_spell_scripts()
     new spell_pri_glyph_of_mind_spike();
     new spell_pri_glyph_of_the_heavens();
 	new spell_pri_divine_star();
+	new spell_pri_t18_disci_2p();
+	new spell_pri_t18_holy_2p();
+	new spell_pri_mental_fatigue();
+	new spell_pri_naaru_discipline();
 
     /// PlayerScripts
     new PlayerScript_Shadow_Orb();

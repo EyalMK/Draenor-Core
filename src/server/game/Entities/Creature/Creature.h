@@ -84,6 +84,9 @@ enum CreatureFlagsExtra
 #define ENTRY_TERRORGUARD_PET           78215
 #define ENTRY_INFERNAL_PET              78217
 #define ENTRY_DOOMGUARD_PET             78158
+#define ENTRY_SATYR_T18					95468		
+#define ENTRY_HOUND_T18					95469	
+#define ENTRY_MALCHEZAAR_T18			95467
 
 // Mage
 #define ENTRY_WATER_ELEMENTAL   510

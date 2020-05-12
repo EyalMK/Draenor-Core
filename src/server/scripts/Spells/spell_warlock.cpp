@@ -103,7 +103,18 @@ enum WarlockSpells
     WARLOCK_SPELL_SOULBURN_HAUNT            = 157698,
     WARLOCK_SPELL_SOULBURN_HAUNT_AURA       = 152109,
     WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS     = 171379,
-    WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS_EFF = 171380
+    WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS_EFF = 171380,
+
+	// Tier
+
+	// T18
+
+	ITEM_WARLOCK_T18_AFF_2P					= 185882,
+	ITEM_WARLOCK_T18_AFF_4P					= 185883,
+	ITEM_WARLOCK_T18_DEMON_2P				= 185884,
+	ITEM_WARLOCK_T18_DEMON_4P				= 185964,
+	ITEM_WARLOCK_T18_DEST_2P				= 185965,
+	ITEM_WARLOCK_T18_DEST_4P				= 185967
 };
 
 enum BurningEmbersSpells
@@ -603,7 +614,6 @@ class spell_warl_imp_swarm: public SpellScriptLoader
                         for (uint8 i = 0; i < GetEffectValue(); i++)
                         {
                             l_Caster->AddAura(WARLOCK_DEMONIC_CALL, l_Caster);
-                            l_Caster->CastSpell(l_Target, WARLOCK_WILD_IMP_SUMMON, true);
                         }
                     }
                 }
@@ -1200,12 +1210,13 @@ class spell_warl_molten_core : public SpellScriptLoader
 
             enum eSpells
             {
-                MoltenCoreVisual = 126090
+                MoltenCoreVisual	= 126090
             };
 
             void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
+				Unit* l_Caster = GetCaster();
 
                 l_Target->CastSpell(l_Target, eSpells::MoltenCoreVisual, true);
             }
@@ -1224,14 +1235,50 @@ class spell_warl_molten_core : public SpellScriptLoader
             }
         };
 
+		class spell_warl_molten_core_SpellScript : public SpellScript
+		{
+			PrepareSpellScript(spell_warl_molten_core_SpellScript);
+
+			enum eSpells
+			{
+				SummonHellhound = 189298,
+				SummonSatyr = 189297,
+				SummonMalchezaar = 189296
+			};
+
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetHitUnit();
+
+				const uint32 summonsSpells[3] = { SummonHellhound, SummonSatyr, SummonMalchezaar };
+
+				if (l_Caster->HasAura(ITEM_WARLOCK_T18_DEMON_4P))
+				{
+					if (roll_chance_i(30))
+						l_Caster->CastSpell(l_Caster, summonsSpells[urand(0, 2)], true);
+				}
+			}
+
+			void Register()
+			{
+				OnCast += SpellCastFn(spell_warl_molten_core_SpellScript::HandleOnCast);
+			}
+		};
+
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_molten_core_AuraScript();
         }
+
+		SpellScript* GetSpellScript() const
+		{
+			return new spell_warl_molten_core_SpellScript();
+		}
 };
 
-// Called by Shadow Bolt - 686 and Soul Fire - 6353
-// Decimate - 108869
+// Called by Shadow Bolt - 686, Soul Fire - 6353, Soul Fire (metamorphosis) - 104027 and Demonic Slash - 114175
+// Decimation - 108869
 class spell_warl_decimate: public SpellScriptLoader
 {
     public:
@@ -1247,8 +1294,7 @@ class spell_warl_decimate: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_MOLTEN_CORE_AURA);
-                        if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA) && l_SpellInfo != nullptr && l_Target->GetHealthPct() < l_SpellInfo->Effects[EFFECT_1].BasePoints)
+						if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA) && l_Target->GetHealthPct() <= 25.0f)
                             l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
                     }
                 }
@@ -1266,8 +1312,7 @@ class spell_warl_decimate: public SpellScriptLoader
         }
 };
 
-// Called by Shadow Bolt - 686, Soul Fire - 6353, Touch of Chaos - 103964 and Demonic Slash - 114175
-// Soul Fire (metamorphosis) - 104027
+// Called by Shadow Bolt - 686, Soul Fire - 6353, Touch of Chaos - 103964, Demonic Slash - 114175 and Soul Fire (metamorphosis) - 104027
 // Demonic Call - 114925
 class spell_warl_demonic_call: public SpellScriptLoader
 {
@@ -1278,24 +1323,21 @@ class spell_warl_demonic_call: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demonic_call_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnCast()
             {
-                if (!GetHitUnit())
-                    return;
-
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (caster->HasAura(WARLOCK_DEMONIC_CALL) && !caster->HasAura(WARLOCK_DISRUPTED_NETHER))
+                    if (l_Caster->HasAura(WARLOCK_DEMONIC_CALL))
                     {
-                        caster->CastSpell(caster, WARLOCK_WILD_IMP_SUMMON, true);
-                        caster->RemoveAura(WARLOCK_DEMONIC_CALL);
+						l_Caster->CastSpell(l_Caster, WARLOCK_WILD_IMP_SUMMON, true);
+						l_Caster->RemoveAura(WARLOCK_DEMONIC_CALL);
                     }
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_demonic_call_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_warl_demonic_call_SpellScript::HandleOnCast);
             }
         };
 
@@ -1642,7 +1684,54 @@ class spell_warl_sacrificial_pact: public SpellScriptLoader
         }
 };
 
+// Hand of Gul'Dan - 105174
+// Unglyphed
+class spell_warl_hand_of_guldan_cast : public SpellScriptLoader
+{
+public:
+	spell_warl_hand_of_guldan_cast() : SpellScriptLoader("spell_warl_hand_of_guldan_cast") { }
+
+	class spell_warl_hand_of_guldan_cast_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_warl_hand_of_guldan_cast_SpellScript);
+
+		enum eSpells
+		{
+			SwarmofGuldan = 184923
+		};
+
+		void HandleOnCast()
+		{
+			if (Unit* l_Caster = GetCaster())
+			{
+				if (l_Caster->HasAura(SwarmofGuldan)) // Fragment of the Dark Star
+				{
+					SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SwarmofGuldan);
+
+					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+					{
+						l_Caster->CastSpell(l_Caster, WARLOCK_WILD_IMP_SUMMON, true);
+						l_Caster->CastSpell(l_Caster, WARLOCK_WILD_IMP_SUMMON, true);
+						l_Caster->CastSpell(l_Caster, WARLOCK_WILD_IMP_SUMMON, true);
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnCast += SpellCastFn(spell_warl_hand_of_guldan_cast_SpellScript::HandleOnCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_warl_hand_of_guldan_cast_SpellScript();
+	}
+};
+
 // Hand of Gul'Dan - 143381
+// This is the impact damage when the meteor hits
 class spell_warl_hand_of_guldan: public SpellScriptLoader
 {
     public:
@@ -1674,7 +1763,7 @@ class spell_warl_hand_of_guldan: public SpellScriptLoader
 };
 
 // Hand of Gul'Dan (damage) - 86040
-/// Hand of Gul'Dan (Glyphed) - 123197
+// Hand of Gul'Dan (Glyphed) - 123197
 class spell_warl_hand_of_guldan_damage: public SpellScriptLoader
 {
     public:
@@ -2127,6 +2216,7 @@ class spell_warl_soul_swap: public SpellScriptLoader
 enum DrainSoulSpells
 {
     SPELL_WARL_IMPROVED_DRAIN_SOUL = 157077
+
 };
 
 // Drain Soul - 103103
@@ -2145,7 +2235,9 @@ class spell_warl_drain_soul: public SpellScriptLoader
             UnstableAfflictionDoT       = 30108,
             UnstableAfflictionTriggered = 131736,
             CorruptionDoT               = 146739,
-            CorruptionTriggered         = 131740
+            CorruptionTriggered         = 131740,
+			Haunt						= 48181,
+			DarkSoulMisery				= 113860
         };
 
         class spell_warl_drain_soul_AuraScript : public AuraScript
@@ -2157,8 +2249,18 @@ class spell_warl_drain_soul: public SpellScriptLoader
             void HandlePeriodicDamage(AuraEffect* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
+
+				if (!l_Caster)
+					return;
+
+				if (l_Caster->HasAura(ITEM_WARLOCK_T18_AFF_2P))
+				{
+					if (roll_chance_i(10) && l_Caster->HasAura(eSpells::DarkSoulMisery))
+					{
+						if (Aura* l_DarkSoulMisery = l_Caster->GetAura(eSpells::DarkSoulMisery))
+							l_DarkSoulMisery->SetDuration(l_DarkSoulMisery->GetDuration() + 2000);
+					}
+				}
 
                 std::list<Unit*> l_TargetList;
 
@@ -2184,6 +2286,15 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[SpellEffIndex::EFFECT_0].BasePoints));
                         }
                     }
+
+					if (l_Caster->HasAura(ITEM_WARLOCK_T18_AFF_4P))
+					{
+						if (l_Caster->HasAura(eSpells::DarkSoulMisery))
+						{
+							if (Aura* l_Haunt = l_Target->GetAura(eSpells::Haunt))
+								l_Haunt->SetDuration(10000); // Maximum duration
+						}
+					}
 
                     /// Associate DoT spells to their damage spells
                     std::map<uint32, uint32> l_DotAurasMap =
@@ -4133,6 +4244,17 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
                 Backdraft = 117828
             };
 
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(ITEM_WARLOCK_T18_DEST_4P))
+				{
+					if (roll_chance_i(12))
+						l_Caster->ModifyPower(POWER_BURNING_EMBERS, 10);
+				}
+			}
+
             void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -4150,6 +4272,7 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
 
             void Register()
             {
+				OnCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleOnCast);
                 AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
             }
         };
@@ -5278,6 +5401,101 @@ class spell_warl_glyph_of_hand_of_guldan : public SpellScriptLoader
         }
 };
 
+/// T18 Demonology 2P - 185884
+class spell_warl_t18_demon_2p : public SpellScriptLoader
+{
+public:
+	spell_warl_t18_demon_2p() : SpellScriptLoader("spell_warl_t18_demon_2p") { }
+
+	class spell_warl_t18_demon_2p_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_warl_t18_demon_2p_Aurascript);
+
+		enum eSpells
+		{
+			Soulfire		= 6353,
+			SoulfireDemon	= 104027,
+			T18Proc			= 188857
+		};
+
+		void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+
+			Unit* l_Caster = GetCaster();
+
+			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
+				return;
+
+			if (l_SpellInfoTriggerSpell->Id != eSpells::Soulfire && l_SpellInfoTriggerSpell->Id != eSpells::SoulfireDemon)
+				return;
+
+			l_Caster->CastSpell(l_Caster, eSpells::T18Proc, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_warl_t18_demon_2p_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_warl_t18_demon_2p_Aurascript();
+	}
+};
+
+/// Flamelicked (Fragment of the Dark Star) - 184924
+class spell_warl_flamelicked : public SpellScriptLoader
+{
+public:
+	spell_warl_flamelicked() : SpellScriptLoader("spell_warl_flamelicked") { }
+
+	class spell_warl_flamelicked_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_warl_flamelicked_Aurascript);
+
+		enum eSpells
+		{
+			Incinerate = 29722,
+			Flamelicked = 185229
+		};
+
+		void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+
+			Player* l_Caster = GetCaster()->ToPlayer();
+			Unit* l_Victim = p_ProcEventInfo.GetDamageInfo()->GetVictim();
+
+			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr || l_Victim == nullptr)
+				return;
+
+			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
+				return;
+
+			if (l_SpellInfoTriggerSpell->Id != eSpells::Incinerate)
+				return;
+
+			l_Caster->CastSpell(l_Victim, eSpells::Flamelicked, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_warl_flamelicked_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_warl_flamelicked_Aurascript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_warlock_spell_scripts()
 {
@@ -5325,6 +5543,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_dark_regeneration();
     new spell_warl_soul_leech();
     new spell_warl_sacrificial_pact();
+	new spell_warl_hand_of_guldan_cast();
     new spell_warl_hand_of_guldan();
     new spell_warl_hand_of_guldan_damage();
     new spell_warl_twilight_ward_s12();
@@ -5371,6 +5590,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_cripple_doomguard();
     new spell_warl_glyph_of_hand_of_guldan();
     new spell_warl_eye_of_kilrogg();
+	new spell_warl_t18_demon_2p();
+	new spell_warl_flamelicked();
     new PlayerScript_DemonicFury_On_Kill();
     new PlayerScript_spell_warl_drain_life_meta_cost();
 }

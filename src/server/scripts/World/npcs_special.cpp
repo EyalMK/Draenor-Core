@@ -2014,18 +2014,56 @@ public:
 
 	enum eSpells
 	{
+		ShadowT184P	   = 186981,
 		PremonitionT18 = 188779
 	};
 
-	struct npc_shadowfiend_mindbenderAI : CasterAI
+	struct npc_shadowfiend_mindbenderAI : ScriptedAI
 	{
-		npc_shadowfiend_mindbenderAI(Creature* creature) : CasterAI(creature) {}
-
-		uint32 despawnTimer;
-
-		void Despawn()
+		npc_shadowfiend_mindbenderAI(Creature* creature) : ScriptedAI(creature) 
 		{
+			m_Entry = creature->GetEntry();
+			m_Scheduled = false;
+		}
 
+		uint32 m_Entry;
+		bool m_Scheduled;
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+
+			Unit* l_Owner = me->GetOwner();
+
+			if (l_Owner->HasAura(ShadowT184P))
+			{
+				if (m_Entry == 19668 && m_Scheduled == false)
+				{
+					AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Unit* l_Owner = me->GetOwner();
+						me->AddAura(eSpells::PremonitionT18, l_Owner);
+						m_Scheduled = true;
+					});
+				}
+
+				if (m_Entry == 62982 && m_Scheduled == false)
+				{
+					AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						Unit* l_Owner = me->GetOwner();
+						me->AddAura(eSpells::PremonitionT18, l_Owner);
+						m_Scheduled = true;
+					});
+				}
+			}
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			DoMeleeAttackIfReady();
 		}
 	};
 
@@ -4839,6 +4877,89 @@ class npc_frozen_trail_packer : public CreatureScript
         }
 };
 
+class npc_void_demon_t18 : public CreatureScript
+{
+public:
+	npc_void_demon_t18() : CreatureScript("npc_void_demon_t18") { }
+
+	struct npc_void_demon_t18AI : public ScriptedAI
+	{
+		npc_void_demon_t18AI(Creature* pCreature) : ScriptedAI(pCreature) { }
+
+		void IsSummonedBy(Unit* p_Owner) override
+		{
+			if (!p_Owner || p_Owner->GetTypeId() != TypeID::TYPEID_PLAYER)
+				return;
+
+			if (!me->HasUnitState(UnitState::UNIT_STATE_FOLLOW))
+			{
+				me->GetMotionMaster()->Clear(false);
+				me->GetMotionMaster()->MoveFollow(p_Owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MovementSlot::MOTION_SLOT_ACTIVE);
+			}
+
+			Unit* target = p_Owner ? (p_Owner->getVictim() ? p_Owner->getVictim() : (p_Owner->ToPlayer() ? p_Owner->ToPlayer()->GetSelectedUnit() : NULL)) : NULL;
+
+			me->setFaction(p_Owner->getFaction());
+			me->SetLevel(p_Owner->getLevel());
+			me->SetMaxHealth(p_Owner->GetMaxHealth() / 2);
+			me->SetFullHealth();
+
+			// Speed
+			for (uint8 l_I = 0; l_I < MAX_MOVE_TYPE; ++l_I)
+				me->SetSpeed(UnitMoveType(l_I), 2.0f, true);
+
+			me->SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
+			me->SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
+
+			me->SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, (p_Owner ? p_Owner->GetArmor() : 1) * 50.0f);
+
+			me->SetAttackTime(WeaponAttackType::MaxAttack, 1.5f * IN_MILLISECONDS);
+
+			me->SetBaseWeaponDamage(WeaponAttackType::MaxAttack, MINDAMAGE, 2);
+			me->SetBaseWeaponDamage(WeaponAttackType::MaxAttack, MAXDAMAGE, 2);
+
+			me->UpdateAllStats();
+
+			me->UpdateAttackPowerAndDamage();
+
+			switch (me->GetEntry())
+			{
+				case ENTRY_SATYR_T18:
+				case ENTRY_HOUND_T18:
+					if (me->IsValidAttackTarget(target))
+						AttackStart(target);
+					break;
+				case ENTRY_MALCHEZAAR_T18:
+				{
+					Talk(0);
+
+					if (me->IsValidAssistTarget(target))
+						AttackStart(target);
+					break;
+				}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(const uint32 /*diff*/)
+		{
+			if (!UpdateVictim())
+				return;
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			DoMeleeAttackIfReady();
+		}
+	};
+
+	CreatureAI* GetAI(Creature* pCreature) const
+	{
+		return new npc_void_demon_t18AI(pCreature);
+	}
+};
+
 /////////////////////////////////////////////////////////////
 /// Ethereal Soul-Trader - 27914
 class npc_ethereal_soul_trader : public CreatureScript
@@ -5031,7 +5152,10 @@ void AddSC_npcs_special()
     new npc_training_dummy_tanking();
     new npc_consecration();
     new npc_xuen_the_white_tiger();
+	new npc_void_demon_t18();
     new npc_frozen_trail_packer();
+	new npc_void_demon_t18();
+	new npc_shadowfiend_mindbender();
 
     /////////////////////////////////////////////////////////////
     /// Ethereal Soul-Trader

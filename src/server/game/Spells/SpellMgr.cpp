@@ -5325,7 +5325,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[14].Effect = SPELL_EFFECT_NONE; ///< No more use (Drain Life : 103990)
                 spellInfo->Effects[15].Effect = SPELL_EFFECT_NONE;
                 break;
-            case 5857:   ///< Hellfire damage spell
+			case 6353: ///< Soul Fire
+				spellInfo->OverrideSpellList.push_back(104027);
+				break;
+            case 5857: ///< Hellfire damage spell
                 spellInfo->AttributesEx3 = 0;
                 spellInfo->AttributesEx4 = 0;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
@@ -6032,8 +6035,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 110959: ///< Greater Invisibility
                 spellInfo->Dispel = DISPEL_INVISIBILITY;
                 break;
-            case 47476: ///< Strangulate
-                spellInfo->OverrideSpellList.push_back(108194); ///< Asphyxiate
+			case 47476: ///< Strangulate
+				spellInfo->OverrideSpellList.push_back(108194); ///< Asphyxiate
                 break;
             case 108945: ///< Angelic Bulwark
                 spellInfo->Effects[0].TriggerSpell = 114214;
