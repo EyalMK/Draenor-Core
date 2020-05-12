@@ -3598,13 +3598,8 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 				PrayerReprise			= 186367
             };
 
-			Unit* oldTarget;
-			Unit* newTarget;
-
             void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
-				oldTarget = nullptr;
-
                 if (Unit* l_Caster = GetOriginalCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
@@ -3653,18 +3648,11 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                                         JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
                                         for (auto l_Itr : l_FriendlyUnitList)
                                         {
-											if (newTarget == nullptr)
-												newTarget = l_Itr;
-
-											newTarget = l_Itr;
-
-											l_Target->SendPlaySpellVisual(38945, newTarget, 50.0f, false, Position());
-
                                             l_Caster->CastSpell(l_Itr, l_AurEff->GetSpellInfo()->Id, true);
 											if (Aura* l_PrayerOfMendingAura = l_Itr->GetAura(l_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
 											{
 												l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
-												oldTarget = newTarget;
+												l_Target->CastSpell(l_Itr, 41637, true);
 											}
                                         }
                                     }
