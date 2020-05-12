@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='boss_azuregos' WHERE `entry`=6109;

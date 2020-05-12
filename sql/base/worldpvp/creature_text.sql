@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldpvp.creature_text: 13,239 rows
+-- Dumping data for table worldpvp.creature_text: 13,240 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -13270,7 +13270,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(40542, 5, 0, 'You gave it a good shot, kid. But this is goblin turf now. I suggest you get used to it.', 12, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 6'),
 	(40542, 6, 0, 'Ciao, babe. Let me know if you\'d like to do lunch sometime. We\'ll work something out now that you\'ve learned some manners.', 12, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 7'),
 	(40542, 7, 0, 'Yikes! That stings!', 14, 7, 100, 0, 0, 0, 'Megs Dreadshredder Thunderdrome - Text 8'),
-	(50336, 0, 0, 'You! What are you doing here?', 12, 0, 100, 0, 0, 0, 'Yorik Sharpeye On Aggro Text');
+	(50336, 0, 0, 'You! What are you doing here?', 12, 0, 100, 0, 0, 0, 'Yorik Sharpeye On Aggro Text'),
+	(95467, 0, 0, 'You face not Malchezaar alone, but the legions I command!', 14, 0, 100, 0, 0, 9322, 'malchezaar SAY_SUMMON');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

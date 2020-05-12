@@ -67,7 +67,18 @@ enum RogueSpells
     ROGUE_SPELL_WOD_PVP_SUBTLETY_4P             = 170877,
     ROGUE_SPELL_WOD_PVP_SUBTLETY_4P_EFFECT      = 170879,
     ROGUE_SPELL_FIND_WEAKNESS                   = 91023,
-    ROGUE_SPELL_FIND_WEAKNESS_PROC              = 91021
+    ROGUE_SPELL_FIND_WEAKNESS_PROC              = 91021,
+
+	// Tier
+
+	// T18
+
+	ITEM_ROGUE_T18_ASSASSINATION_2P				= 186182,
+	ITEM_ROGUE_T18_ASSASSINATION_4P				= 186277,
+	ITEM_ROGUE_T18_COMBAT_2P					= 186285,
+	ITEM_ROGUE_T18_COMBAT_4P					= 186288,
+	ITEM_ROGUE_T18_SUBTELY_2P					= 186278,
+	ITEM_ROGUE_T18_SUBTELY_4P					= 186279
 };
 
 /// Last Update 6.2.3
@@ -2282,7 +2293,8 @@ class spell_rog_vanish : public SpellScriptLoader
             StealthSubterfuge = 115191,
             StealthSubterfugeEffect = 115192,
             GlyphOfDisappearance = 159638,
-            GlyphOfVanish = 89758
+            GlyphOfVanish = 89758,
+			DeathlyShadows = 188700
         };
 
         class spell_rog_vanish_AuraScript : public AuraScript
@@ -2310,6 +2322,12 @@ class spell_rog_vanish : public SpellScriptLoader
                     /// Glyph of Vanish
                     if (AuraEffect* l_AurGlyphOfVanish = l_Player->GetAuraEffect(eSpells::GlyphOfVanish, EFFECT_0))
                         p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + l_AurGlyphOfVanish->GetAmount());
+
+					if (l_Player->HasAura(ITEM_ROGUE_T18_SUBTELY_2P))
+					{
+						l_Player->ModifyPower(POWER_COMBO_POINT, 5);
+						l_Player->CastSpell(l_Player, eSpells::DeathlyShadows, true);
+					}
 
                     /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
                     if (l_Player->getLevel() == 100)
@@ -2647,11 +2665,11 @@ public:
     {
         PrepareSpellScript(spell_rog_combo_point_delayed_SpellScript);
 
-        enum eSpells {
+        enum eSpells 
+		{
             AnticipationStacks = 115189
         };
         
-
         void HandleOnHit()
         {
             Player* l_Player = GetCaster()->ToPlayer();
@@ -2701,7 +2719,7 @@ public:
 };
 
 /// Last Update 6.2.3
-/// Eviscerate - 2098
+/// Eviscerate - 2098 and Eviscerate - 185187
 class spell_rog_evicerate : public SpellScriptLoader
 {
     public:
@@ -2714,48 +2732,55 @@ class spell_rog_evicerate : public SpellScriptLoader
             enum eSpells
             {
                 Tier5Bonus2P        = 37169,
-                MasteryExecutioner  = 76808
+                MasteryExecutioner  = 76808,
+				EvisceratingBlade	= 184917
             };
 
-            void HandleDamage(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
+			void HandleDamage(SpellEffIndex effIndex)
+			{
+				PreventHitDefaultEffect(effIndex);
 
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-                Player* l_Owner = l_Caster->GetSpellModOwner();
-                uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                int32 l_Damage = 0;
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetHitUnit();
+				Player* l_Owner = l_Caster->GetSpellModOwner();
+				uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+				int32 l_Damage = 0;
 
-                if (l_Target == nullptr || l_Owner == nullptr)
-                    return;
+				if (l_Target == nullptr || l_Owner == nullptr)
+					return;
 
-                if (l_ComboPoint)
-                {
-                    float l_Mult = 1.0f; ///< Mastery is apply in MeleeDamageBonusDone, so we let this to 1
-                    if (!l_Owner->HasAura(eSpells::MasteryExecutioner))
-                        l_Mult = 0.88f;
+				if (l_ComboPoint)
+				{
+					float l_Mult = 1.0f; ///< Mastery is apply in MeleeDamageBonusDone, so we let this to 1
+					if (!l_Owner->HasAura(eSpells::MasteryExecutioner))
+						l_Mult = 0.88f;
 
-                    l_Damage += int32((l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * l_Mult * l_ComboPoint);
+						l_Damage += int32((l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * l_Mult * l_ComboPoint);
 
-                    /// Tier 5 Bonus 2 pieces
-                    if (AuraEffect* l_Tier5Bonus2P = l_Owner->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
-                        l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
-                }
+					/// Tier 5 Bonus 2 pieces
+					if (AuraEffect* l_Tier5Bonus2P = l_Owner->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
+						l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
+				}
 
+				l_Damage *= l_Owner->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
 
-                l_Damage *= l_Owner->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
+				l_Damage = l_Owner->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+				l_Damage = l_Target->MeleeDamageBonusTaken(l_Owner, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
 
-                l_Damage = l_Owner->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
-                l_Damage = l_Target->MeleeDamageBonusTaken(l_Owner, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+				SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::EvisceratingBlade);
 
-                SetHitDamage(l_Damage);
-            }
+				int32 l_TrinketBase = 1 + (l_SpellInfo->Effects[EFFECT_1].BasePoints / 100);
+
+				if (l_Caster->HasAura(eSpells::EvisceratingBlade))
+					SetHitDamage(l_Damage * l_TrinketBase);
+				else
+					SetHitDamage(l_Damage);
+			}
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_evicerate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
+				OnEffectHitTarget += SpellEffectFn(spell_rog_evicerate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+			}
         };
 
         SpellScript* GetSpellScript() const override
@@ -3722,8 +3747,12 @@ class spell_rog_T18_2P_combat : public SpellScriptLoader
 						{
 							if (roll_chance_i(8))
 							{
-								player->CastCustomSpell(player, 186286, NULL, NULL, NULL, true); // Adrenaline Rush 4s
-								timer = 1000; // 1 second interval
+								if (Aura* l_AdredalineRush = player->GetAura(13750))
+									l_AdredalineRush->SetDuration(l_AdredalineRush->GetDuration() + 4000);
+								else
+									player->CastSpell(player, 186286, true); // Adrenaline Rush 4s
+
+								timer = 2000; // 1 second interval
 							}
 						}
 						else
@@ -3746,6 +3775,101 @@ class spell_rog_T18_2P_combat : public SpellScriptLoader
 	AuraScript* GetAuraScript() const
 	{
 		return new spell_rog_T18_2P_combat_AuraScript();
+	}
+};
+
+/// Last Update 6.2.3
+/// Dispatch - 111240
+class spell_rog_dispatch : public SpellScriptLoader
+{
+public:
+	spell_rog_dispatch() : SpellScriptLoader("spell_rog_dispatch") { }
+
+	class spell_rog_dispatch_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_rog_dispatch_SpellScript);
+
+		enum eSpells
+		{
+			NatureDispatch = 186183
+		};
+
+		void HandleOnHit()
+		{
+			Player* l_Player = GetCaster()->ToPlayer();
+			Unit* l_Target = GetHitUnit();
+
+			if (l_Player == nullptr || l_Target == nullptr)
+				return;
+
+			if (l_Player->HasAura(ITEM_ROGUE_T18_ASSASSINATION_2P))
+			{
+				int32 l_DamageNatureDispatch = 0;
+
+				l_DamageNatureDispatch = CalculatePct(GetHitDamage(), 15.5); // This is the most close to 25%
+
+				l_Player->CastCustomSpell(l_Target, eSpells::NatureDispatch, &l_DamageNatureDispatch, NULL, NULL, true);
+			}
+
+			if (l_Player->HasAura(ITEM_ROGUE_T18_ASSASSINATION_4P))
+			{
+				l_Player->ModifyPower(POWER_COMBO_POINT, 2);
+			}
+		}
+
+		void Register() override
+		{
+			OnHit += SpellHitFn(spell_rog_dispatch_SpellScript::HandleOnHit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_rog_dispatch_SpellScript();
+	}
+};
+
+/// Last Update 6.2.3
+/// Rupture - 1943
+class spell_rog_rupture : public SpellScriptLoader
+{
+public:
+	spell_rog_rupture() : SpellScriptLoader("spell_rog_rupture") { }
+
+	class spell_rog_rupture_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_rog_rupture_SpellScript);
+
+		uint8 m_ComboPoints = 0;
+
+		void HandleBeforeHit()
+		{
+			if (Unit* l_Caster = GetCaster())
+				m_ComboPoints = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+		}
+
+		void HandleAfterHit()
+		{
+			if (Player* l_Player = GetCaster()->ToPlayer())
+			{
+				if (l_Player->HasAura(ITEM_ROGUE_T18_SUBTELY_4P))
+				{
+					if (l_Player->HasSpellCooldown(1856)) // Vanish
+						l_Player->ReduceSpellCooldown(1856, -(1 * m_ComboPoints));
+				}
+			}
+		}
+
+		void Register() override
+		{
+			BeforeHit += SpellHitFn(spell_rog_rupture_SpellScript::HandleBeforeHit);
+			AfterHit += SpellHitFn(spell_rog_rupture_SpellScript::HandleAfterHit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_rog_rupture_SpellScript();
 	}
 };
 
@@ -3812,6 +3936,8 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_item_t17_subtlety_4p_bonus();
     new spell_rog_ruthlessness_and_relentless_strikes();
 	new spell_rog_T18_2P_combat();
+	new spell_rog_dispatch();
+	new spell_rog_rupture();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

@@ -416,17 +416,19 @@ inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 
 enum ItemQualities
 {
-    ITEM_QUALITY_POOR                  = 0,                 // GREY
-    ITEM_QUALITY_NORMAL                = 1,                 // WHITE
-    ITEM_QUALITY_UNCOMMON              = 2,                 // GREEN
-    ITEM_QUALITY_RARE                  = 3,                 // BLUE
-    ITEM_QUALITY_EPIC                  = 4,                 // PURPLE
-    ITEM_QUALITY_LEGENDARY             = 5,                 // ORANGE
-    ITEM_QUALITY_ARTIFACT              = 6,                 // LIGHT YELLOW
-    ITEM_QUALITY_HEIRLOOM              = 7                  // LIGHT YELLOW
+    ITEM_QUALITY_POOR                  = 0, // GREY  
+    ITEM_QUALITY_NORMAL                = 1, // WHITE
+    ITEM_QUALITY_UNCOMMON              = 2, // GREEN
+    ITEM_QUALITY_RARE                  = 3, // BLUE
+    ITEM_QUALITY_EPIC                  = 4, // PURPLE
+    ITEM_QUALITY_LEGENDARY             = 5, // ORANGE
+    ITEM_QUALITY_ARTIFACT              = 6, // LIGHT YELLOW
+    ITEM_QUALITY_HEIRLOOM              = 7, // LIGHT BLUE
+	ITEM_QUALITY_WOW_TOKEN			   = 8	// LIGHT BLUE
+
 };
 
-#define MAX_ITEM_QUALITY                 8
+#define MAX_ITEM_QUALITY                 9
 
 enum SpellCategory
 {
@@ -443,14 +445,15 @@ enum SpellCategoryFlags
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
 {
-    0xff9d9d9d,        // GREY
-    0xffffffff,        // WHITE
-    0xff1eff00,        // GREEN
-    0xff0070dd,        // BLUE
-    0xffa335ee,        // PURPLE
-    0xffff8000,        // ORANGE
-    0xffe6cc80,        // LIGHT YELLOW
-    0xffe6cc80         // LIGHT YELLOW
+    0xff9d9d9d, // GREY
+    0xffffffff, // WHITE
+    0xff1eff00, // GREEN
+    0xff0070dd, // BLUE
+    0xffa335ee, // PURPLE
+    0xffff8000, // ORANGE
+	0xffe6cc80,	// LIGHT YELLOW
+	0xff00ccff,	// LIGHT BLUE
+	0xff00ccff	// LIGHT BLUE
 };
 
 // ***********************************
@@ -557,9 +560,9 @@ enum SpellAttr2
     SPELL_ATTR2_IS_ARCANE_CONCENTRATION          = 0x00800000, // 23 Only mage Arcane Concentration have this flag
     SPELL_ATTR2_UNK24                            = 0x01000000, // 24
     SPELL_ATTR2_UNK25                            = 0x02000000, // 25
-    SPELL_ATTR2_UNK26                            = 0x04000000, // 26 unaffected by school immunity
+	SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE = 0x04000000, // 26 unaffected by school immunity
     SPELL_ATTR2_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR2_UNK28                            = 0x10000000, // 28 no breaks stealth if it fails??
+	SPELL_ATTR2_IGNORE_ITEM_CHECK				 = 0x10000000, // 28 Spell is cast without checking item requirements (charges/reagents/totem)
     SPELL_ATTR2_CANT_CRIT                        = 0x20000000, // 29 Spell can't crit
     SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC       = 0x40000000, // 30 spell can trigger even if triggered
     SPELL_ATTR2_FOOD_BUFF                        = 0x80000000  // 31 Food or Drink Buff (like Well Fed)
@@ -700,7 +703,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK22                            = 0x00400000, // 22 only 72054
     SPELL_ATTR6_UNK23                            = 0x00800000, // 23
     SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24
-    SPELL_ATTR6_UNK25                            = 0x02000000, // 25 Exorcism, Flash of Light, Healing Touch
+	SPELL_ATTR6_NOT_RESET_SWING_IF_INSTANT		 = 0x02000000, // 25 Exorcism, Flash of Light, Healing Touch
     SPELL_ATTR6_UNK26                            = 0x04000000, // 26 related to player castable positive buff
     SPELL_ATTR6_UNK27                            = 0x08000000, // 27
     SPELL_ATTR6_UNK28                            = 0x10000000, // 28 Death Grip
@@ -831,7 +834,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK9                             = 0x00000200, // 9 relocation spells
     SPELL_ATTR10_UNK10                            = 0x00000400, // 10 Omar's Seal of Approval, Spellweaving
     SPELL_ATTR10_HERB_GATHERING_MINING            = 0x00000800, // 11 Only Herb Gathering and Mining
-    SPELL_ATTR10_UNK12                            = 0x00001000, // 12
+	SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING = 0x00001000, // 12
     SPELL_ATTR10_UNK13                            = 0x00002000, // 13
     SPELL_ATTR10_UNK14                            = 0x00004000, // 14
     SPELL_ATTR10_UNK15                            = 0x00008000, // 15
@@ -860,9 +863,9 @@ enum SpellAttr11
     SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL           = 0x00000004, //  2
     SPELL_ATTR11_UNK3                             = 0x00000008, //  3
     SPELL_ATTR11_UNK4                             = 0x00000010, //  4
-    SPELL_ATTR11_UNK5                             = 0x00000020, //  5
+	SPELL_ATTR11_ABSORB_ENVIRONMENTAL_DAMAGE	  = 0x00000020, //  5
     SPELL_ATTR11_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR11_UNK7                             = 0x00000080, //  7
+	SPELL_ATTR11_RANK_IGNORES_CASTER_LEVEL		  = 0x00000080, //  7 Spell_C_GetSpellRank returns SpellLevels->MaxLevel * 5 instead of std::min(SpellLevels->MaxLevel, caster->Level) * 5
     SPELL_ATTR11_UNK8                             = 0x00000100, //  8
     SPELL_ATTR11_UNK9                             = 0x00000200, //  9
     SPELL_ATTR11_UNK10                            = 0x00000400, // 10
@@ -915,7 +918,7 @@ enum SpellAttr12
     SPELL_ATTR12_UNK21                            = 0x00200000, // 21
     SPELL_ATTR12_UNK22                            = 0x00400000, // 22
     SPELL_ATTR12_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR12_UNK24                            = 0x01000000, // 24
+	SPELL_ATTR12_IS_GARRISON_BUFF				  = 0x01000000, // 24
     SPELL_ATTR12_UNK25                            = 0x02000000, // 25
     SPELL_ATTR12_UNK26                            = 0x04000000, // 26
     SPELL_ATTR12_IS_READINESS_SPELL               = 0x08000000, // 27

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `conditions` (
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Condition System';
 
--- Dumping data for table worldlive.conditions: 8,501 rows
+-- Dumping data for table worldlive.conditions: 8,521 rows
 DELETE FROM `conditions`;
 /*!40000 ALTER TABLE `conditions` DISABLE KEYS */;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -8534,7 +8534,27 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(19, 0, 28563, 0, 0, 8, 0, 26503, 0, 0, 1, 0, '', 'Show quest Hero\'s Call: Redridge Mountains! if quest Still Assessing the Threat has not been rewarded.'),
 	(19, 0, 26365, 0, 0, 8, 0, 26503, 0, 0, 1, 0, '', 'Show quest Hero\'s Call: Redridge Mountains! if quest Still Assessing the Threat has not been rewarded.'),
 	(22, 1, 4548, 2, 0, 1, 0, 37097, 0, 0, 0, 0, '', 'SAI areatrigger 4548 triggers only if player has aura Crate Disguise'),
-	(13, 1, 79084, 0, 0, 31, 0, 3, 42381, 0, 0, 0, '', 'Unbound Energy - Target Overloaded Harvest Golem');
+	(13, 1, 79084, 0, 0, 31, 0, 3, 42381, 0, 0, 0, '', 'Unbound Energy - Target Overloaded Harvest Golem'),
+	(13, 1, 46886, 0, 0, 31, 0, 3, 24769, 0, 0, 0, '', 'Spell Frost Breath targets Red Dragon Soldier'),
+	(13, 1, 46886, 0, 1, 31, 0, 3, 26237, 0, 0, 0, '', 'Spell Frost Breath targets Keristrasza'),
+	(13, 1, 46900, 0, 0, 31, 0, 3, 26310, 0, 0, 0, '', 'Spell Dragon Fireball targets Malygos'),
+	(13, 1, 46902, 0, 0, 31, 0, 3, 26237, 0, 0, 0, '', 'Spell Malygos Teleport effect0 targets Keristrasza'),
+	(13, 1, 62272, 0, 0, 31, 0, 3, 33087, 0, 0, 0, '', 'Spell Raelorasz\' Spark targets Signal Fire Invisman'),
+	(13, 1, 46704, 0, 0, 31, 0, 3, 26127, 0, 0, 0, '', 'Target Nexus Drake Hatchling'),
+	(13, 2, 33814, 0, 0, 29, 0, 18729, 1000, 0, 0, 0, '', 'Spell SPELL_INFERNAL_RAIN (effect 1) will hit the potential target of the spell if target is unit NPC_INFERNAL_RAIN within 1000 yards.'),
+	(22, 1, 23370, 0, 0, 31, 0, 3, 22274, 0, 0, 0, '', 'event require creature 22274'),
+	(13, 1, 77314, 0, 0, 31, 0, 3, 41202, 0, 0, 0, '', 'Spell 77314 targets Constriction Totem 41202'),
+	(19, 0, 24473, 0, 1, 8, 0, 24470, 0, 0, 0, 0, '', 'Show quest Lockdown in Anvilmar if quest Give \'em What-For has been rewarded.'),
+	(19, 0, 24473, 0, 1, 8, 0, 24471, 0, 0, 0, 0, '', 'Show quest Lockdown in Anvilmar if quest Aid for the Wounded has been rewarded.'),
+	(19, 0, 24487, 0, 1, 8, 0, 24475, 0, 0, 0, 0, '', 'Show quest Whitebeard Needs Ye if quest All the Other Stuff has been rewarded.'),
+	(19, 0, 24487, 0, 1, 8, 0, 24486, 0, 0, 0, 0, '', 'Show quest Whitebeard Needs Ye if quest Make Hay While the Sun Shines has been rewarded.'),
+	(19, 0, 218, 0, 1, 8, 0, 182, 0, 0, 0, 0, '', 'Show quest Ice and Fire if quest The troll menace has been rewarded.'),
+	(19, 0, 218, 0, 1, 8, 0, 24489, 0, 0, 0, 0, '', 'Show quest Ice and Fire if quest Trolling for information has been rewarded.'),
+	(19, 0, 24493, 0, 1, 9, 0, 24492, 0, 0, 0, 0, '', 'Show quest Don\'t forget about us if quest Pack your bags has been taken.'),
+	(19, 0, 25986, 0, 0, 8, 0, 432, 0, 0, 0, 0, '', 'Show quest Trouble at the Lake if quest Those Blasted Troggs! has been rewarded.'),
+	(19, 0, 25986, 0, 0, 8, 0, 433, 0, 0, 0, 0, '', 'Show quest Trouble at the Lake if quest The Public Servant has been rewarded.'),
+	(19, 0, 25986, 0, 0, 8, 0, 25937, 0, 0, 0, 0, '', 'Show quest Trouble at the Lake if quest Priceless Treasures has been rewarded.'),
+	(19, 0, 25986, 0, 0, 14, 0, 25978, 0, 0, 0, 0, '', 'Show quest Trouble at the Lake if quest Entombed in Ice has not been taken.');
 /*!40000 ALTER TABLE `conditions` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

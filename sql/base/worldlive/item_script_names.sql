@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `item_script_names` (
   PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table worldlive.item_script_names: 49 rows
+-- Dumping data for table worldlive.item_script_names: 52 rows
 DELETE FROM `item_script_names`;
 /*!40000 ALTER TABLE `item_script_names` DISABLE KEYS */;
 INSERT INTO `item_script_names` (`Id`, `ScriptName`) VALUES
@@ -70,7 +70,10 @@ INSERT INTO `item_script_names` (`Id`, `ScriptName`) VALUES
 	(126920, 'item_strongbox'),
 	(126919, 'item_strongbox'),
 	(127831, 'item_script_challengers_strongbox'),
-	(118705, 'item_warm_goren_egg');
+	(118705, 'item_warm_goren_egg'),
+	(58200, 'item_techno_granade'),
+	(58203, 'item_paint'),
+	(58253, 'item_orbit');
 /*!40000 ALTER TABLE `item_script_names` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

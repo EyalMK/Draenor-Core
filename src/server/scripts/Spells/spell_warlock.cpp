@@ -5486,7 +5486,7 @@ public:
 
 		void Register()
 		{
-			OnEffectProc += AuraEffectProcFn(spell_warl_flamelicked_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+			OnEffectProc += AuraEffectProcFn(spell_warl_flamelicked_Aurascript::HandleOnProc, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
 		}
 	};
 

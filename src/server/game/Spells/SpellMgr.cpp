@@ -4269,12 +4269,22 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
+			case 137384: ///< Combo Breaker
+				spellInfo->Attributes &= -SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+				break;
             case 157607: ///< Instant Poison
-                /*spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(29); ///< 12s
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;*/
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(29); ///< 12s
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
 				spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+			case 32645: ///< Envenom
+				spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
+				break;
+			case 13750:  ///< Adredaline Rush
+			case 186286: ///< Adredaline Rush
+				spellInfo->Effects[0].BasePoints = 100;
+				break;
             case 157675: ///< Chi Explosion
             case 182078: ///< Chi Explosion
                 spellInfo->CastTimeEntry = 0;
@@ -5012,6 +5022,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 1329: ///< Mutilate
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
+			case 186723: ///< Penance (T18)
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_ALLY_OR_RAID;
+				spellInfo->Effects[0].TargetB = 0;
+				break;
             case 113828: ///< Healing Touch (treant)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[0].TargetB = 0;
@@ -6369,21 +6383,21 @@ void SpellMgr::LoadSpellCustomAttr()
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
-			case 125950: // Soothing Mist (statue)
+			case 125950: ///< Soothing Mist (statue)
 				spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_HEAL;
 				spellInfo->Effects[0].BonusMultiplier = 1.0f;
 				break;
-			case 115151: // Renewing Mist
+			case 115151: ///< Renewing Mist
 				spellInfo->Effects[EFFECT_2].Effect = 0;
 				break;
-			case 119607:  // Renewing Mist AoE Jump
+			case 119607: ///< Renewing Mist AoE Jump
 				spellInfo->Effects[EFFECT_1].SetRadiusIndex(EFFECT_RADIUS_20_YARDS);
 				break;
             case 119611: ///< Renewing Mist HoT
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;
 				spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NATURE;
                 break;
-			case 132169:// Storm Bolt (stun effect)
+			case 132169: ///< Storm Bolt (stun effect)
 				spellInfo->Speed = 0;
 				spellInfo->SetRangeIndex(6);  // 100yd
 				break;

@@ -3455,32 +3455,6 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
 
                         if (GetSpellInfo()->Id == eSpells::PrayerOfMendingDivineSpell && l_Caster->HasAura(eSpells::DivineInsight))
                             l_Caster->RemoveAura(eSpells::DivineInsight);
-						
-						if (l_Caster->HasAura(ITEM_PRIEST_HOLY_T18_4P))
-						{
-							if (roll_chance_i(10))
-							{
-								float l_Radius = 40.0f;
-
-								std::list<Unit*> l_FriendlyUnitList;
-								JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
-								JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
-								l_Target->VisitNearbyObject(l_Radius, l_Searcher);
-
-								/// Sort friendly unit by pourcentage of health and get the most injured
-								if (l_FriendlyUnitList.size() > 1)
-								{
-									l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
-									l_FriendlyUnitList.resize(1);
-								}
-
-								/// Cast triggered Prayer of Mending on him
-								for (auto l_Itr : l_FriendlyUnitList)
-								{
-									l_Target->CastSpell(l_Itr, 123259, true);
-								}
-							}
-						}
                     }
                 }
             }
@@ -3620,7 +3594,8 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                 PriestWoDPvPHoly2PBonus = 171158,
                 Pvp2PBonusProc          = 171162,
                 T17Holy4P               = 167684,
-                SerendipityStack        = 63735
+                SerendipityStack        = 63735,
+				PrayerReprise			= 186367
             };
 
             void HandleHeal(SpellEffIndex /*p_EffIndex*/)
@@ -3671,19 +3646,55 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                                         for (auto l_Itr : l_FriendlyUnitList)
                                         {
                                             l_Caster->CastSpell(l_Itr, l_AurEff->GetSpellInfo()->Id, true);
-                                            if (Aura* l_PrayerOfMendingAura = l_Itr->GetAura(l_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
-                                                l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
+											if (Aura* l_PrayerOfMendingAura = l_Itr->GetAura(l_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+											{
+												l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
+												l_Target->CastSpell(l_Itr, 41637, true);
+											}
                                         }
                                     }
                                 }
                             }
+
                             if (l_Caster->HasAura(eSpells::PriestWoDPvPHoly2PBonus)) ///< When Prayer of Mending heals a target, you and the target gain 130 Versatility for 10 sec. Stacks up to 5 times.
                             {
                                 l_Caster->CastSpell(l_Caster, eSpells::Pvp2PBonusProc, true);
                                 l_Caster->CastSpell(l_Target, eSpells::Pvp2PBonusProc, true);
                             }
+
                             l_Target->RemoveAura(l_AurEff->GetSpellInfo()->Id);
                         }
+
+						if (l_Caster->HasAura(ITEM_PRIEST_HOLY_T18_2P))
+						{
+							l_Caster->CastSpell(l_Caster, eSpells::PrayerReprise, true);
+						}
+
+						if (l_Caster->HasAura(ITEM_PRIEST_HOLY_T18_4P))
+						{
+							if (roll_chance_i(10))
+							{
+								float l_Radius = 40.0f;
+
+								std::list<Unit*> l_FriendlyUnitList;
+								JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
+								JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
+								l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+								/// Sort friendly unit by pourcentage of health and get the most injured
+								if (l_FriendlyUnitList.size() > 1)
+								{
+									l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+									l_FriendlyUnitList.resize(1);
+								}
+
+								/// Cast triggered Prayer of Mending on him
+								for (auto l_Itr : l_FriendlyUnitList)
+								{
+									l_Target->CastSpell(l_Itr, 123259, true);
+								}
+							}
+						}
                     }
                 }
             }
@@ -5040,17 +5051,17 @@ public:
 			PreventDefaultAction();
 
 			Player* l_Caster = GetCaster()->ToPlayer();
+			SpellInfo const* l_SpellInfoTriggerDamageSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+			SpellInfo const* l_SpellInfoTriggerHealSpell = p_ProcEventInfo.GetHealInfo()->GetSpellInfo();
 
-			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetSpellInfo();
-
-			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
+			if (l_Caster == nullptr || l_SpellInfoTriggerDamageSpell == nullptr || l_SpellInfoTriggerHealSpell == nullptr)
 				return;
 
 			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
 				return;
 
-			// Only proc from		   Penance (dmg)						  Penance (heal)					    Penance T18 (heal)
-			if (l_SpellInfoTriggerSpell->Id != 47666 || l_SpellInfoTriggerSpell->Id != 47750 || l_SpellInfoTriggerSpell->Id != 186723)
+			// Only proc from				 Penance (dmg)								 Penance (heal)							  Penance T18 (heal)
+			if (l_SpellInfoTriggerDamageSpell->Id != 47666 && l_SpellInfoTriggerHealSpell->Id != 47750 && l_SpellInfoTriggerHealSpell->Id != 186723)
 				return;
 
 			l_Caster->CastSpell(l_Caster, eSpells::Reparation, true);
@@ -5098,7 +5109,7 @@ public:
 				return;
 
 			// Only proc from Prayer of Mending bounces
-			if (l_SpellInfoTriggerSpell->Id != 33076 || l_SpellInfoTriggerSpell->Id != 123259)
+			if (l_SpellInfoTriggerSpell->Id != 33110)
 				return;
 
 			l_Caster->CastSpell(l_Caster, eSpells::PrayerReprise, true);
@@ -5148,7 +5159,7 @@ public:
 			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
 				return;
 
-			if (l_SpellInfoTriggerSpell->Id != eSpells::MindFly || l_SpellInfoTriggerSpell->Id != eSpells::Insanity)
+			if (l_SpellInfoTriggerSpell->Id != eSpells::MindFly && l_SpellInfoTriggerSpell->Id != eSpells::Insanity)
 				return;
 
 			l_Caster->CastSpell(l_Victim, eSpells::MentalFatigue, true);
@@ -5156,7 +5167,7 @@ public:
 
 		void Register()
 		{
-			OnEffectProc += AuraEffectProcFn(spell_pri_mental_fatigue_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+			OnEffectProc += AuraEffectProcFn(spell_pri_mental_fatigue_Aurascript::HandleOnProc, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
 		}
 	};
 
@@ -5197,15 +5208,15 @@ public:
 				return;
 
 			// Only proc from		  Penance (heal)			   Penance T18 trigger (heal)							  Flash Heal							   	   Heal						Prayer of Healing
-			if (l_SpellInfoTriggerSpell->Id != 47750 || l_SpellInfoTriggerSpell->Id != 186723 || l_SpellInfoTriggerSpell->Id != 2061 || l_SpellInfoTriggerSpell->Id != 2060 || l_SpellInfoTriggerSpell->Id != 596)
+			if (l_SpellInfoTriggerSpell->Id != 47750 && l_SpellInfoTriggerSpell->Id != 186723 && l_SpellInfoTriggerSpell->Id != 2061 && l_SpellInfoTriggerSpell->Id != 2060 && l_SpellInfoTriggerSpell->Id != 596)
 				return;
 
-			l_Caster->CastSpell(l_Victim, eSpells::NaaruDiscipline, true);
+			l_Caster->CastCustomSpell(l_Victim, eSpells::NaaruDiscipline, nullptr, nullptr, nullptr, true);
 		}
 
 		void Register()
 		{
-			OnEffectProc += AuraEffectProcFn(spell_pri_naaru_discipline_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+			OnEffectProc += AuraEffectProcFn(spell_pri_naaru_discipline_Aurascript::HandleOnProc, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
 		}
 	};
 

@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `version` (
 DELETE FROM `version`;
 /*!40000 ALTER TABLE `version` DISABLE KEYS */;
 INSERT INTO `version` (`core_version`, `core_revision`, `db_version`, `cache_id`) VALUES
-	('Firestorm WoDCore rev. unknown 1970-01-01 00:00:00 +0000 (Archived branch) (Win64, Release)', 'unknown', 'HellscreamDB', 81);
+	('Firestorm WoDCore rev. unknown 1970-01-01 00:00:00 +0000 (Archived branch) (Win64, RelWithDebInfo)', 'unknown', 'HellscreamDB', 81);
 /*!40000 ALTER TABLE `version` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
