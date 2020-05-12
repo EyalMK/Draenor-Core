@@ -3455,32 +3455,6 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
 
                         if (GetSpellInfo()->Id == eSpells::PrayerOfMendingDivineSpell && l_Caster->HasAura(eSpells::DivineInsight))
                             l_Caster->RemoveAura(eSpells::DivineInsight);
-						
-						if (l_Caster->HasAura(ITEM_PRIEST_HOLY_T18_4P))
-						{
-							if (roll_chance_i(10))
-							{
-								float l_Radius = 40.0f;
-
-								std::list<Unit*> l_FriendlyUnitList;
-								JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
-								JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
-								l_Target->VisitNearbyObject(l_Radius, l_Searcher);
-
-								/// Sort friendly unit by pourcentage of health and get the most injured
-								if (l_FriendlyUnitList.size() > 1)
-								{
-									l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
-									l_FriendlyUnitList.resize(1);
-								}
-
-								/// Cast triggered Prayer of Mending on him
-								for (auto l_Itr : l_FriendlyUnitList)
-								{
-									l_Target->CastSpell(l_Itr, 123259, true);
-								}
-							}
-						}
                     }
                 }
             }
@@ -3620,17 +3594,26 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                 PriestWoDPvPHoly2PBonus = 171158,
                 Pvp2PBonusProc          = 171162,
                 T17Holy4P               = 167684,
-                SerendipityStack        = 63735
+                SerendipityStack        = 63735,
+				PrayerReprise			= 186367
             };
+
+			Unit* oldTarget;
+			Unit* newTarget;
 
             void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
+				oldTarget = nullptr;
+
                 if (Unit* l_Caster = GetOriginalCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Caster->HasAura(eSpells::T17Holy4P) && roll_chance_i(20))
                             l_Caster->CastSpell(l_Caster, eSpells::SerendipityStack, true);
+
+						if (oldTarget != nullptr)
+							l_Target = oldTarget;
 
                         AuraEffect* l_AurEff = l_Target->GetAuraEffect(PrayerOfMendingSpells::PrayerOfMendingAura, EFFECT_0, l_Caster->GetGUID());
 
@@ -3670,20 +3653,63 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                                         JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
                                         for (auto l_Itr : l_FriendlyUnitList)
                                         {
+											if (newTarget == nullptr)
+												newTarget = l_Itr;
+
+											newTarget = l_Itr;
+
+											l_Target->SendPlaySpellVisual(38945, newTarget, 50.0f, false, Position());
+
                                             l_Caster->CastSpell(l_Itr, l_AurEff->GetSpellInfo()->Id, true);
-                                            if (Aura* l_PrayerOfMendingAura = l_Itr->GetAura(l_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
-                                                l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
+											if (Aura* l_PrayerOfMendingAura = l_Itr->GetAura(l_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+											{
+												l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
+												oldTarget = newTarget;
+											}
                                         }
                                     }
                                 }
                             }
+
                             if (l_Caster->HasAura(eSpells::PriestWoDPvPHoly2PBonus)) ///< When Prayer of Mending heals a target, you and the target gain 130 Versatility for 10 sec. Stacks up to 5 times.
                             {
                                 l_Caster->CastSpell(l_Caster, eSpells::Pvp2PBonusProc, true);
                                 l_Caster->CastSpell(l_Target, eSpells::Pvp2PBonusProc, true);
                             }
+
                             l_Target->RemoveAura(l_AurEff->GetSpellInfo()->Id);
                         }
+
+						if (l_Caster->HasAura(ITEM_PRIEST_HOLY_T18_2P))
+						{
+							l_Caster->CastSpell(l_Caster, eSpells::PrayerReprise, true);
+						}
+
+						if (l_Caster->HasAura(ITEM_PRIEST_HOLY_T18_4P))
+						{
+							if (roll_chance_i(10))
+							{
+								float l_Radius = 40.0f;
+
+								std::list<Unit*> l_FriendlyUnitList;
+								JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
+								JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
+								l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+								/// Sort friendly unit by pourcentage of health and get the most injured
+								if (l_FriendlyUnitList.size() > 1)
+								{
+									l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+									l_FriendlyUnitList.resize(1);
+								}
+
+								/// Cast triggered Prayer of Mending on him
+								for (auto l_Itr : l_FriendlyUnitList)
+								{
+									l_Target->CastSpell(l_Itr, 123259, true);
+								}
+							}
+						}
                     }
                 }
             }
@@ -5098,7 +5124,7 @@ public:
 				return;
 
 			// Only proc from Prayer of Mending bounces
-			if (l_SpellInfoTriggerSpell->Id != 33076 && l_SpellInfoTriggerSpell->Id != 123259)
+			if (l_SpellInfoTriggerSpell->Id != 33110)
 				return;
 
 			l_Caster->CastSpell(l_Caster, eSpells::PrayerReprise, true);
