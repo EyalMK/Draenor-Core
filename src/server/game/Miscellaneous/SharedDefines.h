@@ -416,17 +416,19 @@ inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 
 enum ItemQualities
 {
-    ITEM_QUALITY_POOR                  = 0,                 // GREY
-    ITEM_QUALITY_NORMAL                = 1,                 // WHITE
-    ITEM_QUALITY_UNCOMMON              = 2,                 // GREEN
-    ITEM_QUALITY_RARE                  = 3,                 // BLUE
-    ITEM_QUALITY_EPIC                  = 4,                 // PURPLE
-    ITEM_QUALITY_LEGENDARY             = 5,                 // ORANGE
-    ITEM_QUALITY_ARTIFACT              = 6,                 // LIGHT YELLOW
-    ITEM_QUALITY_HEIRLOOM              = 7                  // LIGHT YELLOW
+    ITEM_QUALITY_POOR                  = 0, // GREY  
+    ITEM_QUALITY_NORMAL                = 1, // WHITE
+    ITEM_QUALITY_UNCOMMON              = 2, // GREEN
+    ITEM_QUALITY_RARE                  = 3, // BLUE
+    ITEM_QUALITY_EPIC                  = 4, // PURPLE
+    ITEM_QUALITY_LEGENDARY             = 5, // ORANGE
+    ITEM_QUALITY_ARTIFACT              = 6, // LIGHT YELLOW
+    ITEM_QUALITY_HEIRLOOM              = 7, // LIGHT BLUE
+	ITEM_QUALITY_WOW_TOKEN			   = 8	// LIGHT BLUE
+
 };
 
-#define MAX_ITEM_QUALITY                 8
+#define MAX_ITEM_QUALITY                 9
 
 enum SpellCategory
 {
@@ -443,14 +445,15 @@ enum SpellCategoryFlags
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
 {
-    0xff9d9d9d,        // GREY
-    0xffffffff,        // WHITE
-    0xff1eff00,        // GREEN
-    0xff0070dd,        // BLUE
-    0xffa335ee,        // PURPLE
-    0xffff8000,        // ORANGE
-    0xffe6cc80,        // LIGHT YELLOW
-    0xffe6cc80         // LIGHT YELLOW
+    0xff9d9d9d, // GREY
+    0xffffffff, // WHITE
+    0xff1eff00, // GREEN
+    0xff0070dd, // BLUE
+    0xffa335ee, // PURPLE
+    0xffff8000, // ORANGE
+	0xffe6cc80,	// LIGHT YELLOW
+	0xff00ccff,	// LIGHT BLUE
+	0xff00ccff	// LIGHT BLUE
 };
 
 // ***********************************
