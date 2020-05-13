@@ -1516,6 +1516,96 @@ public:
 	};
 };
 
+
+
+/// Supervisor Raelen - 44564
+class npc_supervisor_raelen : public CreatureScript
+{
+public:
+	npc_supervisor_raelen() : CreatureScript("npc_supervisor_raelen") {	}
+
+	enum eMisc
+	{
+		NPC_EASTVALE_PEASANT	= 11328,
+		EVENT_RESET_ORDER		= 0,
+	};
+
+	struct npc_supervisor_raelenAI : public ScriptedAI
+	{
+		npc_supervisor_raelenAI(Creature *p_Creature) : ScriptedAI(p_Creature) {	}
+
+		uint32 timer;
+		uint32 phase;
+		Creature* peasant;
+		bool GivenOrder;
+
+		void Reset()
+		{
+			timer = 0;
+			phase = 0;
+			GivenOrder = false;
+		}
+
+		void UpdateAI(uint32 diff) override
+		{
+			if (!UpdateVictim())
+			{
+				if (GivenOrder)
+				{
+					
+					if (timer <= diff)
+					{
+						switch (phase)
+						{
+							case 1:
+								timer = 10000;
+								phase++;
+								break;
+							case 2:
+								// reset
+								timer = 0;
+								phase = 0;
+								GivenOrder = false;
+								break;
+						}
+						
+					}
+					else
+						timer -= diff;
+				}
+
+			}
+			else
+				DoMeleeAttackIfReady();
+		}
+
+		void MoveInLineOfSight(Unit* who)
+		{
+			if (!who || !who->isAlive() || GivenOrder)
+				return;
+
+			if (who->ToCreature() && me->IsWithinDistInMap(who, 2.0f))
+			{
+				peasant = who->ToCreature();
+				if (peasant->GetEntry() == NPC_EASTVALE_PEASANT)
+				{
+					Talk(0, who->ToCreature()->GetGUID());
+					GivenOrder = true;
+					timer = 2000;
+					phase++;
+				}
+			}
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const
+	{
+		return new npc_supervisor_raelenAI(p_Creature);
+	}
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_elwyn_forest()
 {
@@ -1541,5 +1631,6 @@ void AddSC_elwyn_forest()
 	/// Elwynn Forest
 	new npc_hogger();
 	new npc_henze_faulk();
+	new npc_supervisor_raelen();
 }
 #endif
