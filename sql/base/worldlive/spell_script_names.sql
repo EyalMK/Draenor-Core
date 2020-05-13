@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `spell_script_names` (
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.spell_script_names: 3,626 rows
+-- Dumping data for table worldlive.spell_script_names: 3,634 rows
 DELETE FROM `spell_script_names`;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -143,6 +143,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(1850, 'spell_dru_dash'),
 	(1856, 'spell_rog_glyph_of_decoy'),
 	(1943, 'spell_rog_relentless_strikes'),
+	(1943, 'spell_rog_rupture'),
 	(1943, 'spell_rog_sanguinary_vein'),
 	(1943, 'spell_rog_venomous_wounds'),
 	(1949, 'spell_warl_hellfire_periodic'),
@@ -391,6 +392,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(24751, 'spell_trick_or_treat'),
 	(24778, 'spell_dream_fog_sleep'),
 	(24858, 'spell_dru_astral_form'),
+	(25042, 'spell_mark_of_nature'),
 	(25281, 'spell_gen_turkey_marker'),
 	(25860, 'spell_item_reindeer_transformation'),
 	(25914, 'spell_pal_glyph_of_flash_light'),
@@ -1953,6 +1955,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(110913, 'spell_warl_dark_bargain'),
 	(110960, 'spell_mage_greater_invisibility_triggered'),
 	(111129, 'spell_overcharged_soul_damage'),
+	(111240, 'spell_rog_dispatch'),
 	(111264, 'spell_mage_ice_ward'),
 	(111394, 'spell_armsmaster_harlan_blades_of_light_aoe'),
 	(111441, 'spell_instructor_chillheart_fill_phylactery'),
@@ -3606,6 +3609,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(182483, 'spell_gen_selfie_camera'),
 	(182576, 'spell_gen_selfie_camera'),
 	(184762, 'spell_gen_kilroggs_dead_eye'),
+	(184909, 'spell_pal_magnifying_light'),
+	(184911, 'spell_pal_focus_of_vengeance'),
 	(184912, 'spell_pri_naaru_discipline'),
 	(184915, 'spell_pri_mental_fatigue'),
 	(184924, 'spell_warl_flamelicked'),
@@ -3613,11 +3618,14 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 	(185002, 'spell_dru_starfall_update'),
 	(185099, 'spell_monk_rising_sun_kick'),
 	(185099, 'spell_monk_rising_sun_kick_free'),
+	(185187, 'spell_rog_evicerate'),
+	(185675, 'spell_pal_t18_protection_2p'),
 	(185884, 'spell_warl_t18_demon_2p'),
 	(185915, 'spell_garrison_shipyard'),
 	(186007, 'spell_garrison_shipyard'),
 	(186167, 'spell_mage_T18_phoenix'),
 	(186181, 'spell_mage_conjure_phoenix'),
+	(186285, 'spell_rog_T18_2P_combat'),
 	(186298, 'spell_pri_t18_holy_2p'),
 	(186477, 'spell_pri_t18_disci_2p'),
 	(186723, 'spell_pri_penance_triggered'),

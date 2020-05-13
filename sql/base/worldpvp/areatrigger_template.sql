@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `areatrigger_template` (
   KEY `spell_id_i` (`spell_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldpvp.areatrigger_template: ~1,083 rows (approximately)
+-- Dumping data for table worldpvp.areatrigger_template: ~1,019 rows (approximately)
 DELETE FROM `areatrigger_template`;
 /*!40000 ALTER TABLE `areatrigger_template` DISABLE KEYS */;
 INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `scale_curve_id`, `morph_curve_id`, `facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`, `creature_visual`) VALUES

@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `waypoints` (
   PRIMARY KEY (`entry`,`pointid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature waypoints';
 
--- Dumping data for table worldlive.waypoints: 4,807 rows
+-- Dumping data for table worldlive.waypoints: 4,813 rows
 DELETE FROM `waypoints`;
 /*!40000 ALTER TABLE `waypoints` DISABLE KEYS */;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
@@ -4832,7 +4832,13 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 	(247692, 23, 3689.85, 6776.47, 576.176, 'Red Dragon Soldier'),
 	(247692, 24, 3715.6, 6790.91, 576.176, 'Red Dragon Soldier'),
 	(247692, 25, 3733.31, 6795.5, 575.648, 'Red Dragon Soldier'),
-	(247692, 26, 3746.55, 6797.68, 571.148, 'Red Dragon Soldier');
+	(247692, 26, 3746.55, 6797.68, 571.148, 'Red Dragon Soldier'),
+	(39002, 1, 2451.68, 1590.89, 72.1562, 'Joseph'),
+	(39002, 2, 2447.75, 1587.76, 72.1562, 'Joseph'),
+	(39002, 3, 2441.82, 1590.97, 72.1562, 'Joseph'),
+	(39002, 4, 2441.47, 1597.17, 72.1569, 'Joseph'),
+	(192497, 1, 1900.45, 1586.79, 86.9482, ''),
+	(192497, 2, 1884.44, 1587.98, 89.5357, '');
 /*!40000 ALTER TABLE `waypoints` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

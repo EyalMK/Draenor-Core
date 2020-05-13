@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `conditions` (
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Condition System';
 
--- Dumping data for table worldlive.conditions: 8,521 rows
+-- Dumping data for table worldlive.conditions: 8,523 rows
 DELETE FROM `conditions`;
 /*!40000 ALTER TABLE `conditions` DISABLE KEYS */;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -8554,7 +8554,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 	(19, 0, 25986, 0, 0, 8, 0, 432, 0, 0, 0, 0, '', 'Show quest Trouble at the Lake if quest Those Blasted Troggs! has been rewarded.'),
 	(19, 0, 25986, 0, 0, 8, 0, 433, 0, 0, 0, 0, '', 'Show quest Trouble at the Lake if quest The Public Servant has been rewarded.'),
 	(19, 0, 25986, 0, 0, 8, 0, 25937, 0, 0, 0, 0, '', 'Show quest Trouble at the Lake if quest Priceless Treasures has been rewarded.'),
-	(19, 0, 25986, 0, 0, 14, 0, 25978, 0, 0, 0, 0, '', 'Show quest Trouble at the Lake if quest Entombed in Ice has not been taken.');
+	(19, 0, 25986, 0, 0, 14, 0, 25978, 0, 0, 0, 0, '', 'Show quest Trouble at the Lake if quest Entombed in Ice has not been taken.'),
+	(15, 11134, 0, 0, 0, 9, 0, 24979, 0, 0, 0, 0, '', 'Show gossip menu if player accept A Scarlet Letter'),
+	(22, 1, 184999, 1, 0, 29, 1, 22452, 80, 0, 1, 0, '', 'No NPC Nearby to run action');
 /*!40000 ALTER TABLE `conditions` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
