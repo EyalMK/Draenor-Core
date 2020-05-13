@@ -3785,15 +3785,6 @@ class spell_pal_avengers_shield : public SpellScriptLoader
 
 						l_Player->CastCustomSpell(l_Player, eSpells::AvengerReprieve, &l_Absorb, nullptr, nullptr, true);
 					}
-
-					if (l_Player->HasAura(ITEM_PALADIN_T18_PROTECTION_4P))
-					{
-						if (roll_chance_i(50))
-						{
-							if (l_Player->HasSpellCooldown(31935))
-								l_Player->RemoveSpellCooldown(31935, true);
-						}
-					}
 				}
 			}
 
@@ -3814,10 +3805,26 @@ class spell_pal_avengers_shield : public SpellScriptLoader
                     l_Caster->CastSpell(l_Target, eSpells::GlyphofDazingShieldDaz, true);
             }
 
+			void HandleAfterCast()
+			{
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(ITEM_PALADIN_T18_PROTECTION_4P))
+					{
+						if (roll_chance_i(50))
+						{
+							if (l_Player->HasSpellCooldown(31935))
+								l_Player->RemoveSpellCooldown(31935, true);
+						}
+					}
+				}
+			}
+
             void Register() override
             {
 				OnCast += SpellCastFn(spell_pal_avengers_shield_SpellScript::HandleOnCast);
                 AfterHit += SpellHitFn(spell_pal_avengers_shield_SpellScript::HandleAfterHit);
+				AfterCast += SpellCastFn(spell_pal_avengers_shield_SpellScript::HandleAfterCast);
             }
         };
 
@@ -4409,7 +4416,7 @@ public:
 	{
 		if (p_Player->HasAura(184910))
 		{
-			if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+			if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(184910))
 			{
 				if (((p_Value * 100) / p_Player->GetMaxHealth()) < (uint32)l_SpellInfo->Effects[EFFECT_1].BasePoints)
 				{
@@ -4417,6 +4424,33 @@ public:
 				}
 			}
 		}
+	}
+};
+
+/// T18 Protection 2P - 185675
+class spell_pal_t18_protection_2p : public SpellScriptLoader
+{
+public:
+	spell_pal_t18_protection_2p() : SpellScriptLoader("spell_pal_t18_protection_2p") { }
+
+	class spell_pal_t18_protection_2p_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_pal_t18_protection_2p_Aurascript);
+
+		void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_pal_t18_protection_2p_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_pal_t18_protection_2p_Aurascript();
 	}
 };
 
@@ -4498,6 +4532,7 @@ void AddSC_paladin_spell_scripts()
 	new spell_pal_seraphim();
 	new spell_pal_magnifying_light();
 	new spell_pal_focus_of_vengeance();
+	new spell_pal_t18_protection_2p();
 
     /// PlayerScripts
     new PlayerScript_empowered_divine_storm();
