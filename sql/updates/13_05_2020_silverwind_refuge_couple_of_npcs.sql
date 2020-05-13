@@ -1,5 +1,5 @@
 -- Ulthaan wrong dynamic flag
-UPDATE `creature_template` SET `dynamicflags`=4 WHERE `entry`=3960;
+UPDATE `creature` SET `dynamicflags`=4, `spawndist`=0, `MovementType`=0 WHERE `id`=3960;
 
 -- Astranaar Sentinel
 UPDATE `creature_template` SET `dynamicflags`=4 WHERE `entry`=52000;
