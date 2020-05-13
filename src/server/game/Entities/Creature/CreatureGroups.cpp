@@ -231,7 +231,9 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
         JadeCore::NormalizeMapCoord(dx);
         JadeCore::NormalizeMapCoord(dy);
 
-        member->UpdateGroundPositionZ(dx, dy, dz);
+		/// Don't set positionZ to ground for flying creatures.
+		if (!member->IsFlying())
+			member->UpdateGroundPositionZ(dx, dy, dz);
 
         if (member->IsWithinDist(m_leader, dist + MAX_DESYNC))
             member->SetUnitMovementFlags(m_leader->GetUnitMovementFlags());
