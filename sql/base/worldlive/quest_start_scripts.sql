@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `quest_start_scripts` (
   `o` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.quest_start_scripts: 249 rows
+-- Dumping data for table worldlive.quest_start_scripts: 243 rows
 DELETE FROM `quest_start_scripts`;
 /*!40000 ALTER TABLE `quest_start_scripts` DISABLE KEYS */;
 INSERT INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES
@@ -72,12 +72,7 @@ INSERT INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalo
 	(28523, 10, 8, 59570, 0, 0, 0, 0, 0, 0),
 	(26208, 20, 8, 42463, 0, 0, 0, 0, 0, 0),
 	(25067, 10, 7, 25067, 0, 0, 0, 0, 0, 0),
-	(25094, 3, 10, 39148, 600000, 0, -7141.89, -3785.74, 8.807, 5.884),
-	(25094, 20, 7, 25094, 0, 0, 0, 0, 0, 0),
 	(9625, 10, 7, 9625, 0, 0, 0, 0, 0, 0),
-	(25095, 10, 7, 25095, 0, 0, 0, 0, 0, 0),
-	(25591, 3, 10, 40547, 600000, 0, -7141.89, -3785.74, 8.807, 5.884),
-	(25591, 20, 7, 25591, 0, 0, 0, 0, 0, 0),
 	(36708, 15, 8, 86307, 0, 0, 0, 0, 0, 0),
 	(36708, 10, 8, 86318, 0, 0, 0, 0, 0, 0),
 	(36708, 5, 8, 86036, 0, 0, 0, 0, 0, 0),
@@ -128,7 +123,6 @@ INSERT INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalo
 	(30692, 10, 8, 59749, 0, 0, 0, 0, 0, 0),
 	(12578, 10, 7, 12578, 0, 0, 0, 0, 0, 0),
 	(14313, 0, 14, 68630, 0, 0, 0, 0, 0, 0),
-	(25513, 10, 7, 25513, 0, 0, 0, 0, 0, 0),
 	(10211, 20, 8, 19685, 0, 0, 0, 0, 0, 0),
 	(10211, 10, 7, 10211, 0, 0, 0, 0, 0, 0),
 	(34280, 10, 8, 73832, 0, 0, 0, 0, 0, 0),

@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `creature_groupsizestats` (
   PRIMARY KEY (`entry`,`difficulty`,`groupSize`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table worldpvp.creature_groupsizestats: ~2,268 rows (approximately)
+-- Dumping data for table worldpvp.creature_groupsizestats: ~2,383 rows (approximately)
 DELETE FROM `creature_groupsizestats`;
 /*!40000 ALTER TABLE `creature_groupsizestats` DISABLE KEYS */;
 INSERT INTO `creature_groupsizestats` (`entry`, `difficulty`, `groupSize`, `health`) VALUES

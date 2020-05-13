@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `creature_text` (
   PRIMARY KEY (`entry`,`groupid`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.creature_text: 13,743 rows
+-- Dumping data for table worldlive.creature_text: 13,746 rows
 DELETE FROM `creature_text`;
 /*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
@@ -4241,7 +4241,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(49426, 4, 0, 'Well, I won\'t hold you up. It\'s been a pleasure. I hope our paths cross again soon.', 12, 0, 100, 66, 0, 0, 'Todeswache Darnell'),
 	(38999, 0, 0, 'Yes, my... wait, be quiet! I hear the lieutenant approaching.', 12, 0, 100, 0, 0, 0, 'Lilian Voss'),
 	(38999, 1, 0, 'Gebler, you came! What did he say?', 12, 0, 100, 0, 0, 0, 'Lilian Voss'),
-	(38999, 2, 0, 'What? NO! This can\'t be! Gebler, you know me... we were friends once!', 12, 0, 100, 0, 0, 0, 'Lilian Voss'),
+	(38999, 2, 0, 'What? NO! This can\'t be! Gebler, you know me... we were friends once!', 12, 0, 100, 431, 0, 0, 'Lilian Voss'),
 	(38999, 3, 0, 'Gebler, father, why would you...', 12, 0, 100, 0, 0, 0, 'Lilian Voss'),
 	(38999, 4, 0, 'The world of the living may have turned its back on me, but I\'m no damned Scourge. Just go.', 12, 0, 100, 0, 0, 0, 'Lilian Voss'),
 	(39002, 0, 0, 'The time has come, my little captive... word has come back from your father.', 12, 0, 100, 0, 0, 0, 'Scharlachroter Leutnant Gebler'),
@@ -13662,9 +13662,9 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(18745, 6, 2, 'If we\'re to help with that in any way we\'ll need more people.  Call some of the scouts in to help with that.', 12, 7, 100, 1, 0, 0, 'Captain Auric Sunchaser'),
 	(18745, 6, 3, 'Lieutenant, I want you to make that your top priority.  Notify anyone that you think can help.', 12, 7, 100, 1, 0, 0, 'Captain Auric Sunchaser'),
 	(34707, 0, 0, '%s attempts to run away in fear!', 16, 0, 100, 0, 0, 0, 'combat Flee'),
+	(10616, 0, 2, 'We need to get this wagon filled by the end of the day.  So back to work with you.  Chop, chop!', 12, 7, 100, 25, 0, 0, 'Supervisor Raelen'),
+	(10616, 0, 1, 'Daylight is still upon us so let\'s see that axe of yours chopping some more wood.', 12, 7, 100, 25, 0, 0, 'Supervisor Raelen'),
 	(10616, 0, 0, 'We have yet to meet our quota for the wood demand.  Now back to work with you.', 12, 7, 100, 25, 0, 0, 'Supervisor Raelen'),
-	(10616, 0, 1, 'Daylight is still upon us so let\'s see that axe of yours chopping some more wood.', 12, 7, 100, 1, 0, 0, 'Supervisor Raelen'),
-	(10616, 0, 2, 'We need to get this wagon filled by the end of the day.  So back to work with you.  Chop, chop!', 12, 7, 100, 5, 0, 0, 'Supervisor Raelen'),
 	(6109, 1, 0, 'Come, little ones. Face me!', 14, 0, 100, 0, 0, 0, 'Azuregos - Teleport'),
 	(6109, 0, 0, 'This place is under my protection. The mysteries of the arcane shall remain inviolate.', 14, 0, 100, 0, 0, 0, 'Azuregos - Aggro'),
 	(26237, 0, 0, 'Stay close to me, $n. I could not bear for any harm to come to you.', 12, 0, 100, 1, 0, 0, 'Keristrasza'),
@@ -13774,7 +13774,10 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 	(6124, 0, 0, 'Never cross a Dark Iron, $c.', 12, 0, 100, 0, 0, 0, 'Captain Beld'),
 	(6124, 0, 1, 'Time to die, $c.', 12, 0, 100, 0, 0, 0, 'Captain Beld'),
 	(6124, 0, 2, 'Feel the power of the Dark Iron Dwarves!', 12, 0, 100, 0, 0, 0, 'Captain Beld'),
-	(95467, 0, 0, 'You face not Malchezaar alone, but the legions I command!', 14, 0, 100, 0, 0, 9322, 'malchezaar SAY_SUMMON');
+	(95467, 0, 0, 'You face not Malchezaar alone, but the legions I command!', 14, 0, 100, 0, 0, 9322, 'malchezaar SAY_SUMMON'),
+	(22452, 0, 0, 'You have brought me back too soon! I am weak yet... What is this! Who... It matters not! DIE!', 12, 0, 100, 1, 0, 0, 'Reanimated Exarch'),
+	(1521, 0, 0, 'Save me from the cold!', 12, 0, 100, 0, 0, 0, 'Gretchen Dedmar'),
+	(1521, 1, 0, 'So cold...', 12, 0, 100, 0, 0, 0, 'Gretchen Dedmar');
 /*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

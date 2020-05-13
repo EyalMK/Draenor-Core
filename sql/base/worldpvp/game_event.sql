@@ -24,27 +24,11 @@ CREATE TABLE IF NOT EXISTS `game_event` (
   PRIMARY KEY (`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldpvp.game_event: 79 rows
+-- Dumping data for table worldpvp.game_event: 63 rows
 DELETE FROM `game_event`;
 /*!40000 ALTER TABLE `game_event` DISABLE KEYS */;
 INSERT INTO `game_event` (`eventEntry`, `start_time`, `end_time`, `occurence`, `length`, `holiday`, `description`, `world_event`) VALUES
-	(1, '2012-06-20 14:01:00', '2020-12-30 17:00:00', 525600, 50400, 341, 'Midsummer Fire Festival', 0),
-	(2, '2012-12-14 18:00:00', '2020-12-30 17:00:00', 525600, 25920, 141, 'Winter Veil', 0),
-	(3, '2012-11-03 12:01:00', '2020-12-30 17:00:00', 131040, 8639, 376, 'Darkmoon Faire', 0),
 	(91, '2016-01-19 11:00:01', '2020-12-30 17:00:00', 70560, 8640, 0, 'Arena Skirmish Bonus Event', 0),
-	(90, '2016-01-12 11:00:01', '2020-12-30 17:00:00', 70560, 8640, 0, 'Apexis Bonus Event', 0),
-	(6, '2009-12-31 18:00:00', '2020-12-30 17:00:00', 525600, 120, 0, 'New Year\'s Eve', 0),
-	(7, '2016-01-31 16:01:00', '2020-12-30 17:00:00', 525600, 20160, 327, 'Lunar Festival', 0),
-	(8, '2013-02-14 12:01:00', '2020-12-30 17:00:00', 525600, 20160, 423, 'Love is in the Air', 0),
-	(9, '2016-03-27 13:00:01', '2020-12-30 17:00:00', 524160, 12960, 181, 'Noblegarden length changed +2 added', 0),
-	(10, '2012-04-28 14:01:00', '2020-12-30 17:00:00', 525600, 10080, 201, 'Children\'s Week ', 0),
-	(11, '2012-09-17 15:00:00', '2020-12-30 17:00:00', 525600, 10080, 321, 'Harvest Festival', 0),
-	(12, '2011-10-17 15:00:00', '2020-12-30 17:00:00', 525600, 20160, 324, 'Hallow\'s End', 0),
-	(22, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 525600, 1, 0, 'AQ War Effort', 0),
-	(17, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 525600, 1, 0, 'Scourge Invasion', 0),
-	(13, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 525600, 1, 0, 'Elemental Invasions', 0),
-	(14, '2011-12-31 11:00:00', '2020-12-30 17:00:00', 10080, 1440, 0, 'Stranglethorn Fishing Extravaganza Announce', 0),
-	(16, '2007-08-04 18:00:00', '2020-12-30 17:00:00', 180, 120, 0, 'Gurubashi Arena Booty Run', 0),
 	(15, '2012-01-01 01:00:00', '2020-12-30 17:00:00', 10080, 120, 301, 'Stranglethorn Fishing Extravaganza Fishing Pools', 0),
 	(18, '2013-02-09 19:00:00', '2020-12-30 17:00:00', 90720, 10080, 283, 'Call to Arms: Alterac Valley!', 0),
 	(19, '2013-01-05 19:00:00', '2020-12-30 17:00:00', 90720, 10080, 284, 'Call to Arms: Warsong Gulch!', 0),
