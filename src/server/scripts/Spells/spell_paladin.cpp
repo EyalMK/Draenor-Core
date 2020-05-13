@@ -132,8 +132,18 @@ enum PaladinSpells
     PALADIN_VINDICATORS_FURY                    = 165903,
     PALADIN_HOLY_POWER_ENERGIZE                 = 138248,
 	PALADIN_SPELL_SERAPHIM_VISUAL				= 172320,
-	PALADIN_SPELL_SERAPHIM_VISUAL_DPS			= 172321
+	PALADIN_SPELL_SERAPHIM_VISUAL_DPS			= 172321,
 
+	// Tier
+
+	// T18
+
+	ITEM_PALADIN_T18_HOLY_2P					= 185545,
+	ITEM_PALADIN_T18_HOLY_4P					= 185571,
+	ITEM_PALADIN_T18_RETRIBUTION_2P				= 185581,
+	ITEM_PALADIN_T18_RETRIBUTION_4P				= 185648,
+	ITEM_PALADIN_T18_PROTECTION_2P				= 185675,
+	ITEM_PALADIN_T18_PROTECTION_4P				= 185677
 };
 
 /// Glyph of Devotion Aura - 146955
@@ -531,6 +541,117 @@ class spell_pal_glyph_of_avenging_wrath: public SpellScriptLoader
         {
             return new spell_pal_glyph_of_avenging_wrath_SpellScript();
         }
+};
+
+/// Avenging Wrath - 31884
+class spell_pal_avenging_wrath : public SpellScriptLoader
+{
+public:
+	spell_pal_avenging_wrath() : SpellScriptLoader("spell_pal_avenging_wrath") { }
+
+	enum eSpells
+	{
+		WingsOfLiberty = 185647
+	};
+
+	class spell_pal_avenging_wrath_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_pal_avenging_wrath_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster->HasAura(PALADIN_SPELL_AVENGING_WRATH))
+				return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+			return SPELL_CAST_OK;
+		}
+
+		void HandleOnHit()
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster == nullptr)
+				return;
+
+			if (l_Caster->HasAura(ITEM_PALADIN_T18_RETRIBUTION_4P))
+			{
+				l_Caster->CastSpell(l_Caster, eSpells::WingsOfLiberty, true);
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_pal_avenging_wrath_SpellScript::CheckCast);
+			OnHit += SpellHitFn(spell_pal_avenging_wrath_SpellScript::HandleOnHit);
+		}
+	};
+
+	class spell_pal_avenging_wrath_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_pal_avenging_wrath_AuraScript);
+
+		uint32 update;
+		bool AlreadyTriggered;
+
+		bool Validate(SpellInfo const* /*spell*/)
+		{
+			update = 0;
+			AlreadyTriggered = true;
+
+			if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_AVENGING_WRATH))
+				return false;
+			return true;
+		}
+
+		void OnUpdate(uint32 diff)
+		{
+			update += diff;
+
+			if (update >= 1000)
+			{
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(ITEM_PALADIN_T18_RETRIBUTION_4P))
+					{
+						Aura* l_WingsOfLiberty = l_Player->GetAura(eSpells::WingsOfLiberty);
+
+						if (l_Player->HasAura(eSpells::WingsOfLiberty) && l_WingsOfLiberty->GetStackAmount() == 10 && AlreadyTriggered == true)
+							return;
+						else
+							l_Player->CastSpell(l_Player, eSpells::WingsOfLiberty, true);
+					}
+				}
+
+				update = 0;
+			}
+		}
+
+		void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+		{
+			if (Player* l_Player = GetCaster()->ToPlayer())
+			{
+				AlreadyTriggered = false;
+			}
+		}
+
+		void Register()
+		{
+			OnAuraUpdate += AuraUpdateFn(spell_pal_avenging_wrath_AuraScript::OnUpdate);
+			OnEffectRemove += AuraEffectRemoveFn(spell_pal_avenging_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_pal_avenging_wrath_AuraScript();
+	}
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_pal_avenging_wrath_SpellScript();
+	}
 };
 
 /// Shield of the Righteous - 53600
@@ -3557,12 +3678,15 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
                 BeaconOfLightProcAura   = 53651,
                 BeaconOfFaith           = 156910,
                 BeaconOfFaithProcAura   = 177173,
-                BeaconOfLightHeal       = 53652
+                BeaconOfLightHeal       = 53652,
+				BeaconTribute			= 185576
             };
 
             int32 GetPctBySpell(uint32 l_SpellID) const
             {
                 int32 l_Percent = 0;
+
+				Unit* l_OwnerOfBeacon = GetTarget();
 
                 switch (l_SpellID)
                 {
@@ -3570,10 +3694,16 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
                 case 119952:// Light's Hammer
                 case 114871:// Holy Prism
                 case 85222: // Light of Dawn
-                    l_Percent = 15; // 15% heal from these spells
+					if (l_OwnerOfBeacon->HasAura(ITEM_PALADIN_T18_HOLY_2P)) // (Teleqraph) I need to research further, since there's no statement anywhere whether it is an increase of the actual healing base, or just +25% overall
+						l_Percent = 40; // 18.5 if on the actual base
+					else
+						l_Percent = 15; // 15% heal from these spells
                     break;
                 default:
-                    l_Percent = 50; // 50% heal from all other heals
+					if (l_OwnerOfBeacon->HasAura(ITEM_PALADIN_T18_HOLY_2P))
+						l_Percent = 75; // 62.5% if on the actual base
+					else
+						l_Percent = 50; // 50% heal from all other heals
                     break;
                 }
 
@@ -3608,6 +3738,9 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
                     l_OwnerOfBeacon->CastCustomSpell(l_TargetOfBeacon, eSpells::BeaconOfLightHeal, &l_Bp, NULL, NULL, true);
                 else
                     l_OwnerOfBeacon->RemoveAura(GetSpellInfo()->Id);
+
+				if (l_OwnerOfBeacon->HasAura(ITEM_PALADIN_T18_HOLY_4P)) // (Teleqraph) Find out why Eternal Flame Hot is not activating Beacon healing
+					l_OwnerOfBeacon->CastSpell(l_OwnerOfBeacon, eSpells::BeaconTribute, true);
             }
 
             void Register()
@@ -3638,8 +3771,31 @@ class spell_pal_avengers_shield : public SpellScriptLoader
                 FaithBarricade          = 165447,
                 T17Protection2P         = 165446,
                 GlyphofDazingShield     = 56414,
-                GlyphofDazingShieldDaz  = 63529
+                GlyphofDazingShieldDaz  = 63529,
+				AvengerReprieve			= 185676
             };
+
+			void HandleOnCast()
+			{
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(ITEM_PALADIN_T18_PROTECTION_2P))
+					{
+						int32 l_Absorb = CalculatePct(l_Player->GetMaxHealth(), 5);
+
+						l_Player->CastCustomSpell(l_Player, eSpells::AvengerReprieve, &l_Absorb, nullptr, nullptr, true);
+					}
+
+					if (l_Player->HasAura(ITEM_PALADIN_T18_PROTECTION_4P))
+					{
+						if (roll_chance_i(50))
+						{
+							if (l_Player->HasSpellCooldown(31935))
+								l_Player->RemoveSpellCooldown(31935, true);
+						}
+					}
+				}
+			}
 
             void HandleAfterHit()
             {
@@ -3660,6 +3816,7 @@ class spell_pal_avengers_shield : public SpellScriptLoader
 
             void Register() override
             {
+				OnCast += SpellCastFn(spell_pal_avengers_shield_SpellScript::HandleOnCast);
                 AfterHit += SpellHitFn(spell_pal_avengers_shield_SpellScript::HandleAfterHit);
             }
         };
@@ -4141,6 +4298,128 @@ public:
 	}
 };
 
+/// Magnifying Light (Libram of Vindication) - 184909
+class spell_pal_magnifying_light : public SpellScriptLoader
+{
+public:
+	spell_pal_magnifying_light() : SpellScriptLoader("spell_pal_magnifying_light") { }
+
+	class spell_pal_magnifying_light_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_pal_magnifying_light_Aurascript);
+
+		enum eSpells
+		{
+			MagnifyingLight = 185100
+		};
+
+		void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+
+			Player* l_Caster = GetCaster()->ToPlayer();
+
+			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetHealInfo()->GetSpellInfo();
+
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
+				return;
+
+			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PALADIN_HOLY)
+				return;
+
+			// Only proc from Holy Shock healing
+			if (l_SpellInfoTriggerSpell->Id != 25914)
+				return;
+
+			l_Caster->CastCustomSpell(l_Caster, eSpells::MagnifyingLight, nullptr, nullptr, nullptr, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_pal_magnifying_light_Aurascript::HandleOnProc, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_pal_magnifying_light_Aurascript();
+	}
+};
+
+/// Focus of Vengeance (Libram of Vindication) - 184911
+class spell_pal_focus_of_vengeance : public SpellScriptLoader
+{
+public:
+	spell_pal_focus_of_vengeance() : SpellScriptLoader("spell_pal_focus_of_vengeance") { }
+
+	class spell_pal_focus_of_vengeance_Aurascript : public AuraScript
+	{
+		PrepareAuraScript(spell_pal_focus_of_vengeance_Aurascript);
+
+		enum eSpells
+		{
+			FocusOfVengeance = 185102
+		};
+
+		void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+
+			Player* l_Caster = GetCaster()->ToPlayer();
+
+			SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetHealInfo()->GetSpellInfo();
+
+			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
+				return;
+
+			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
+				return;
+
+			// Only proc from Crusader Strike or Hammer of the Righteous
+			if (l_SpellInfoTriggerSpell->Id != 35395 && l_SpellInfoTriggerSpell->Id != 53598)
+				return;
+
+			l_Caster->CastCustomSpell(l_Caster, eSpells::FocusOfVengeance, nullptr, nullptr, nullptr, true);
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_pal_focus_of_vengeance_Aurascript::HandleOnProc, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_pal_focus_of_vengeance_Aurascript();
+	}
+};
+
+/// Savior's Boon (Libram of Vindication) - 184910
+class PlayerScript_savior_boon : public PlayerScript
+{
+public:
+	PlayerScript_savior_boon() :PlayerScript("PlayerScript_savior_boon") {}
+
+	enum eSpells
+	{
+		SaviorBoon = 185101
+	};
+
+	void OnModifyHealth(Player* p_Player, int32 p_Value)
+	{
+		if (p_Player->HasAura(184910))
+		{
+			if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+			{
+				if (((p_Value * 100) / p_Player->GetMaxHealth()) < (uint32)l_SpellInfo->Effects[EFFECT_1].BasePoints)
+				{
+					p_Player->CastSpell(p_Player, eSpells::SaviorBoon, true);
+				}
+			}
+		}
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_paladin_spell_scripts()
 {
@@ -4173,6 +4452,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_daybreak();
     new spell_pal_hand_of_purity();
     new spell_pal_glyph_of_avenging_wrath();
+	new spell_pal_avenging_wrath();
     new spell_pal_shield_of_the_righteous();
     new spell_pal_selfless_healer();
     new spell_pal_tower_of_radiance();
@@ -4216,10 +4496,13 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_glyph_of_denounce();
     new spell_pal_glyph_of_the_luminous_charger();
 	new spell_pal_seraphim();
+	new spell_pal_magnifying_light();
+	new spell_pal_focus_of_vengeance();
 
     /// PlayerScripts
     new PlayerScript_empowered_divine_storm();
     new PlayerScript_saved_by_the_light();
     new PlayerScript_paladin_wod_pvp_4p_bonus();
+	new PlayerScript_savior_boon();
 }
 #endif
