@@ -1209,7 +1209,7 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                 else ///< Heal decreases over time
                 {
                     m_TickMultiplier[10] = 1.0f;
-                    for (int i = 9; i > 0; --i)
+                    for (int i = 9; i > 1; --i)
                         m_TickMultiplier[i] = m_TickMultiplier[i + 1] * 1.1;
                     m_TickMultiplier[1] *= 5;
                 }
