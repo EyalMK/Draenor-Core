@@ -391,22 +391,27 @@ public:
 		if (quest->GetQuestId() == QUEST_THUNDERDROME_THE_GINORMOUS)
 		{
 			creature->GetAI()->DoAction(ACCEPTED_THE_GINORMOUS);
+			creature->AI()->Talk(0, player->GetGUID()); // Into the Thunderdrome, $n! There's no getting out...
 		}
 		if (quest->GetQuestId() == QUEST_THUNDERDROME_SARINEXX)
 		{
 			creature->GetAI()->DoAction(ACCEPTED_SARINEXX);
+			creature->AI()->Talk(0, player->GetGUID());
 		}
 		if (quest->GetQuestId() == QUEST_THUNDERDROME_ZUMONGA)
 		{
 			creature->GetAI()->DoAction(ACCEPTED_ZUMONGA);
+			creature->AI()->Talk(0, player->GetGUID());
 		}
 		if (player->GetTeamId() == TEAM_ALLIANCE && quest->GetQuestId() == QUEST_THUNDERDROME_GRUDGE_MATCH_ALLIANCE)
 		{
 			creature->GetAI()->DoAction(ACCEPTED_GRUDGE_MATCH);
+			creature->AI()->Talk(0, player->GetGUID());
 		}
 		if (player->GetTeamId() == TEAM_HORDE && quest->GetQuestId() == QUEST_THUNDERDROME_GRUDGE_MATCH_HORDE)
 		{
 			creature->GetAI()->DoAction(ACCEPTED_GRUDGE_MATCH);
+			creature->AI()->Talk(0, player->GetGUID());
 		}
 
 		return true;
@@ -420,7 +425,7 @@ public:
 		EventMap m_Events;
 		
 		// Center of Thunderdrome arena
-		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+		Position l_Pos = { -7140.3511f, -3786.8828f, 8.9675f, 5.984621f};
 
 		void Reset() override
 		{
@@ -442,54 +447,38 @@ public:
 			switch (p_Action)
 			{
 				case ACCEPTED_THE_GINORMOUS:
-					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
-					});
-					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						Talk(1); // Any Ladies and Gentlemen...	THE GINORMUS!
 					});
-					AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(17 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->SummonCreature(NPC_LORD_GINORMOUS, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
 					});
 					break;
 				case ACCEPTED_SARINEXX:
-					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
-					});
-					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						Talk(3); // The faint of heart... SARINEXX!
 					});
-					AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(17 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->SummonCreature(NPC_SARINEXX, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
 					});
 					break;
 				case ACCEPTED_ZUMONGA:
-					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
-					});
-					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						Talk(5); // Our next fighter... ZUMONGA!
 					});
 
-					AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(17 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->SummonCreature(NPC_ZUMONGA, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
 					});
 					break;
 				case ACCEPTED_GRUDGE_MATCH:
-					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-					{
-						Talk(0); // Into the Thunderdrome, $n! There's no getting out...	
-					});
-					AddTimedDelayedOperation(12 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						Creature* Kelsey = me->SummonCreature(NPC_KELSEY_STEELSPARK, l_Pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
 
@@ -531,7 +520,7 @@ public:
 
 
 		// Center of Thunderdrome arena
-		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+		Position l_Pos = { -7140.3511f, -3786.8828f, 8.9675f, 5.984621f };
 
 		std::list<Player*> PlayersInGrid;
 
@@ -555,7 +544,7 @@ public:
 		void KilledUnit(Unit* victim) override
 		{
 			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
-				Dealwell->AI()->Talk(8); // Random text on player death
+				Dealwell->AI()->Talk(8, victim->ToPlayer()->GetGUID()); // Random text on player death
 			Reset();
 		}
 
@@ -563,7 +552,7 @@ public:
 		{
 			Talk(0); // There has been too much violence...
 			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
-				Dealwell->AI()->Talk(2); // The Ginormus has fallen!
+				Dealwell->AI()->Talk(2, killer->ToPlayer()->GetGUID()); // The Ginormus has fallen!
 		}
 
 		void Reset() override
@@ -625,7 +614,7 @@ public:
 
 
 		// Center of Thunderdrome arena
-		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+		Position l_Pos = { -7140.3511f, -3786.8828f, 8.9675f, 5.984621f };
 
 		std::list<Player*> PlayersInGrid;
 
@@ -648,14 +637,14 @@ public:
 		void KilledUnit(Unit* victim) override
 		{
 			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
-				Dealwell->AI()->Talk(8); // Random text on player death
+				Dealwell->AI()->Talk(8, victim->ToPlayer()->GetGUID()); // Random text on player death
 			Reset();
 		}
 
 		void JustDied(Unit* killer) override
 		{
 			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
-				Dealwell->AI()->Talk(4); // There's no stopping $n!...
+				Dealwell->AI()->Talk(4, killer->ToPlayer()->GetGUID()); // There's no stopping $n!...
 		}
 
 		void Reset() override
@@ -718,7 +707,7 @@ public:
 
 
 		// Center of Thunderdrome arena
-		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+		Position l_Pos = { -7140.3511f, -3786.8828f, 8.9675f, 5.984621f };
 
 		std::list<Player*> PlayersInGrid;
 
@@ -742,14 +731,14 @@ public:
 		void KilledUnit(Unit* victim) override
 		{
 			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
-				Dealwell->AI()->Talk(8); // Random text on player death
+				Dealwell->AI()->Talk(8, victim->ToPlayer()->GetGUID()); // Random text on player death
 			Reset();
 		}
 
 		void JustDied(Unit* killer) override
 		{
 			if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 50.0f, true))
-				Dealwell->AI()->Talk(6); // $n has done it again!
+				Dealwell->AI()->Talk(6, killer->ToPlayer()->GetGUID()); // $n has done it again!
 		}
 
 		void Reset() override
@@ -1154,7 +1143,7 @@ public:
 		npc_steelsparks_lx_506AI(Creature* creature) : ScriptedAI(creature) {}
 
 		// Center of Thunderdrome arena
-		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+		Position l_Pos = { -7140.3511f, -3786.8828f, 8.9675f, 5.984621f };
 		Position mPos;
 		std::list<Player*> PlayersInGrid;
 
@@ -1258,7 +1247,7 @@ public:
 		npc_the_dreadshredderAI(Creature* creature) : ScriptedAI(creature) {}
 
 		// Center of Thunderdrome arena
-		Position l_Pos = { -7151.11f, -3785.43f, 8.37f, 6.2f };
+		Position l_Pos = { -7140.3511f, -3786.8828f, 8.9675f, 5.984621f };
 		Position mPos;
 		std::list<Player*> PlayersInGrid;
 
