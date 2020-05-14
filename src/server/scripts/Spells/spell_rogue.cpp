@@ -3719,58 +3719,55 @@ public:
 // Rogue T18 2P Combat - 186285
 class spell_rog_T18_2P_combat : public SpellScriptLoader
 {
-	public:
-		spell_rog_T18_2P_combat() : SpellScriptLoader("spell_rog_T18_2P_combat") {}
+public:
+	spell_rog_T18_2P_combat() : SpellScriptLoader("spell_rog_T18_2P_combat") {}
 
-		class spell_rog_T18_2P_combat_AuraScript : public AuraScript
+	class spell_rog_T18_2P_combat_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_rog_T18_2P_combat_AuraScript);
+
+		uint32 update;
+
+		enum Spells
 		{
-			PrepareAuraScript(spell_rog_T18_2P_combat_AuraScript);
+			SPELL_SLICE_AND_DICE = 5171
+		};
 
-			enum Spells
-			{
-				SPELL_SLICE_AND_DICE = 5171
-			};
+		bool Load() override
+		{
+			update = 0;
+			return true;
+		}
 
-			bool Load() override
+		void OnUpdate(uint32 diff)
+		{
+			if (Player* l_Player = GetCaster()->ToPlayer())
 			{
-				timer = 0;
-				return true;
-			}
+				update += diff;
 
-			void OnUpdate(uint32 diff)
-			{
-				if (Player* player = GetCaster()->ToPlayer())
+				if (update >= 1000)
 				{
-					if (player->HasAura(SPELL_SLICE_AND_DICE))
+					if (l_Player->HasAura(SPELL_SLICE_AND_DICE))
 					{
-						if (timer = 1000)
+						if (roll_chance_i(8))
 						{
-							if (roll_chance_i(8))
-							{
-								if (Aura* l_AdredalineRush = player->GetAura(13750))
-									l_AdredalineRush->SetDuration(l_AdredalineRush->GetDuration() + 4000);
-								else
-									player->CastSpell(player, 186286, true); // Adrenaline Rush 4s
-
-								timer = 2000; // 1 second interval
-							}
+							if (Aura* l_AdredalineRush = l_Player->GetAura(13750))
+								l_AdredalineRush->SetDuration(l_AdredalineRush->GetDuration() + 4000);
+							else
+								l_Player->CastSpell(l_Player, 186286, true); // Adrenaline Rush 4s
 						}
-						else
-							timer += diff;
 					}
-					else
-						timer = 0; // Reset the timer if player doesn't have the aura
+
+					update = 0;
 				}
 			}
+		}
 
-			void Register() override
-			{
-				OnAuraUpdate += AuraUpdateFn(spell_rog_T18_2P_combat_AuraScript::OnUpdate);
-			}
-
-		private:
-			uint32 timer;
-		};
+		void Register() override
+		{
+			OnAuraUpdate += AuraUpdateFn(spell_rog_T18_2P_combat_AuraScript::OnUpdate);
+		}
+	};
 	
 	AuraScript* GetAuraScript() const
 	{
