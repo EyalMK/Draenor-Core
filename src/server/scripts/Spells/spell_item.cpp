@@ -5461,6 +5461,73 @@ public:
 	}
 };
 
+/// Tyrant's Degree - 184767 (Item - 124242)
+class spell_item_tyrant_degree : public SpellScriptLoader
+{
+public:
+	spell_item_tyrant_degree() : SpellScriptLoader("spell_item_tyrant_degree") { }
+
+	class spell_item_tyrant_degree_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_item_tyrant_degree_AuraScript);
+
+		uint32 update;
+
+		enum eSpells
+		{
+			TyrantImmortality = 184770,
+			VindicatorVitality = 184771 // This removes any stacks
+		};
+
+		bool Validate(SpellInfo const* /*spell*/)
+		{
+			update = 0;
+
+			if (!sSpellMgr->GetSpellInfo(184767))
+				return false;
+			return true;
+		}
+
+		void OnUpdate(uint32 diff)
+		{
+			if (Player* l_Player = GetCaster()->ToPlayer())
+			{
+				update += diff;
+
+				if (update >= 1000)
+				{
+					if (l_Player->GetHealthPct() >= 60)
+					{
+						l_Player->CastSpell(l_Player, eSpells::TyrantImmortality, true);
+					}
+					else
+						l_Player->CastSpell(l_Player, eSpells::VindicatorVitality, false);
+
+					update = 0;
+				}
+			}
+		}
+
+		void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+		{
+			if (Player* l_Player = GetCaster()->ToPlayer())
+			{
+				l_Player->CastSpell(l_Player, eSpells::VindicatorVitality, false);
+			}
+		}
+
+		void Register()
+		{
+			OnAuraUpdate += AuraUpdateFn(spell_item_tyrant_degree_AuraScript::OnUpdate);
+			OnEffectRemove += AuraEffectRemoveFn(spell_item_tyrant_degree_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_item_tyrant_degree_AuraScript();
+	}
+};
 
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
@@ -5575,5 +5642,6 @@ void AddSC_item_spell_scripts()
     new spell_item_loot_a_rang();
 
 	new spell_item_battleworn_sword();
+	new spell_item_tyrant_degree();
 }
 #endif

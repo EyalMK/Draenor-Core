@@ -4331,7 +4331,7 @@ public:
 			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
 				return;
 
-			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PALADIN_HOLY)
+			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec() != SPEC_PALADIN_HOLY))
 				return;
 
 			// Only proc from Holy Shock healing
@@ -4379,7 +4379,7 @@ public:
 			if (l_Caster == nullptr || l_SpellInfoTriggerSpell == nullptr)
 				return;
 
-			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
+			if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec() != SPEC_PALADIN_RETRIBUTION))
 				return;
 
 			// Only proc from Crusader Strike or Hammer of the Righteous
@@ -4414,13 +4414,16 @@ public:
 
 	void OnModifyHealth(Player* p_Player, int32 p_Value)
 	{
-		if (p_Player->HasAura(184910))
+		if (p_Player->HasAura(184910) && p_Player->GetActiveSpec() == SPEC_PALADIN_PROTECTION)
 		{
 			if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(184910))
 			{
 				if (((p_Value * 100) / p_Player->GetMaxHealth()) < (uint32)l_SpellInfo->Effects[EFFECT_1].BasePoints)
 				{
-					p_Player->CastSpell(p_Player, eSpells::SaviorBoon, true);
+					p_Player->CastCustomSpell(p_Player, eSpells::SaviorBoon, nullptr, nullptr, nullptr, true);
+
+					/// 12 seconds of internal cooldown
+					p_Player->AddSpellCooldown(eSpells::SaviorBoon, 0, 12 * TimeConstants::IN_MILLISECONDS);
 				}
 			}
 		}

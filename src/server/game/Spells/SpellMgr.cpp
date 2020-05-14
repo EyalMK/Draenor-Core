@@ -5864,6 +5864,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
                 break;
+			///////////////////////////////////////////////////////////////////////////////////
+			/// Hellfire Citadel trinkets
+			///////////////////////////////////////////////////////////////////////////////////
+			case 184770: ///< Tyrant Immortality
+				spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;
+				break;
+			///////////////////////////////////////////////////////////////////////////////////
+			///////////////////////////////////////////////////////////////////////////////////
             case 530:   ///< Charm (Possess)
                 spellInfo->Effects[EFFECT_0].BasePoints = 102;
                 break;
