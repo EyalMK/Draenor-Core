@@ -6,13 +6,13 @@
 
 enum Texts
 {
-	SAY_AGGRO = -1409003,
-	SAY_SPAWN = -1409004,
-	SAY_SLAY = -1409005,
-	SAY_SPECIAL = -1409006,
-	SAY_DEFEAT = -1409007,
+	SAY_AGGRO		 = -1409003,
+	SAY_SPAWN		 = -1409004,
+	SAY_SLAY		 = -1409005,
+	SAY_SPECIAL		 = -1409006,
+	SAY_DEFEAT		 = -1409007,
 
-	SAY_SUMMON_MAJ = -1409008,
+	SAY_SUMMON_MAJ	 = -1409008,
 	SAY_ARRIVAL1_RAG = -1409009,
 	SAY_ARRIVAL2_MAJ = -1409010,
 	SAY_ARRIVAL3_RAG = -1409011,
@@ -21,12 +21,12 @@ enum Texts
 
 enum Spells
 {
-	SPELL_MAGIC_REFLECTION = 20619,
+	SPELL_MAGIC_REFLECTION	= 20619,
 	SPELL_DAMAGE_REFLECTION = 21075,
-	SPELL_BLAST_WAVE = 20229,
+	SPELL_BLAST_WAVE		= 20229,
 	SPELL_AEGIS_OF_RAGNAROS = 20620,
-	SPELL_TELEPORT = 20618,
-	SPELL_SUMMON_RAGNAROS = 19774
+	SPELL_TELEPORT			= 20618,
+	SPELL_SUMMON_RAGNAROS	= 19774
 };
 
 #define GOSSIP_HELLO 4995
@@ -34,14 +34,14 @@ enum Spells
 
 enum Events
 {
-	EVENT_MAGIC_REFLECTION = 1,
+	EVENT_MAGIC_REFLECTION	= 1,
 	EVENT_DAMAGE_REFLECTION = 2,
-	EVENT_BLAST_WAVE = 3,
-	EVENT_TELEPORT = 4,
+	EVENT_BLAST_WAVE		= 3,
+	EVENT_TELEPORT			= 4,
 
-	EVENT_OUTRO_1 = 5,
-	EVENT_OUTRO_2 = 6,
-	EVENT_OUTRO_3 = 7
+	EVENT_OUTRO_1			= 5,
+	EVENT_OUTRO_2			= 6,
+	EVENT_OUTRO_3			= 7
 };
 
 class boss_majordomo : public CreatureScript
@@ -69,7 +69,6 @@ public:
 			events.ScheduleEvent(EVENT_DAMAGE_REFLECTION, 15000);
 			events.ScheduleEvent(EVENT_BLAST_WAVE, 10000);
 			events.ScheduleEvent(EVENT_TELEPORT, 20000);
-			me->SetReactState(REACT_AGGRESSIVE);
 		}
 
 		void UpdateAI(const uint32 diff)
@@ -77,7 +76,6 @@ public:
 			if (instance && instance->GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)
 			{
 				if (!UpdateVictim())
-					me->SetReactState(REACT_AGGRESSIVE);
 					return;
 
 				events.Update(diff);
@@ -86,7 +84,8 @@ public:
 				{
 					instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, me->GetEntry(), me);
 					me->setFaction(35);
-					me->AI()->EnterEvadeMode();
+					me->CombatStop();
+					instance->DoCombatStopOnPlayers();
 					DoScriptText(SAY_DEFEAT, me);
 					_JustDied();
 					events.ScheduleEvent(EVENT_OUTRO_1, 32000);
@@ -136,7 +135,7 @@ public:
 					switch (eventId)
 					{
 					case EVENT_OUTRO_1:
-						me->NearTeleportTo(RagnarosTelePos.GetPositionX(), RagnarosTelePos.GetPositionY(), RagnarosTelePos.GetPositionZ(), RagnarosTelePos.GetOrientation());
+						me->NearTeleportTo(RagnarosTelePos.GetPositionX(), RagnarosTelePos.GetPositionY(), RagnarosTelePos.GetPositionZ(), RagnarosTelePos.GetOrientation(), false);
 						me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 						break;
 					case EVENT_OUTRO_2:
