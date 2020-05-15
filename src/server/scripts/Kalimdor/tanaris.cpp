@@ -295,6 +295,155 @@ public:
     };
 };
 
+/// Dunemaul ogres - 5471, 5472, 5473, 5474, 5475
+class npc_dunemaul_ogres_unchartered : public CreatureScript
+{
+public:
+	npc_dunemaul_ogres_unchartered() : CreatureScript("npc_dunemaul_ogres_unchartered") { }
+
+	enum eMisc
+	{
+		// Gossip Menus
+		GOSSIP_MENU_ID	= 11093,
+		GOSSIP_OPTION	= 0,
+		NPC_TEXT		= 15435,
+
+		// Quest
+		QUEST_UNCHARTERED = 24955,
+		KILL_CREDIT		  = 38848,
+	};
+
+	bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+	{
+		player->PlayerTalkClass->ClearMenus();
+		if (action == GOSSIP_ACTION_INFO_DEF + 1)
+		{
+			player->CLOSE_GOSSIP_MENU();
+			player->KilledMonsterCredit(KILL_CREDIT);
+			creature->SetFacingToObject(player);
+			creature->AI()->Talk(1);
+			creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			creature->ForcedDespawn(3000);
+		}
+			
+
+		return true;
+	}
+
+	bool OnGossipHello(Player* player, Creature* creature)
+	{
+		if (player->GetQuestStatus(QUEST_UNCHARTERED) == QUEST_STATUS_INCOMPLETE)
+		{
+			player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ID, GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+			player->SEND_GOSSIP_MENU(NPC_TEXT, creature->GetGUID());
+		}
+		else
+			player->SEND_GOSSIP_MENU(NPC_TEXT, creature->GetGUID());
+
+		return true;
+	}
+
+};
+
+
+/// Megs Dreadshredder - 38849
+class npc_megs_dreadshredder_38849: public CreatureScript
+{
+public:
+	npc_megs_dreadshredder_38849() : CreatureScript("npc_megs_dreadshredder_38849") { }
+
+	enum eMisc
+	{
+		// Quest
+		QUEST_UNCHARTERED	= 24955,
+
+		// Npc
+		NPC_DUNEMAUL_EMISSARY = 38856,
+
+		// Actions
+		QuestComplete		= 0,
+	};
+
+	bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest) override
+	{
+		if (quest->GetQuestId() == QUEST_UNCHARTERED)
+		{
+			creature->GetAI()->DoAction(QuestComplete);
+		}
+		
+
+		return true;
+	}
+
+	struct npc_megs_dreadshredder_38849AI : public ScriptedAI
+	{
+		npc_megs_dreadshredder_38849AI(Creature* creature) : ScriptedAI(creature) {}
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+
+		void Reset() override
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+		}
+
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case QuestComplete:
+					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->AI()->Talk(0);
+					});
+					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (Creature* ogre = me->FindNearestCreature(NPC_DUNEMAUL_EMISSARY, 10.0f, true))
+							ogre->AI()->Talk(0);
+					});
+					AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->AI()->Talk(1); // Sighs
+					});
+					AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->AI()->Talk(2); // WHAT OGRE LIKE.
+					});
+					AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						if (Creature* ogre = me->FindNearestCreature(NPC_DUNEMAUL_EMISSARY, 10.0f, true))
+							ogre->AI()->Talk(1); // Oh. Ogre like eat bug.
+					});
+					AddTimedDelayedOperation(24 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->AI()->Talk(3); // The Silithid?
+					});
+					break;
+				default:
+					break;
+			}
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_megs_dreadshredder_38849AI(creature);
+	}
+
+};
+
+
+
+
 /// Thunderdrome Quest Chain
 enum ThunderDromeData
 {
@@ -2178,6 +2327,8 @@ void AddSC_tanaris()
     new npc_custodian_of_time();
     new npc_steward_of_time();
     new npc_OOX17();
+	new npc_dunemaul_ogres_unchartered();
+	new npc_megs_dreadshredder_38849();
 	new npc_dr_dealwell();
 	new npc_lord_ginormus();
 	new npc_sarinexx();

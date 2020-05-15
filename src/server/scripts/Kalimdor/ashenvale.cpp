@@ -827,6 +827,307 @@ public:
 };
 
 
+
+/// Silverwind Defender - 34621
+class npc_silverwind_defender_34621 : public CreatureScript
+{
+public:
+	npc_silverwind_defender_34621() : CreatureScript("npc_silverwind_defender_34621") { }
+
+	enum eMisc
+	{
+		NPC_RAMPAGING_FURBOLG	= 34620,
+		NPC_FOULWEALD_WARRIOR	= 3743,
+		NPC_FOULWEALD_TOTEMIC	= 3750,
+	};
+
+	struct npc_silverwind_defender_34621AI : public ScriptedAI
+	{
+		npc_silverwind_defender_34621AI(Creature* creature) : ScriptedAI(creature)
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+		}
+
+		void EnterCombat(Unit* who)
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+			if (who->ToPlayer())
+				me->ClearUnitState(UNIT_STATE_ROOT);
+			if (me->GetDistance(who) >= 5.0f) // if distance is longer than 5yrds, disable root.
+				me->ClearUnitState(UNIT_STATE_ROOT);
+		}
+
+		void Reset()
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+		}
+
+
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
+		{
+			if (target->ToCreature())
+				damage = 0;
+		}
+
+		void DamageTaken(Unit* pWho, uint32& uiDamage, SpellInfo const* /*p_SpellInfo*/)
+		{
+			if (Creature* npc = pWho->ToCreature())
+			{
+				if (npc->GetEntry() == NPC_RAMPAGING_FURBOLG)
+					uiDamage = 0;
+				if (npc->GetEntry() == NPC_FOULWEALD_WARRIOR)
+					uiDamage = 0;
+				if (npc->GetEntry() == NPC_FOULWEALD_TOTEMIC)
+					uiDamage = 0;
+			}
+
+
+			if (pWho->GetTypeId() == TYPEID_PLAYER || pWho->isPet())
+			{
+				if (Creature* furbolg = me->FindNearestCreature(NPC_RAMPAGING_FURBOLG, 7.5f, true))
+				{
+					furbolg->getThreatManager().resetAllAggro();
+					furbolg->CombatStop(true);
+				}
+				if (Creature* furbolg = me->FindNearestCreature(NPC_FOULWEALD_WARRIOR, 7.5f, true))
+				{
+					furbolg->getThreatManager().resetAllAggro();
+					furbolg->CombatStop(true);
+				}
+				if (Creature* furbolg = me->FindNearestCreature(NPC_FOULWEALD_TOTEMIC, 7.5f, true))
+				{
+					furbolg->getThreatManager().resetAllAggro();
+					furbolg->CombatStop(true);
+				}
+				
+				me->ClearUnitState(UNIT_STATE_ROOT);
+				me->getThreatManager().resetAllAggro();
+				me->GetMotionMaster()->MoveChase(pWho);
+				me->AI()->AttackStart(pWho);
+			}
+		}
+
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+			{
+				if (Creature* rampaging = me->FindNearestCreature(NPC_RAMPAGING_FURBOLG, 7.5f, true))
+				{
+					me->AI()->AttackStart(rampaging);
+					me->AddUnitState(UNIT_STATE_ROOT);
+				}
+				if (Creature* warrior = me->FindNearestCreature(NPC_FOULWEALD_WARRIOR, 7.5f, true))
+				{
+					me->AI()->AttackStart(warrior);
+					me->AddUnitState(UNIT_STATE_ROOT);
+				}
+				if (Creature* totemic = me->FindNearestCreature(NPC_FOULWEALD_TOTEMIC, 7.5f, true))
+				{
+					me->AI()->AttackStart(totemic);
+					me->AddUnitState(UNIT_STATE_ROOT);
+				}
+
+			}
+				
+					
+
+			DoMeleeAttackIfReady();
+		}
+	};
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_silverwind_defender_34621AI(creature);
+	}
+};
+
+
+/// Silverwind Conqueror - 34592
+class npc_silverwind_conqueror_34592 : public CreatureScript
+{
+public:
+	npc_silverwind_conqueror_34592() : CreatureScript("npc_silverwind_conqueror_34592") { }
+
+	enum eMisc
+	{
+		NPC_RAMPAGING_FURBOLG = 34620,
+		NPC_FOULWEALD_WARRIOR = 3743,
+		NPC_FOULWEALD_TOTEMIC = 3750,
+	};
+
+	struct npc_silverwind_conqueror_34592AI : public ScriptedAI
+	{
+		npc_silverwind_conqueror_34592AI(Creature* creature) : ScriptedAI(creature)
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+		}
+
+		void EnterCombat(Unit* who)
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+			if (who->ToPlayer())
+				me->ClearUnitState(UNIT_STATE_ROOT);
+			if (me->GetDistance(who) >= 5.0f) // if distance is longer than 5yrds, disable root.
+				me->ClearUnitState(UNIT_STATE_ROOT);
+		}
+
+		void Reset()
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+		}
+
+
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
+		{
+			if (target->ToCreature())
+				damage = 0;
+		}
+
+		void DamageTaken(Unit* pWho, uint32& uiDamage, SpellInfo const* /*p_SpellInfo*/)
+		{
+			if (Creature* npc = pWho->ToCreature())
+			{
+				if (npc->GetEntry() == NPC_RAMPAGING_FURBOLG)
+					uiDamage = 0;
+				if (npc->GetEntry() == NPC_FOULWEALD_WARRIOR)
+					uiDamage = 0;
+				if (npc->GetEntry() == NPC_FOULWEALD_TOTEMIC)
+					uiDamage = 0;
+			}
+
+
+			if (pWho->GetTypeId() == TYPEID_PLAYER || pWho->isPet())
+			{
+				if (Creature* furbolg = me->FindNearestCreature(NPC_RAMPAGING_FURBOLG, 7.5f, true))
+				{
+					furbolg->getThreatManager().resetAllAggro();
+					furbolg->CombatStop(true);
+				}
+				if (Creature* warrior = me->FindNearestCreature(NPC_FOULWEALD_WARRIOR, 7.5f, true))
+				{
+					warrior->getThreatManager().resetAllAggro();
+					warrior->CombatStop(true);
+				}
+				if (Creature* totemic = me->FindNearestCreature(NPC_FOULWEALD_TOTEMIC, 7.5f, true))
+				{
+					totemic->getThreatManager().resetAllAggro();
+					totemic->CombatStop(true);
+				}
+
+				me->ClearUnitState(UNIT_STATE_ROOT);
+				me->getThreatManager().resetAllAggro();
+				me->GetMotionMaster()->MoveChase(pWho);
+				me->AI()->AttackStart(pWho);
+			}
+		}
+	};
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_silverwind_conqueror_34592AI(creature);
+	}
+};
+
+
+/// Foulweald NPCs - 3743, 3750, 34620
+class npc_foulweald_warrior_totemic_rampaging : public CreatureScript
+{
+public:
+	npc_foulweald_warrior_totemic_rampaging() : CreatureScript("npc_foulweald_warrior_totemic_rampaging") { }
+
+	enum eMisc
+	{
+		NPC_SILVERWIND_DEFENDER	= 34621,
+		NPC_SILVERWIND_CONQUEROR = 34592,
+	};
+
+	struct npc_foulweald_warrior_totemic_rampagingAI : public ScriptedAI
+	{
+		npc_foulweald_warrior_totemic_rampagingAI(Creature* creature) : ScriptedAI(creature)
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+		}
+
+		void EnterCombat(Unit* who)
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+			if (who->ToPlayer())
+				me->ClearUnitState(UNIT_STATE_ROOT);
+			if (me->GetDistance(who) >= 5.0f) // if distance is longer than 5yrds, disable root.
+				me->ClearUnitState(UNIT_STATE_ROOT);
+		}
+
+		void Reset()
+		{
+			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+		}
+
+
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
+		{
+			if (target->ToCreature())
+				damage = 0;
+		}
+
+		void DamageTaken(Unit* pWho, uint32& uiDamage, SpellInfo const* /*p_SpellInfo*/)
+		{
+			if (Creature* npc = pWho->ToCreature())
+			{
+				if (npc->GetEntry() == NPC_SILVERWIND_DEFENDER)
+					uiDamage = 0;
+				if (npc->GetEntry() == NPC_SILVERWIND_CONQUEROR)
+					uiDamage = 0;
+			}
+
+
+			if (pWho->GetTypeId() == TYPEID_PLAYER || pWho->isPet())
+			{
+				if (Creature* conqueror = me->FindNearestCreature(NPC_SILVERWIND_CONQUEROR, 7.5f, true))
+				{
+					conqueror->getThreatManager().resetAllAggro();
+					conqueror->CombatStop(true);
+				}
+				if (Creature* defender = me->FindNearestCreature(NPC_SILVERWIND_DEFENDER, 7.5f, true))
+				{
+					defender->getThreatManager().resetAllAggro();
+					defender->CombatStop(true);
+				}
+
+				me->ClearUnitState(UNIT_STATE_ROOT);
+				me->getThreatManager().resetAllAggro();
+				me->GetMotionMaster()->MoveChase(pWho);
+				me->AI()->AttackStart(pWho);
+			}
+		}
+
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+			{
+				if (Creature* conqueror = me->FindNearestCreature(NPC_SILVERWIND_CONQUEROR, 7.5f, true))
+				{
+					me->AI()->AttackStart(conqueror);
+					me->AddUnitState(UNIT_STATE_ROOT);
+				}
+				if (Creature* defender = me->FindNearestCreature(NPC_SILVERWIND_DEFENDER, 7.5f, true))
+				{
+					me->AI()->AttackStart(defender);
+					me->AddUnitState(UNIT_STATE_ROOT);
+				}
+			}
+			DoMeleeAttackIfReady();
+		}
+	};
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_foulweald_warrior_totemic_rampagingAI(creature);
+	}
+};
+
+
+
+
+
 /// Naga Brazier - 202215, 202216, 202217
 class go_naga_brazier : public GameObjectScript
 {
@@ -976,7 +1277,9 @@ void AddSC_ashenvale()
 	new npc_bolyun_2();
 	new npc_big_baobob();
 	new npc_astranaar_burning_fire_bunny();
-
+	new npc_silverwind_defender_34621();
+	new npc_silverwind_conqueror_34592();
+	new npc_foulweald_warrior_totemic_rampaging();
 
 	// Game objects
     new go_naga_brazier();
