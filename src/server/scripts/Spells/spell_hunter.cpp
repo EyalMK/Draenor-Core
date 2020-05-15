@@ -126,7 +126,18 @@ enum HunterSpells
     HUNTER_SPELL_COMBAT_EXPERIENCE                  = 20782,
     HUNTER_SPELL_BLINK_STRIKES                      = 130392,
     HUNTER_SPELL_BLINK_STRIKES_TELEPORT             = 130393,
-    HUNTER_SPELL_ITEM_WOD_PVP_MM_4P_BONUS           = 170884
+    HUNTER_SPELL_ITEM_WOD_PVP_MM_4P_BONUS           = 170884,
+
+	// Tier
+
+	// T18
+
+	ITEM_HUNTER_T18_BEASTMASTERY_2P					= 188200,
+	ITEM_HUNTER_T18_BEASTMASTERY_4P					= 188201,
+	ITEM_HUNTER_T18_MARKSMANSHIP_2P					= 188190,
+	ITEM_HUNTER_T18_MARKSMANSHIP_4P					= 188191,
+	ITEM_HUNTER_T18_SURVIVAL_2P						= 188198,
+	ITEM_HUNTER_T18_SURVIVAL_4P						= 188199
 };
 
 /// Lesser Proportion - 57894
@@ -305,22 +316,23 @@ class spell_hun_black_arrow : public SpellScriptLoader
 
             void HandleOnCast()
             {
-                Unit* l_Caster = GetCaster();
+				if (Unit* l_Caster = GetCaster())
+				{
+					if (Player* l_Player = l_Caster->ToPlayer())
+					{
+						Unit * l_Target = GetHitUnit();
 
-                if (l_Caster == nullptr)
-                    return;
+						if (l_Caster->HasAura(eSpells::T17Survival2P))
+						{
+							if (l_Player->HasSpellCooldown(eSpells::ExplosiveShot))
+								l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);
+							l_Player->CastSpell(l_Player, eSpells::LockAndLoad, true);
+						}
 
-                if (!l_Caster->HasAura(eSpells::T17Survival2P))
-                    return;
-
-                Player* l_Player = l_Caster->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                if (l_Player->HasSpellCooldown(eSpells::ExplosiveShot))
-                    l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);
-                l_Player->CastSpell(l_Player, eSpells::LockAndLoad, true);
+						if (l_Caster->HasAura(ITEM_HUNTER_T18_SURVIVAL_2P))
+							l_Player->CastSpell(l_Target, 188400, true);
+					}
+				}
             }
 
             void Register() override
@@ -891,9 +903,31 @@ class spell_hun_kill_shot : public SpellScriptLoader
                 }
             }
 
+			void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+			{
+				// Longview - 184901 (Talisman of the Master Tracker)
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(184901))
+					{
+						if (Unit* l_Target = GetHitUnit())
+						{
+							int32 l_Yards = l_Player->GetDistance(l_Target);
+
+							SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(184901);
+
+							int32 l_TrinketBase = 1 + (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * l_Yards;
+
+							SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_TrinketBase));
+						}
+					}
+				}
+			}
+
             void Register()
             {
                 AfterHit += SpellHitFn(spell_hun_kill_shot_SpellScript::HandleAfterHit);
+				OnEffectHitTarget += SpellEffectFn(spell_hun_kill_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -1072,7 +1106,7 @@ class spell_hun_glyph_of_aspects: public SpellScriptLoader
         }
 };
 
-/// Glyph of animal bond - 20895
+/// Glyph of Animal Bond - 20895
 class spell_hun_glyph_of_animal_bond : public SpellScriptLoader
 {
     public:
@@ -1167,7 +1201,8 @@ class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
             {
                 T17BeastMaster4P        = 165518,
                 BestialWrathStampede    = 167135,
-                BestialWrath            = 19574
+                BestialWrath            = 19574,
+				Beastlord				= 184900
             };
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1176,6 +1211,15 @@ class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
                 {
                     if (Pet* l_Pet = l_Target->ToPet())
                     {
+						if (Player* l_Owner = l_Pet->GetOwner())
+						{
+							if (l_Owner->HasAura(eSpells::Beastlord) && m_scriptSpellId == eSpells::BestialWrath)
+							{
+								if (Aura* l_BestialWrath = l_Pet->GetAura(eSpells::BestialWrath))
+									l_BestialWrath->SetDuration(l_BestialWrath->GetDuration() + 30000);
+							}
+						}
+
                         if (l_Pet->m_Stampeded)
                             return;
                     }
@@ -1815,7 +1859,8 @@ class spell_hun_focus_fire : public SpellScriptLoader
 
         enum eFrenzy
         {
-            FrenzyReady = 88843
+            FrenzyReady = 88843,
+			FelBoar     = 188507
         };
 
         class spell_hun_focus_fire_AuraScript : public AuraScript
@@ -1861,6 +1906,17 @@ class spell_hun_focus_fire : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster == nullptr)
+					return;
+
+				if (l_Caster->HasAura(ITEM_HUNTER_T18_BEASTMASTERY_4P))
+					l_Caster->CastSpell(l_Caster, eFrenzy::FelBoar, true);
+			}
+
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
@@ -1890,6 +1946,7 @@ class spell_hun_focus_fire : public SpellScriptLoader
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_hun_focus_fire_SpellScript::CheckFrenzy);
+				OnCast += SpellCastFn(spell_hun_focus_fire_SpellScript::HandleOnCast);
                 OnHit += SpellHitFn(spell_hun_focus_fire_SpellScript::HandleOnHit);
             }
         };
@@ -2301,11 +2358,33 @@ class spell_hun_barrage : public SpellScriptLoader
                 SetHitDamage(l_Damage);
             }
 
+			void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+			{
+				// Longview - 184901 (Talisman of the Master Tracker)
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(184901))
+					{
+						if (Unit* l_Target = GetHitUnit())
+						{
+							int32 l_Yards = l_Player->GetDistance(l_Target);
+
+							SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(184901);
+
+							int32 l_TrinketBase = 1 + (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * l_Yards;
+
+							SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_TrinketBase));
+						}
+					}
+				}
+			}
+
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_barrage_SpellScript::CheckLOS, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_barrage_SpellScript::CheckLOS, EFFECT_2, TARGET_UNIT_CONE_ENEMY_104);
                 OnHit += SpellHitFn(spell_hun_barrage_SpellScript::HandleOnHit);
+				OnEffectHitTarget += SpellEffectFn(spell_hun_barrage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -2485,9 +2564,31 @@ class spell_hun_powershot: public SpellScriptLoader
                 }
             }
 
+			void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+			{
+				// Longview - 184901 (Talisman of the Master Tracker)
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(184901))
+					{
+						if (Unit* l_Target = GetHitUnit())
+						{
+							int32 l_Yards = l_Player->GetDistance(l_Target);
+
+							SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(184901);
+
+							int32 l_TrinketBase = 1 + (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * l_Yards;
+
+							SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_TrinketBase));
+						}
+					}
+				}
+			}
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_hun_powershot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+				OnEffectHitTarget += SpellEffectFn(spell_hun_powershot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -2581,7 +2682,6 @@ class spell_hun_ancient_hysteria : public SpellScriptLoader
             return new spell_hun_ancient_hysteria_SpellScript();
         }
 };
-
 
 /// Netherwinds - 160452 - last update: 6.1.2 19802
 class spell_hun_netherwinds : public SpellScriptLoader
@@ -2786,8 +2886,17 @@ class spell_hun_cobra_shot: public SpellScriptLoader
 
             void HandleOnCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_COBRA_SHOT_ENERGIZE, true);
+				if (Unit* l_Caster = GetCaster())
+				{
+					if (l_Caster->HasAura(ITEM_HUNTER_T18_BEASTMASTERY_2P) && l_Caster->HasAura(HUNTER_SPELL_FOCUS_FIRE_AURA))
+					{
+						if (Aura* l_FocusFire = l_Caster->GetAura(HUNTER_SPELL_FOCUS_FIRE_AURA))
+							l_FocusFire->SetDuration(l_FocusFire->GetDuration() + 1000);
+					}
+
+					l_Caster->CastSpell(l_Caster, HUNTER_SPELL_COBRA_SHOT_ENERGIZE, true);
+				}
+
             }
 
             void Register()
@@ -2818,9 +2927,31 @@ class spell_hun_steady_shot: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
             }
 
+			void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+			{
+				// Longview - 184901 (Talisman of the Master Tracker)
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(184901))
+					{
+						if (Unit* l_Target = GetHitUnit())
+						{
+							int32 l_Yards = l_Player->GetDistance(l_Target);
+
+							SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(184901);
+
+							int32 l_TrinketBase = 1 + (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * l_Yards;
+
+							SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_TrinketBase));
+						}
+					}
+				}
+			}
+
             void Register()
             {
                 AfterCast += SpellCastFn(spell_hun_steady_shot_SpellScript::HandleAfterCast);
+				OnEffectHitTarget += SpellEffectFn(spell_hun_steady_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -2845,7 +2976,9 @@ class spell_hun_chimaera_shot: public SpellScriptLoader
                 SpellChimaeraFrost  = 171454,
                 SpellChimaeraNature = 171457,
                 GlyphOfChimaeraShot = 119447,
-                ChimaeraShotHealing = 53353
+                ChimaeraShotHealing = 53353,
+				RapidFire		    = 3045,
+				RapidFireT18		= 188202
             };
 
             bool m_Healed;
@@ -2877,12 +3010,53 @@ class spell_hun_chimaera_shot: public SpellScriptLoader
                             l_Caster->CastCustomSpell(l_Caster, ChimaeraSpells::ChimaeraShotHealing, &l_Value, NULL, NULL, true);
                         }
                     }
+
+					if (l_Caster->HasAura(ITEM_HUNTER_T18_MARKSMANSHIP_2P) && GetSpell()->IsCritForTarget(GetHitUnit()))
+					{
+						if (roll_chance_i(40))
+						{
+							if (l_Caster->HasAura(ChimaeraSpells::RapidFire))
+							{
+								if (Aura* l_RapidFire = l_Caster->GetAura(ChimaeraSpells::RapidFire))
+									l_RapidFire->SetDuration(l_RapidFire->GetDuration() + 4000);
+							}
+							else if (l_Caster->HasAura(ChimaeraSpells::RapidFireT18))
+							{
+								if (Aura* l_RapidFire = l_Caster->GetAura(ChimaeraSpells::RapidFireT18))
+									l_RapidFire->SetDuration(l_RapidFire->GetDuration() + 4000);
+							}
+							else
+								l_Caster->CastSpell(l_Caster, ChimaeraSpells::RapidFireT18, true);
+						}
+					}
                 }
             }
+
+			void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+			{
+				// Longview - 184901 (Talisman of the Master Tracker)
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(184901))
+					{
+						if (Unit* l_Target = GetHitUnit())
+						{
+							int32 l_Yards = l_Player->GetDistance(l_Target);
+
+							SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(184901);
+
+							int32 l_TrinketBase = 1 + (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * l_Yards;
+
+							SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_TrinketBase));
+						}
+					}
+				}
+			}
 
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_hun_chimaera_shot_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+				OnEffectHitTarget += SpellEffectFn(spell_hun_chimaera_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -3738,6 +3912,9 @@ class spell_hun_explosive_shot : public SpellScriptLoader
 
                 if (l_Target == nullptr)
                     return;
+				
+				if (l_Caster->HasAura(ITEM_HUNTER_T18_SURVIVAL_4P))
+					l_Caster->CastSpell(l_Target, 188402, true);
 
                 int32 l_Damage = int32(0.47f * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack));
                 l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
@@ -3774,10 +3951,37 @@ class spell_hun_explosive_shot : public SpellScriptLoader
             }
         };
 
+		class spell_hun_explosive_shot_AuraScript : public AuraScript
+		{
+			PrepareAuraScript(spell_hun_explosive_shot_AuraScript);
+
+			void OnTick(AuraEffect const* /*p_AurEff*/)
+			{
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					Unit* l_Caster = GetCaster();
+					Unit* l_Target = GetTarget();
+
+					if (l_Caster->HasAura(ITEM_HUNTER_T18_SURVIVAL_4P))
+						l_Caster->CastSpell(l_Target, 188402, true);
+				}
+			}
+
+			void Register()
+			{
+				OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+			}
+		};
+
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_explosive_shot_SpellScript();
         }
+
+		AuraScript* GetAuraScript() const
+		{
+			return new spell_hun_explosive_shot_AuraScript();
+		}
 };
 
 /// Poisoned Ammo - 162543
@@ -3933,15 +4137,33 @@ class spell_hun_aimed_shot : public SpellScriptLoader
                 }
             }
 
-            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
-            {
-                /// Aimed Shot critical strikes restore 8 additional Focus.
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (GetSpell()->IsCritForTarget(GetHitUnit()) && l_Caster->HasAura(eSpells::T17Marksmanship2P))
-                        l_Caster->CastSpell(l_Caster, eSpells::AimedShotEnergize, true);
-                }
-            }
+			void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+			{
+				if (Unit* l_Caster = GetCaster())
+				{
+					/// Aimed Shot critical strikes restore 8 additional Focus.
+					if (GetSpell()->IsCritForTarget(GetHitUnit()) && l_Caster->HasAura(eSpells::T17Marksmanship2P))
+						l_Caster->CastSpell(l_Caster, eSpells::AimedShotEnergize, true);
+				}
+
+				// Longview - 184901 (Talisman of the Master Tracker)
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(184901))
+					{
+						if (Unit* l_Target = GetHitUnit())
+						{
+							int32 l_Yards = l_Player->GetDistance(l_Target);
+
+							SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(184901);
+
+							int32 l_TrinketBase = 1 + (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * l_Yards;
+
+							SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_TrinketBase));
+						}
+					}
+				}
+			}
 
             void Register() override
             {
@@ -4474,6 +4696,192 @@ class spell_hun_invigoration_proc : public SpellScriptLoader
         }
 };
 
+// Arcane Shot - 3044
+class spell_hun_arcane_shot : public SpellScriptLoader
+{
+public:
+	spell_hun_arcane_shot() : SpellScriptLoader("spell_hun_arcane_shot") { }
+
+	class spell_hun_arcane_shot_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_hun_arcane_shot_SpellScript);
+
+		void HandleOnCast()
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster == nullptr)
+				return;
+
+			if (l_Caster->HasAura(ITEM_HUNTER_T18_BEASTMASTERY_2P) && l_Caster->HasAura(HUNTER_SPELL_FOCUS_FIRE_AURA))
+			{
+				if (Aura* l_FocusFire = l_Caster->GetAura(HUNTER_SPELL_FOCUS_FIRE_AURA))
+					l_FocusFire->SetDuration(l_FocusFire->GetDuration() + 1000);
+			}
+
+			if (l_Caster->HasAura(184902)) // Blackness (Talisman of the Master Tracker)
+			{
+				Player* l_Player = GetCaster()->ToPlayer();
+
+				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184902);
+				
+				if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+				{
+					if (l_Player->HasSpellCooldown(3674))
+						l_Player->RemoveSpellCooldown(3674, true);
+				}
+			}
+		}
+
+		void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+		{
+			// Longview - 184901 (Talisman of the Master Tracker)
+			if (Player* l_Player = GetCaster()->ToPlayer())
+			{
+				if (l_Player->HasAura(184901))
+				{
+					if (Unit* l_Target = GetHitUnit())
+					{
+						int32 l_Yards = l_Player->GetDistance(l_Target);
+
+						SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(184901);
+
+						int32 l_TrinketBase = 1 + (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * l_Yards;
+
+						SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_TrinketBase));
+					}
+				}
+			}
+		}
+
+		void Register() override
+		{
+			OnCast += SpellCastFn(spell_hun_arcane_shot_SpellScript::HandleOnCast);
+			OnEffectHitTarget += SpellEffectFn(spell_hun_arcane_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+		}
+	};
+
+	SpellScript* GetSpellScript() const override
+	{
+		return new spell_hun_arcane_shot_SpellScript();
+	}
+};
+
+/// T18 Marksmanship 2P - 188190
+class spell_hun_t18_mm_2p : public SpellScriptLoader
+{
+public:
+	spell_hun_t18_mm_2p() : SpellScriptLoader("spell_hun_t18_mm_2p") { }
+
+	class spell_hun_t18_mm_2p_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_hun_t18_mm_2p_AuraScript);
+
+		void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_hun_t18_mm_2p_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_hun_t18_mm_2p_AuraScript();
+	}
+};
+
+// Multi-Shot - 3044
+class spell_hun_multi_shot : public SpellScriptLoader
+{
+public:
+	spell_hun_multi_shot() : SpellScriptLoader("spell_hun_multi_shot") { }
+
+	class spell_hun_multi_shot_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_hun_multi_shot_SpellScript);
+
+		void HandleOnCast()
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster->HasAura(184902)) // Blackness (Talisman of the Master Tracker)
+			{
+				Player* l_Player = GetCaster()->ToPlayer();
+
+				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184902);
+
+				if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+				{
+					if (l_Player->HasSpellCooldown(3674))
+						l_Player->RemoveSpellCooldown(3674, true);
+				}
+			}
+		}
+
+		void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+		{
+			// Longview - 184901 (Talisman of the Master Tracker)
+			if (Player* l_Player = GetCaster()->ToPlayer())
+			{
+				if (l_Player->HasAura(184901))
+				{
+					if (Unit* l_Target = GetHitUnit())
+					{
+						int32 l_Yards = l_Player->GetDistance(l_Target);
+
+						SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(184901);
+
+						int32 l_TrinketBase = 1 + (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * l_Yards;
+
+						SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_TrinketBase));
+					}
+				}
+			}
+		}
+
+		void Register() override
+		{
+			OnCast += SpellCastFn(spell_hun_multi_shot_SpellScript::HandleOnCast);
+			OnEffectHitTarget += SpellEffectFn(spell_hun_multi_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+		}
+	};
+
+	SpellScript* GetSpellScript() const override
+	{
+		return new spell_hun_multi_shot_SpellScript();
+	}
+};
+
+/// T18 Survival 2P - 188190
+class spell_hun_t18_survival_2p : public SpellScriptLoader
+{
+public:
+	spell_hun_t18_survival_2p() : SpellScriptLoader("spell_hun_t18_survival_2p") { }
+
+	class spell_hun_t18_survival_2p_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_hun_t18_survival_2p_AuraScript);
+
+		void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcEventInfo)
+		{
+			PreventDefaultAction();
+		}
+
+		void Register()
+		{
+			OnEffectProc += AuraEffectProcFn(spell_hun_t18_survival_2p_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_hun_t18_survival_2p_AuraScript();
+	}
+};
 
 #ifndef __clang_analyzer__
 void AddSC_hunter_spell_scripts()
@@ -4550,6 +4958,10 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_adaptation();
     new spell_hun_t17_marksmanship_4p();
     new spell_hun_trap_launcher();
+	new spell_hun_arcane_shot();
+	new spell_hun_t18_mm_2p();
+	new spell_hun_multi_shot();
+	new spell_hun_t18_survival_2p();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();

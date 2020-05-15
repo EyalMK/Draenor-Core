@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `item_effect` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25037 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.item_effect: ~20,271 rows (approximately)
+-- Dumping data for table fixeslive.item_effect: ~19,248 rows (approximately)
 DELETE FROM `item_effect`;
 /*!40000 ALTER TABLE `item_effect` DISABLE KEYS */;
 INSERT INTO `item_effect` (`ID`, `ItemID`, `EffectIndex`, `SpellID`, `SpellTrigger`, `SpellCharge`, `SpellCooldown`, `SpellCategory`, `SpellCategoryCooldown`, `ChrSpecializationID`, `BuildVerified`) VALUES

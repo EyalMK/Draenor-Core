@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `areatrigger_scripts` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table worldlive.areatrigger_scripts: 155 rows
+-- Dumping data for table worldlive.areatrigger_scripts: 156 rows
 DELETE FROM `areatrigger_scripts`;
 /*!40000 ALTER TABLE `areatrigger_scripts` DISABLE KEYS */;
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
@@ -176,7 +176,8 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 	(7527, 'at_rattlegore'),
 	(7548, 'at_lilian_voss'),
 	(8317, 'at_flameweaver_koegler'),
-	(6033, 'SmartTrigger');
+	(6033, 'SmartTrigger'),
+	(6135, 'SmartTrigger');
 /*!40000 ALTER TABLE `areatrigger_scripts` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
