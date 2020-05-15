@@ -3912,17 +3912,41 @@ class spell_hun_explosive_shot : public SpellScriptLoader
 
                 if (l_Target == nullptr)
                     return;
-				
-				if (l_Caster->HasAura(ITEM_HUNTER_T18_SURVIVAL_4P))
-					l_Caster->CastSpell(l_Target, 188402, true);
 
                 int32 l_Damage = int32(0.47f * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack));
                 l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
+
                 if (l_Caster->HasAura(eSpells::T17Survival4P))
                     l_Caster->CastSpell(l_Caster, eSpells::HeavyShot, true);
+
+				if (l_Caster->HasAura(ITEM_HUNTER_T18_SURVIVAL_4P))
+				{
+					std::list<Unit*> l_TargetList;
+					float l_Radius = 60.0f;
+
+					std::list<Unit*> l_UnFriendlyUnitListTemp;
+					JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+					JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_UnFriendlyUnitListTemp, l_Check);
+					l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+					l_UnFriendlyUnitListTemp.remove_if([this, l_Caster, l_Target](WorldObject* p_Object) -> bool
+					{
+						if (p_Object == nullptr || p_Object->ToUnit() == nullptr || !p_Object->ToUnit()->HasAura(188400))
+							return true;
+						return false;
+					});
+
+					for (auto l_Itr : l_UnFriendlyUnitListTemp)
+					{
+						if (l_Caster == nullptr)
+							return;
+
+						l_Caster->CastSpell(l_Itr, 188402, true);
+					}
+				}
             }
 
             void HandleAfterHit()
@@ -3957,19 +3981,39 @@ class spell_hun_explosive_shot : public SpellScriptLoader
 
 			void OnTick(AuraEffect const* /*p_AurEff*/)
 			{
-				if (Player* l_Player = GetCaster()->ToPlayer())
-				{
-					Unit* l_Caster = GetCaster();
-					Unit* l_Target = GetTarget();
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetTarget();
 
-					if (l_Caster->HasAura(ITEM_HUNTER_T18_SURVIVAL_4P))
-						l_Caster->CastSpell(l_Target, 188402, true);
+				if (l_Caster->HasAura(ITEM_HUNTER_T18_SURVIVAL_4P))
+				{
+					std::list<Unit*> l_TargetList;
+					float l_Radius = 60.0f;
+
+					std::list<Unit*> l_UnFriendlyUnitListTemp;
+					JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+					JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_UnFriendlyUnitListTemp, l_Check);
+					l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+					l_UnFriendlyUnitListTemp.remove_if([this, l_Caster, l_Target](WorldObject* p_Object) -> bool
+					{
+						if (p_Object == nullptr || p_Object->ToUnit() == nullptr || !p_Object->ToUnit()->HasAura(188400))
+							return true;
+						return false;
+					});
+
+					for (auto l_Itr : l_UnFriendlyUnitListTemp)
+					{
+						if (l_Caster == nullptr)
+							return;
+
+						l_Caster->CastSpell(l_Itr, 188402, true);
+					}
 				}
 			}
 
 			void Register()
 			{
-				OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+				OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
 			}
 		};
 
