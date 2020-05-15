@@ -3912,9 +3912,9 @@ class spell_hun_explosive_shot : public SpellScriptLoader
 
                 if (l_Target == nullptr)
                     return;
-
-				if (GetCaster()->HasAura(ITEM_HUNTER_T18_SURVIVAL_4P))
-					GetCaster()->CastSpell(l_Target, 188402, true);
+				
+				if (l_Caster->HasAura(ITEM_HUNTER_T18_SURVIVAL_4P))
+					l_Caster->CastSpell(l_Target, 188402, true);
 
                 int32 l_Damage = int32(0.47f * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack));
                 l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
@@ -3951,10 +3951,37 @@ class spell_hun_explosive_shot : public SpellScriptLoader
             }
         };
 
+		class spell_hun_explosive_shot_AuraScript : public AuraScript
+		{
+			PrepareAuraScript(spell_hun_explosive_shot_AuraScript);
+
+			void OnTick(AuraEffect const* /*p_AurEff*/)
+			{
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					Unit* l_Caster = GetCaster();
+					Unit* l_Target = GetTarget();
+
+					if (l_Caster->HasAura(ITEM_HUNTER_T18_SURVIVAL_4P))
+						l_Caster->CastSpell(l_Target, 188402, true);
+				}
+			}
+
+			void Register()
+			{
+				OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+			}
+		};
+
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_explosive_shot_SpellScript();
         }
+
+		AuraScript* GetAuraScript() const
+		{
+			return new spell_hun_explosive_shot_AuraScript();
+		}
 };
 
 /// Poisoned Ammo - 162543
