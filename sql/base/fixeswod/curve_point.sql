@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         logon.hellscream.org
 -- Server version:               5.5.9-log - MySQL Community Server (GPL)
 -- Server OS:                    Win32
 -- HeidiSQL Version:             10.3.0.5771
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `curve_point` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4866 DEFAULT CHARSET=latin1;
 
--- Dumping data for table fixeslive.curve_point: ~2,820 rows (approximately)
+-- Dumping data for table fixeslive.curve_point: ~3,223 rows (approximately)
 DELETE FROM `curve_point`;
 /*!40000 ALTER TABLE `curve_point` DISABLE KEYS */;
 INSERT INTO `curve_point` (`ID`, `CurveID`, `Index`, `X`, `Y`, `BuildVerified`) VALUES
