@@ -11,7 +11,29 @@
 #include "ScriptedGossip.h"
 
 
+
+
+
+
+
+
 /// Quest: Rise, Obsidion - 28056
+
+enum eMoves
+{
+	MaxLathoricMoves = 4,
+};
+
+static std::array<G3D::Vector3, eMoves::MaxLathoricMoves> g_LathoricMoves =
+{
+	{
+		{ -6465.23f, -1268.51f, 180.673f },
+		{ -6469.58f, -1266.06f, 180.597f },
+		{ -6473.7f, -1260.24f, 180.473f  },
+		{ -6476.37f, -1252.35f, 180.332f }
+	}
+};
+
 /// Lathorick the Black - 8391
 class npc_lathorick_the_black : public CreatureScript
 {
@@ -43,12 +65,6 @@ public:
 			m_events.Reset();
 		}
 
-		void JustSummoned(Creature* /*summoner*/) override
-		{
-			Talk(0); // You are here to stop the Archduke?
-			me->GetMotionMaster()->MovePath(839100, false); // Path 8391 * 100 in waypoint_data
-		}
-
 		void EnterCombat(Unit* victim) override
 		{
 			m_events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3000, 4000));
@@ -66,19 +82,26 @@ public:
 					Obsidion->setFaction(54); // To assist Lathorick
 
 					// Flags
-					Obsidion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-
 					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
-					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
 					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
-					// Attack nearest player
-					Player* player = me->FindNearestPlayer(10.0f, true);
-					me->CombatStart(player, true);
-					Obsidion->CombatStart(player);
+
+					Obsidion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
+					// Move Obsidion to Position and attack player
+					Position l_Pos = { -6476.454f, -1249.35f, 180.2865f};   
+					Obsidion->GetMotionMaster()->MovePoint(0, l_Pos);
+
+					// Prevent crash if player is stealthed 
+					if (Player* player = me->FindNearestPlayer(10.0f, true))
+					{
+						me->CombatStart(player);
+						Obsidion->CombatStart(player);
+					}
+						
 				}
 				
 			}
@@ -137,17 +160,11 @@ public:
 		void Reset() override
 		{
 			m_events.Reset();
-			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
-			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_16);
-			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 		}
 
 		void EnterCombat(Unit* victim) override
 		{
-			m_events.ScheduleEvent(EVENT_FLAME_BLAST, urand(3000, 4000));
+			m_events.ScheduleEvent(EVENT_FLAME_BLAST, urand(2000, 3000));
 		}
 
 
@@ -162,7 +179,7 @@ public:
 					case EVENT_FLAME_BLAST:
 					{
 						DoCastVictim(SPELL_FLAME_BLAST, true);
-						m_events.ScheduleEvent(EVENT_FLAME_BLAST, urand(20000, 21000));
+						m_events.ScheduleEvent(EVENT_FLAME_BLAST, urand(18000, 21000));
 						break;
 					}
 				}
@@ -177,8 +194,60 @@ public:
 	}
 };
 
+
+class go_altar_of_suntara : public GameObjectScript
+{
+public:
+	go_altar_of_suntara() : GameObjectScript("go_altar_of_suntara") { }
+
+	enum eMisc
+	{
+		// Quest
+		QUEST_RISE_OBSIDION = 28056,
+
+		// NPC
+		NPC_LATHORIC		= 8391,
+
+		// Gossip
+		GOSSIP_MENU			= 1282,
+		NPC_TEXT			= 1918,
+		GOSSIP_OPTION		= 0,
+	};
+
+	Position LathoricSpawn = { -6460.42f, -1267.61f, 180.784f, 3.0249f };
+
+	bool OnGossipHello(Player* player, GameObject* go)
+	{
+		if (player->GetQuestStatus(QUEST_RISE_OBSIDION) == QUEST_STATUS_INCOMPLETE)
+			player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU, GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+			player->SEND_GOSSIP_MENU(NPC_TEXT, go->GetGUID());
+		return true;
+	}
+
+	bool OnGossipSelect(Player* p_Player, GameObject* p_GameObject, uint32 p_Sender, uint32 p_Action)
+	{
+		p_Player->PlayerTalkClass->ClearMenus();
+		if (p_Action == GOSSIP_ACTION_INFO_DEF)
+		{
+			p_Player->CLOSE_GOSSIP_MENU();
+			if (Creature* lathoric = p_Player->SummonCreature(NPC_LATHORIC, LathoricSpawn, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+			{
+				lathoric->AI()->Talk(0); // You are here to stop the Archduke?
+				lathoric->GetMotionMaster()->MoveSmoothPath(MaxLathoricMoves, g_LathoricMoves.data(), g_LathoricMoves.size(), true);
+			}	
+		}
+
+		return true;
+	}
+};
+
+
 void AddSC_searing_gorge()
 {
+	/// Rise, Obsidion [Q]
 	new npc_lathorick_the_black();
 	new npc_obsidion();
+	new go_altar_of_suntara();
+
+
 }

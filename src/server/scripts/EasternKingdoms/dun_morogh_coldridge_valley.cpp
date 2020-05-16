@@ -1110,7 +1110,7 @@ public:
 				switch (eventId)
 				{
 				case EVENT_START_PATH:
-					me->GetMotionMaster()->MoveSmoothPath(0, g_kharanosPath.data(), g_kharanosPath.size(), false);
+					me->GetMotionMaster()->MoveSmoothFlyPath(0, g_kharanosPath.data(), g_kharanosPath.size(), false);
 					_events.ScheduleEvent(EVENT_MILO_SAY_0, 5000);
 					break;
 				case EVENT_MILO_SAY_0:

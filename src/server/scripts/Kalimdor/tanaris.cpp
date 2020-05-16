@@ -308,9 +308,18 @@ public:
 		GOSSIP_OPTION	= 0,
 		NPC_TEXT		= 15435,
 
-		// Quest
-		QUEST_UNCHARTERED = 24955,
-		KILL_CREDIT		  = 38848,
+		// Quests
+		QUEST_UNCHARTERED				= 24955,
+		KILL_CREDIT						= 38848,
+		QUEST_MAUL_EM_WITH_KINDNESS		= 24963,
+		KILL_CREDIT_KINDNESS			= 39073,
+
+		// Spells
+		SPELL_THROW_MORSEL				= 73068,
+		SPELL_COSMETIC_DRINK			= 46583,
+
+		// Actions
+		HasBeenFed						= 0,
 	};
 
 	bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
@@ -341,6 +350,100 @@ public:
 			player->SEND_GOSSIP_MENU(NPC_TEXT, creature->GetGUID());
 
 		return true;
+	}
+	struct npc_dunemaul_ogres_uncharteredAI : public ScriptedAI
+	{
+		npc_dunemaul_ogres_uncharteredAI(Creature* creature) : ScriptedAI(creature) {}
+
+
+		uint8 counter;
+		EventMap m_Events;
+
+		void Reset() override
+		{
+			m_Events.Reset();
+			ClearDelayedOperations();
+			counter = 0;
+		}
+
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
+
+		void EnterCombat(Unit* who)
+		{
+			Talk(0, who->GetGUID()); // Aggro text 25% chance
+		}
+
+		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
+		{
+			if (me->GetHealthPct() <= 35.0f)
+			{
+				if (doneBy->ToPlayer())
+					if (doneBy->ToPlayer()->GetQuestStatus(QUEST_MAUL_EM_WITH_KINDNESS) == QUEST_STATUS_INCOMPLETE)
+						if (counter = 0)
+							Talk(2); // ready to be fed.
+							counter++;
+						
+			}	
+		}
+
+		void SpellHit(Unit* Caster, const SpellInfo* Spell) override
+		{
+			Player* player = Caster->ToPlayer();
+
+			if (player && Spell->Id == SPELL_THROW_MORSEL)
+				if (player->GetQuestStatus(QUEST_MAUL_EM_WITH_KINDNESS) == QUEST_STATUS_INCOMPLETE)
+					if (me->GetHealthPct() <= 35.0f)
+					{
+						me->GetAI()->DoAction(HasBeenFed);
+						player->SetTarget(0); // Clear target
+						player->KilledMonsterCredit(KILL_CREDIT_KINDNESS);
+					}
+
+						
+
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case HasBeenFed:
+					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->setFaction(35); // Friendly Faction
+						me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+						me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+						me->AI()->Talk(2); // Me sorry! no hurt!
+					});
+					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->CastSpell(me, SPELL_COSMETIC_DRINK);
+					});
+					AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						// Need to make the ogre run
+						float x, y, z;
+						me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 0.3f);
+						me->SetSpeed(UnitMoveType::MOVE_RUN, 1.0f, true);
+						me->GetMotionMaster()->MovePoint(1, x, y, z);
+						me->DespawnOrUnsummon(3000);
+					});
+
+					break;
+			}
+		}
+			
+
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_dunemaul_ogres_uncharteredAI(creature);
 	}
 
 };

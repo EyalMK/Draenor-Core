@@ -2524,6 +2524,81 @@ public:
 };
 
 
+/// Deploy Butcherbot - Item ID - 52715, Spell ID - 74175
+class spell_q25112_butcher_bot : public SpellScriptLoader
+{
+public:
+	spell_q25112_butcher_bot() : SpellScriptLoader("spell_q25112_butcher_bot") {	}
+
+	enum eMisc
+	{
+		QUEST_BUTCHERBOT		= 25112,
+		NPC_GLASSHIDE_BASILISK	= 5419,
+		
+		SPELL_SUMMON_BUTCHERBOT = 74176,
+		SPELL_KILL_CREDIT		= 39702,
+	};
+
+	class spell_q25112_butcher_bot_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_q25112_butcher_bot_SpellScript);
+
+		bool Load() override
+		{
+			return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+		}
+
+		void HandleDummy(SpellEffIndex /*effIndex*/)
+		{
+			Item* castItem = GetCastItem();
+			Unit* caster = GetCaster();
+			Creature* target = GetHitCreature();
+
+			if (!caster || !target)
+				return;
+
+			if (Player* caster = caster->ToPlayer())
+				if (Creature* target = GetHitCreature()->ToCreature())
+					if (caster->GetQuestStatus(QUEST_BUTCHERBOT) == QUEST_STATUS_INCOMPLETE)
+						if (target->GetEntry() == NPC_GLASSHIDE_BASILISK)
+							if (target->isDead())
+								caster->CastSpell(caster, SPELL_SUMMON_BUTCHERBOT, true, castItem);
+								caster->CastSpell(caster, SPELL_KILL_CREDIT, true);
+
+			
+
+			//if (Player* player = caster->ToPlayer())
+			//{
+			//	if (player->GetQuestStatus(QUEST_BUTCHERBOT) == QUEST_STATUS_INCOMPLETE)
+			//	{
+			//		if (Creature* creature = target->ToCreature())
+			//		{
+			//			if (creature->GetEntry() == NPC_GLASSHIDE_BASILISK && creature->isDead()) // Glasshide Basilisk corpse
+			//			{
+			//				player->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL); // Player kneel
+			//				player->CastSpell(creature, SPELL_SUMMON_BUTCHERBOT, true);
+			//				player->CastSpell(player, SPELL_KILL_CREDIT);
+			//			}
+			//		}
+			//	}
+			//}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_q25112_butcher_bot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_q25112_butcher_bot_SpellScript();
+	}
+};
+
+
+
+
 #ifndef __clang_analyzer__
 void AddSC_quest_spell_scripts()
 {
@@ -2587,5 +2662,6 @@ void AddSC_quest_spell_scripts()
     new spell_q30151_throw_ball();
     new spell_q30136_silken_rope();
 	new spell_q14309_calming_the_kodo();
+	new spell_q25112_butcher_bot();
 }
 #endif
