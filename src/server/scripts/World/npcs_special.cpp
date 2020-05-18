@@ -4899,6 +4899,10 @@ public:
 		{
 			if (Unit* l_Owner = me->GetOwner())
 			{
+				if (me->GetEntry() == 95021)
+					if (!l_Owner->HasAura(82692))
+						me->ForcedDespawn();
+
 				Unit* l_OwnerTarget = l_Owner->getVictim();
 
 				if (l_OwnerTarget == nullptr)
