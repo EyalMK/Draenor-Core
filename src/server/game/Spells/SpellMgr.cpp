@@ -5870,6 +5870,11 @@ void SpellMgr::LoadSpellCustomAttr()
 			case 184770: ///< Tyrant Immortality
 				spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;
 				break;
+			case 185019: ///< Flourish
+				spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+				spellInfo->Effects[EFFECT_1].BasePoints = 0;
+				spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ALLY;
+				break;
 			///////////////////////////////////////////////////////////////////////////////////
 			///////////////////////////////////////////////////////////////////////////////////
             case 530:   ///< Charm (Possess)
