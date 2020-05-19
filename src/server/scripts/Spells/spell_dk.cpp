@@ -2247,21 +2247,6 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                         l_NewNecroticPlague->SetStackAmount(l_CurrentStacks);
                     }
                 }
-
-				if (l_Caster->HasAura(eSpells::WanderingPlagueAura))
-				{
-					if (Aura* l_NecroticPlague = l_Target->GetAura(eSpells::NecroticPlagueAura, l_Caster->GetGUID()))
-					{
-						SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WanderingPlagueAura);
-						
-						if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-						{
-							int32 l_Damage = l_NecroticPlague->GetEffect(0)->GetAmount() * 2.2;
-
-							l_Caster->CastCustomSpell(l_Target, eSpells::WanderingPlague, &l_Damage, NULL, NULL, true);
-						}
-					}
-				}
             }
 
             void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -3855,6 +3840,86 @@ public:
 	}
 };
 
+/// Called by Blood Plague - 55078, Frost Fever - 55095 and Necrotic Plague - 155159
+/// Wandering Plague - 184899
+class spell_dk_wandering_plague : public SpellScriptLoader
+{
+public:
+	spell_dk_wandering_plague() : SpellScriptLoader("spell_dk_wandering_plague") { }
+
+	class spell_dk_wandering_plague_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_dk_wandering_plague_AuraScript);
+
+		enum eSpells
+		{
+			BloodPlague = 55078,
+			FrostFever = 55095,
+			NecroticPlague = 155159,
+			WanderingPlagueAura = 184983,
+			WanderingPlague = 184899
+		};
+
+		void OnTick(AuraEffect const* /*p_AurEff*/)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetTarget();
+
+			if (l_Target == nullptr || l_Caster == nullptr)
+				return;
+
+			if (l_Caster->HasAura(eSpells::WanderingPlagueAura))
+			{
+				if (Aura* l_FrostFever = l_Target->GetAura(eSpells::FrostFever, l_Caster->GetGUID()))
+				{
+					SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WanderingPlagueAura);
+
+					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+					{
+						int32 l_Damage = l_FrostFever->GetEffect(0)->GetAmount() * 1.8;
+
+						l_Caster->CastCustomSpell(l_Target, eSpells::WanderingPlague, &l_Damage, NULL, NULL, true);
+					}
+				}
+
+				if (Aura* l_BloodPlague = l_Target->GetAura(eSpells::BloodPlague, l_Caster->GetGUID()))
+				{
+					SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WanderingPlagueAura);
+
+					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+					{
+						int32 l_Damage = l_BloodPlague->GetEffect(0)->GetAmount() * 2.3;
+
+						l_Caster->CastCustomSpell(l_Target, eSpells::WanderingPlague, &l_Damage, NULL, NULL, true);
+					}
+				}
+
+				if (Aura* l_NecroticPlague = l_Target->GetAura(eSpells::NecroticPlague, l_Caster->GetGUID()))
+				{
+					SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WanderingPlagueAura);
+
+					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+					{
+						int32 l_Damage = l_NecroticPlague->GetEffect(0)->GetAmount() * 2.3;
+
+						l_Caster->CastCustomSpell(l_Target, eSpells::WanderingPlague, &l_Damage, NULL, NULL, true);
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_wandering_plague_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_dk_wandering_plague_AuraScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_deathknight_spell_scripts()
 {
@@ -3926,7 +3991,9 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_item_t17_frost_4p_driver_periodic();
     new spell_dk_might_of_the_frozen_wastes();
 	new spell_dk_frost_strike();
+	new spell_dk_wandering_plague();
 
+	// PlayerScript
     new PlayerScript_Blood_Tap();
 }
 #endif
