@@ -2083,6 +2083,50 @@ class spell_dk_empowered_obliterate_howling_blast : public SpellScriptLoader
             return new spell_dk_empowered_obliterate_howling_blast_SpellScript();
         }
 };
+ 
+/// Called by Obliterate - 49020 (main hand), Obliterate - 66198 (off hand)
+/// Frozen Obliteration - 184982
+class spell_dk_obliterate : public SpellScriptLoader
+{
+public:
+	spell_dk_obliterate() : SpellScriptLoader("spell_dk_obliterate") { }
+
+	class spell_dk_obliterate_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_dk_obliterate_SpellScript);
+
+		enum eSpells
+		{
+			FrozenObliterationAura = 184898,
+			FrozenObliteration = 184982
+		};
+
+		void HandleDamage(SpellEffIndex /*effIndex*/)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetHitUnit();
+
+			if (l_Caster->HasAura(eSpells::FrozenObliterationAura))
+			{
+				SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::FrozenObliterationAura);
+
+				int32 l_Damage = CalculatePct(GetHitDamage(), 20);
+
+				l_Caster->CastCustomSpell(l_Target, eSpells::FrozenObliteration, &l_Damage, NULL, NULL, true);
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_dk_obliterate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_dk_obliterate_SpellScript();
+	}
+};
 
 /// last update : 6.2.3
 /// Necrotic Plague - 155159
@@ -3727,6 +3771,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_defile_absorb_effect();
     new spell_dk_soul_reaper_bonus();
     new spell_dk_death_coil();
+	new spell_dk_obliterate();
     new spell_dk_empowered_obliterate_icy_touch();
     new spell_dk_empowered_obliterate_howling_blast();
     new spell_dk_glyph_of_death_and_decay();
