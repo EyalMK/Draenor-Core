@@ -539,6 +539,46 @@ class spell_dru_wild_charge_moonkin: public SpellScriptLoader
         }
 };
 
+/// Thrash (cat) - 106830
+class spell_dru_thrash_cat : public SpellScriptLoader
+{
+public:
+	spell_dru_thrash_cat() : SpellScriptLoader("spell_dru_thrash_cat") { }
+
+	class spell_dru_thrash_cat_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_dru_thrash_cat_SpellScript);
+
+		enum eSpells
+		{
+			Clearcasting = 135700
+		};
+
+		void HandleOnCast()
+		{
+			Unit* l_Caster = GetCaster();
+
+			if (l_Caster->HasAura(185811))
+			{
+				if (l_Caster->HasAura(eSpells::Clearcasting))
+				{
+					l_Caster->ModifyPower(POWER_ENERGY, 50);
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnCast += SpellCastFn(spell_dru_thrash_cat_SpellScript::HandleOnCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_dru_thrash_cat_SpellScript();
+	}
+};
+
 /// Thrash (bear) - 77758
 class spell_dru_thrash_bear: public SpellScriptLoader
 {
@@ -580,6 +620,24 @@ class spell_dru_swipe: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_swipe_SpellScript);
 
+			enum eSpells
+			{
+				Clearcasting = 135700
+			};
+
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(185811))
+				{
+					if (l_Caster->HasAura(eSpells::Clearcasting))
+					{
+						l_Caster->ModifyPower(POWER_ENERGY, 45);
+					}
+				}
+			}
+
             void HandleDamage(SpellEffIndex)
             {
                 Unit* l_Caster = GetCaster();
@@ -604,7 +662,8 @@ class spell_dru_swipe: public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_dru_swipe_SpellScript::HandleDamage, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-            }
+				OnCast += SpellCastFn(spell_dru_swipe_SpellScript::HandleOnCast);
+			}
         };
 
         SpellScript* GetSpellScript() const
@@ -3492,6 +3551,11 @@ class spell_dru_savage_roar: public SpellScriptLoader
             int32 m_ComboPoint = 0;
             int32 m_OldDuration = 0;
 
+			enum eSpells
+			{
+				Clearcasting = 135700
+			};
+
             SpellCastResult CheckCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -3514,6 +3578,18 @@ class spell_dru_savage_roar: public SpellScriptLoader
                     m_OldDuration = l_SavageRoar->GetDuration();
             }
 
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(185811))
+				{
+					if (l_Caster->HasAura(eSpells::Clearcasting))
+					{
+						l_Caster->ModifyPower(POWER_ENERGY, 25);
+					}
+				}
+			}
 
             void HandleAfterHit()
             {
@@ -3541,6 +3617,7 @@ class spell_dru_savage_roar: public SpellScriptLoader
                 OnCheckCast += SpellCheckCastFn(spell_dru_savage_roar_SpellScript::CheckCast);
                 OnPrepare += SpellOnPrepareFn(spell_dru_savage_roar_SpellScript::HandleOnPrepare);
                 AfterHit += SpellHitFn(spell_dru_savage_roar_SpellScript::HandleAfterHit);
+				OnCast += SpellCastFn(spell_dru_savage_roar_SpellScript::HandleOnCast);
             }
         };
 
@@ -4092,7 +4169,8 @@ class spell_dru_rake: public SpellScriptLoader
             {
                 Prowl           = 5215,
                 GlyphOfRake     = 54821,
-                KingOfTheJungle = 102543
+                KingOfTheJungle = 102543,
+				Clearcasting	= 135700
             };
 
             bool m_isStealthedOrKingOfTheJungle = false;
@@ -4139,10 +4217,24 @@ class spell_dru_rake: public SpellScriptLoader
                 }
             }
 
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(185811))
+				{
+					if (l_Caster->HasAura(eSpells::Clearcasting))
+					{
+						l_Caster->ModifyPower(POWER_ENERGY, 35);
+					}
+				}
+			}
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_dru_rake_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnPrepare += SpellOnPrepareFn(spell_dru_rake_SpellScript::HandleOnPrepare);
+				OnCast += SpellCastFn(spell_dru_rake_SpellScript::HandleOnCast);
             }
         };
 
@@ -4272,7 +4364,8 @@ class spell_dru_shred: public SpellScriptLoader
             {
                 Prowl           = 5215,
                 KingOfTheJungle = 102543,
-                Swipe           = 106785
+                Swipe           = 106785,
+				Clearcasting	= 135700
             };
 
             bool m_isStealthedOrKingOfTheJungle = false;
@@ -4311,10 +4404,24 @@ class spell_dru_shred: public SpellScriptLoader
                 SetHitDamage(l_Damage);
             }
 
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(185811))
+				{
+					if (l_Caster->HasAura(eSpells::Clearcasting))
+					{
+						l_Caster->ModifyPower(POWER_ENERGY, 40);
+					}
+				}
+			}
+
             void Register()
             {
                 OnPrepare += SpellOnPrepareFn(spell_dru_shred_SpellScript::HandleOnPrepare);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_shred_SpellScript::HandleDamage, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+				OnCast += SpellCastFn(spell_dru_shred_SpellScript::HandleOnCast);
             }
         };
 
@@ -4347,6 +4454,11 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
             int32 m_SpellCost = 25;
             int32 m_EnergyConsumedExtra = 0;
             bool m_IsFreeCost = false;
+
+			enum eSpells
+			{
+				Clearcasting = 135700
+			};
 
             void HandleOnPrepare()
             {
@@ -4404,11 +4516,25 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                 }
             }
 
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(185811))
+				{
+					if (l_Caster->HasAura(eSpells::Clearcasting))
+					{
+						l_Caster->ModifyPower(POWER_ENERGY, 25);
+					}
+				}
+			}
+
             void Register()
             {
                 OnPrepare += SpellOnPrepareFn(spell_dru_ferocious_bite_SpellScript::HandleOnPrepare);
                 OnHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleOnHit);
                 AfterHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleAfterHit);
+				OnCast += SpellCastFn(spell_dru_ferocious_bite_SpellScript::HandleOnCast);
             }
         };
 
@@ -4486,9 +4612,42 @@ class spell_dru_rip: public SpellScriptLoader
     public:
         spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
 
+		class spell_dru_rip_SpellScript : public SpellScript
+		{
+			PrepareSpellScript(spell_dru_rip_SpellScript);
+
+			enum eSpells
+			{
+				Clearcasting = 135700
+			};
+
+			void HandleOnCast()
+			{
+				Unit* l_Caster = GetCaster();
+
+				if (l_Caster->HasAura(185811))
+				{
+					if (l_Caster->HasAura(eSpells::Clearcasting))
+					{
+						l_Caster->ModifyPower(POWER_ENERGY, 30);
+					}
+				}
+			}
+
+			void Register()
+			{
+				OnCast += SpellCastFn(spell_dru_rip_SpellScript::HandleOnCast);
+			}
+		};
+
         class spell_dru_rip_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dru_rip_AuraScript);
+
+			enum eSpells
+			{
+				Clearcasting = 135700
+			};
 
             uint32 m_PreviousTick = 0;
 
@@ -4541,8 +4700,13 @@ class spell_dru_rip: public SpellScriptLoader
                 OnEffectApply += AuraEffectApplyFn(spell_dru_rip_AuraScript::OnReApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
                 AfterEffectApply += AuraEffectApplyFn(spell_dru_rip_AuraScript::AfterReApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
+			}
         };
+
+		SpellScript* GetSpellScript() const
+		{
+			return new spell_dru_rip_SpellScript();
+		}
 
         AuraScript* GetAuraScript() const
         {
@@ -6601,6 +6765,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_item_pvp_feral_4p();
     new spell_dru_wild_charge_moonkin();
     new spell_dru_thrash_bear();
+	new spell_dru_thrash_cat();
     new spell_dru_swipe();
     new spell_dru_maul();
     new spell_dru_natures_vigil();
