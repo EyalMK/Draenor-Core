@@ -56,7 +56,7 @@ enum WarriorSpells
     WARRIOR_HEAVY_REPERCUSSIONS                 = 169680,
 	WARRIOR_SPELL_RAGING_WIND					= 115317,
 	WARRIOR_SPELL_RAGING_BLOW					= 85288,
-
+	WARRIOR_SPELL_MORTAL_STRIKE					= 12294,
 
 	// Tier
 
@@ -1174,7 +1174,6 @@ class spell_warr_glyph_of_raging_blow: public SpellScriptLoader
         }
 };
 
-
 /// Bloodthirst - 23881
 class spell_warr_bloodthirst: public SpellScriptLoader
 {
@@ -2221,6 +2220,21 @@ class spell_warr_rend : public SpellScriptLoader
                 RendFinalBurst = 94009
             };
 
+			void OnTick(AuraEffect const* /*p_AurEff*/)
+			{
+				if (Player* l_Player = GetCaster()->ToPlayer())
+				{
+					if (l_Player->HasAura(ITEM_WARRIOR_T18_ARMS_2P))
+					{
+						if (roll_chance_i(50))
+						{
+							if (l_Player->HasSpellCooldown(WARRIOR_SPELL_MORTAL_STRIKE))
+								l_Player->RemoveSpellCooldown(WARRIOR_SPELL_MORTAL_STRIKE, true);
+						}
+					}
+				}
+			}
+
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Owner = GetCaster();
@@ -2239,6 +2253,7 @@ class spell_warr_rend : public SpellScriptLoader
 
             void Register()
             {
+				OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_rend_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectRemove += AuraEffectRemoveFn(spell_warr_rend_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
 			}
         };
