@@ -1,0 +1,10 @@
+DELETE FROM `creature_addon` WHERE `guid`=10180053;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES (10180053, 8647800, 54131, 0, 0, 0, NULL, 0);
+DELETE FROM `creature_addon` WHERE `guid`=10180111;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES (10180111, 8647801, 54131, 0, 0, 0, NULL, 0);
+DELETE FROM `creature_addon` WHERE `guid`=10180099;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES (10180099, 8647802, 54131, 0, 0, 0, NULL, 0);
+DELETE FROM `creature_addon` WHERE `guid`=10180226;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES (10180226, 8647803, 54131, 0, 0, 0, NULL, 0);
+DELETE FROM `creature_addon` WHERE `guid`=10180112;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) VALUES (10180112, 8647804, 54131, 0, 0, 0, NULL, 0);

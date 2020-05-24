@@ -4324,6 +4324,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetB = NULL;
                 spellInfo->Effects[2].TargetB = NULL;
                 break;
+			case 175303: ///< Fishing Line
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+				break;
             case 153153: ///< Dark Communion
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = NULL;
