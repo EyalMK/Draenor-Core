@@ -8,9 +8,9 @@
 
 /* ScriptData
 SDName: Npc_Innkeeper
-SDAuthor: WarHead
-SD%Complete: 99%
-SDComment: Complete
+SDAuthor: Teleqraph
+SD%Complete: 95%
+SDComment: There are a few missing locales, plus I'm unsure about the Korean and Chinese translations.
 SDCategory: NPCs
 EndScriptData */
 
@@ -24,12 +24,28 @@ EndScriptData */
 #define SPELL_TREAT             24715
 
 #define LOCALE_TRICK_OR_TREAT_0 "Trick or Treat!"
+#define LOCALE_TRICK_OR_TREAT_1 "트릭이나치료。"
 #define LOCALE_TRICK_OR_TREAT_2 "Des bonbons ou des blagues!"
 #define LOCALE_TRICK_OR_TREAT_3 "Süßes oder Saures!"
+#define LOCALE_TRICK_OR_TREAT_4 "不给糖就捣蛋。"
+#define LOCALE_TRICK_OR_TREAT_5 "不给糖就捣蛋。"
 #define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
+#define LOCALE_TRICK_OR_TREAT_7 "¡Truco o trato!"
+#define LOCALE_TRICK_OR_TREAT_8 "Kошелек или жизнь."
+#define LOCALE_TRICK_OR_TREAT_9 "Doces ou travessuras."
+#define LOCALE_TRICK_OR_TREAT_10 "Dolcetto o scherzetto."
 
-#define LOCALE_INNKEEPER_0 "Make this inn my home."
+#define LOCALE_INNKEEPER_0 "Make this inn your home."
+#define LOCALE_INNKEEPER_1 "Make this inn your home."
+#define LOCALE_INNKEEPER_2 "Faítes de cette auberge votre foyer."
 #define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
+#define LOCALE_INNKEEPER_4 "Make this inn your home."
+#define LOCALE_INNKEEPER_5 "Make this inn your home."
+#define LOCALE_INNKEEPER_6 "Fija tu hogar en esta taberna."
+#define LOCALE_INNKEEPER_7 "Fija tu hogar en esta taberna."
+#define LOCALE_INNKEEPER_8 "Make this inn your home."
+#define LOCALE_INNKEEPER_9 "Faça desta estalagem seu lar."
+#define LOCALE_INNKEEPER_10 "Rendi questo luogo la mia dimora."
 
 class npc_innkeeper : public CreatureScript
 {
@@ -43,10 +59,42 @@ public:
             const char* localizedEntry;
             switch (player->GetSession()->GetSessionDbcLocale())
             {
-                case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;
-                case LOCALE_deDE: localizedEntry = LOCALE_TRICK_OR_TREAT_3; break;
-                case LOCALE_esES: localizedEntry = LOCALE_TRICK_OR_TREAT_6; break;
-                case LOCALE_enUS: default: localizedEntry = LOCALE_TRICK_OR_TREAT_0;
+				case LOCALE_enUS: 
+					localizedEntry = LOCALE_TRICK_OR_TREAT_0; 
+					break;
+				case LOCALE_koKR:
+					localizedEntry = LOCALE_TRICK_OR_TREAT_1;
+					break;
+                case LOCALE_frFR: 
+					localizedEntry = LOCALE_TRICK_OR_TREAT_2; 
+					break;
+                case LOCALE_deDE: 
+					localizedEntry = LOCALE_TRICK_OR_TREAT_3; 
+					break;
+				case LOCALE_zhCN:
+					localizedEntry = LOCALE_TRICK_OR_TREAT_4;
+					break;
+				case LOCALE_zhTW:
+					localizedEntry = LOCALE_TRICK_OR_TREAT_5;
+					break;
+                case LOCALE_esES: 
+					localizedEntry = LOCALE_TRICK_OR_TREAT_6; 
+					break;
+				case LOCALE_esMX:
+					localizedEntry = LOCALE_TRICK_OR_TREAT_7;
+					break;
+				case LOCALE_ruRU:
+					localizedEntry = LOCALE_TRICK_OR_TREAT_8;
+					break;
+				case LOCALE_ptPT:
+					localizedEntry = LOCALE_TRICK_OR_TREAT_9;
+					break;
+				case LOCALE_itIT:
+					localizedEntry = LOCALE_TRICK_OR_TREAT_10;
+					break;
+				default: 
+					localizedEntry = LOCALE_TRICK_OR_TREAT_0; 
+					break;
             }
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
         }
@@ -62,8 +110,42 @@ public:
             const char* localizedEntry;
             switch (player->GetSession()->GetSessionDbcLocale())
             {
-                case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
-                case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
+			case LOCALE_enUS:
+				localizedEntry = LOCALE_INNKEEPER_0;
+				break;
+			case LOCALE_koKR:
+				localizedEntry = LOCALE_INNKEEPER_1;
+				break;
+			case LOCALE_frFR:
+				localizedEntry = LOCALE_INNKEEPER_2;
+				break;
+			case LOCALE_deDE:
+				localizedEntry = LOCALE_INNKEEPER_3;
+				break;
+			case LOCALE_zhCN:
+				localizedEntry = LOCALE_INNKEEPER_4;
+				break;
+			case LOCALE_zhTW:
+				localizedEntry = LOCALE_INNKEEPER_5;
+				break;
+			case LOCALE_esES:
+				localizedEntry = LOCALE_INNKEEPER_6;
+				break;
+			case LOCALE_esMX:
+				localizedEntry = LOCALE_INNKEEPER_7;
+				break;
+			case LOCALE_ruRU:
+				localizedEntry = LOCALE_INNKEEPER_8;
+				break;
+			case LOCALE_ptPT:
+				localizedEntry = LOCALE_INNKEEPER_9;
+				break;
+			case LOCALE_itIT:
+				localizedEntry = LOCALE_INNKEEPER_10;
+				break;
+			default:
+				localizedEntry = LOCALE_INNKEEPER_0;
+				break;
             }
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
         }
