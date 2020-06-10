@@ -1,0 +1,12 @@
+DELETE FROM `creature_text` WHERE `entry`=88568 AND `groupid`=0 AND `id`=0;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (88568, 0, 0, 'Is beer the only thing these orcs drink? What does a goblin gotta do to get a nice cocktail around here?', 12, 0, 100, 1, 0, 0, 'ExcavatorRustshiv1');
+DELETE FROM `creature_text` WHERE `entry`=88568 AND `groupid`=1 AND `id`=0;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (88568, 1, 0, 'Nostalgic? How does that swill make you nostalgic?', 12, 0, 100, 1, 0, 0, 'ExcavatorRustshiv2');
+DELETE FROM `creature_text` WHERE `entry`=88568 AND `groupid`=2 AND `id`=0;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (88568, 2, 0, 'Wow, that\'s... surprisingly accurate.', 12, 0, 100, 1, 0, 0, 'ExcavatorRustshiv3');
+DELETE FROM `creature_text` WHERE `entry`=88568 AND `groupid`=3 AND `id`=0;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (88568, 3, 0, 'Man, I though it would be a pretty sweet gig coming out here with the Society. Boy was I wrong!', 12, 0, 100, 1, 0, 0, 'ExcavatorRustshiv4');
+DELETE FROM `creature_text` WHERE `entry`=88568 AND `groupid`=4 AND `id`=0;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (88568, 4, 0, 'It ain\'t the digs I\'m concerned about. Everywhere you turn either an ogre is trying to club your head in, or one of those Alliance goons wants to stick a sword in ya!', 12, 0, 100, 1, 0, 0, 'ExcavatorRustshiv5');
+DELETE FROM `creature_text` WHERE `entry`=88568 AND `groupid`=5 AND `id`=0;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (88568, 5, 0, 'Oh I ain\'t afraid, baby. It\'s just that death puts a steep cut in the profit margins.', 12, 0, 100, 1, 0, 0, 'ExcavatorRustshiv6');

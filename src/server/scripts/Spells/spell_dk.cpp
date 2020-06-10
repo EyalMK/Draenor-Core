@@ -76,7 +76,18 @@ enum DeathKnightSpells
     DK_WOD_PVP_UNHOLY_4P_BONUS                  = 166061,
     DK_WOD_PVP_UNHOLY_4P_BONUS_EFFECT           = 166062,
     DK_WOD_PVP_FROST_4P_BONUS                   = 166056,
-    DK_WOD_PVP_FROST_4P_BONUS_EFFECT            = 166057
+    DK_WOD_PVP_FROST_4P_BONUS_EFFECT            = 166057,
+
+	// Tier
+
+	// T18
+
+	ITEM_DK_T18_BLOOD_2P						= 187872,
+	ITEM_DK_T18_BLOOD_4P						= 187873,
+	ITEM_DK_T18_FROST_2P						= 187868,
+	ITEM_DK_T18_FROST_4P						= 187870,
+	ITEM_DK_T18_UNHOLY_2P						= 187865,
+	ITEM_DK_T18_UNHOLY_4P						= 187866
 };
 
 /// Glyph of Death and Decay - 58629
@@ -270,14 +281,16 @@ class spell_dk_dark_transformation_form: public SpellScriptLoader
     public:
         spell_dk_dark_transformation_form() : SpellScriptLoader("spell_dk_dark_transformation_form") { }
 
+		enum eSpell
+		{
+			T17Unholy4P = 165574,
+			CrazedMonstrosityBuff = 187981,
+			CrazedMonstrosity = 187970
+		};
+
         class spell_dk_dark_transformation_form_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dk_dark_transformation_form_SpellScript);
-
-            enum eSpell
-            {
-                T17Unholy4P = 165574
-            };
 
             void HandleOnHit()
             {
@@ -290,11 +303,17 @@ class spell_dk_dark_transformation_form: public SpellScriptLoader
                             l_Player->RemoveAura(DarkTransformationSpells::DarkInfusionStacks);
                             l_Player->RemoveAura(DarkTransformationSpells::DarkTransformationAuraDummy);
                             l_Pet->RemoveAura(DarkTransformationSpells::DarkInfusionStacks);
+
+							if (l_Player->HasAura(ITEM_DK_T18_UNHOLY_4P))
+								l_Pet->CastSpell(l_Pet, eSpell::CrazedMonstrosity, true);
                         }
 
                         /// When you activate Dark Transformation, your Shadow damage dealt is increased  by 20% for 15 sec.
                         if (l_Player->HasAura(DK_WOD_PVP_UNHOLY_4P_BONUS))
                             l_Player->CastSpell(l_Player, DK_WOD_PVP_UNHOLY_4P_BONUS_EFFECT, true);
+
+						if (l_Player->HasAura(ITEM_DK_T18_UNHOLY_4P))
+							l_Player->CastSpell(l_Player, eSpell::CrazedMonstrosityBuff, true);
 
                         if (l_Player->HasAura(eSpell::T17Unholy4P))
                         {
@@ -2083,6 +2102,63 @@ class spell_dk_empowered_obliterate_howling_blast : public SpellScriptLoader
             return new spell_dk_empowered_obliterate_howling_blast_SpellScript();
         }
 };
+ 
+/// Obliterate - 49020 (main hand), Obliterate - 66198 (off hand)
+class spell_dk_obliterate : public SpellScriptLoader
+{
+public:
+	spell_dk_obliterate() : SpellScriptLoader("spell_dk_obliterate") { }
+
+	class spell_dk_obliterate_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_dk_obliterate_SpellScript);
+
+		enum eSpells
+		{
+			FrozenObliterationAura = 184898,
+			FrozenObliteration = 184982,
+			Obliteration = 187893
+		};
+
+		void HandleAfterCast()
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetExplTargetUnit();
+
+			if (l_Caster->HasAura(ITEM_DK_T18_FROST_2P))
+			{
+				if (GetSpell()->IsCritForTarget(l_Target))
+					l_Caster->CastSpell(l_Caster, eSpells::Obliteration, true);
+			}
+		}
+
+		void HandleDamage(SpellEffIndex /*effIndex*/)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetHitUnit();
+
+			if (l_Caster->HasAura(eSpells::FrozenObliterationAura))
+			{
+				SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::FrozenObliterationAura);
+
+				int32 l_Damage = CalculatePct(GetHitDamage(), 20);
+
+				l_Caster->CastCustomSpell(l_Target, eSpells::FrozenObliteration, &l_Damage, NULL, NULL, true);
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_dk_obliterate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+			AfterCast += SpellCastFn(spell_dk_obliterate_SpellScript::HandleAfterCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_dk_obliterate_SpellScript();
+	}
+};
 
 /// last update : 6.2.3
 /// Necrotic Plague - 155159
@@ -2099,7 +2175,9 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
             {
                 NecroticPlagueAura = 155159,
                 NecroticPlagueEnergize = 155165,
-				NecroticPlagueVisual = 155163
+				NecroticPlagueVisual = 155163,
+				WanderingPlagueAura = 184983,
+				WanderingPlague = 184899
             };
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
@@ -2160,6 +2238,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 {
                     l_Caster->AddAura(NecroticPlagueAura, l_NewTarget);
 					l_Target->CastSpell(l_NewTarget, NecroticPlagueVisual, true);
+
                     /// Copy aura data
                     if (Aura* l_NewNecroticPlague = l_NewTarget->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
                     {
@@ -3548,6 +3627,9 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
 
                 l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);
 
+				if (l_Player->HasAura(ITEM_DK_T18_UNHOLY_2P))
+					l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);
+
                 if (Pet* l_Pet = l_Player->GetPet())
                 {
                     if (Aura* l_Aura = l_Pet->GetAura(eSpells::ShadowInfusion))
@@ -3718,6 +3800,126 @@ class spell_dk_mark_of_sindragosa_damage : public SpellScriptLoader
         }
 };
 
+/// Frost Strike (main hand) - 49143, Frost Strike (off hand) - 66196
+class spell_dk_frost_strike : public SpellScriptLoader
+{
+public:
+	spell_dk_frost_strike() : SpellScriptLoader("spell_dk_frost_strike") { }
+
+	class spell_dk_frost_strike_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_dk_frost_strike_SpellScript);
+
+		enum eSpells
+		{
+			FrozenWaste = 187894,
+			KillingMachine = 51124
+		};
+
+		void HandleAfterCast()
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetExplTargetUnit();
+
+			if (l_Caster->HasAura(ITEM_DK_T18_FROST_2P))
+			{
+				if (GetSpell()->IsCritForTarget(l_Target))
+					l_Caster->CastSpell(l_Caster, eSpells::FrozenWaste, true);
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_dk_frost_strike_SpellScript::HandleAfterCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_dk_frost_strike_SpellScript();
+	}
+};
+
+/// Called by Blood Plague - 55078, Frost Fever - 55095 and Necrotic Plague - 155159
+/// Wandering Plague - 184899
+class spell_dk_wandering_plague : public SpellScriptLoader
+{
+public:
+	spell_dk_wandering_plague() : SpellScriptLoader("spell_dk_wandering_plague") { }
+
+	class spell_dk_wandering_plague_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_dk_wandering_plague_AuraScript);
+
+		enum eSpells
+		{
+			BloodPlague = 55078,
+			FrostFever = 55095,
+			NecroticPlague = 155159,
+			WanderingPlagueAura = 184983,
+			WanderingPlague = 184899
+		};
+
+		void OnTick(AuraEffect const* /*p_AurEff*/)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetTarget();
+
+			if (l_Target == nullptr || l_Caster == nullptr)
+				return;
+
+			if (l_Caster->HasAura(eSpells::WanderingPlagueAura))
+			{
+				if (Aura* l_FrostFever = l_Target->GetAura(eSpells::FrostFever, l_Caster->GetGUID()))
+				{
+					SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WanderingPlagueAura);
+
+					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+					{
+						int32 l_Damage = l_FrostFever->GetEffect(0)->GetAmount() * 1.8;
+
+						l_Caster->CastCustomSpell(l_Target, eSpells::WanderingPlague, &l_Damage, NULL, NULL, true);
+					}
+				}
+
+				if (Aura* l_BloodPlague = l_Target->GetAura(eSpells::BloodPlague, l_Caster->GetGUID()))
+				{
+					SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WanderingPlagueAura);
+
+					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+					{
+						int32 l_Damage = l_BloodPlague->GetEffect(0)->GetAmount() * 2.3;
+
+						l_Caster->CastCustomSpell(l_Target, eSpells::WanderingPlague, &l_Damage, NULL, NULL, true);
+					}
+				}
+
+				if (Aura* l_NecroticPlague = l_Target->GetAura(eSpells::NecroticPlague, l_Caster->GetGUID()))
+				{
+					SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WanderingPlagueAura);
+
+					if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+					{
+						int32 l_Damage = l_NecroticPlague->GetEffect(0)->GetAmount() * 2.3;
+
+						l_Caster->CastCustomSpell(l_Target, eSpells::WanderingPlague, &l_Damage, NULL, NULL, true);
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_wandering_plague_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_dk_wandering_plague_AuraScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_deathknight_spell_scripts()
 {
@@ -3727,6 +3929,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_defile_absorb_effect();
     new spell_dk_soul_reaper_bonus();
     new spell_dk_death_coil();
+	new spell_dk_obliterate();
     new spell_dk_empowered_obliterate_icy_touch();
     new spell_dk_empowered_obliterate_howling_blast();
     new spell_dk_glyph_of_death_and_decay();
@@ -3787,7 +3990,10 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_item_t17_frost_4p_driver();
     new spell_dk_item_t17_frost_4p_driver_periodic();
     new spell_dk_might_of_the_frozen_wastes();
+	new spell_dk_frost_strike();
+	new spell_dk_wandering_plague();
 
+	// PlayerScript
     new PlayerScript_Blood_Tap();
 }
 #endif

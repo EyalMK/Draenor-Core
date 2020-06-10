@@ -4324,6 +4324,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetB = NULL;
                 spellInfo->Effects[2].TargetB = NULL;
                 break;
+			case 175303: ///< Fishing Line
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+				break;
             case 153153: ///< Dark Communion
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = NULL;
@@ -5022,10 +5025,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 1329: ///< Mutilate
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
-			case 186723: ///< Penance (T18)
-				spellInfo->Effects[0].TargetA = TARGET_UNIT_ALLY_OR_RAID;
-				spellInfo->Effects[0].TargetB = 0;
-				break;
             case 113828: ///< Healing Touch (treant)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[0].TargetB = 0;
@@ -5870,6 +5869,24 @@ void SpellMgr::LoadSpellCustomAttr()
 			case 184770: ///< Tyrant Immortality
 				spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;
 				break;
+			case 185019: ///< Flourish
+				spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+				spellInfo->Effects[EFFECT_1].BasePoints = 0;
+				spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ALLY;
+				break;
+			///////////////////////////////////////////////////////////////////////////////////
+			/// Tier 18
+			///////////////////////////////////////////////////////////////////////////////////
+			case 187970: ///< Crazed Monstrosity (T18 4P - Unholy - DK)
+				spellInfo->SetDurationIndex(9); // 30 seconds
+				break;
+			case 188550: ///< Lifebloom (T18 4P - Restoration - Druid)
+				spellInfo->MaxAffectedTargets = 2;
+				break;
+			case 186723: ///< Penance (T18 4P - Discipline - Priest)
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_ALLY_OR_RAID;
+				spellInfo->Effects[0].TargetB = 0;
+				break;
 			///////////////////////////////////////////////////////////////////////////////////
 			///////////////////////////////////////////////////////////////////////////////////
             case 530:   ///< Charm (Possess)
@@ -5971,9 +5988,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
 			case 33763: ///< Lifebloom
 				spellInfo->MaxAffectedTargets = 1;
-				break;
-			case 188550: ///< Lifebloom (T18 4P Restoration - Druid)
-				spellInfo->MaxAffectedTargets = 2;
 				break;
             case 32379: ///< Shadow Word : Death - Glyph of Shadow Word: Death
                 spellInfo->OverrideSpellList.push_back(129176);

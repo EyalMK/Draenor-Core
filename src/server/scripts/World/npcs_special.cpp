@@ -4886,68 +4886,34 @@ public:
 	{
 		npc_void_demon_t18AI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
-		void IsSummonedBy(Unit* p_Owner) override
+		void IsSummonedBy(Unit* p_Summoner)
 		{
-			if (!p_Owner || p_Owner->GetTypeId() != TypeID::TYPEID_PLAYER)
-				return;
-
-			if (!me->HasUnitState(UnitState::UNIT_STATE_FOLLOW))
+			if (Unit* l_Owner = me->GetOwner())
 			{
-				me->GetMotionMaster()->Clear(false);
-				me->GetMotionMaster()->MoveFollow(p_Owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MovementSlot::MOTION_SLOT_ACTIVE);
-			}
-
-			Unit* target = p_Owner ? (p_Owner->getVictim() ? p_Owner->getVictim() : (p_Owner->ToPlayer() ? p_Owner->ToPlayer()->GetSelectedUnit() : NULL)) : NULL;
-
-			me->setFaction(p_Owner->getFaction());
-			me->SetLevel(p_Owner->getLevel());
-			me->SetMaxHealth(p_Owner->GetMaxHealth() / 2);
-			me->SetFullHealth();
-
-			// Speed
-			for (uint8 l_I = 0; l_I < MAX_MOVE_TYPE; ++l_I)
-				me->SetSpeed(UnitMoveType(l_I), 2.0f, true);
-
-			me->SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
-			me->SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
-
-			me->SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, (p_Owner ? p_Owner->GetArmor() : 1) * 50.0f);
-
-			me->SetAttackTime(WeaponAttackType::MaxAttack, 1.5f * IN_MILLISECONDS);
-
-			me->SetBaseWeaponDamage(WeaponAttackType::MaxAttack, MINDAMAGE, 2);
-			me->SetBaseWeaponDamage(WeaponAttackType::MaxAttack, MAXDAMAGE, 2);
-
-			me->UpdateAllStats();
-
-			me->UpdateAttackPowerAndDamage();
-
-			switch (me->GetEntry())
-			{
-				case ENTRY_SATYR_T18:
-				case ENTRY_HOUND_T18:
-					if (me->IsValidAttackTarget(target))
-						AttackStart(target);
-					break;
-				case ENTRY_MALCHEZAAR_T18:
-				{
+				if (me->GetEntry() == 95467)
 					Talk(0);
-
-					if (me->IsValidAssistTarget(target))
-						AttackStart(target);
-					break;
-				}
-			default:
-				break;
 			}
 		}
 
 		void UpdateAI(const uint32 /*diff*/)
 		{
-			if (!UpdateVictim())
-				return;
+			if (Unit* l_Owner = me->GetOwner())
+			{
+				if (me->GetEntry() == 95021)
+					if (!l_Owner->HasAura(82692))
+						me->ForcedDespawn();
 
-			if (me->HasUnitState(UNIT_STATE_CASTING))
+				Unit* l_OwnerTarget = l_Owner->getVictim();
+
+				if (l_OwnerTarget == nullptr)
+					if (Player* l_Player = l_Owner->ToPlayer())
+						l_OwnerTarget = l_Player->GetSelectedUnit();
+
+				if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && (!me->getVictim() || me->getVictim() != l_OwnerTarget))
+					AttackStart(l_OwnerTarget);
+			}
+
+			if (!me->getVictim())
 				return;
 
 			DoMeleeAttackIfReady();

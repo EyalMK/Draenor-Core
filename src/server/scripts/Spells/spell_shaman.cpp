@@ -2061,13 +2061,15 @@ class spell_sha_healing_wave : public SpellScriptLoader
             enum eSpells
             {
                 GlyphOfHealingWave = 55440,
-                GlyphOfHealingWaveHeal = 55533
+                GlyphOfHealingWaveHeal = 55533,
+				Riptide = 61295
             };
 
             void HitTarget(SpellEffIndex)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+				Unit* l_ExplTarget = GetExplTargetUnit();
                 
                 if (l_Target == nullptr)
                     return;
@@ -2083,6 +2085,34 @@ class spell_sha_healing_wave : public SpellScriptLoader
                     
                     l_Caster->CastCustomSpell(l_Caster, eSpells::GlyphOfHealingWaveHeal, &l_HealAmount, nullptr, nullptr, true);
                 }
+
+				if (l_Caster->HasAura(184921))
+				{
+					SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184921);
+
+					if (l_ExplTarget->HasAura(eSpells::Riptide) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+					{
+						float l_Radius = 40.0f;
+
+						std::list<Unit*> l_FriendlyUnitList;
+						JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_ExplTarget, l_ExplTarget, l_Radius);
+						JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_ExplTarget, l_FriendlyUnitList, l_Check);
+						l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+						/// Sort friendly unit by pourcentage of health and get the most injured
+						if (l_FriendlyUnitList.size() > 1)
+						{
+							l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+							l_FriendlyUnitList.resize(1);
+						}
+
+						/// Cast triggered Penance on him
+						for (auto l_Itr : l_FriendlyUnitList)
+						{
+							l_Caster->AddAura(eSpells::Riptide, l_Itr);
+						}
+					}
+				}
             }
 
             void Register()
@@ -2866,6 +2896,55 @@ class spell_sha_chain_heal : public SpellScriptLoader
                 }
             }
 
+			void HitTarget(SpellEffIndex)
+			{
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetHitUnit();
+				Unit* l_ExplTarget = GetExplTargetUnit();
+
+				if (l_Target == nullptr || l_ExplTarget == nullptr)
+					return;
+
+				if (l_ExplTarget->GetGUID() != l_Target->GetGUID()) ///< Only first target
+					return;
+
+				if (l_Caster->HasAura(ITEM_SHA_RESTO_T18_4P))
+				{
+					if (roll_chance_i(65))
+					{
+						l_Caster->CastSpell(l_ExplTarget, SPELL_SHA_RIPTIDE_T18, true);
+					}
+				}
+
+				if (l_Caster->HasAura(184921))
+				{
+					SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184921);
+
+					if (l_ExplTarget->HasAura(eSpells::Riptide) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+					{
+						float l_Radius = 40.0f;
+
+						std::list<Unit*> l_FriendlyUnitList;
+						JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_ExplTarget, l_ExplTarget, l_Radius);
+						JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_ExplTarget, l_FriendlyUnitList, l_Check);
+						l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+						/// Sort friendly unit by pourcentage of health and get the most injured
+						if (l_FriendlyUnitList.size() > 1)
+						{
+							l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+							l_FriendlyUnitList.resize(1);
+						}
+
+						/// Cast triggered Penance on him
+						for (auto l_Itr : l_FriendlyUnitList)
+						{
+							l_Caster->AddAura(eSpells::Riptide, l_Itr);
+						}
+					}
+				}
+			}
+
             void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_FirstTarget = GetExplTargetUnit();
@@ -2895,6 +2974,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
             void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_chain_heal_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
+				OnEffectHitTarget += SpellEffectFn(spell_sha_chain_heal_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_chain_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
@@ -3695,6 +3775,71 @@ class PlayerScript_glyph_of_ghostly_speed : public PlayerScript
         }
 };
 
+/// Healing Surge - 8005
+class spell_sha_healing_surge : public SpellScriptLoader
+{
+public:
+	spell_sha_healing_surge() : SpellScriptLoader("spell_sha_healing_surge") { }
+
+	class spell_sha_healing_surge_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_sha_healing_surge_SpellScript);
+
+		enum eSpells
+		{
+			Riptide = 61295
+		};
+
+		void HitTarget(SpellEffIndex)
+		{
+			Unit* l_Caster = GetCaster();
+			Unit* l_Target = GetHitUnit();
+			Unit* l_ExplTarget = GetExplTargetUnit();
+
+			if (l_Target == nullptr)
+				return;
+
+			if (l_Caster->HasAura(184921))
+			{
+				SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(184921);
+
+				if (l_ExplTarget->HasAura(eSpells::Riptide) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+				{
+					float l_Radius = 40.0f;
+
+					std::list<Unit*> l_FriendlyUnitList;
+					JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_ExplTarget, l_ExplTarget, l_Radius);
+					JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_ExplTarget, l_FriendlyUnitList, l_Check);
+					l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+					/// Sort friendly unit by pourcentage of health and get the most injured
+					if (l_FriendlyUnitList.size() > 1)
+					{
+						l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+						l_FriendlyUnitList.resize(1);
+					}
+
+					/// Cast triggered Penance on him
+					for (auto l_Itr : l_FriendlyUnitList)
+					{
+						l_Caster->AddAura(eSpells::Riptide, l_Itr);
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_sha_healing_surge_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_sha_healing_surge_SpellScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_shaman_spell_scripts()
 {
@@ -3760,6 +3905,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_WoDPvPEnhancement2PBonus();
     new spell_sha_improved_chain_heal();
     new spell_sha_glyph_of_rain_of_frogs();
+	new spell_sha_healing_surge();
 
     /// PlayerScript
     new PlayerScript_glyph_of_ghostly_speed();

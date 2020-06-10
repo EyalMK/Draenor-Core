@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "AshranMgr.hpp"
+#include "GameObject.h"
 
 /// 1116 - Draenor
 class map_draenor : public WorldMapScript
@@ -1314,6 +1315,1726 @@ class npc_ashran_excavator_rustshiv : public CreatureScript
         }
 };
 
+/// Excavator Hardtooth - 88567
+class npc_ashran_excavator_hardtooth : public CreatureScript
+{
+public:
+	npc_ashran_excavator_hardtooth() : CreatureScript("npc_ashran_excavator_hardtooth") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third,
+		Fourth
+	};
+
+	enum eData
+	{
+		ExcavatorRustshiv = 88568,
+		ActionInit = 0,
+		ActionLoop = 1
+	};
+
+	struct npc_ashran_excavator_hardtoothAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_excavator_hardtoothAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::ExcavatorRustshiv, 15.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			case eData::ActionLoop:
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+			AddTimedDelayedOperation(27 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+			AddTimedDelayedOperation(76 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+			AddTimedDelayedOperation(93 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_excavator_hardtoothAI(p_Creature);
+	}
+};
+
+/// Can be used by any WoD guards
+class guard_wod_generic : public CreatureScript
+{
+public:
+	guard_wod_generic() : CreatureScript("guard_wod_generic") {}
+
+	enum eEvents
+	{
+		EventCheckPossible,
+		EventCheckPlayer,
+		EventReset,
+		EventFight,
+		EventAxes
+	};
+
+	struct guard_wod_genericAI : public ScriptedAI
+	{
+		guard_wod_genericAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+
+		EventMap m_Events;
+		EventMap m_CosmeticEvents;
+
+		bool m_Init;
+
+		void Reset() override
+		{
+			m_Init = false;
+			m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPossible, 1 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+
+			m_CosmeticEvents.Update(p_Diff);
+
+			switch (m_CosmeticEvents.ExecuteEvent())
+			{
+				case eEvents::EventCheckPossible:
+				{
+					if (!me->HasAura(73299))
+						m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayer, 0.1 * TimeConstants::IN_MILLISECONDS);
+
+					if (me->HasAura(73299) && me->HasAura(177851))
+					{
+						if (m_Init != true)
+						{
+							m_Init = true;
+							m_CosmeticEvents.ScheduleEvent(eEvents::EventFight, urand(1500, 3000));
+						}
+					}
+
+					if (me->HasAura(73299) && me->HasAura(205651))
+					{
+						if (m_Init != true)
+						{
+							m_Init = true;
+							m_CosmeticEvents.ScheduleEvent(eEvents::EventAxes, urand(1500, 3000));
+						}
+					}
+					break;
+				}
+				case eEvents::EventCheckPlayer:
+				{
+					if (me->FindNearestPlayer(5.0f, true) && m_Init != true)
+					{
+						DoAction(0);
+						m_Init = true;
+					}
+					break;
+				}
+				case eEvents::EventFight:
+				{
+					std::list<Creature*> l_IronGrunt;
+					me->GetCreatureListInGrid(l_IronGrunt, 1.0f);
+
+					for (Creature* l_Itr : l_IronGrunt)
+					{
+						if (urand(0, 1))
+							me->CastSpell(l_Itr, 106501, false);
+						else
+							me->CastSpell(l_Itr, 106502, false);
+
+						m_Init = false;
+					}
+					break;
+				}
+				case eEvents::EventAxes:
+				{
+					std::list<Creature*> l_Marker;
+					me->GetCreatureListWithEntryInGrid(l_Marker, 400002, 30.0f);
+
+					if (l_Marker.size() > 1)
+					{
+						l_Marker.sort(JadeCore::ObjectDistanceOrderPred(me));
+						l_Marker.resize(1);
+					}
+
+					for (Creature* l_Itr : l_Marker)
+					{
+						me->CastSpell(l_Itr, 131512, true);
+
+						m_Init = false;
+					}
+					break;
+				}
+			default:
+				break;
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case 0:
+				{
+					me->HandleEmoteCommand(66);
+
+					AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void 
+					{ 
+						DoAction(1);
+					});
+					break;
+				}
+
+				case 1:
+				{
+					m_Init = false;
+					break;
+				}
+			default:
+				break;
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new guard_wod_genericAI(p_Creature);
+	}
+};
+
+/// Rala Wildheart - 87566
+class npc_ashran_rala_wildheart : public CreatureScript
+{
+public:
+	npc_ashran_rala_wildheart() : CreatureScript("npc_ashran_rala_wildheart") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third,
+		Fourth
+	};
+
+	enum eData
+	{
+		ShadowHunterAskia = 88138,
+		ActionInit = 0,
+		ActionLoop = 1,
+		EventLoop = 1
+	};
+
+	struct npc_ashran_rala_wildheartAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_rala_wildheartAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+		EventMap m_Events;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::ShadowHunterAskia, 15.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				if (m_Init)
+					break;
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+			AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+			AddTimedDelayedOperation(36 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+			AddTimedDelayedOperation(67 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+		}
+
+		void LastOperationCalled() override
+		{
+			m_Events.ScheduleEvent(eData::EventLoop, 31 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			if (m_Events.ExecuteEvent() == eData::EventLoop)
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::ShadowHunterAskia, 15.0f))
+				{
+					if (l_Creature->AI())
+					{
+						l_Creature->AI()->DoAction(eData::ActionLoop);
+						ScheduleAllTalks();
+					}
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_rala_wildheartAI(p_Creature);
+	}
+};
+
+/// Shadow Hunter Askia - 88138
+class npc_ashran_shadow_hunter_askia : public CreatureScript
+{
+public:
+	npc_ashran_shadow_hunter_askia() : CreatureScript("npc_ashran_shadow_hunter_askia") { }
+
+	enum eTalks
+	{
+		First,
+		Second
+	};
+
+	enum eData
+	{
+		RalaWildheart = 87566,
+		ActionInit = 0,
+		ActionLoop = 1
+	};
+
+	struct npc_ashran_shadow_hunter_askiaAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_shadow_hunter_askiaAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::RalaWildheart, 15.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			case eData::ActionLoop:
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+			AddTimedDelayedOperation(27 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_shadow_hunter_askiaAI(p_Creature);
+	}
+};
+
+/// Gordon Ray - 87567
+class npc_ashran_gordon_ray : public CreatureScript
+{
+public:
+	npc_ashran_gordon_ray() : CreatureScript("npc_ashran_gordon_ray") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third,
+		Fourth
+	};
+
+	enum eData
+	{
+		WarspearGrunt = 864600,
+		ActionInit = 0,
+		ActionLoop = 1,
+		EventLoop = 1
+	};
+
+	struct npc_ashran_gordon_rayAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_gordon_rayAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+		EventMap m_Events;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::WarspearGrunt, 15.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				if (m_Init)
+					break;
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+			AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+			AddTimedDelayedOperation(36 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+			AddTimedDelayedOperation(67 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+		}
+
+		void LastOperationCalled() override
+		{
+			m_Events.ScheduleEvent(eData::EventLoop, 31 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			if (m_Events.ExecuteEvent() == eData::EventLoop)
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::WarspearGrunt, 1.5f))
+				{
+					if (l_Creature->AI())
+					{
+						l_Creature->AI()->DoAction(eData::ActionLoop);
+						ScheduleAllTalks();
+					}
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_gordon_rayAI(p_Creature);
+	}
+};
+
+/// Warspear Grunt - 864600
+class npc_ashran_warspear_grunt : public CreatureScript
+{
+public:
+	npc_ashran_warspear_grunt() : CreatureScript("npc_ashran_warspear_grunt") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third
+	};
+
+	enum eData
+	{
+		GordonRay = 87567,
+		ActionInit = 0,
+		ActionLoop = 1
+	};
+
+	struct npc_ashran_warspear_gruntAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_warspear_gruntAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::GordonRay, 15.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			case eData::ActionLoop:
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+			AddTimedDelayedOperation(27 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+			AddTimedDelayedOperation(76 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_warspear_gruntAI(p_Creature);
+	}
+};
+
+/// Brix Rocketcast - 86628
+class npc_ashran_brix_rocketcast : public CreatureScript
+{
+public:
+	npc_ashran_brix_rocketcast() : CreatureScript("npc_ashran_brix_rocketcast") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third,
+		Fourth
+	};
+
+	enum eData
+	{
+		NinaDingzap = 87732,
+		ActionInit = 0,
+		ActionLoop = 1,
+		EventLoop = 1
+	};
+
+	struct npc_ashran_brix_rocketcastAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_brix_rocketcastAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+		EventMap m_Events;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::NinaDingzap, 30.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				if (m_Init)
+					break;
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(1.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+			AddTimedDelayedOperation(23 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+			AddTimedDelayedOperation(36 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+			AddTimedDelayedOperation(52 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+		}
+
+		void LastOperationCalled() override
+		{
+			m_Events.ScheduleEvent(eData::EventLoop, 31 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			if (m_Events.ExecuteEvent() == eData::EventLoop)
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::NinaDingzap, 30.0f))
+				{
+					if (l_Creature->AI())
+					{
+						l_Creature->AI()->DoAction(eData::ActionLoop);
+						ScheduleAllTalks();
+					}
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_brix_rocketcastAI(p_Creature);
+	}
+};
+
+static std::array<G3D::Vector3, 5> g_NinaLeft =
+{
+	{
+		{ 5450.6509, -4141.1777, 1.1620,   },
+		{ 5454.8008, -4138.1992, 0.7208,   },
+		{ 5459.5039, -4136.6362, 0.2876,   },
+		{ 5461.4355, -4137.7583, 0.2757,   },
+		{ 5462.3115, -4136.6802, 0.1279,   }
+	}
+};
+
+static std::array<G3D::Vector3, 5> g_NinaCenter =
+{
+	{
+		{ 5450.9233, -4141.1392, 1.1493,    },
+		{ 5454.3818, -4138.8320, 0.7962,    },
+		{ 5457.8013, -4142.6792, 0.8374,    },
+		{ 5459.8223, -4147.5361, 0.7065,    },
+		{ 5463.1924, -4147.3657, 0.1669,    }
+	}
+};
+
+static std::array<G3D::Vector3, 5> g_NinaRight =
+{
+	{
+		{ 5450.4487, -4141.7808, 1.1920,   },
+		{ 5454.3672, -4144.7397, 1.0750,   },
+		{ 5453.4727, -4150.2168, 1.1052,   },
+		{ 5456.6841, -4152.7397, 0.6628,   },
+		{ 5456.2891, -4158.1802, 0.1352,    }
+	}
+};
+
+static std::array<G3D::Vector3, 5> g_NinaBack =
+{
+	{
+		{ 5459.9878, -4143.2144, 0.7214    },
+		{ 5455.0913, -4140.1504, 0.8575    },
+		{ 5451.6431, -4140.0566, 1.0829    },
+		{ 5448.1460, -4139.5889, 1.2058    },
+		{ 5447.1133, -4139.7114, 1.2058    }
+	}
+};
+
+/// Nina Dingzap - 87732
+class npc_ashran_nina_dingzap : public CreatureScript
+{
+public:
+	npc_ashran_nina_dingzap() : CreatureScript("npc_ashran_nina_dingzap") { }
+
+	enum eData
+	{
+		BrixRocketcast = 86628,
+		ActionInit = 0,
+		ActionLoop = 1
+	};
+
+	struct npc_ashran_nina_dingzapAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_nina_dingzapAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::BrixRocketcast, 30.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			case eData::ActionLoop:
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(0.1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->SetFacingTo(3.409194f);
+			});
+
+			AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(539);
+			});
+
+			AddTimedDelayedOperation(1.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(0);
+				me->GetMotionMaster()->MoveSmoothPath(0, g_NinaLeft.data(), g_NinaLeft.size(), true);
+			});
+
+			AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(539);
+			});
+
+			AddTimedDelayedOperation(11.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(0);
+				me->SummonCreature(87725, 5462.97f, -4134.20f, 0.427547f, 0.583373f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
+			});
+
+			AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(1, g_NinaBack.data(), g_NinaBack.size(), true);
+			});
+
+			AddTimedDelayedOperation(23.1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->SetFacingTo(3.409194f);
+			});
+
+			AddTimedDelayedOperation(23.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(539);
+			});
+
+			AddTimedDelayedOperation(25 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(0);
+				me->GetMotionMaster()->MoveSmoothPath(0, g_NinaCenter.data(), g_NinaCenter.size(), true);
+			});
+
+			AddTimedDelayedOperation(32.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(539);
+			});
+
+			AddTimedDelayedOperation(35 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(0);
+				me->SummonCreature(87725, 5463.89f, -4147.88f, 0.358167f, 6.105512f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
+			});
+
+			AddTimedDelayedOperation(38.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(1, g_NinaBack.data(), g_NinaBack.size(), true);
+			});
+
+			AddTimedDelayedOperation(48.6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->SetFacingTo(3.409194f);
+			});
+
+			AddTimedDelayedOperation(53 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(539);
+			});
+
+			AddTimedDelayedOperation(54.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(0);
+				me->GetMotionMaster()->MoveSmoothPath(0, g_NinaRight.data(), g_NinaRight.size(), true);
+			});
+
+			AddTimedDelayedOperation(64 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(539);
+			});
+
+			AddTimedDelayedOperation(65.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(0);
+				me->SummonCreature(87725, 5456.22, -4159.59, 0.716782, 5.104129, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
+			});
+
+			AddTimedDelayedOperation(67 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(1, g_NinaBack.data(), g_NinaBack.size(), true);
+			});
+
+			AddTimedDelayedOperation(80 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->SetFacingTo(0.242519f);
+			});
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_nina_dingzapAI(p_Creature);
+	}
+};
+
+/// Joro'man - 86015
+class npc_ashran_joroman : public CreatureScript
+{
+public:
+	npc_ashran_joroman() : CreatureScript("npc_ashran_joroman") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third,
+		Fourth
+	};
+
+	enum eData
+	{
+		Zikk = 88020,
+		ActionInit = 0,
+		ActionLoop = 1,
+		EventLoop = 1
+	};
+
+	struct npc_ashran_joromanAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_joromanAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+		EventMap m_Events;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::Zikk, 15.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				if (m_Init)
+					break;
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void 
+			{ 
+				if (Creature* l_Creature = me->FindNearestCreature(eData::Zikk, 15.0f))
+				{
+					me->SetFacingToObject(l_Creature);
+				}
+
+				me->HandleEmoteCommand(397);
+
+				Talk(eTalks::First); 
+			});
+
+			AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->SetFacingTo(5.35816f);
+			});
+			
+			AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void 
+			{ 
+				if (Creature* l_Creature = me->FindNearestCreature(eData::Zikk, 15.0f))
+				{
+					me->SetFacingToObject(l_Creature);
+				}
+			});
+
+			AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(25);
+				Talk(eTalks::Second);
+			});
+
+			AddTimedDelayedOperation(23 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->SetFacingTo(5.35816f);
+			});
+			
+			AddTimedDelayedOperation(36 * TimeConstants::IN_MILLISECONDS, [this]() -> void 
+			{ 
+				Talk(eTalks::Third); 
+			});
+			
+			AddTimedDelayedOperation(67 * TimeConstants::IN_MILLISECONDS, [this]() -> void 
+			{ 
+				Talk(eTalks::Fourth); 
+			});
+		}
+
+		void LastOperationCalled() override
+		{
+			m_Events.ScheduleEvent(eData::EventLoop, 31 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			if (m_Events.ExecuteEvent() == eData::EventLoop)
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::Zikk, 15.0f))
+				{
+					if (l_Creature->AI())
+					{
+						l_Creature->AI()->DoAction(eData::ActionLoop);
+						ScheduleAllTalks();
+					}
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_joromanAI(p_Creature);
+	}
+};
+
+static std::array<G3D::Vector3, 4> g_KikkFirst =
+{
+	{
+		{ 5278.5464, -4196.8101, 1.9903,  },
+		{ 5269.0718, -4208.3281, 3.4017,  },
+		{ 5264.2666, -4214.4272, 3.8370,  },
+		{ 5266.2515, -4220.8237, 3.8370,  }
+	}
+};
+
+static std::array<G3D::Vector3, 6> g_KikkSecond =
+{
+	{
+		{ 5266.1792, -4218.7559, 3.8370,   },
+		{ 5263.7202, -4214.3120, 3.8370,   },
+		{ 5274.0366, -4203.0806, 2.0444,   },
+		{ 5287.4429, -4199.0425, 1.5541,   },
+		{ 5291.4033, -4202.7319, 1.3226,   },
+		{ 5290.7344, -4204.0190, 1.1358,   }
+	}
+};
+
+static std::array<G3D::Vector3, 3> g_KikkThird =
+{
+	{
+		{ 5293.3071, -4203.2065, 1.4317,  },
+		{ 5293.1162, -4199.4224, 2.0422,  },
+		{ 5288.9082, -4200.7813, 1.3609,  }
+	}
+};
+
+/// Zikk - 88020
+class npc_ashran_zikk : public CreatureScript
+{
+public:
+	npc_ashran_zikk() : CreatureScript("npc_ashran_zikk") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third
+	};
+
+	enum eData
+	{
+		Joroman = 86015,
+		ActionInit = 0,
+		ActionLoop = 1
+	};
+
+	struct npc_ashran_zikkAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_zikkAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::Joroman, 15.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			case eData::ActionLoop:
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(54);
+			});
+
+			AddTimedDelayedOperation(2.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(0, g_KikkFirst.data(), g_KikkFirst.size(), false);
+			});
+
+			AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(54);
+				me->CastSpell(me, 175660, true);
+			});
+
+			AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(1, g_KikkSecond.data(), g_KikkSecond.size(), false);
+			});
+
+			AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::Joroman, 15.0f))
+				{
+					me->SetFacingToObject(l_Creature);
+				}
+			});
+
+			AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->HandleEmoteCommand(25);
+				me->RemoveAura(175660);
+			});
+
+			AddTimedDelayedOperation(21 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(1, g_KikkThird.data(), g_KikkThird.size(), false);
+			});
+
+			AddTimedDelayedOperation(23 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->SetFacingTo(3.701974f);
+			});
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_zikkAI(p_Creature);
+	}
+};
+
+/// Warspear Grunt - 864721
+class npc_ashran_warspear_grunt_flightmaster_1 : public CreatureScript
+{
+public:
+	npc_ashran_warspear_grunt_flightmaster_1() : CreatureScript("npc_ashran_warspear_grunt_flightmaster_1") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third,
+		Fourth,
+		Fifth
+	};
+
+	enum eData
+	{
+		WarspearGrunt2 = 864601,
+		ActionInit = 0,
+		ActionLoop = 1,
+		EventLoop = 1
+	};
+
+	struct npc_ashran_warspear_grunt_flightmaster_1AI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_warspear_grunt_flightmaster_1AI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+		EventMap m_Events;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::WarspearGrunt2, 15.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				if (m_Init)
+					break;
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+			AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+			AddTimedDelayedOperation(70 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+			AddTimedDelayedOperation(86 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+			AddTimedDelayedOperation(102 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fifth); });
+		}
+
+		void LastOperationCalled() override
+		{
+			m_Events.ScheduleEvent(eData::EventLoop, 31 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			if (m_Events.ExecuteEvent() == eData::EventLoop)
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::WarspearGrunt2, 1.5f))
+				{
+					if (l_Creature->AI())
+					{
+						l_Creature->AI()->DoAction(eData::ActionLoop);
+						ScheduleAllTalks();
+					}
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_warspear_grunt_flightmaster_1AI(p_Creature);
+	}
+};
+
+/// Warspear Grunt - 864601
+class npc_ashran_warspear_grunt_flightmaster_2 : public CreatureScript
+{
+public:
+	npc_ashran_warspear_grunt_flightmaster_2() : CreatureScript("npc_ashran_warspear_grunt_flightmaster_2") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third,
+		Fourth,
+		Fifth
+	};
+
+	enum eData
+	{
+		WarspearGrunt1 = 864721,
+		ActionInit = 0,
+		ActionLoop = 1
+	};
+
+	struct npc_ashran_warspear_grunt_flightmaster_2AI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_warspear_grunt_flightmaster_2AI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::WarspearGrunt1, 15.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			case eData::ActionLoop:
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+			AddTimedDelayedOperation(27 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+			AddTimedDelayedOperation(78 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+			AddTimedDelayedOperation(94 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+			AddTimedDelayedOperation(110 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fifth); });
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_warspear_grunt_flightmaster_2AI(p_Creature);
+	}
+};
+
+/// Hand-Written Sign - 237776
+class gob_ashran_handwritten_sign : public GameObjectScript
+{
+public:
+	gob_ashran_handwritten_sign() : GameObjectScript("gob_ashran_handwritten_sign") { }
+
+	bool OnGossipHello(Player* p_Player, GameObject* p_GameObject) override
+	{
+		if (Creature* l_Jasa = p_GameObject->FindNearestCreature(86041, 15.0f))
+		{
+			l_Jasa->AI()->Talk(0);
+		}
+
+		return false;
+	}
+};
+
+/// Shadow Hunter Gar'ant - 86040
+class npc_ashran_shadowhunter_garant : public CreatureScript
+{
+public:
+	npc_ashran_shadowhunter_garant() : CreatureScript("npc_ashran_shadowhunter_garant") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third,
+		Fourth,
+		Fifth,
+		Sixth,
+		Seventh,
+		Eighth,
+		Ninth,
+		Tenth,
+		Eleventh,
+		Twelfth
+	};
+
+	enum eData
+	{
+		WarspearScout = 88531,
+		ActionInit = 0,
+		ActionLoop = 1,
+		EventLoop = 1
+	};
+
+	struct npc_ashran_shadowhunter_garantAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_shadowhunter_garantAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+		EventMap m_Events;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::WarspearScout, 300.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				if (m_Init)
+					break;
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(47 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::First);
+			});
+
+			AddTimedDelayedOperation(59 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Second);
+			});
+
+			AddTimedDelayedOperation(71 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Third);
+			});
+
+			AddTimedDelayedOperation(151 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Fourth);
+			});
+
+			AddTimedDelayedOperation(163 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Fifth);
+			});
+
+			AddTimedDelayedOperation(175 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Sixth);
+			});
+
+			AddTimedDelayedOperation(258 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Seventh);
+			});
+
+			AddTimedDelayedOperation(270 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Eighth);
+			});
+
+			AddTimedDelayedOperation(331 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Ninth);
+			});
+
+			AddTimedDelayedOperation(343 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Tenth);
+			});
+
+			AddTimedDelayedOperation(353 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Eleventh);
+			});
+		}
+
+		void LastOperationCalled() override
+		{
+			m_Events.ScheduleEvent(eData::EventLoop, 31 * TimeConstants::IN_MILLISECONDS);
+		}
+
+		void UpdateAI(const uint32 p_Diff) override
+		{
+			MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			if (m_Events.ExecuteEvent() == eData::EventLoop)
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::WarspearScout, 300.0f))
+				{
+					if (l_Creature->AI())
+					{
+						l_Creature->AI()->DoAction(eData::ActionLoop);
+						ScheduleAllTalks();
+					}
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_shadowhunter_garantAI(p_Creature);
+	}
+};
+
+static std::array<G3D::Vector3, 12> g_ScoutFirst =
+{
+	{
+		{ 5130.7192, -3968.8635, 6.2601,   },
+		{ 5151.6724, -3965.1477, -0.2091   },
+		{ 5163.0903, -3962.9993, 1.6011,   },
+		{ 5176.5488, -3962.2869, 3.8392,   },
+		{ 5188.4385, -3961.5542, 4.8528,   },
+		{ 5204.6216, -3960.7212, 3.2512,   },
+		{ 5235.2544, -3964.1348, 9.0833,   },
+		{ 5259.0474, -3985.1365, 14.0173,  },
+		{ 5259.5640, -3993.4067, 14.1146,  },
+		{ 5250.3076, -4006.3616, 13.8079,  },
+		{ 5230.2676, -4009.3096, 18.5524,  },
+		{ 5216.2876, -4011.2200, 18.2152,  },
+	}
+};
+
+static std::array<G3D::Vector3, 12> g_ScoutBack =
+{
+	{
+		{ 5216.2876, -4011.2200, 18.2152,  },
+		{ 5230.2676, -4009.3096, 18.5524,  },
+		{ 5250.3076, -4006.3616, 13.8079,  },
+		{ 5259.5640, -3993.4067, 14.1146,  },
+		{ 5259.0474, -3985.1365, 14.0173,  },
+		{ 5235.2544, -3964.1348, 9.0833,   },
+		{ 5204.6216, -3960.7212, 3.2512,   },
+		{ 5188.4385, -3961.5542, 4.8528,   },
+		{ 5176.5488, -3962.2869, 3.8392,   },
+		{ 5163.0903, -3962.9993, 1.6011,   },
+		{ 5151.6724, -3965.1477, -0.2091   },
+		{ 5130.7192, -3968.8635, 6.2601,   },
+
+	}
+};
+
+/// Warspear Scout - 88531
+class npc_ashran_warspear_scout : public CreatureScript
+{
+public:
+	npc_ashran_warspear_scout() : CreatureScript("npc_ashran_warspear_scout") { }
+
+	enum eTalks
+	{
+		First,
+		Second,
+		Third,
+		Fourth,
+		Fifth,
+		Sixth,
+		Seventh
+	};
+
+	enum eData
+	{
+		Garant = 86040,
+		ActionInit = 0,
+		ActionLoop = 1
+	};
+
+	struct npc_ashran_warspear_scoutAI : public MS::AI::CosmeticAI
+	{
+		npc_ashran_warspear_scoutAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+		bool m_Init;
+
+		void Reset() override
+		{
+			m_Init = false;
+
+			if (Creature* l_Creature = me->FindNearestCreature(eData::Garant, 300.0f))
+			{
+				if (l_Creature->AI())
+				{
+					m_Init = true;
+					l_Creature->AI()->DoAction(eData::ActionInit);
+					ScheduleAllTalks();
+				}
+			}
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case eData::ActionInit:
+				m_Init = true;
+				ScheduleAllTalks();
+				break;
+			case eData::ActionLoop:
+				ScheduleAllTalks();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ScheduleAllTalks()
+		{
+			AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(0, g_ScoutFirst.data(), g_ScoutFirst.size(), false);
+			});
+
+			AddTimedDelayedOperation(29 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::Garant, 15.0f))
+				{
+					me->SetFacingToObject(l_Creature);
+				}
+
+				Talk(eTalks::First);
+			});
+
+			AddTimedDelayedOperation(37 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Third);
+			});
+
+			AddTimedDelayedOperation(79 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Second);
+			});
+
+			AddTimedDelayedOperation(83 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(0, g_ScoutBack.data(), g_ScoutBack.size(), false);
+			});
+
+			AddTimedDelayedOperation(110 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(0, g_ScoutFirst.data(), g_ScoutFirst.size(), false);
+			});
+
+			AddTimedDelayedOperation(133.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::Garant, 15.0f))
+				{
+					me->SetFacingToObject(l_Creature);
+				}
+
+				Talk(eTalks::First);
+			});
+
+			AddTimedDelayedOperation(139 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Fourth);
+			});
+
+			AddTimedDelayedOperation(175 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Second);
+			});
+
+			AddTimedDelayedOperation(179 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(0, g_ScoutBack.data(), g_ScoutBack.size(), false);
+			});
+
+			AddTimedDelayedOperation(206 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(0, g_ScoutFirst.data(), g_ScoutFirst.size(), false);
+			});
+
+			AddTimedDelayedOperation(229 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::Garant, 15.0f))
+				{
+					me->SetFacingToObject(l_Creature);
+				}
+
+				Talk(eTalks::First);
+			});
+
+			AddTimedDelayedOperation(233 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Fifth);
+			});
+
+			AddTimedDelayedOperation(242 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Sixth);
+			});
+
+			AddTimedDelayedOperation(273 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Second);
+			});
+
+			AddTimedDelayedOperation(285 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(0, g_ScoutBack.data(), g_ScoutBack.size(), false);
+			});
+
+			AddTimedDelayedOperation(296 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(0, g_ScoutFirst.data(), g_ScoutFirst.size(), false);
+			});
+
+			AddTimedDelayedOperation(315 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				if (Creature* l_Creature = me->FindNearestCreature(eData::Garant, 15.0f))
+				{
+					me->SetFacingToObject(l_Creature);
+				}
+
+				Talk(eTalks::First);
+			});
+
+			AddTimedDelayedOperation(323 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Seventh);
+			});
+
+			AddTimedDelayedOperation(363 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				Talk(eTalks::Second);
+			});
+
+			AddTimedDelayedOperation(367 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+			{
+				me->GetMotionMaster()->MoveSmoothPath(0, g_ScoutBack.data(), g_ScoutBack.size(), false);
+			});
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_ashran_warspear_scoutAI(p_Creature);
+	}
+};
+
 /// Souchi Windpaw - 87765
 class npc_ashran_souchi_windpaw : public CreatureScript
 {
@@ -1482,79 +3203,6 @@ public:
 	{
 		return new npc_ashran_souchi_windpawAI(p_Creature);
 	}
-};
-
-/// Excavator Hardtooth - 88567
-class npc_ashran_excavator_hardtooth : public CreatureScript
-{
-    public:
-        npc_ashran_excavator_hardtooth() : CreatureScript("npc_ashran_excavator_hardtooth") { }
-
-        enum eTalks
-        {
-            First,
-            Second,
-            Third,
-            Fourth
-        };
-
-        enum eData
-        {
-            ExcavatorRustshiv   = 88568,
-            ActionInit          = 0,
-            ActionLoop          = 1
-        };
-
-        struct npc_ashran_excavator_hardtoothAI : public MS::AI::CosmeticAI
-        {
-            npc_ashran_excavator_hardtoothAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
-
-            bool m_Init;
-
-            void Reset() override
-            {
-                m_Init = false;
-
-                if (Creature* l_Creature = me->FindNearestCreature(eData::ExcavatorRustshiv, 15.0f))
-                {
-                    if (l_Creature->AI())
-                    {
-                        m_Init = true;
-                        l_Creature->AI()->DoAction(eData::ActionInit);
-                        ScheduleAllTalks();
-                    }
-                }
-            }
-
-            void DoAction(int32 const p_Action) override
-            {
-                switch (p_Action)
-                {
-                    case eData::ActionInit:
-                        m_Init = true;
-                        ScheduleAllTalks();
-                        break;
-                    case eData::ActionLoop:
-                        ScheduleAllTalks();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void ScheduleAllTalks()
-            {
-                AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
-                AddTimedDelayedOperation(27 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
-                AddTimedDelayedOperation(76 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
-                AddTimedDelayedOperation(93 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const override
-        {
-            return new npc_ashran_excavator_hardtoothAI(p_Creature);
-        }
 };
 
 /// Vol'jin's Spear Battle Standard - 85383
@@ -3787,6 +5435,22 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_jared_v_hellstrike();
     new npc_ashran_kimilyn();
     new npc_ashran_speedy_horde_racer();
+	new npc_ashran_rala_wildheart();
+	new npc_ashran_shadow_hunter_askia();
+	new npc_ashran_gordon_ray();
+	new npc_ashran_warspear_grunt();
+	new npc_ashran_brix_rocketcast();
+	new npc_ashran_nina_dingzap();
+	new npc_ashran_joroman();
+	new npc_ashran_zikk();
+	new npc_ashran_warspear_grunt_flightmaster_1();
+	new npc_ashran_warspear_grunt_flightmaster_2();
+	new gob_ashran_handwritten_sign();
+	new npc_ashran_shadowhunter_garant();
+	new npc_ashran_warspear_scout();
+
+	// This can be improved with time
+	new guard_wod_generic();
 
 	new npc_ashran_souchi_windpaw();
 }
