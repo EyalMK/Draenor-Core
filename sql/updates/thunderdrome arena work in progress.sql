@@ -1,0 +1,3 @@
+
+DELETE FROM `event_scripts` WHERE `id` IN (25094, 25067, 25095, 25591, 25513);
+UPDATE `quest_template` SET `StartScript`=0 WHERE `ID` IN (25094, 25067, 25095, 25591, 25513);

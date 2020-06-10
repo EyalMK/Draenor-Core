@@ -1148,7 +1148,7 @@ public:
 	{
 		npc_scarlet_corpse_49340AI(Creature *c) : ScriptedAI(c) {}
 
-		void SpellHit(Unit* caster, SpellInfo const* spell)
+		void SpellHit(Unit* caster, SpellInfo const* spell) override
 		{
 			if (Player* player = caster->ToPlayer())
 				if (player->GetQuestStatus(26800) == QUEST_STATUS_INCOMPLETE)
@@ -1288,7 +1288,7 @@ public:
 			m_health = frand(60.0f, 95.0f);
 		}
 
-		void DamageTaken(Unit* attacker, uint32& damage)
+		void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/) override
 		{
 			if (attacker->GetEntry() == 49428 && me->GetHealthPct() < m_health)
 				damage = 0;
@@ -1347,7 +1347,7 @@ public:
 			m_health = frand(60.0f, 95.0f);
 		}
 
-		void DamageTaken(Unit* attacker, uint32& damage)
+		void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/) override
 		{
 			if (attacker->GetEntry() == 49428 && me->GetHealthPct() < m_health)
 				damage = 0;
@@ -1406,7 +1406,7 @@ public:
 			m_health = frand(60.0f, 95.0f);
 		}
 
-		void DamageTaken(Unit* attacker, uint32& damage)
+		void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/) override
 		{
 			if (attacker->GetEntry() == 49428 && me->GetHealthPct() < m_health)
 				damage = 0;
@@ -1465,7 +1465,7 @@ public:
 			m_health = frand(60.0f, 95.0f);
 		}
 
-		void DamageTaken(Unit* attacker, uint32& damage)
+		void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/) override
 		{
 			if ((attacker->GetEntry() == 49422 || attacker->GetEntry() == 49423 || attacker->GetEntry() == 49424) && me->GetHealthPct() < m_health)
 				damage = 0;

@@ -1,3 +1,8 @@
+-- SmartAI removal
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5471, 5472, 5473, 5474, 5475);
+UPDATE `creature_template` SET `AIName`='' WHERE `entry` IN (5471, 5472, 5473, 5474, 5475);
+
+-- Texts
 DELETE FROM `creature_text` WHERE `entry` IN (5471, 5472, 5473, 5474, 5475);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (5471, 0, 0, 'I\'ll crush you!', 12, 0, 25, 0, 0, 0, 'Ogres On Aggro Text - Text 1'),

@@ -6,16 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: The_Barrens
-SD%Complete: 90
-SDComment: Quest support: 863
-SDCategory: Barrens
-EndScriptData */
-
-/* ContentData
-npc_wizzlecrank_shredder
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -23,31 +13,36 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "GameObjectAI.h"
 
-/// Quest Status Handler
-class playerScript_quest_status_handler : public PlayerScript
+/// PlayerScript - Quest Event Handler
+class playerScript_quest_handler : public PlayerScript
 {
 public:
-	playerScript_quest_status_handler() : PlayerScript("playerScript_quest_status_handler") { }
+	playerScript_quest_handler() : PlayerScript("playerScript_quest_handler") { }
 
-	void OnQuestComplete(Player* p_Player, const Quest* p_Quest) override
+	void OnItemLooted(Player* p_Player, Item* p_Item) override
 	{
-		if (p_Player->GetZoneId() == 14) // Northern Barrens
+		if (p_Item->GetEntry() == 46833) // Gazlowe's Treasure Chest
 		{
-			if (p_Quest->GetQuestId() == 14050) // Gazlowe's Fortune
+			Position const BaronPos = { -1163.2906f, -3638.6038f, 95.6738f, 1.391242f };
+			Position const CutthroatPos = { -1166.0581f, -3638.5015f, 95.4870f, 1.391242f };
+			Position const RunPos = { -1167.9142f, -3613.9539f, 93.9095f }; // Position to run to
+
+			Creature* Baron = p_Player->SummonCreature(3467, BaronPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // Baron Longshore
+			Creature* Cutthroat = p_Player->SummonCreature(3383, CutthroatPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // Southsea Cutthroat
+			if (Baron && Cutthroat)
 			{
-				Position const BaronPos = { -1163.2906f, -3638.6038f, 95.6738f, 1.391242f };
-				Position const CutthroatPos = { -1166.0581f, -3638.5015f, 95.4870f, 1.391242f };
+				// Non attackable until Baron reaches position he runs towards.
+				Baron->setFaction(14);
+				Baron->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				Cutthroat->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-				Creature* Baron = p_Player->SummonCreature(3467, BaronPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // Baron Longshore
-				Creature* Cutthroat = p_Player->SummonCreature(3383, CutthroatPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // Southsea Cutthroat
-				if (Baron && Cutthroat)
-				{
-					Baron->setFaction(14); // Hostile Faction
-					Baron->CombatStart(p_Player, true);
-					Cutthroat->CombatStart(p_Player);
-				}
+				Baron->AI()->Talk(1, p_Player->GetGUID()); // Hold it, $r!
 
+				// Cutthroat follow Baron
+				Cutthroat->GetMotionMaster()->MoveFollow(Baron, 2.5f, 2.5f, MOTION_SLOT_ACTIVE);
+				Baron->GetMotionMaster()->MovePoint(2, RunPos);
 			}
+
 		}
 	}
 };
@@ -55,10 +50,7 @@ public:
 
 
 
-/*######
-## npc_beaten_corpse
-######*/
-
+/// Beaten Corpse - Mankrik's Wife
 enum BeatenCorpse
 {
 	GOSSIP_OPTION_ID_BEATEN_CORPSE = 0,
@@ -72,9 +64,7 @@ public:
 
 	struct npc_beaten_corpseAI : public ScriptedAI
 	{
-		npc_beaten_corpseAI(Creature* creature) : ScriptedAI(creature)
-		{
-		}
+		npc_beaten_corpseAI(Creature* creature) : ScriptedAI(creature) { }
 
 		void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
 		{
@@ -92,10 +82,7 @@ public:
 	}
 };
 
-/*######
-# npc_gilthares
-######*/
-
+/// Gilthares
 enum Gilthares
 {
 	SAY_GIL_START = 0,
@@ -192,10 +179,8 @@ public:
 
 };
 
-/*######
-## npc_taskmaster_fizzule
-######*/
 
+/// Taskmaster Fizzule 
 enum TaskmasterFizzule
 {
 	FACTION_FRIENDLY_F = 35,
@@ -301,10 +286,7 @@ public:
 };
 
 
-/*#####
-## npc_wizzlecrank_shredder
-#####*/
-
+/// Wizzlecrank Shredder
 enum Wizzlecrank
 {
     SAY_START           = -1000298,
@@ -536,7 +518,7 @@ public:
 				break;
 			case GOSSIP_ACTION_INFO_DEF + 2:
 				player->CLOSE_GOSSIP_MENU();
-				creature->AI()->Talk(0); // Har! Pleasure doin' business...
+				creature->AI()->Talk(0, player->GetGUID()); // Har! Pleasure doin' business...
 				player->KilledMonsterCredit(NPC_BARON_LONGSHORE_KILLCREDIT, player->GetGUID());
 		}
 
@@ -545,24 +527,64 @@ public:
 
 	struct npc_baron_longshoreAI : public ScriptedAI
 	{
-		npc_baron_longshoreAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+		npc_baron_longshoreAI(Creature* p_Creature) : ScriptedAI(p_Creature) {
+			m_PlayerGUID = 0;
+		}
+
+
+		uint64 m_PlayerGUID;
 
 		void JustDied(Unit* /*killer*/) override
 		{
-			me->setFaction(35);
+			if (!me->isSummon())
+				me->setFaction(35);
 		}
 
 		void Reset() override
 		{
-			if (me->GetGUIDLow() == 265594) // Baron the Merchant Coast
+			if (!me->isSummon()) // Baron the Merchant Coast
 				me->CastSpell(me, 104980); // Sit aura
 		}
 
+		void IsSummonedBy(Unit* summoner) override
+		{
+			if (me->isSummon())
+				if (Player* playerSummoner = summoner->ToPlayer())
+				{
+					m_PlayerGUID = playerSummoner->GetGUID();
+				}
+		}
+
+		void MovementInform(uint32 type, uint32 id) override
+		{
+			if (me->isSummon()) // Gazlowe's Fortune
+				if (type == POINT_MOTION_TYPE && id == 2) // RunPos in PlayerScript
+					if (Player* player = sObjectAccessor->GetPlayer(*me, m_PlayerGUID))
+						if (Creature* cutthroat = me->FindNearestCreature(10.0f, true))
+						{
+							me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+							cutthroat->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+							me->CombatStart(player);
+							cutthroat->CombatStart(player);
+						}
+		}
+		
+
 		void EnterCombat(Unit* who) override
 		{
-			if (who->GetGUIDLow() == 265594) // Baron the Merchant Coast
-				who->RemoveAurasDueToSpell(104980); // Remove sit aura
+			if (!me->isSummon()) // Baron the Merchant Coast
+				me->RemoveAurasDueToSpell(104980); // Remove sit aura
 		}
+
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (!me->isInCombat()) // If Baron at the Merchant Coast isn't in combat, cast sit spell.
+				if (!me->isSummon())
+					me->CastSpell(me, 104980); // Sit aura
+		}
+
 
 	};
 
@@ -697,6 +719,8 @@ public:
 		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE && p_Creature->GetHealthPct() == 0.0f) // if he's dead, show second gossip menu
 			p_Player->ADD_GOSSIP_ITEM_DB(FOOTE_GOSSIP_MENU_2, FOOTE_GOSSIP_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 			p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_2, p_Creature->GetGUID());
+		if (p_Player->GetQuestStatus(QUEST_CLUB_FOOTE) == QUEST_STATUS_INCOMPLETE && p_Player->HasItemCount(46827, 1)) // if player got the item, show second gossip menu
+			p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_2, p_Creature->GetGUID());
 
 		p_Player->SEND_GOSSIP_MENU(FOOTE_NPC_TEXT_1, p_Creature->GetGUID());
 		return true;
@@ -764,7 +788,8 @@ public:
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-				me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				// Gossip flag
+				me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
 
 				me->AI()->DoAction(BarFight);
@@ -902,7 +927,7 @@ public:
 void AddSC_the_barrens()
 {
 	/// Handlers
-	new playerScript_quest_status_handler();
+	new playerScript_quest_handler();
 
 	/// Scripts
 	new npc_beaten_corpse();

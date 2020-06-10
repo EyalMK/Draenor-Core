@@ -343,13 +343,13 @@ public:
 
 						if (p_Player->HasQuest(ALLIANCE_DEMON_QUEST) || p_Player->HasQuest(HORDE_DEMON_QUEST))
 						{
-							// Buff
-							/// Keeps reapplying the buff even though player has aura after he applies it for the first time.
-							if (p_Player->HasAura(SPELL_DEMONS_RESOLVE) == false)
-								me->CastSpell(p_Player, SPELL_DEMONS_RESOLVE);
-
 							if (Creature* razelikh = me->FindNearestCreature(NPC_RAZELIKH_DEMON, 10.0f, true))
+							{
+								// Buff
+								if (!p_Player->HasAura(SPELL_DEMONS_RESOLVE))
+									me->CastSpell(p_Player, SPELL_DEMONS_RESOLVE);
 								me->AI()->DoAction(StartEvent);
+							}
 						}
 				}
 			}
@@ -369,6 +369,7 @@ public:
 
 					m_CosmeticEvents.CancelEvent(EVENT_CHECK_PLAYER);
 
+
 					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						Talk(0); // Demon! I have returned..
@@ -387,10 +388,10 @@ public:
 						Talk(2); // RAKH'LIKH!
 						me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
 
-
-						/// This isn't working
 						if (Creature* razelikh = me->FindNearestCreature(NPC_RAZELIKH_DEMON, 15.0f, true))
+						{
 							razelikh->GetAI()->DoAction(StartEvent);
+						}
 					});
 
 					break;
@@ -492,6 +493,12 @@ public:
 		{
 			ClearDelayedOperations();
 			l_Target = nullptr;
+		}
+
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
 		}
 
 		void DoAction(int32 const p_Action) override
@@ -664,11 +671,21 @@ public:
 			if (me->GetHealthPct() == 25.0f)
 				Talk(3); // Lok zenn Za enkil refir mordanas lok zenn
 
-			if (me->GetHealth() == 1.0f && damage > me->GetHealth())
+			if (me->GetHealth() == 1.0f || damage > me->GetHealth())
 			{
 				damage = 0;
 				me->AI()->DoAction(EndDeath);
 			}
+		}
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
 		}
 
 
@@ -681,20 +698,19 @@ public:
 				{
 					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
-
-							me->RemoveAllAuras();
-							DoCast(me, SPELL_DEATH);
-							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-							me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-							me->CombatStop(true);
-							Talk(1); // Quickly! Use the knife on me!
+						me->RemoveAllAuras();
+						DoCast(me, SPELL_DEATH);
+						me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+						me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+						me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+						me->CombatStop(true);
+						Talk(1); // Quickly! Use the knife on me!
 					});
 					break;
 				}
 
 				case TheDefiledSummoned:
-
+				{
 					Talk(0); // Now, heroes!
 					l_Target = me->FindNearestPlayer(20.0f, true);
 
@@ -702,9 +718,9 @@ public:
 						me->CombatStart(l_Target, true);
 
 					break;
-
+				}
 				case EndQuestAndDeath:
-
+				{
 					AddTimedDelayedOperation(0.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						l_Target->QuestObjectiveSatisfy(NPC_LORAMUS_THE_DEFILED, 1, QUEST_OBJECTIVE_TYPE_NPC, l_Target->GetGUID());
@@ -718,9 +734,8 @@ public:
 						me->DespawnOrUnsummon();
 
 					});
-
 					break;
-
+				}
 				default:
 					break;
 			}
@@ -820,7 +835,10 @@ public:
 		{
 			UpdateOperations(p_Diff);
 		}
-
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
 
 		void DoAction(int32 const p_Action) override
 		{
@@ -1139,9 +1157,11 @@ public:
 	npc_stitches_solderbolt() : CreatureScript("npc_stitches_solderbolt") { }
 
 
-	enum eData
+	enum eMisc
 	{
-		Araazi = 85731
+		FirstWP	= 0,
+		SecWP	= 1,
+		ThirdWP	= 2,
 	};
 
 
@@ -1158,13 +1178,26 @@ public:
 			UpdateOperations(p_Diff);
 		}
 
-
-		void WaypointReached(uint32 waypointId)
+		void MovementInform(uint32 type, uint32 id) override
 		{
-			switch (waypointId)
+
+			if (type == EFFECT_MOTION_TYPE && id == 1)
+			{
+				me->GetAI()->DoAction(1);
+			}
+			if (type == EFFECT_MOTION_TYPE && id == 2)
+			{
+				me->GetAI()->DoAction(2);
+			}
+		}
+
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
 			{
 				case 1:
-
+				{
 					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->SetFacingTo(2.683312f);
@@ -1189,18 +1222,16 @@ public:
 					{
 						me->RemoveAura(153964); // Kneel aura
 					});
-					
 					break;
-
+				}
 				case 2:
-
+				{
 					AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->SetFacingTo(5.169490f);
 					});
-
 					break;
-
+				}
 				default:
 					break;
 			}
@@ -1256,7 +1287,8 @@ public:
 
 	enum eAction
 	{
-		actionSaved	 = 0
+		actionSaved	 = 0,
+		actionKilled = 1,
 	};
 
 	enum eData
@@ -1272,13 +1304,27 @@ public:
 
 		void JustDied(Unit* killer) override
 		{
-
-			me->GetCreatureListWithEntryInGrid(PrisonersNearby, eData::NPC_NETHERGARDE_PRISONER, 10.0f);
-			for (std::list<Creature*>::const_iterator itr = PrisonersNearby.begin(); itr != PrisonersNearby.end(); ++itr)
+			me->GetAI()->DoAction(actionKilled);
+		}
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
 			{
-				(*itr)->GetAI()->DoAction(eAction::actionSaved);
+				case eAction::actionKilled:
+				{
+					me->GetCreatureListWithEntryInGrid(PrisonersNearby, eData::NPC_NETHERGARDE_PRISONER, 10.0f);
+					for (std::list<Creature*>::const_iterator itr = PrisonersNearby.begin(); itr != PrisonersNearby.end(); ++itr)
+					{
+						(*itr)->AI()->Talk(urand(0, 2));
+						break; // Break when first iteration talks - when there are two prisoners, only one is supposed to talk.
+					}
+
+					for (std::list<Creature*>::const_iterator itr = PrisonersNearby.begin(); itr != PrisonersNearby.end(); ++itr)
+					{
+						(*itr)->GetAI()->DoAction(eAction::actionSaved);
+					}
+				}
 			}
-			
 		}
 				
 	};
@@ -1313,8 +1359,13 @@ public:
 		void Reset() override
 		{
 			me->CastSpell(me, 153964); // Kneel aura
+			ClearDelayedOperations();
 		}
 
+		void UpdateAI(uint32 const p_Diff) override
+		{
+			UpdateOperations(p_Diff);
+		}
 
 		void DoAction(int32 const p_Action) override
 		{
@@ -1322,23 +1373,19 @@ public:
 			{
 			case eAction::actionSaved:
 			{
-				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-				{
-					Talk(urand(0, 2));
-					me->RemoveAurasDueToSpell(153964);
-				});
-
-
 				AddTimedDelayedOperation(0.2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					me->GetMotionMaster()->MoveRandom(15.0f);
+					me->RemoveAurasDueToSpell(153964); // Remove kneel
 				});
 
-				AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 				{
-					me->DespawnOrUnsummon();
+					float x, y, z;
+					me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 10.0f);
+					me->GetMotionMaster()->MovePoint(1, x, y, z);
+					me->DespawnOrUnsummon(5000);
 				});
-
 				break;
 			}
 			default:

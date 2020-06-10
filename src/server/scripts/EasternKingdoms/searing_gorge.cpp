@@ -11,14 +11,7 @@
 #include "ScriptedGossip.h"
 
 
-
-
-
-
-
-
 /// Quest: Rise, Obsidion - 28056
-
 enum eMoves
 {
 	MaxLathoricMoves = 4,
@@ -63,6 +56,7 @@ public:
 		void Reset() override
 		{
 			m_events.Reset();
+			ClearDelayedOperations();
 		}
 
 		void EnterCombat(Unit* victim) override
@@ -82,18 +76,17 @@ public:
 					Obsidion->setFaction(54); // To assist Lathorick
 
 					// Flags
+					Obsidion->SetStandState(UNIT_STAND_STATE_STAND);
 					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 					Obsidion->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
-
 					Obsidion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
 					// Move Obsidion to Position and attack player
-					Position l_Pos = { -6476.454f, -1249.35f, 180.2865f};   
-					Obsidion->GetMotionMaster()->MovePoint(0, l_Pos);
+					Obsidion->GetMotionMaster()->MovePoint(0, -6476.454f, -1249.35f, 180.2865f);
 
 					// Prevent crash if player is stealthed 
 					if (Player* player = me->FindNearestPlayer(10.0f, true))
@@ -109,20 +102,31 @@ public:
 
 		void UpdateAI(uint32 diff) override
 		{
+
+			UpdateOperations(diff);
+
+			if (!UpdateVictim())
+				return;
+
 			m_events.Update(diff);
 
-			while (uint32 eventId = m_events.ExecuteEvent())
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			if (uint32 eventId = m_events.ExecuteEvent())
 			{
 				switch (eventId)
 				{
-					case EVENT_SHADOW_BOLT:
-					{
-						DoCastVictim(SPELL_SHADOW_BOLT, true);
-						m_events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3400, 4700));
-						break;
-					}
+				case EVENT_SHADOW_BOLT:
+					DoCastVictim(SPELL_SHADOW_BOLT);
+					m_events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3400, 4700));
+					break;
+				default:
+					break;
 				}
 			}
+
+			DoMeleeAttackIfReady();
 		}
 
 	};
@@ -160,6 +164,7 @@ public:
 		void Reset() override
 		{
 			m_events.Reset();
+			ClearDelayedOperations();
 		}
 
 		void EnterCombat(Unit* victim) override
@@ -167,23 +172,32 @@ public:
 			m_events.ScheduleEvent(EVENT_FLAME_BLAST, urand(2000, 3000));
 		}
 
-
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(const uint32 diff)
 		{
+			if (!UpdateVictim())
+				return;
+
+			UpdateOperations(diff);
+
 			m_events.Update(diff);
 
-			while (uint32 eventId = m_events.ExecuteEvent())
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			if (uint32 eventId = m_events.ExecuteEvent())
 			{
 				switch (eventId)
 				{
-					case EVENT_FLAME_BLAST:
-					{
-						DoCastVictim(SPELL_FLAME_BLAST, true);
-						m_events.ScheduleEvent(EVENT_FLAME_BLAST, urand(18000, 21000));
-						break;
-					}
+				case EVENT_FLAME_BLAST:
+					DoCastVictim(SPELL_FLAME_BLAST);
+					m_events.ScheduleEvent(EVENT_FLAME_BLAST, urand(18000, 21000));
+					break;
+				default:
+					break;
 				}
 			}
+
+			DoMeleeAttackIfReady();
 		}
 
 	};

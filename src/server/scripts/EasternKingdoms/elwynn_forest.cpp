@@ -93,7 +93,7 @@ public:
 				me->AddUnitState(UNIT_STATE_ROOT);
 		}
 
-		void DamageTaken(Unit* doneBy, uint32& damage)
+		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const*  /*p_SpellInfo*/) override
 		{
 			if (doneBy->ToCreature())
 				if (me->GetHealth() <= damage || me->GetHealthPct() <= 87.0f)
@@ -214,14 +214,14 @@ public:
 		}
 	
 
-		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
+		void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
 		{
 			if (target->ToCreature())
 				if (target->GetHealth() <= damage || target->GetHealthPct() <= 87.0f)
 					damage = 0;
 		}
 
-		void DamageTaken(Unit* pWho, uint32& uiDamage)
+		void DamageTaken(Unit* pWho, uint32& uiDamage, SpellInfo const*  /*p_SpellInfo*/) override
 		{
 			if (Creature* npc = pWho->ToCreature())
 				if (npc->GetEntry() == NPC_STORMWIND_INFANTRY)

@@ -178,7 +178,7 @@ public:
     };
 };
 
-#define GOSSIP_CHOICE_1  "I'm ready, Doctor Jones !"
+#define GOSSIP_CHOICE_1  "I'm ready, Doctor Jones!"
 
 enum eHarrisonJonesActions
 {
