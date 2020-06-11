@@ -871,18 +871,13 @@ public:
 		void JustDied(Unit* killer) override
 		{
 			if (Creature* hand = me->FindNearestCreature(NPC_THERAMORE_DECK_HAND, 20.0f, true)) // Find alive Theramore Deckhand nearby, if none, return peons to home position
-			{
 				return;
-			}	
 			else
 			{
 				me->GetCreatureListWithEntryInGrid(Peons, NPC_CAROUSING_PEON, 20.0f);
 				for (auto peon : Peons)
 				{
-					Position l_Pos = peon->GetHomePosition();
-					float orientation = peon->GetHomePosition().m_orientation;
-					peon->GetMotionMaster()->MovePoint(0, l_Pos, true); // Need to figure out a way to reset their orientation
-					peon->SetOrientation(orientation);
+					peon->GetMotionMaster()->MoveTargetedHome();
 				}
 			}
 			
@@ -898,8 +893,8 @@ public:
 						if (me->GetGUID() == 265490 || 265488)
 						{
 							me->setFaction(1077); // hostile faction
-							Player* player = me->FindNearestPlayer(10.0f, true);
-							me->CombatStart(player);
+							if (Player* player = me->FindNearestPlayer(10.0f, true))
+								me->CombatStart(player);
 						}
 							
 					});

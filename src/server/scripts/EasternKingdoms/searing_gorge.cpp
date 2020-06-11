@@ -174,10 +174,11 @@ public:
 
 		void UpdateAI(const uint32 diff)
 		{
-			if (!UpdateVictim())
-				return;
 
 			UpdateOperations(diff);
+
+			if (!UpdateVictim())
+				return;
 
 			m_events.Update(diff);
 
