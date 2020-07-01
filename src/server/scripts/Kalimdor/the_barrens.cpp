@@ -18,29 +18,46 @@ class playerScript_quest_handler : public PlayerScript
 {
 public:
 	playerScript_quest_handler() : PlayerScript("playerScript_quest_handler") { }
+	
+	enum eMisc
+	{
+		// Npcs
+		NPC_BARON_LONGSHORE		= 3467,
+		NPC_SOUTHSEA_CUTTHROAT	= 3383,
+
+		// Item
+		ITEM_GAZLOWES_CHEST		= 46833,
+
+		// Action
+		AttackPlayer			= 1,
+	};
 
 	void OnItemLooted(Player* p_Player, Item* p_Item) override
 	{
-		if (p_Item->GetEntry() == 46833) // Gazlowe's Treasure Chest
+		/// Gazlowe's Treasure Chest Quest
+		if (p_Item->GetEntry() == ITEM_GAZLOWES_CHEST)
 		{
 			Position const BaronPos = { -1163.2906f, -3638.6038f, 95.6738f, 1.391242f };
 			Position const CutthroatPos = { -1166.0581f, -3638.5015f, 95.4870f, 1.391242f };
 			Position const RunPos = { -1167.9142f, -3613.9539f, 93.9095f }; // Position to run to
 
-			Creature* Baron = p_Player->SummonCreature(3467, BaronPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // Baron Longshore
-			Creature* Cutthroat = p_Player->SummonCreature(3383, CutthroatPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // Southsea Cutthroat
+			Creature* Baron = p_Player->SummonCreature(NPC_BARON_LONGSHORE, BaronPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+			Creature* Cutthroat = p_Player->SummonCreature(NPC_SOUTHSEA_CUTTHROAT, CutthroatPos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+
 			if (Baron && Cutthroat)
 			{
-				// Non attackable until Baron reaches position he runs towards.
 				Baron->setFaction(14);
-				Baron->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				Cutthroat->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
 				Baron->AI()->Talk(1, p_Player->GetGUID()); // Hold it, $r!
 
 				// Cutthroat follow Baron
-				Cutthroat->GetMotionMaster()->MoveFollow(Baron, 2.5f, 2.5f, MOTION_SLOT_ACTIVE);
+				Cutthroat->GetMotionMaster()->MoveFollow(Baron, 1.0f, 1.0f, MOTION_SLOT_ACTIVE);
 				Baron->GetMotionMaster()->MovePoint(2, RunPos);
+
+				if (Creature* cutthroat = Baron->FindNearestCreature(3383, 20.0f, true))
+				{
+					Baron->CombatStart(p_Player);
+					cutthroat->CombatStart(p_Player);
+				}
 			}
 
 		}
@@ -473,6 +490,9 @@ public:
 		NPC_TEXT_BARON_2  = 14624, // Come on then, $r. Do ye trust me?
 		NPC_TEXT_BARON_3  = 14625, // Well? Don't ye...
 		NPC_TEXT_BARON_4  = 14626, // Suit yerself...
+
+		// Action
+		AttackPlayer	  = 1,
 	};
 
 
@@ -527,49 +547,16 @@ public:
 
 	struct npc_baron_longshoreAI : public ScriptedAI
 	{
-		npc_baron_longshoreAI(Creature* p_Creature) : ScriptedAI(p_Creature) {
-			m_PlayerGUID = 0;
-		}
-
+		npc_baron_longshoreAI(Creature* p_Creature) : ScriptedAI(p_Creature) {	}
 
 		uint64 m_PlayerGUID;
 
-		void JustDied(Unit* /*killer*/) override
-		{
-			if (!me->isSummon())
-				me->setFaction(35);
-		}
-
 		void Reset() override
 		{
+			m_PlayerGUID = 0;
 			if (!me->isSummon()) // Baron the Merchant Coast
-				me->CastSpell(me, 104980); // Sit aura
+				me->CastSpell(me, 104980, true); // Sit aura
 		}
-
-		void IsSummonedBy(Unit* summoner) override
-		{
-			if (me->isSummon())
-				if (Player* playerSummoner = summoner->ToPlayer())
-				{
-					m_PlayerGUID = playerSummoner->GetGUID();
-				}
-		}
-
-		void MovementInform(uint32 type, uint32 id) override
-		{
-			if (me->isSummon()) // Gazlowe's Fortune
-				if (type == POINT_MOTION_TYPE && id == 2) // RunPos in PlayerScript
-					if (Player* player = sObjectAccessor->GetPlayer(*me, m_PlayerGUID))
-						if (Creature* cutthroat = me->FindNearestCreature(10.0f, true))
-						{
-							me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-							cutthroat->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-							me->CombatStart(player);
-							cutthroat->CombatStart(player);
-						}
-		}
-		
 
 		void EnterCombat(Unit* who) override
 		{
@@ -578,14 +565,18 @@ public:
 		}
 
 
+		void JustDied(Unit* /*killer*/) override
+		{
+			if (!me->isSummon())
+				me->setFaction(35);
+		}
+
 		void UpdateAI(const uint32 diff)
 		{
 			if (!me->isInCombat()) // If Baron at the Merchant Coast isn't in combat, cast sit spell.
 				if (!me->isSummon())
-					me->CastSpell(me, 104980); // Sit aura
+					me->CastSpell(me, 104980, true); // Sit aura
 		}
-
-
 	};
 
 	CreatureAI* GetAI(Creature* p_Creature) const override
