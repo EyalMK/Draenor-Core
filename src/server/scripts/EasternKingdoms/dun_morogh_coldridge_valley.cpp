@@ -75,6 +75,72 @@ enum WoundedColdridgeMountaineer
 };
 
 
+/// Quest Status Handler
+class playerScript_coldridge_valley_handler : public PlayerScript
+{
+public:
+	playerScript_coldridge_valley_handler() : PlayerScript("playerScript_coldridge_valley_handler") { }
+
+	enum eMisc
+	{
+		/// ******* Coldridge Valley Tunnel ******* ///
+		QUEST_FOLLOW_THAT_GYRO_COPTER				= 24491,
+		SPELL_FOLLOW_THAT_GYRO_COPTER_QUEST_START	= 70047,
+	};
+
+	void UpdatePhaseMask(Player* p_Player)
+	{
+		/// UPDATE PHASEMASK DEPENDING OF QUESTS
+		uint32 l_PhaseMask = p_Player->GetPhaseMask();
+		uint32 p_NewAreaId = p_Player->GetAreaId();
+
+		if (p_NewAreaId == 132) // Coldridge Valley
+		{
+			if (p_Player->GetQuestStatus(QUEST_FOLLOW_THAT_GYRO_COPTER) == QUEST_STATUS_INCOMPLETE) // Milo Geartwinge Arrival
+			{
+				p_Player->AddAura(SPELL_FOLLOW_THAT_GYRO_COPTER_QUEST_START, p_Player); // Invisibility Detection
+			}
+
+			p_Player->SetPhaseMask(l_PhaseMask, true);
+		}
+	}
+
+	void OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId) override
+	{
+		if (p_NewAreaId == 132) // Coldridge Valley
+		{
+			uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+			if (p_Player->GetQuestStatus(QUEST_FOLLOW_THAT_GYRO_COPTER) == QUEST_STATUS_INCOMPLETE) // Milo Geartwinge Arrival
+			{
+				p_Player->AddAura(SPELL_FOLLOW_THAT_GYRO_COPTER_QUEST_START, p_Player); // Invisibility Detection
+			}
+
+			p_Player->SetPhaseMask(l_PhaseMask, true);
+		}
+	}
+
+	void OnLogin(Player* p_Player) override
+	{
+		if (p_Player->GetZoneId() == 6176) // Coldridge Valley
+			UpdatePhaseMask(p_Player);
+	}
+
+	void OnQuestAbandon(Player* p_Player, const Quest* /*p_Quest*/) override
+	{
+		if (p_Player->GetZoneId() == 6176) // Coldridge Valley
+			UpdatePhaseMask(p_Player);
+	}
+
+	void OnQuestComplete(Player* p_Player, const Quest* p_Quest) override
+	{
+		if (p_Player->GetZoneId() == 6176) // Coldridge Valley
+			UpdatePhaseMask(p_Player);
+	}
+
+};
+
+
 /// Joren Ironstock - 37081
 //class npc_joren_ironstock : public CreatureScript
 //{
@@ -1913,7 +1979,8 @@ class item_paint : public ItemScript
 public:
 	item_paint() : ItemScript("item_paint") {}
 
-	bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets) {
+	bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets) override
+	{
 		if (Creature* c = player->FindNearestCreature(42291, 5.0f, true)) {
 			if (c->GetEntry() == 42291) {
 				if (player->GetQuestStatus(26342) == QUEST_STATUS_INCOMPLETE) {
@@ -1932,7 +1999,8 @@ class item_techno_granade : public ItemScript
 public:
 	item_techno_granade() : ItemScript("item_techno_granade") {}
 
-	bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/) {
+	bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/) override
+	{
 		player->CastSpell(player->getVictim(), 79751);
 		return true;
 	}
@@ -1944,7 +2012,8 @@ class item_orbit : public ItemScript
 public:
 	item_orbit() : ItemScript("item_orbit") {}
 
-	bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets) {
+	bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets) override
+	{
 		if (Creature* c = player->FindNearestCreature(42839, 10.0f, true)) {
 			if (player->GetQuestStatus(26364) == QUEST_STATUS_INCOMPLETE) {
 				Quest const* qInfo = sObjectMgr->GetQuestTemplate(26364);
@@ -1960,6 +2029,9 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_dun_morogh_coldridge_valley()
 {
+	/// PlayerScript
+	new playerScript_coldridge_valley_handler();
+
 	/// Npcs
 	//new npc_joren_ironstock();
 	new npc_coldridge_defender();
