@@ -690,7 +690,431 @@ bool SpellEffectInfo::HasRadius() const
 
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 {
-	if (!HasRadius())
+	const SpellRadiusEntry* entry = RadiusEntry;
+
+	if (!HasRadius()) // Use for ANY non-radius spell. Define radius here.
+	{
+		switch (_spellInfo->Id)
+		{
+			// PLAYERS / PVP. // DUNGEONS, RAIDS / PVE.
+
+		case 75117: // Burning Light Anhuur
+		case 93974: // Gul'dan aur
+		case 93987:
+		case 93986:
+		case 93975:
+			return 4.0f;
+		case 76956: //Alpha Beams Anraphet
+		case 81261: // Solar beam
+			return 5.0f;
+		case 75548: // Quicksand Ptah
+		case 75702: // Spore Ammunae
+		case 86261: // Incaster absorb.
+		case 89648:
+			return 6.0f;
+		case 73958: // Lightning Discharge
+		case 77478: // Earthquake
+		case 81297: // Consecration
+		case 86041:
+		case 88453: // Serpent Spread
+		case 88466:
+			return 8.0f;
+		case 8349:  // Fire nova
+		case 52212: // Death and Decay
+		case 69355:
+		case 73921: // Healing Rain
+			return 10.0f;
+		case 73868: // Rumbling Hooves
+		case 81280: // Blood worms
+		case 94472: // Atonement
+			return 15.0f;
+		case 73309: // Lilian's Death Grip 
+		case 83173: // Raise Forsaken
+		case 97463: // Ralling cry
+			return 30.0f;
+		case 70541: // LK Infest
+		case 73779: // LK Infest
+		case 73780: // LK Infest
+		case 73781: // LK Infest
+			return 60.0f;
+		case 75540: // Flame Bolt Ptah
+			return 70.0f;
+		case 75194: // Burning Light Anhuur
+		case 75115: // Burning Light Anhuur
+		case 75790: // Rampant Growth Ammunae
+		case 76355: // Blessing of the sun Rajh
+		case 89888: // Rampant Growth Ammunae
+			return 100.0f;
+		case 71429: // Mass Ressurection Terenas
+			return 200.0f;
+
+			// TOTT
+		case 80564: // Fungal Spores Naz'jar
+		case 91470:
+			return 5.0f;
+		case 75700: // Geyser Naz'jar
+		case 91469:
+		case 94046:
+		case 94047:
+			return 5.0f;
+		case 75690: // Naz'jar Waterspout knockback
+			return 5.0f;
+		case 76085: // Dark Fissure Ulthok
+		case 91375:
+			return 6.0f;
+		case 76341: // Unrelenting Agony Mindbender
+		case 91493:
+			return 100.0f;
+		case 84945: // Earth Shards Erunak
+		case 91491:
+			return 5.0f;
+		case 83561: // Blight Ozumat
+		case 91495:
+			return 10.0f; // -- DONE.
+		// ZUL'AMAN
+		case 97505: // Halazzi Water Totem
+			return 5.0f;
+		case 43208: // Daakara Flame Whirl
+		case 44090:
+			return 70.0f;
+		case 43217: // Daakara Pillar of Fire
+		case 97682:
+			return 3.0f;
+		case 43240: // Flame Volley Flame Caster
+		case 97464:
+			return 35.0f;
+		case 97974: // Hierophant Sanctify
+			return 3.5f;
+		case 98028: // Archon Sigils
+		case 98033:
+		case 98037:
+		case 98038:
+		case 98039:
+		case 98040:
+			return 100.0f;
+		case 98000: // Ancestral Call Juggernaut
+			return 25.0f;
+			// BWD
+		case 80161: // Omnotron Chemical Cloud
+		case 91471: // Omnotron Chemical Cloud
+		case 91472: // Omnotron Chemical Cloud
+		case 91473: // Omnotron Chemical Cloud
+		case 80164: // Omnotron Chemical Cloud
+		case 91478: // Omnotron Chemical Cloud
+		case 91479: // Omnotron Chemical Cloud
+		case 91480: // Omnotron Chemical Cloud
+			return 12.0f;
+		case 91849: // Omnotron Grip Of Death
+		case 92051: // Omnotron Shadow Conductor
+		case 92135: // Omnotron Shadow Conductor
+			return 100.0f;
+		case 79035: // Omnotron Incineration
+		case 91523: // Omnotron Incineration
+		case 91524: // Omnotron Incineration
+		case 91525: // Omnotron Incineration
+			return 50000.0f;
+		case 77908: // Maloriak Arcane Storm
+		case 92961: // Maloriak Arcane Storm
+		case 92962: // Maloriak Arcane Storm
+		case 92963: // Maloriak Arcane Storm
+			return 80.0f;
+		case 93041: // Absolute 0 Maloriak
+		case 93042: // Absolute 0 Maloriak
+		case 93043: // Absolute 0 Maloriak
+		case 78208: // Absolute 0 Maloriak
+		case 77675: // Atramedes Sonar Pulse
+		case 92417: // Atramedes Sonar Pulse
+		case 92418: // Atramedes Sonar Pulse
+		case 92419: // Atramedes Sonar Pulse
+		case 92553: // Atramedes Sonar Bomb
+		case 92554: // Atramedes Sonar Bomb
+		case 92555: // Atramedes Sonar Bomb
+		case 92556: // Atramedes Sonar Bomb
+			return 5.0f;
+		case 80092: // Omnotron Poison Bomb
+		case 91498: // Omnotron Poison Bomb
+		case 91499: // Omnotron Poison Bomb
+		case 91500: // Omnotron Poison Bomb
+		case 80097: // Omnotron Poison Puddle
+		case 91488: // Omnotron Poison Puddle
+		case 91489: // Omnotron Poison Puddle
+		case 91490: // Omnotron Poison Puddle
+			return 6.0f;
+		case 91879: // Omnotron Arcane Blowback
+		case 91880: // Omnotron Arcane Blowback
+			return 17.0f;
+		case 82848: // Massacre Chimaeron
+		case 77612: // Atramedes Modulation
+		case 92451: // Atramedes Modulation
+		case 92452: // Atramedes Modulation
+		case 92453: // Atramedes Modulation
+			return 500.0f;
+		case 78023: // Atramedes Roaring Flame
+		case 78555: // Atramedes Roaring Flame
+		case 92472: // Atramedes Roaring Flame
+		case 92473: // Atramedes Roaring Flame
+		case 92474: // Atramedes Roaring Flame
+		case 92483: // Atramedes Roaring Flame
+		case 92484: // Atramedes Roaring Flame
+		case 92485: // Atramedes Roaring Flame
+		case 77982: // Atramedes Searing Flame
+		case 92421: // Atramedes Searing Flame
+		case 92422: // Atramedes Searing Flame
+		case 92423: // Atramedes Searing Flame
+		case 78353: // Atramedes Roaring Flame Breath
+		case 92445: // Atramedes Roaring Flame Breath
+		case 92446: // Atramedes Roaring Flame Breath
+		case 92447: // Atramedes Roaring Flame Breath
+			return 4.0f;
+			// BOT
+		case 83710: // Furious Roar Halfus
+		case 86169: // Furious Roar Halfus
+		case 86170: // Furious Roar Halfus
+		case 86171: // Furious Roar Halfus
+			return 200.0f;
+		case 83719: // Fireball Barrage Halfus Proto
+			return 500.0f;
+		case 83855: // Scorching Breath Halfus Proto 
+		case 86163: // Scorching Breath Halfus Proto 
+		case 86164: // Scorching Breath Halfus Proto
+		case 86165: // Scorching Breath Halfus Proto
+			return 500.0f;
+		case 86825: // Blackout Valiona
+		case 92879: // Blackout Valiona
+		case 92880: // Blackout Valiona
+		case 92881: // Blackout Valiona
+			return 8.0f;
+		case 86505: // Fabulous Flames Theralion
+		case 92907: // Fabulous Flames Theralion
+		case 92908: // Fabulous Flames Theralion
+		case 92909: // Fabulous Flames Theralion
+			return 12.0f;
+		case 93055: // Shifting Reality Valiona
+			return 8.0f;
+		case 86014: // Twilight Meteor Valiona
+		case 92863: // Twilight Meteor Valiona
+		case 92864: // Twilight Meteor Valiona
+		case 92865: // Twilight Meteor Valiona
+			return 6.0f;
+		case 93019: // Rift Blast Val/The
+		case 93020: // Rift Blast Val/The
+			return 30.0f;
+		case 86406: // Theralion Dazzling Destruction
+		case 92926: // Theralion Dazzling Destruction
+		case 92927: // Theralion Dazzling Destruction
+		case 92928: // Theralion Dazzling Destruction
+			return 12.0f;
+		case 86305: // Unstable Twilight Val/The
+		case 92882: // Unstable Twilight Val/The
+		case 92883: // Unstable Twilight Val/The
+		case 92884: // Unstable Twilight Val/The
+		case 86199: // Twilight Flames Val/The
+		case 92868: // Twilight Flames Val/The
+		case 92869: // Twilight Flames Val/The
+		case 92870: // Twilight Flames Val/The
+		case 86228: // Twilight Flames Val/The
+		case 92867: // Twilight Flames Val/The
+			return 8.0f;
+		case 82746: // Feludius Glaciate
+		case 92506: // Feludius Glaciate
+		case 92507: // Feludius Glaciate
+		case 92508: // Feludius Glaciate
+			return 200.0f;
+		case 82700: // Feludius Water Bomb
+		case 82762: // Feludius Waterlogged
+			return 6.0f;
+		case 82666: // Feludius Frost Imbued
+		case 82663: // Ignacious Flame Imbued
+		case 79332: // Terrastra Gravity Well Pull
+			return 10.0f;
+		case 92214: // Ignacious Flame Strike
+			return 7.0f;
+		case 83067: // Arion Thundershock
+		case 92469: // Arion Thundershock
+		case 92470: // Arion Thundershock
+		case 92471: // Arion Thundershock
+		case 83070: // Arion Lighting Blast
+		case 92454: // Arion Lighting Blast
+		case 92455: // Arion Lighting Blast
+		case 92456: // Arion Lighting Blast
+			return 200.0f;
+		case 84915: // Monstrosity Ice Pools
+		case 92497: // Monstrosity Ice Pools
+		case 92498: // Monstrosity Ice Pools
+		case 92499: // Monstrosity Ice Pools
+			return 10.0f;
+		case 83565: // Terrastra Quake
+		case 92544: // Terrastra Quake
+		case 92545: // Terrastra Quake
+		case 92546: // Terrastra Quake
+			return 150.0f;
+		case 81571: // Cho'gall Unleashed Shadows
+		case 93221: // Cho'gall Unleashed Shadows
+		case 93222: // Cho'gall Unleashed Shadows
+		case 93223: // Cho'gall Unleashed Shadows
+		case 82363: // Cho'gall Corr of the old god
+		case 93169: // Cho'gall Corr of the old god
+		case 93170: // Cho'gall Corr of the old god
+		case 93171: // Cho'gall Corr of the old god
+			return 200.0f;
+		case 82919: // Cho'gall Sprayed Corruption
+		case 93108: // Cho'gall Sprayed Corruption
+		case 93109: // Cho'gall Sprayed Corruption
+		case 93110: // Cho'gall Sprayed Corruption
+			return 20.0f;
+		case 81538: // Cho'gall Blaze
+		case 93212: // Cho'gall Blaze
+		case 93213: // Cho'gall Blaze
+		case 93214: // Cho'gall Blaze
+			return 5.0f;
+		case 81761: // Cho'gall Spilled blood of the old god
+		case 93172: // Cho'gall Spilled blood of the old god
+		case 93173: // Cho'gall Spilled blood of the old god
+		case 93174: // Cho'gall Spilled blood of the old god
+			return 10.0f;
+		case 88146: // Sinestra Twilight Essence
+		case 92950:
+			return 4.0f;
+		case 90028: // Sinestra Unleash Essence
+		case 92947:
+			return 100.0f;
+		case 78862: // Sinestra Twilight Slicer
+			return 5.0f;
+		case 87231: // Sinestra Calen Barrier
+			return 34.0f; // END
+		// TOTFW
+		case 86111: // Ice Patch Nezir
+		case 93129:
+		case 93130:
+		case 93131:
+			return 10.0f;
+		case 86282: // Toxic Spores Rohash
+		case 93120:
+		case 93121:
+		case 93122:
+			return 10.0f;
+		case 86367: // Sleet Storm Nezir
+		case 96135:
+		case 96136:
+		case 96137:
+			return 90.0f;
+		case 86133: // Rohash tornado
+		case 93141:
+		case 93142:
+		case 93143:
+			return 3.0f;
+		case 84651: // Zephyr Anshal
+		case 93117:
+		case 93118:
+		case 93119:
+			return 90.0f;
+		case 86487: // Hurricane Rohash
+		case 93144:
+		case 93145:
+		case 93146:
+			return 90.0f;
+		case 87770: // Windburst Al'Akir p1
+		case 93261:
+		case 93262:
+		case 93263:
+			return 90.0f;
+		case 88858: // Windburst Al'Akir p3
+		case 93286:
+		case 93287:
+		case 93288:
+			return 150.0f;
+		case 87873: // Static Shock Al'Akir
+			return 6.0f; // -- DONE.
+		// Baradin Hold
+		case 89000: // Argaloth Fel Flames
+			return 3.0f;
+		case 96883: // Occu'thar Focused Fire
+			return 12.0f;
+		case 96968: // Occu'thar's Destruction
+		case 101008:
+			return 500.0f;
+		case 105857: // Alizabal Disciple of Hate
+			return 10.0f;
+		case 104994: // Alizabal Blade Dance
+			return 13.0f;
+		case 105069: // Alizabal Seething Hate
+			return 6.0f; // -- DONE.
+		// Firelands
+		case 99171: // Ragnaros Engulfing Flames
+			return 13.0f;
+		case 99840: // Shannox Magma Rupture
+			return 50000.0f;
+		case 100002: // Shannox Hurl Spear
+			return 3.0f;
+		case 100495: // Shannox Magma Flare
+			return 50.0f;
+		case 99841: // Shannox Magma rupture
+			return 1.0f;
+		case 99261: // Baloroc wave of torment
+		case 101636:
+		case 101637:
+		case 101638:
+			return 200.0f;
+		case 99518: // Baloroc countdown
+			return 100.0f;
+		case 98535: // Majordomus leaping flame
+		case 100206:
+		case 100207:
+		case 100208:
+			return 12.0f;
+		case 98443: // Majordomus fiery cyclone
+			return 200.0f;
+		case 98450: // Majordomus searing seeds
+			return 5000.0f;
+		case 99605: // Alysrazor firestorm
+		case 99606: // Alysrazor firestorm
+			return 500.0f;
+		case 98463: // Alysrazor volcan fire
+			return 6.0f;
+		case 99925: // Alysrazor full power
+			return 500.0f;
+		case 101410: // Alysrazor indicator power
+			return 50000.0f;
+		case 99461: // Alysrazor fire energy
+			return 8.0f;
+		case 100734: // Alysrazor fiery tornado
+			return 10.0f;
+		case 98226: // Rhyolite indicator
+			return 200.0f;
+		case 97230: // Rhyolite magma line
+			return 1.0f;
+		case 97234: // Rhyolite magma line
+			return 2.0f;
+		case 98934: // Bethilac aoe damage on web
+			return 300.0f;
+		case 99333: // Bethilac venom rain
+			return 500.0f;
+		case 98471: // Bethilac burning acid
+		case 100826:
+		case 100827:
+		case 100828:
+			return 200.0f;
+		case 99076: // Bethilac metheor
+			return 7.0f;
+			// End Time
+		case 101810: // Jaina Frostbolt Volley
+			return 65.0f;
+		case 101587: // Jaina Flarecore
+			return 200.0f;
+		case 101980: // Jaina Flarecore
+			return 5.0f;
+			// Dragon Soul
+		case 103414: // Morchok Stomp.
+			return 25.0f;
+		case 103785: // Morchok Black Blood.
+			return 150.0f;
+		default:
+			return 0.0f;
+			break;
+		}
+	}
+
+	if (!entry)
 		return 0.0f;
 
 	float radius = _spellInfo->IsPositive() ? RadiusEntry->radiusFriend : RadiusEntry->radiusHostile;
