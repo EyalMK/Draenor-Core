@@ -210,6 +210,13 @@ void Transport::RemovePassenger(WorldObject* passenger)
         sScriptMgr->OnRemovePassenger(this, plr);
 }
 
+void Transport::RemoveNpcPassenger(uint64 passengerGuid)
+{
+	if (Creature* npc = sObjectAccessor->GetCreature(*this, passengerGuid))
+		RemovePassenger(npc);
+}
+
+
 Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
 {
     Map* map = GetMap();
@@ -354,6 +361,11 @@ void Transport::LoadStaticPassengers()
                 CreateGOPassenger(*guidItr, sObjectMgr->GetGOData(*guidItr));
         }
     }
+}
+
+uint32 Transport::GetMoTransportMapId()
+{
+	return m_goInfo->moTransport.mapID;
 }
 
 void Transport::UnloadStaticPassengers()

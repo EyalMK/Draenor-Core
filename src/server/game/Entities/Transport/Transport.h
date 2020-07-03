@@ -30,6 +30,7 @@ class Transport : public GameObject, public TransportBase
 
         void AddPassenger(WorldObject* passenger);
         void RemovePassenger(WorldObject* passenger);
+		void RemoveNpcPassenger(uint64 passengerGuid);
         std::set<WorldObject*> const& GetPassengers() const { return _passengers; }
 
         Creature* CreateNPCPassenger(uint32 guid, CreatureData const* data);
@@ -40,6 +41,8 @@ class Transport : public GameObject, public TransportBase
 
         /// This method transforms supplied global coordinates into local offsets
         void CalculatePassengerOffset(float& x, float& y, float& z, float& o);
+
+		uint32 GetMoTransportMapId();
 
         uint32 GetPeriod() const { return GetUInt32Value(GAMEOBJECT_FIELD_LEVEL); }
         void SetPeriod(uint32 period) { SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, period); }
