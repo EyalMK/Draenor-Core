@@ -102,186 +102,326 @@ public:
     };
 };
 
-#define QUEST_TAUREN_PIRATE     26630
-#define GOSSIP_CHOICE_1 "Bossy, I need to ask something great of you. I need to cut off your head to prove my loyalty to the Bloodsail Buccaneers, so they will allow me to infiltrate their ranks and hopefully discover their true intentions. Booty Bay needs you, Bossy... now more than ever."
-#define GOSSIP_CHOICE_2 "Moo."
-#define GOSSIP_CHOICE_3 "<Do the deed.>"
-#define GOSSIP_CHOICE_4 "<Chicken out.>"
-
-class mob_bossy : public CreatureScript
+/// Bossy - 43505
+class npc_bossy_43505 : public CreatureScript
 {
 public:
-    mob_bossy() : CreatureScript("mob_bossy") { }
+	npc_bossy_43505() : CreatureScript("npc_bossy_43505") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_bossyAI (creature);
-    }
+	enum eQuest
+	{
+		QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME = 26630,
+		ITEM_COW_HEAD = 59147,
+		SPELL_BOSSYS_SACRIFICE = 81311,
+	};
 
-    bool OnGossipHello(Player* player, Creature* creature)
-        {
-            if (player->GetQuestStatus(QUEST_TAUREN_PIRATE) == QUEST_STATUS_INCOMPLETE)
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(2, creature->GetGUID());
-            }
+	bool OnGossipHello(Player* player, Creature* creature) override
+	{
+		if (player->GetQuestStatus(QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME) == QUEST_STATUS_INCOMPLETE)
+			if (player->GetItemCount(ITEM_COW_HEAD) == 0)
+			{
+				player->ADD_GOSSIP_ITEM_DB(11741, 0, GOSSIP_SENDER_MAIN, 1001);
+				player->ADD_GOSSIP_ITEM_DB(11741, 1, GOSSIP_SENDER_MAIN, 1002);
+				player->SEND_GOSSIP_MENU(RAND(16437, 16438), creature->GetGUID());
+			}
+		return true;
+	}
 
-            return true;
-        }
+	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
+	{
+		if (player->GetQuestStatus(QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME) == QUEST_STATUS_INCOMPLETE)
+			if (player->GetItemCount(ITEM_COW_HEAD) == 0)
+			{
+				switch (action)
+				{
+				case 1001:
+				{
+					player->PlayerTalkClass->ClearMenus();
+					player->ADD_GOSSIP_ITEM_DB(11742, 0, GOSSIP_SENDER_MAIN, 1003);
+					player->ADD_GOSSIP_ITEM_DB(11742, 1, GOSSIP_SENDER_MAIN, 1004);
+					player->SEND_GOSSIP_MENU(16439, creature->GetGUID());
+					break;
+				}
+				case 1002:
+				{
+					// say muuhhh ???
+					player->PlayerTalkClass->SendCloseGossip();
+					break;
+				}
+				case 1003:
+				{
+					// kill
+					creature->CastSpell(creature, SPELL_BOSSYS_SACRIFICE, true);
+					player->AddItem(ITEM_COW_HEAD, 1);
+					player->PlayerTalkClass->SendCloseGossip();
+					break;
+				}
+				case 1004:
+				{
+					// exit
+					player->PlayerTalkClass->SendCloseGossip();
+					break;
+				}
+				}
+				return true;
+			}
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
+		return false;
+	}
 
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                if (player->GetQuestStatus(QUEST_TAUREN_PIRATE) == QUEST_STATUS_INCOMPLETE)
-                {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    player->SEND_GOSSIP_MENU(2, creature->GetGUID());
-                }
-                break;
-            case GOSSIP_ACTION_INFO_DEF +3:
-                player->CLOSE_GOSSIP_MENU();
-                if (player->GetQuestStatus(QUEST_TAUREN_PIRATE) == QUEST_STATUS_INCOMPLETE)
-                {
-                    creature->CastSpell(player, 81311, true);
-                }
-                break;
-            default:
-                player->CLOSE_GOSSIP_MENU();
-                break;
-        }
-
-        return true;
-    }
-
-    struct mob_bossyAI : public ScriptedAI
-    {
-        mob_bossyAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        void Reset()
-        {
-        }
-
-        void UpdateAI(const uint32 /*p_Diff*/)
-        {
-        }
-    };
 };
 
-#define GOSSIP_CHOICE_5 "I need an extra-large pirate hat. Seahorn's orders."
-
-class mob_narkk : public CreatureScript
+/// Narkk - 2663
+class npc_narkk_2663 : public CreatureScript
 {
 public:
-    mob_narkk() : CreatureScript("mob_narkk") { }
+	npc_narkk_2663() : CreatureScript("npc_narkk_2663") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_narkkAI (creature);
-    }
+	enum eQuest
+	{
+		QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME = 26630,
+		ITEM_OVERSIZED_PIRATE_HAT = 59148,
+	};
 
-    bool OnGossipHello(Player* player, Creature* creature)
-        {
-            if (player->GetQuestStatus(QUEST_TAUREN_PIRATE) == QUEST_STATUS_INCOMPLETE)
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(2, creature->GetGUID());
-            }
-            return true;
-        }
+	bool OnGossipHello(Player* player, Creature* creature) override
+	{
+		if (player->GetQuestStatus(QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME) == QUEST_STATUS_INCOMPLETE)
+			if (player->GetItemCount(ITEM_OVERSIZED_PIRATE_HAT) == 0)
+			{
+				player->ADD_GOSSIP_ITEM_DB(11743, 0, GOSSIP_SENDER_MAIN, 1001);
+				player->ADD_GOSSIP_ITEM_DB(50045, 0, GOSSIP_SENDER_MAIN, 1002);
+				player->SEND_GOSSIP_MENU(16440, creature->GetGUID());
+				return true;
+			}
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
+		return false;
+	}
 
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                if (player->GetQuestStatus(QUEST_TAUREN_PIRATE) == QUEST_STATUS_INCOMPLETE)
-                {
-                    creature->CastSpell(player, 81315, true);
-                }
-                break;
-            default:
-                player->CLOSE_GOSSIP_MENU();
-                break;
-        }
+	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
+	{
+		if (player->GetQuestStatus(QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME) == QUEST_STATUS_INCOMPLETE)
+			if (player->GetItemCount(ITEM_OVERSIZED_PIRATE_HAT) == 0)
+			{
+				switch (action)
+				{
+				case 1001:
+				{
+					player->PlayerTalkClass->SendCloseGossip();
+					creature->AI()->Talk(0);
+					player->AddItem(ITEM_OVERSIZED_PIRATE_HAT, 1);
+					break;
+				}
+				case 1002:
+				{
+					player->GetSession()->SendListInventory(creature->GetGUID());
+					break;
+				}
+				}
+			}
 
-        return true;
-    }
+		return false;
+	}
 
-    struct mob_narkkAI : public ScriptedAI
-    {
-        mob_narkkAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        void Reset()
-        {
-        }
-
-        void UpdateAI(const uint32 /*p_Diff*/)
-        {
-        }
-    };
 };
 
-#define GOSSIP_CHOICE_6 "Do you have the items I asked you?"
-
-class mob_fleet_master_seahorn : public CreatureScript
+// 2663
+class npc_fleet_master_seahorn_2487 : public CreatureScript
 {
 public:
-    mob_fleet_master_seahorn() : CreatureScript("mob_fleet_master_seahorn") { }
+	npc_fleet_master_seahorn_2487() : CreatureScript("npc_fleet_master_seahorn_2487") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_fleet_master_seahornAI (creature);
-    }
+	enum eQuest
+	{
+		QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME = 26630,
+		ITEM_COW_HEAD = 59147,
+		ITEM_OVERSIZED_PIRATE_HAT = 59148,
+		NPC_SEAHORNS_HEAD = 43506,
+		NPC_BARON_REVILGAZ = 2496,
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
+		ACTION_CAST_HEAD_VIDEO = 1,
 
-        switch (action)
-        {
-            case 1:
-                if (player->HasItemCount(59148, 1) && player->HasItemCount(59147, 1))
-                {
-                    if (player->GetQuestStatus(QUEST_TAUREN_PIRATE) == QUEST_STATUS_INCOMPLETE)
-                    {
-                        player->KilledMonsterCredit(2487, 0);
-                    }
-                }
-                break;
-            default:
-                player->CLOSE_GOSSIP_MENU();
-                break;
-        }
+		EVENT_CAST_HEAD_VIDEO = 1,
+		EVENT_CAST_HEAD_BUG,
 
-        return true;
-    }
+		playerGUID = 99999,
+	};
 
-    struct mob_fleet_master_seahornAI : public ScriptedAI
-    {
-        mob_fleet_master_seahornAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+	bool OnGossipHello(Player* player, Creature* creature) override
+	{
+		player->PrepareQuestMenu(creature->GetGUID());
+		if (player->GetQuestStatus(QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME) == QUEST_STATUS_INCOMPLETE)
+			if (player->GetItemCount(ITEM_OVERSIZED_PIRATE_HAT) && player->GetItemCount(ITEM_COW_HEAD))
+			{
+				player->ADD_GOSSIP_ITEM_DB(50046, 0, GOSSIP_SENDER_MAIN, 1001);
+				player->SEND_GOSSIP_MENU(16441, creature->GetGUID());
+				return true;
+			}
 
-        void Reset()
-        {
-        }
+		return false;
+	}
 
-        void UpdateAI(const uint32 /*p_Diff*/)
-        {
-        }
-    };
+	bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
+	{
+		if (player->GetQuestStatus(QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME) == QUEST_STATUS_INCOMPLETE)
+			if (player->GetItemCount(ITEM_OVERSIZED_PIRATE_HAT) && player->GetItemCount(ITEM_COW_HEAD))
+			{
+				switch (action)
+				{
+				case 1001:
+				{
+					player->PlayerTalkClass->ClearMenus();
+					player->ADD_GOSSIP_ITEM_DB(11745, 0, GOSSIP_SENDER_MAIN, 1002);
+					player->SEND_GOSSIP_MENU(16442, creature->GetGUID());
+					break;
+				}
+				case 1002:
+				{
+					player->PlayerTalkClass->SendCloseGossip();
+					creature->AI()->Talk(0);
+					creature->GetAI()->DoAction(ACTION_CAST_HEAD_VIDEO);
+					creature->GetAI()->SetGUID(player->GetGUID(), playerGUID);
+					break;
+				}
+				}
+				return true;
+			}
+
+		return false;
+	}
+
+	bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
+	{
+		if (player->GetQuestStatus(QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME) == QUEST_STATUS_INCOMPLETE)
+			if (quest->GetQuestId() == QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME)
+				creature->AI()->Talk(2);
+
+		return false;
+	}
+
+	struct npc_fleet_master_seahorn_2487AI : public ScriptedAI
+	{
+		npc_fleet_master_seahorn_2487AI(Creature* creature) : ScriptedAI(creature) { }
+
+		EventMap m_events;
+		uint64 m_playerGUID;
+		uint64 m_baronGUID;
+		uint64 m_headGUID;
+
+		void Reset() override
+		{
+			m_events.Reset();
+			m_playerGUID = NULL;
+			m_baronGUID = NULL;
+			m_headGUID = NULL;
+		}
+
+		void DoAction(int32 param)
+		{
+			switch (param)
+			{
+			case ACTION_CAST_HEAD_VIDEO:
+			{
+				m_events.ScheduleEvent(EVENT_CAST_HEAD_VIDEO, 25);
+				break;
+			}
+			}
+		}
+
+		void SetGUID(uint64 guid, int32 id)
+		{
+			switch (id)
+			{
+			case playerGUID:
+			{
+				m_playerGUID = guid;
+				break;
+			}
+			}
+		}
+
+		void UpdateAI(uint32 diff) override
+		{
+			m_events.Update(diff);
+
+			while (uint32 eventId = m_events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_CAST_HEAD_VIDEO:
+				{
+					if (Creature* head = me->SummonCreature(NPC_SEAHORNS_HEAD, -14443.48f, 485.88f, 28.74f, 3.001957f, TEMPSUMMON_TIMED_DESPAWN, 15000))
+						m_headGUID = head->GetGUID();
+					if (Creature* npc = me->FindNearestCreature(NPC_BARON_REVILGAZ, 15.0f))
+					{
+						m_baronGUID = npc->GetGUID();
+						me->SetFacingToObject(npc);
+					}
+					m_events.ScheduleEvent(2, 3000);
+					break;
+				}
+				case 2:
+				{
+					if (Creature* head = sObjectAccessor->GetCreature(*me, m_headGUID))
+					{
+						me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+						head->GetMotionMaster()->MoveJump(-14440.13f, 484.35f, 28.80f, 10.0f, 10.0f);
+					}
+					m_events.ScheduleEvent(3, 3000);
+					break;
+				}
+				case 3:
+				{
+					if (Creature* baron = sObjectAccessor->GetCreature(*me, m_baronGUID))
+						if (Creature* head = sObjectAccessor->GetCreature(*me, m_headGUID))
+						{
+							baron->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+							head->GetMotionMaster()->MoveJump(-14443.48f, 485.88f, 28.74f, 10.0f, 10.0f);
+						}
+					m_events.ScheduleEvent(4, 3000);
+					break;
+				}
+				case 4:
+				{
+					if (Creature* head = sObjectAccessor->GetCreature(*me, m_headGUID))
+					{
+						me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+						head->GetMotionMaster()->MoveJump(-14440.13f, 484.35f, 28.80f, 10.0f, 10.0f);
+					}
+					m_events.ScheduleEvent(5, 3000);
+					break;
+				}
+				case 5:
+				{
+					if (Creature* baron = sObjectAccessor->GetCreature(*me, m_baronGUID))
+						if (Creature* head = sObjectAccessor->GetCreature(*me, m_headGUID))
+						{
+							baron->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+							head->GetMotionMaster()->MoveJump(-14443.48f, 485.88f, 28.74f, 10.0f, 10.0f);
+						}
+					m_events.ScheduleEvent(6, 3000);
+					break;
+				}
+				case 6:
+				{
+					Talk(1);
+					if (Creature* head = sObjectAccessor->GetCreature(*me, m_headGUID))
+						head->DespawnOrUnsummon();
+					if (Player* player = sObjectAccessor->GetPlayer(*me, m_playerGUID))
+					{
+						player->KilledMonsterCredit(2487);
+						player->CompleteQuest(QUEST_LOOKS_LIKE_A_TAUREN_PIRATE_TO_ME);
+					}
+					break;
+				}
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new npc_fleet_master_seahorn_2487AI(creature);
+	}
 };
 
 class npc_osborn_obnoticus : public CreatureScript
@@ -362,13 +502,15 @@ class spell_summon_naias : public SpellScript
 #ifndef __clang_analyzer__
 void AddSC_stranglethorn_vale()
 {
+	/// Npcs
     new mob_yenniku();
-    new mob_bossy();
-    new mob_narkk();
-    new mob_fleet_master_seahorn();
+	new npc_bossy_43505();
+	new npc_narkk_2663();
+	new npc_fleet_master_seahorn_2487();
 	new npc_osborn_obnoticus();
 	new npc_bloodlord_mandokir();
 
+	/// Spells
 	new spell_summon_naias();
 
 }
