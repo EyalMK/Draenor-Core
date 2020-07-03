@@ -822,51 +822,6 @@ public:
     }
 };
 
-/// Spell - Red Dragonblood
-enum red_dragonblood
-{
-    SPELL_DRAKE_HATCHLING_SUBDUED   = 46691,
-    SPELL_SUBDUED                   = 46675
-};
-
-class spell_red_dragonblood : public SpellScriptLoader
-{
-public:
-	spell_red_dragonblood() : SpellScriptLoader("spell_red_dragonblood") { }
-
-    class spell_red_dragonblood_AuraScript : public AuraScript
-    {
-		PrepareAuraScript(spell_red_dragonblood_AuraScript);
-
-		void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-		{
-			if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || !GetCaster())
-				return;
-
-			Creature* owner = GetOwner()->ToCreature();
-			owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
-			owner->CombatStop(true);
-			owner->DeleteThreatList();
-			owner->GetMotionMaster()->Clear(false);
-			owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
-			owner->CastSpell(owner, SPELL_SUBDUED, true);
-			GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
-			owner->setFaction(35);
-			owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-			owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
-		}
-
-		void Register()
-		{
-			AfterEffectRemove += AuraEffectRemoveFn(spell_red_dragonblood_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-		}
-	};
-
-	AuraScript* GetAuraScript() const
-	{
-		return new spell_red_dragonblood_AuraScript();
-	}
-};
 
 /*######
 ## npc_thassarian
@@ -2503,6 +2458,88 @@ public:
 
 };
 
+/// Spell Windsoul Totem - 46374
+class spell_windsoul_totem_aura : public SpellScriptLoader
+{
+public:
+	spell_windsoul_totem_aura() : SpellScriptLoader("spell_windsoul_totem_aura") { }
+
+	enum WindsoulTotemAura
+	{
+		SPELL_WINDSOUL_CREDT = 46378
+	};
+
+	class spell_windsoul_totem_aura_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_windsoul_totem_aura_AuraScript);
+
+		void OnRemove(AuraEffect const*, AuraEffectHandleModes)
+		{
+			if (GetTarget()->isDead())
+				if (Unit* caster = GetCaster())
+					caster->CastSpell(caster, SPELL_WINDSOUL_CREDT);
+		}
+
+		void Register() override
+		{
+			OnEffectRemove += AuraEffectRemoveFn(spell_windsoul_totem_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const override
+	{
+		return new spell_windsoul_totem_aura_AuraScript();
+	}
+};
+
+
+
+/// Spell - Red Dragonblood
+enum red_dragonblood
+{
+	SPELL_DRAKE_HATCHLING_SUBDUED = 46691,
+	SPELL_SUBDUED = 46675
+};
+
+class spell_red_dragonblood : public SpellScriptLoader
+{
+public:
+	spell_red_dragonblood() : SpellScriptLoader("spell_red_dragonblood") { }
+
+	class spell_red_dragonblood_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_red_dragonblood_AuraScript);
+
+		void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+		{
+			if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE || !GetCaster())
+				return;
+
+			Creature* owner = GetOwner()->ToCreature();
+			owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
+			owner->CombatStop(true);
+			owner->DeleteThreatList();
+			owner->GetMotionMaster()->Clear(false);
+			owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
+			owner->CastSpell(owner, SPELL_SUBDUED, true);
+			GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
+			owner->setFaction(35);
+			owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+			owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
+		}
+
+		void Register()
+		{
+			AfterEffectRemove += AuraEffectRemoveFn(spell_red_dragonblood_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_red_dragonblood_AuraScript();
+	}
+};
+
 /*######
 ## go_frozen_phylactery
 ######*/
@@ -2523,6 +2560,7 @@ class go_frozen_phylactery : public GameObjectScript
 #ifndef __clang_analyzer__
 void AddSC_borean_tundra()
 {
+	/// Npcs
     new npc_sinkhole_kill_credit();
     new npc_khunok_the_behemoth();
     new npc_keristrasza();
@@ -2534,7 +2572,6 @@ void AddSC_borean_tundra()
     new npc_fezzix_geartwist();
     new npc_nesingwary_trapper();
     new npc_lurgglbr();
-    new spell_red_dragonblood();
     new npc_thassarian();
     new npc_image_lich_king();
     new npc_counselor_talbot();
@@ -2550,6 +2587,12 @@ void AddSC_borean_tundra()
     new npc_valiance_keep_cannoneer();
     new npc_warmage_coldarra();
     new npc_hidden_cultist();
+
+	/// Spells
+	new spell_windsoul_totem_aura();
+	new spell_red_dragonblood();
+
+	/// Object
     new go_frozen_phylactery();
 }
 #endif
