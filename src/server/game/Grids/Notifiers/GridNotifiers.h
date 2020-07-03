@@ -1757,6 +1757,40 @@ namespace JadeCore
             float m_fRange;
     };
 
+
+	class AllFriendlyCreaturesInRange
+	{
+	public:
+		AllFriendlyCreaturesInRange(Unit const* obj, float maxRange) : m_unit(obj), m_fRange(maxRange) { }
+		bool operator() (Unit* unit)
+		{
+			if (unit->isAlive() && unit->IsVisible() && unit->IsFriendlyTo(m_unit) && unit->IsWithinDist(m_unit, m_fRange, false))
+				return true;
+
+			return false;
+		}
+	private:
+		Unit const* m_unit;
+		float m_fRange;
+	};
+
+	class AllUnfriendlyCreaturesInRange
+	{
+	public:
+		AllUnfriendlyCreaturesInRange(Unit const* obj, float maxRange) : m_unit(obj), m_fRange(maxRange) { }
+		bool operator() (Unit* unit)
+		{
+			if (unit->isAlive() && unit->IsVisible() && !unit->IsFriendlyTo(m_unit) && unit->IsWithinDist(m_unit, m_fRange, false))
+				return true;
+
+			return false;
+		}
+	private:
+		Unit const* m_unit;
+		float m_fRange;
+	};
+
+
     class PlayerAtMinimumRangeAway
     {
     public:
