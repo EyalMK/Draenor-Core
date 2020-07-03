@@ -15,7 +15,7 @@
 #include "PhaseMgr.h"
 #include "Common.h"
 
-   /// Phase Handler
+/// Phase Handler
 class playerScript_shadowmoon_phase_handler : public PlayerScript
 {
 public:
@@ -2246,15 +2246,19 @@ public:
 
 void AddSC_draenor_shadowmoon_valley()
 {
-	// Phase
+	/// ---- To Do: Swap inaccurate Smart Scripts for these ones: https://github.com/AshamaneProject/AshamaneCore/blob/master/src/server/scripts/Draenor/zone_shadowmoon_dreanor.cpp
+	/// Phase Handler
 	new playerScript_shadowmoon_phase_handler();
 
-	// NPCs
+	/// Npcs
+	
+	/// Eventide Beach
 	new shadowmoon_prophet_velen_eventide_questgiver();
 	new shadowmoon_yrel_eventide();
 	new shadowmoon_maraad_eventide();
 	new shadowmoon_khadgar_eventide();
 
+	/// Lunarfall (Pre-Garrison)
 	new shadowmoon_maraad_lunarfall();
 	new shadowmoon_velen_lunarfall();
 	new shadowmoon_khadgar_lunarfall();
@@ -2276,11 +2280,15 @@ void AddSC_draenor_shadowmoon_valley()
 	new shadowmoon_lumberjack_summoner3();
 	new shadowmoon_lumberjack();
 
+	/// Embaari Village
 	new shadowmoon_yrel_welcome();
 
-	// Objects
+	/// Objects
+	
+	/// Lunarfall (Pre-Garrison)
 	new gob_alliance_banner_230280();
 	new gob_alliance_tree_marking_230335();
 
+	/// Shadowmoon Valley World Quest
 	new spell_quest_shadowmoon_squeezing();
 }
