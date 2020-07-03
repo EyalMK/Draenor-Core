@@ -1106,6 +1106,10 @@ class WorldObject : public Object, public WorldLocation
         void GetGameObjectListWithEntryInGridAppend(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGridAppend(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
 
+		std::list<Creature*> FindAllCreaturesInRange(float range);
+		std::list<Creature*> FindAllFriendlyCreaturesInRange(float range);
+		std::list<Creature*> FindAllUnfriendlyCreaturesInRange(float range);
+
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
         void BuildUpdate(UpdateDataMapType&);
@@ -1133,6 +1137,8 @@ class WorldObject : public Object, public WorldLocation
         Transport* GetTransport() const { return m_transport; }
         virtual uint64 GetTransGUID()   const;
         void SetTransport(Transport* t) { m_transport = t; }
+
+		Position const& GetTransportPosition();
 
         MovementInfo m_movementInfo;
         uint32 m_movementInfoLastTime;

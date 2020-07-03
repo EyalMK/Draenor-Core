@@ -3546,6 +3546,65 @@ void WorldObject::GetCreatureListWithEntryInGridAppend(std::list<Creature*>& cre
     creatureList.merge(tempList);
 }
 
+
+std::list<Creature*> WorldObject::FindAllCreaturesInRange(float range)
+{
+	std::list<Creature*> templist;
+	float x, y, z;
+	this->GetPosition(x, y, z);
+
+	CellCoord pair(JadeCore::ComputeCellCoord(x, y));
+	Cell cell(pair);
+	cell.SetNoCreate();
+
+	JadeCore::AllCreaturesInRange check(this, 100);
+	JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange> searcher(this, templist, check);
+	TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange>, GridTypeMapContainer> cSearcher(searcher);
+	cell.Visit(pair, cSearcher, *(this->GetMap()), *this, this->GetGridActivationRange());
+
+	return templist;
+}
+
+std::list<Creature*> WorldObject::FindAllFriendlyCreaturesInRange(float range)
+{
+	std::list<Creature*> templist;
+	if (Unit* unit = this->ToUnit())
+	{
+		float x, y, z;
+		unit->GetPosition(x, y, z);
+
+		CellCoord pair(JadeCore::ComputeCellCoord(x, y));
+		Cell cell(pair);
+		cell.SetNoCreate();
+
+		JadeCore::AllFriendlyCreaturesInRange check(unit, 100);
+		JadeCore::CreatureListSearcher<JadeCore::AllFriendlyCreaturesInRange> searcher(unit, templist, check);
+		TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllFriendlyCreaturesInRange>, GridTypeMapContainer> cSearcher(searcher);
+		cell.Visit(pair, cSearcher, *(unit->GetMap()), *unit, unit->GetGridActivationRange());
+	}
+	return templist;
+}
+
+std::list<Creature*> WorldObject::FindAllUnfriendlyCreaturesInRange(float range)
+{
+	std::list<Creature*> templist;
+	if (Unit* unit = this->ToUnit())
+	{
+		float x, y, z;
+		unit->GetPosition(x, y, z);
+
+		CellCoord pair(JadeCore::ComputeCellCoord(x, y));
+		Cell cell(pair);
+		cell.SetNoCreate();
+
+		JadeCore::AllUnfriendlyCreaturesInRange check(unit, 100);
+		JadeCore::CreatureListSearcher<JadeCore::AllUnfriendlyCreaturesInRange> searcher(unit, templist, check);
+		TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllUnfriendlyCreaturesInRange>, GridTypeMapContainer> cSearcher(searcher);
+		cell.Visit(pair, cSearcher, *(unit->GetMap()), *unit, unit->GetGridActivationRange());
+	}
+	return templist;
+}
+
 /*
 namespace JadeCore
 {
@@ -4083,6 +4142,11 @@ uint64 WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return 0;
+}
+
+Position const& WorldObject::GetTransportPosition()
+{
+	return m_movementInfo.t_pos;
 }
 
 void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID, bool p_Packet /*= true*/)
