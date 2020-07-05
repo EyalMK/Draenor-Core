@@ -1,0 +1,3 @@
+DELETE FROM `gameobject` WHERE `guid`=49582;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `custom_flags`, `protect_anti_doublet`) VALUES
+(49582, 300174, 571, 3537, 4107, 1, 1, 2793.13, 7020.99, 5.35592, 1.59527, 0, 0, 0.715707, 0.6984, 300, 0, 1, 0, 0, NULL);
