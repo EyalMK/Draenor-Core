@@ -20175,6 +20175,12 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
             {
                 q_status.Explored = true;
                 m_QuestStatusSave[questId] = true;
+				if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
+				{
+					SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
+					SendQuestComplete(qInfo);
+				}
+				
             }
         }
         if (CanCompleteQuest(questId))
