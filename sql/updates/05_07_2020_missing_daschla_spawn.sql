@@ -1,0 +1,3 @@
+DELETE FROM `creature` WHERE `id`=45610;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`,  `unit_flags3`,`dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES
+(456105, 45610, 0, 130, 5387, 1, 1, 0, 0, -150.669, 1279.87, 49.9453, 4.68127, 300, 0, 0, 1260, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL);
