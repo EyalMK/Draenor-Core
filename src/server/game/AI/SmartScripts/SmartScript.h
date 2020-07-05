@@ -55,20 +55,28 @@ class SmartScript
             return obj;
         }
 
-        bool IsUnit(WorldObject* obj)
+		static bool IsUnit(WorldObject* obj)
         {
             return obj && (obj->GetTypeId() == TYPEID_UNIT || obj->IsPlayer());
         }
 
-        bool IsPlayer(WorldObject* obj)
+		static bool IsPlayer(WorldObject* obj)
         {
             return obj && obj->IsPlayer();
         }
 
-        bool IsCreature(WorldObject* obj)
+		static bool IsCreature(WorldObject* obj)
         {
             return obj && obj->GetTypeId() == TYPEID_UNIT;
         }
+
+		static bool IsCreatureInControlOfSelf(WorldObject* obj)
+		{
+			if (Creature* creatureObj = obj ? obj->ToCreature() : nullptr)
+				return !creatureObj->isCharmed() && !creatureObj->IsControlledByPlayer();
+			else
+				return false;
+		}
 
         bool IsGameObject(WorldObject* obj)
         {

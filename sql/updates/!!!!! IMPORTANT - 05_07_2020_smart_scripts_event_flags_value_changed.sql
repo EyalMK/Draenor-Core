@@ -1,0 +1,1 @@
+ALTER TABLE `smart_scripts` MODIFY COLUMN `event_flags` SMALLINT(3) UNSIGNED NOT NULL DEFAULT '0';

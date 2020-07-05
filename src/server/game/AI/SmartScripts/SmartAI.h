@@ -40,6 +40,10 @@ class SmartAI : public CreatureAI
         ~SmartAI(){};
         explicit SmartAI(Creature* c);
 
+		// Check whether we are currently permitted to make the creature take action
+		bool IsAIControlled() const;
+
+
         // Start moving to the desired MovePoint
         void StartPath(bool run = false, uint32 path = 0, bool repeat = false, Unit* invoker = NULL);
         bool LoadPath(uint32 entry);
@@ -123,8 +127,6 @@ class SmartAI : public CreatureAI
         // called when the corpse of this creature gets removed
         void CorpseRemoved(uint32& respawnDelay);
 
-        // Called at World update tick if creature is charmed
-        void UpdateAIWhileCharmed(const uint32 diff);
 
         // Called when a Player/Creature enters the creature (vehicle)
         void PassengerBoarded(Unit* who, int8 seatId, bool apply);
@@ -192,6 +194,7 @@ class SmartAI : public CreatureAI
         void OnSpellClick(Unit* clicker);
 
     private:
+		bool mIsCharmed;
         uint32 mFollowCreditType;
         uint32 mFollowArrivedTimer;
         uint32 mFollowCredit;
