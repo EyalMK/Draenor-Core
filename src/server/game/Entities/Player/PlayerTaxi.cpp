@@ -108,6 +108,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 p_Race, uint32 p_Class, uint8 p_Le
     {
         case ALLIANCE:
             SetTaximaskNode(100);
+			SetTaximaskNode(26);
             break;
         case HORDE:
             SetTaximaskNode(99);
