@@ -43,7 +43,8 @@ enum ashenvale
 
 	QUEST_CLEAR_THE_SHRINE = 13985,
 	QUEST_THE_LAST_STAND = 13987,
-	NPC_DEMONIC_INVADER = 34609,
+	NPC_DEMONIC_INVADER1 = 34609,
+	NPC_DEMONIC_INVADER2 = 34610,
 	NPC_BIG_BAOBOB = 34604,
 
 	QUEST_ASTRANAARS_BURNING = 13849,
@@ -321,16 +322,16 @@ enum Muglash
 
 Position const FirstNagaCoord[3] =
 {
-    {3603.504150f, 1122.631104f, 1.635f, 0.0f},         // rider
-    {3589.293945f, 1148.664063f, 5.565f, 0.0f},         // sorceress
-    {3609.925537f, 1168.759521f, -1.168f, 0.0f}         // razortail
+	{3603.504150f, 1122.631104f, 4.86f, 0.0f},         // Rider
+	{3589.293945f, 1148.664063f, 6.83f, 0.0f},         // Sorceress
+	{3601.000000f, 1168.787476f, 0.32f, 4.96f}         // Razortail
 };
 
 Position const SecondNagaCoord[3] =
 {
-    {3609.925537f, 1168.759521f, -1.168f, 0.0f},        // witch
-    {3645.652100f, 1139.425415f, 1.322f, 0.0f},         // priest
-    {3583.602051f, 1128.405762f, 2.347f, 0.0f}          // myrmidon
+	{3599.871582f, 1167.059814f, 0.84f, 4.98f},         // Witch
+	{3645.652100f, 1139.425415f, 1.322f, 0.0f},         // Priest
+	{3583.602051f, 1128.405762f, 2.347f, 0.0f}          // Myrmidon
 };
 
 Position const VorshaCoord = {3633.056885f, 1172.924072f, -5.388f, 0.0f};
@@ -362,7 +363,7 @@ class npc_muglash : public CreatureScript
                         case 0:
                             DoScriptText(SAY_MUG_START2, me, player);
                             break;
-                        case 24:
+                        case 4:
                             DoScriptText(SAY_MUG_BRAZIER, me, player);
 
                             if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
@@ -371,15 +372,11 @@ class npc_muglash : public CreatureScript
                                 SetEscortPaused(true);
                             }
                             break;
-                        case 25:
+                        case 5:
                             DoScriptText(SAY_MUG_GRATITUDE, me);
                             player->GroupEventHappens(QUEST_VORSHA, me);
-                            break;
-                        case 26:
-                            DoScriptText(SAY_MUG_PATROL, me);
-                            break;
-                        case 27:
-                            DoScriptText(SAY_MUG_RETURN, me);
+							TalkWithDelay(6000, SAY_MUG_PATROL);
+							TalkWithDelay(12000, SAY_MUG_RETURN);
                             break;
                     }
                 }
@@ -387,13 +384,15 @@ class npc_muglash : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (Player* player = GetPlayerForEscort())
-                    if (HasEscortState(STATE_ESCORT_PAUSED))
-                    {
-                        if (urand(0, 1))
-                            DoScriptText(SAY_MUG_ON_GUARD, me, player);
-                        return;
-                    }
+				if (Player* player = GetPlayerForEscort())
+				{
+					if (HasEscortState(STATE_ESCORT_PAUSED))
+					{
+						if (urand(0, 1))
+							DoScriptText(SAY_MUG_ON_GUARD, me, player);
+						return;
+					}
+				}
             }
 
             void Reset()
@@ -405,9 +404,11 @@ class npc_muglash : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (HasEscortState(STATE_ESCORT_ESCORTING))
-                    if (Player* player = GetPlayerForEscort())
-                        player->FailQuest(QUEST_VORSHA);
+				if (HasEscortState(STATE_ESCORT_ESCORTING))
+				{
+					if (Player* player = GetPlayerForEscort())
+						player->FailQuest(QUEST_VORSHA);
+				}
             }
 
             void DoWaveSummon()
@@ -685,7 +686,7 @@ public:
 			Position pos;
 			me->GetPosition(&pos);
 			me->GetRandomNearPosition(pos, 30.0f);
-			if (Creature* creature = me->SummonCreature(NPC_DEMONIC_INVADER, pos))
+			if (Creature* creature = me->SummonCreature(urand(NPC_DEMONIC_INVADER1, NPC_DEMONIC_INVADER2), pos))
 			{
 				creature->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
 			}
@@ -695,7 +696,8 @@ public:
 		{
 			uint32 count = 0;
 			std::list<Creature*> InvadersList;
-			me->GetCreatureListWithEntryInGrid(InvadersList, NPC_DEMONIC_INVADER, 30.0f);
+			me->GetCreatureListWithEntryInGrid(InvadersList, NPC_DEMONIC_INVADER1, 30.0f);
+			me->GetCreatureListWithEntryInGrid(InvadersList, NPC_DEMONIC_INVADER2, 30.0f);
 			if (!InvadersList.empty())
 			{
 				for (std::list<Creature*>::const_iterator itr = InvadersList.begin(); itr != InvadersList.end(); ++itr)
@@ -1059,6 +1061,16 @@ public:
 		void Reset()
 		{
 			me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+			switch (me->GetEntry())
+			{
+			case 3743: // Foulweald Warrior
+				me->CastSpell(me, 6821, true); // Corrupted Strength Passive
+				break;
+			case 3750: // Foulweald Totemic
+				me->CastSpell(me, 6823, true); // Corrupted Intellect Passive
+				break;
+			}
+
 		}
 
 
@@ -1233,15 +1245,23 @@ public:
 	{
 		PrepareSpellScript(spell_unbathed_concoction_SpellScript);
 
+		SpellCastResult CheckCast()
+		{
+			if (GameObject* lightOfElune = GetCaster()->FindNearestGameObject(GO_LIGHT_OF_ELUNE_AT_LAKE_FALATHIM, 6.0f))
+				return SPELL_CAST_OK;
+			return SPELL_FAILED_NOT_HERE;
+		}
 
 		void Unload()
 		{
 			Player* player = GetCaster()->ToPlayer();
-			if (!player) return;
+
+			if (!player)
+				return;
 
 			if (player->GetQuestStatus(QUEST_BATHED_IN_LIGHT) == QUEST_STATUS_INCOMPLETE)
 			{
-				if (GameObject* go = player->FindNearestGameObject(GO_LIGHT_OF_ELUNE_AT_LAKE_FALATHIM, 10.0f))
+				if (GameObject* go = player->FindNearestGameObject(GO_LIGHT_OF_ELUNE_AT_LAKE_FALATHIM, 6.0f))
 				{
 					if (player->HasItemCount(ITEM_UNBATHED_CONCOCTION, 1))
 					{
@@ -1253,7 +1273,10 @@ public:
 		}
 
 
-		void Register() {}
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_unbathed_concoction_SpellScript::CheckCast);
+		}
 
 	};
 
@@ -1264,12 +1287,655 @@ public:
 };
 
 
+/// Cleanse Elune's Tear - 65514
+class spell_cleanse_elune_tear : public SpellScriptLoader
+{
+public:
+	spell_cleanse_elune_tear() : SpellScriptLoader("spell_cleanse_elune_tear") { }
+
+	class spell_cleanse_elune_tear_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_cleanse_elune_tear_SpellScript);
+
+		enum Id
+		{
+			NPC_MOONWELL_OF_PURITY_TRIGGER = 25670,
+			MOONWELL_OF_PURITY_TRIGGER_GUID = 1772351,
+			NPC_AVRUS_ILLWHISPER = 34335,
+			SPELL_SEE_INVISIBILITY_QUEST_1 = 65315
+		};
+
+		SpellCastResult CheckCast()
+		{
+			Unit* caster = GetCaster();
+			if (!caster)
+				return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+			if (Creature* lightOfElune = caster->FindNearestCreature(NPC_MOONWELL_OF_PURITY_TRIGGER, 6.0f))
+			{
+				if (lightOfElune->GetGUIDLow() == MOONWELL_OF_PURITY_TRIGGER_GUID)
+					return SPELL_CAST_OK;
+			}
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void HandleSpawnQuestEnder()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				Creature* avrus = caster->FindNearestCreature(NPC_AVRUS_ILLWHISPER, 50.0f);
+				if (!avrus)
+					caster->SummonCreature(NPC_AVRUS_ILLWHISPER, 2897.87f, -1387.34f, 207.33f, 6.05f, TEMPSUMMON_TIMED_DESPAWN, 120000);
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_cleanse_elune_tear_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_cleanse_elune_tear_SpellScript::HandleSpawnQuestEnder);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_cleanse_elune_tear_SpellScript();
+	}
+};
+
+
+/// Playing Possum - 65535
+class spell_playing_possum : public SpellScriptLoader
+{
+public:
+	spell_playing_possum() : SpellScriptLoader("spell_playing_possum") { }
+
+	class spell_playing_possum_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_playing_possum_SpellScript);
+
+		enum Id
+		{
+			NPC_ORSO_BRAMBLESCAR = 34499,
+			SPELL_PLAYING_POSSUM = 65535
+		};
+
+		void HandlePossumEffect()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (Creature* orsoBramblescar = caster->FindNearestCreature(NPC_ORSO_BRAMBLESCAR, 50.0f, true))
+					orsoBramblescar->AddAura(SPELL_PLAYING_POSSUM, orsoBramblescar);
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_playing_possum_SpellScript::HandlePossumEffect);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_playing_possum_SpellScript();
+	}
+};
+
+
+/// Apply Salve - 62644
+class spell_apply_salve : public SpellScriptLoader
+{
+public:
+	spell_apply_salve() : SpellScriptLoader("spell_apply_salve") { }
+
+	class spell_apply_salve_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_apply_salve_SpellScript);
+
+		enum Id
+		{
+			NPC_WOUNDED_DEFENDER = 33266
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* woundedDefender = GetCaster()->FindNearestCreature(NPC_WOUNDED_DEFENDER, 0.20f, true))
+				return SPELL_CAST_OK;
+			return SPELL_FAILED_OUT_OF_RANGE;
+		}
+
+		void HandleApplySalve()
+		{
+			Unit* caster = GetCaster();
+			if (!caster)
+				return;
+
+			if (caster->GetTypeId() != TYPEID_PLAYER)
+				return;
+
+			// Wounded Mor'shan Defender
+			if (Creature* woundedDefender = caster->FindNearestCreature(NPC_WOUNDED_DEFENDER, 0.20f, true))
+			{
+				woundedDefender->AI()->TalkWithDelay(1500, 0);
+				woundedDefender->DespawnOrUnsummon(4500);
+				woundedDefender->HandleEmoteCommand(EMOTE_STATE_STAND);
+				caster->ToPlayer()->KilledMonsterCredit(NPC_WOUNDED_DEFENDER);
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_apply_salve_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_apply_salve_SpellScript::HandleApplySalve);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_apply_salve_SpellScript();
+	}
+};
+
+/// Summon Brutusk II - 63162
+class spell_summon_brutusk_2 : public SpellScriptLoader
+{
+public:
+	spell_summon_brutusk_2() : SpellScriptLoader("spell_summon_brutusk_2") { }
+
+	class spell_summon_brutusk_2_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_summon_brutusk_2_SpellScript);
+
+		enum Id
+		{
+			// Sound
+			SOUND_PLAY_CALL_BRUTUSK = 3980,
+			EMOTE_CALL_BRUTUSK = 7
+		};
+
+		void HandlePlaySound()
+		{
+			Unit* caster = GetCaster();
+			if (!caster)
+				return;
+
+			caster->PlayDirectSound(SOUND_PLAY_CALL_BRUTUSK);
+			caster->HandleEmoteCommand(EMOTE_CALL_BRUTUSK);
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_summon_brutusk_2_SpellScript::HandlePlaySound);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_summon_brutusk_2_SpellScript();
+	}
+};
+
+/// Summon Gorat's Spirit - 62772
+class spell_summon_gorat_spirit : public SpellScriptLoader
+{
+public:
+	spell_summon_gorat_spirit() : SpellScriptLoader("spell_summon_gorat_spirit") { }
+
+	class spell_summon_gorat_spirit_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_summon_gorat_spirit_SpellScript);
+
+		enum Id
+		{
+			NPC_GORAT_CORPSE = 33294
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* goratCorpse = GetCaster()->FindNearestCreature(NPC_GORAT_CORPSE, 0.6f, true))
+				return SPELL_CAST_OK;
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_summon_gorat_spirit_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_summon_gorat_spirit_SpellScript();
+	}
+};
+
+/// Summon Burning Blade Flyer - 96925
+class spell_summon_burning_blade_flyer : public SpellScriptLoader
+{
+public:
+	spell_summon_burning_blade_flyer() : SpellScriptLoader("spell_summon_burning_blade_flyer") { }
+
+	class spell_summon_burning_blade_flyer_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_summon_burning_blade_flyer_SpellScript);
+
+		enum Id
+		{
+			// Sound
+			SOUND_PLAY_CALL_FLYER = 3980,
+			EMOTE_CALL_FLYER = 7
+		};
+
+		void HandlePlaySound()
+		{
+			Unit* caster = GetCaster();
+			if (!caster)
+				return;
+
+			if (caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature())
+			{
+				caster->PlayDirectSound(SOUND_PLAY_CALL_FLYER);
+				caster->HandleEmoteCommand(EMOTE_CALL_FLYER);
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_summon_burning_blade_flyer_SpellScript::HandlePlaySound);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_summon_burning_blade_flyer_SpellScript();
+	}
+};
+
+
+/// Cancel Imp Disguise - 64118
+class spell_cancel_imp_disguise : public SpellScriptLoader
+{
+public:
+	spell_cancel_imp_disguise() : SpellScriptLoader("spell_cancel_imp_disguise") { }
+
+	class spell_cancel_imp_disguise_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_cancel_imp_disguise_SpellScript);
+
+		enum Id
+		{
+			SPELL_IMP_DISGUISE = 63704
+		};
+
+		void HandleRemoveDisguise(SpellEffIndex effIndex)
+		{
+			if (Unit* target = GetHitUnit())
+			{
+				if (!target->HasAura(SPELL_IMP_DISGUISE))
+					return;
+
+				target->RemoveAurasDueToSpell(SPELL_IMP_DISGUISE);
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_cancel_imp_disguise_SpellScript::HandleRemoveDisguise, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_cancel_imp_disguise_SpellScript();
+	}
+};
+
+/// Throw Accursed Ore - 64074
+class spell_throw_accursed_ore : public SpellScriptLoader
+{
+public:
+	spell_throw_accursed_ore() : SpellScriptLoader("spell_throw_accursed_ore") { }
+
+	class spell_throw_accursed_ore_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_throw_accursed_ore_SpellScript);
+
+		enum Id
+		{
+			NPC_TOWER_TRIGGER = 33697,
+			NPC_TOWER_TRIGGER_GUID = 177717
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* towerTrigger = GetCaster()->FindNearestCreature(NPC_TOWER_TRIGGER, 200.0f, true))
+			{
+				if (towerTrigger->GetGUIDLow() == NPC_TOWER_TRIGGER_GUID)
+					return SPELL_CAST_OK;
+			}
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_throw_accursed_ore_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_throw_accursed_ore_SpellScript();
+	}
+};
+
+
+/// Throw Blood - 63797
+class spell_throw_blood : public SpellScriptLoader
+{
+public:
+	spell_throw_blood() : SpellScriptLoader("spell_throw_blood") { }
+
+	class spell_throw_blood_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_throw_blood_SpellScript);
+
+		enum Id
+		{
+			GO_THE_FOREST_HEART = 194549
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (GameObject* forestHeart = GetCaster()->FindNearestGameObject(GO_THE_FOREST_HEART, 2.0f))
+				return SPELL_CAST_OK;
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_throw_blood_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_throw_blood_SpellScript();
+	}
+};
+
+
+/// Throw Signal Powder - 63829
+class spell_throw_signal_powder : public SpellScriptLoader
+{
+public:
+	spell_throw_signal_powder() : SpellScriptLoader("spell_throw_signal_powder") { }
+
+	class spell_throw_signal_powder_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_throw_signal_powder_SpellScript);
+
+		enum Id
+		{
+			NPC_SMOLDERING_BRAZIER_TRIGGER = 33859
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* smolderingBrazier = GetCaster()->FindNearestCreature(NPC_SMOLDERING_BRAZIER_TRIGGER, 2.0f))
+				return SPELL_CAST_OK;
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_throw_signal_powder_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_throw_signal_powder_SpellScript();
+	}
+};
+
+
+/// Chop tree - 64605
+class spell_chop_tree : public SpellScriptLoader
+{
+public:
+	spell_chop_tree() : SpellScriptLoader("spell_chop_tree") { }
+
+	class spell_chop_tree_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_chop_tree_SpellScript);
+
+		enum Id
+		{
+			NPC_SPLINTERTREE_OAK = 34167,
+			QUEST_CREDIT_OAK = 34138
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* splintertreeOak = GetCaster()->FindNearestCreature(NPC_SPLINTERTREE_OAK, 2.0f, true))
+				return SPELL_CAST_OK;
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void HandleChopDown()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() == TYPEID_PLAYER)
+				{
+					if (Creature* splintertreeOak = GetCaster()->FindNearestCreature(NPC_SPLINTERTREE_OAK, 3.0f, true))
+					{
+						splintertreeOak->Kill(splintertreeOak, false);
+						GetCaster()->ToPlayer()->KilledMonsterCredit(QUEST_CREDIT_OAK);
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_chop_tree_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_chop_tree_SpellScript::HandleChopDown);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_chop_tree_SpellScript();
+	}
+};
+
+
+/// Gift of the Earth - 65115
+class spell_gift_of_the_earth : public SpellScriptLoader
+{
+public:
+	spell_gift_of_the_earth() : SpellScriptLoader("spell_gift_of_the_earth") { }
+
+	class spell_gift_of_the_earth_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_gift_of_the_earth_SpellScript);
+
+		enum Id
+		{
+			NPC_LAVA_FISSURE = 43242,
+			SPELL_GIFT_OF_THE_EARTH = 65132
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* lavaFissure = GetCaster()->FindNearestCreature(NPC_LAVA_FISSURE, 3.0f, true))
+				return SPELL_CAST_OK;
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void HandleCastSecondGift()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() == TYPEID_PLAYER)
+				{
+					if (Creature* lavaFissure = caster->FindNearestCreature(NPC_LAVA_FISSURE, 5.0f, true))
+						caster->CastSpell(lavaFissure, SPELL_GIFT_OF_THE_EARTH, false);
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_gift_of_the_earth_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_gift_of_the_earth_SpellScript::HandleCastSecondGift);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_gift_of_the_earth_SpellScript();
+	}
+};
+
+
+
+/// Gift of the Earth - 65132
+class spell_gift_of_the_earth_second : public SpellScriptLoader
+{
+public:
+	spell_gift_of_the_earth_second() : SpellScriptLoader("spell_gift_of_the_earth_second") { }
+
+	class spell_gift_of_the_earth_second_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_gift_of_the_earth_second_SpellScript);
+
+		enum Id
+		{
+			NPC_LAVA_FISSURE = 43242,
+		};
+
+		void HandleCloseFissure()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() == TYPEID_PLAYER)
+				{
+					if (Creature* lavaFissure = caster->FindNearestCreature(NPC_LAVA_FISSURE, 3.0f, true))
+					{
+						caster->Kill(lavaFissure, false);
+						caster->ToPlayer()->KilledMonsterCredit(NPC_LAVA_FISSURE);
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_gift_of_the_earth_second_SpellScript::HandleCloseFissure);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_gift_of_the_earth_second_SpellScript();
+	}
+};
+
+
+/// Return to the Vortex - 65233
+class spell_return_to_the_vortex : public SpellScriptLoader
+{
+public:
+	spell_return_to_the_vortex() : SpellScriptLoader("spell_return_to_the_vortex") { }
+
+	class spell_return_to_the_vortex_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_return_to_the_vortex_SpellScript);
+
+		enum Id
+		{
+			NPC_LORD_MAGMATHAR = 34295
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				Creature* lordMagmatharAlive = caster->FindNearestCreature(NPC_LORD_MAGMATHAR, 150.0f, true);
+				Creature* lordMagmatharDead = caster->FindNearestCreature(NPC_LORD_MAGMATHAR, 150.0f, false);
+				if (lordMagmatharAlive || lordMagmatharDead)
+					return SPELL_CAST_OK;
+			}
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void HandleReturnMovement()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() != TYPEID_PLAYER)
+					caster->GetMotionMaster()->MovePoint(2, 2489.92f, -1318.29f, 135.18f, false);
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_return_to_the_vortex_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_return_to_the_vortex_SpellScript::HandleReturnMovement);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_return_to_the_vortex_SpellScript();
+	}
+};
+
+
+
+
+/// Return to Base - 65481
+class spell_return_to_base : public SpellScriptLoader
+{
+public:
+	spell_return_to_base() : SpellScriptLoader("spell_return_to_base") { }
+
+	class spell_return_to_base_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_return_to_base_SpellScript);
+
+		void HandleReturnMovement()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() != TYPEID_PLAYER)
+				{
+					caster->GetMotionMaster()->Clear();
+					caster->GetMotionMaster()->MovePoint(9, 3043.52f, -503.67f, 217.05f, true);
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_return_to_base_SpellScript::HandleReturnMovement);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_return_to_base_SpellScript();
+	}
+};
+
+
 
 
 #ifndef __clang_analyzer__
 void AddSC_ashenvale()
 {
-	// Npcs
+	/// Npcs
     new npc_torek();
     new npc_ruul_snowhoof();
     new npc_muglash();
@@ -1281,13 +1947,28 @@ void AddSC_ashenvale()
 	new npc_silverwind_conqueror_34592();
 	new npc_foulweald_warrior_totemic_rampaging();
 
-	// Game objects
+	/// Objects
     new go_naga_brazier();
 
-	// Spells
+	/// Spells
 	new spell_destroy_karangs_banner();
 	new spell_potion_of_wildfire();
 	new spell_unbathed_concoction();
+	new spell_cleanse_elune_tear();
+	new spell_playing_possum();
+	new spell_apply_salve();
+	new spell_summon_gorat_spirit();
+	new spell_summon_brutusk_2();
+	new spell_summon_burning_blade_flyer();
+	new spell_cancel_imp_disguise();
+	new spell_throw_accursed_ore();
+	new spell_throw_blood();
+	new spell_throw_signal_powder();
+	new spell_chop_tree();
+	new spell_gift_of_the_earth();
+	new spell_gift_of_the_earth_second();
+	new spell_return_to_the_vortex();
+	new spell_return_to_base();
 
 }
 #endif

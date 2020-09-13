@@ -172,6 +172,106 @@ public:
 };
 
 
+/// Quest: Ongo'longo's Revenge - 26367 & 26515
+enum eOngolongo
+{
+	NPC_ONGOLONGOS_RIGHT_SHACKLE = 42816,
+	NPC_ONGOLONGOS_LEFT_SHACKLE = 42817,
+	NPC_ONGOLONGO = 42815,
+	NPC_VILEBRANCH_HANDLER = 42843,
+	SPELL_ENRAGE = 63227,
+	SPELL_ONGOLONGO_SMASH = 79875,
+	SPELL_SLAM = 90325,
+	SPELL_CHAIN_R = 79806,
+	SPELL_CHAIN_L = 79807,
+	QUEST_ONGOLONGOS_REVENGE_H = 26367,
+	QUEST_ONGOLONGOS_REVENGE_A = 26515
+};
+
+class npc_ongolongo : public CreatureScript
+{
+public:
+	npc_ongolongo() : CreatureScript("npc_ongolongo") { }
+
+	struct npc_ongolongoAI : public npc_escortAI
+	{
+		npc_ongolongoAI(Creature* pCreature) : npc_escortAI(pCreature) {}
+
+		uint32 Slam_Timer;
+
+		void Reset()
+		{
+			Slam_Timer = 5000;
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
+		}
+
+		void EnterCombat(Unit* who)
+		{
+			me->MonsterSay("Leave Ongo'longo ALONE!", LANG_UNIVERSAL, 0);
+			me->CastSpell(me, SPELL_ENRAGE, true);
+		}
+
+		void DamageTaken(Unit* done_by, uint32 &damage)
+		{
+			if (me->HealthBelowPctDamaged(3, damage))
+			{
+				me->RemoveUnitMovementFlag(UNIT_FLAG_DISABLE_MOVE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
+				me->RemoveAllAuras();
+				me->MonsterYell("NO MORE! ONGOLONGO GO HOME!", LANG_UNIVERSAL, 0);
+				if (done_by && done_by->ToPlayer()->GetQuestStatus(QUEST_ONGOLONGOS_REVENGE_H))
+					done_by->ToPlayer()->CompleteQuest(QUEST_ONGOLONGOS_REVENGE_H);
+				if (done_by && done_by->ToPlayer()->GetQuestStatus(QUEST_ONGOLONGOS_REVENGE_A))
+					done_by->ToPlayer()->CompleteQuest(QUEST_ONGOLONGOS_REVENGE_A);
+				if (Creature* RShack = me->FindNearestCreature(NPC_ONGOLONGOS_RIGHT_SHACKLE, 10))
+					RShack->DisappearAndDie();
+				if (Creature* LShack = me->FindNearestCreature(NPC_ONGOLONGOS_LEFT_SHACKLE, 10))
+					LShack->DisappearAndDie();
+				me->GetMotionMaster()->MovePath(42815, false);
+			}
+		}
+
+		void WaypointReached(uint32 i) {}
+
+		void MoveInLineOfSight(Unit* who)
+		{
+			ScriptedAI::MoveInLineOfSight(who);
+
+			if (who->GetEntry() == NPC_VILEBRANCH_HANDLER && me->IsWithinDistInMap(who, 2.0f))
+			{
+				who->ToCreature()->MonsterSay("You get back in dat pen!", LANG_UNIVERSAL, 0);
+				me->CastSpell(who, SPELL_ONGOLONGO_SMASH, true);
+				me->ToCreature()->MonsterYell("PUNY TROLLS NOT STOP ONGOLONGO!", LANG_UNIVERSAL, 0);
+			}
+		}
+
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
+
+			if (Slam_Timer <= diff)
+			{
+				me->CastSpell(me->getVictim(), SPELL_SLAM, false);
+				Slam_Timer = 5000;
+			}
+			else Slam_Timer -= diff;
+
+			DoMeleeAttackIfReady();
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_ongolongoAI(creature);
+	}
+};
+
+
+
+
 /// Spell Tiki Torch - 79513
 enum FacesEvil
 {
@@ -293,14 +393,55 @@ public:
 };
 
 
+class spell_billy_goat_blast : public SpellScriptLoader
+{
+public:
+	spell_billy_goat_blast() : SpellScriptLoader("spell_billy_goat_blast") { }
+
+	enum Id
+	{
+		// Npc
+		NPC_ENTRY_BILLY_GOAT = 46393
+	};
+
+	class spell_billy_goat_blast_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_billy_goat_blast_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* billyGoat = GetCaster()->FindNearestCreature(NPC_ENTRY_BILLY_GOAT, 5.0f, true))
+				return SPELL_CAST_OK;
+
+			if (GetExplTargetUnit() == GetCaster())
+				return SPELL_FAILED_BAD_TARGETS;
+
+			return SPELL_FAILED_BAD_TARGETS;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_billy_goat_blast_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_billy_goat_blast_SpellScript();
+	}
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_hinterlands()
 {
-	// Npcs
+	/// Npcs
 	new npc_oox09hl();
 	new npc_trained_razorbeak();
+	new npc_ongolongo();
 
-	// Spells
+	/// Spells
+	new spell_billy_goat_blast(); // Badlands Script
 	new spell_tiki_torch();
 	new spell_ritual_of_shadra();
 }

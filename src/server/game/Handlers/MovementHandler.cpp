@@ -433,6 +433,17 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     {
         l_PlayerMover->UpdateFallInformationIfNeed(l_MovementInfo, l_OpCode);
 
+
+		// Quest: Rocket Rescue
+		if (l_PlayerMover->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+		{
+			if (Aura* rocket = l_PlayerMover->GetAura(75730))
+			{
+				rocket->Remove(AURA_REMOVE_BY_DEFAULT);
+				l_PlayerMover->AddAura(85883, l_PlayerMover);   // Parachute
+			}
+		}
+
         /*float l_MaxDepth = -500.0f;
 
         /// Eye of the Cyclone
@@ -462,6 +473,17 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
                 // TODO: discard movement packets after the player is rooted
                 if (l_PlayerMover->isAlive())
                 {
+					// Throne of the Four Winds: Back Teleport
+					if (l_PlayerMover->GetMapId() == 754 && l_PlayerMover->GetHealthPct() > 50.f && !l_PlayerMover->isGameMaster())
+						if (InstanceScript* instance = l_PlayerMover->GetInstanceScript())
+						{
+							instance->SetData64(8 /*DATA_PLAYER_UNDER_MAP*/, l_PlayerMover->GetGUID());
+							//NOTE Send befor we get outa here
+							WriteMovementInfo(data, &l_MovementInfo);
+							l_Mover->SendMessageToSet(&data, m_Player);
+							return;
+						}
+
                     ///l_PlayerMover->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
                     l_PlayerMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
                     // player can be alive if GM/etc

@@ -854,6 +854,132 @@ public:
 };
 
 
+/// Injured Earthern - 43229
+class npc_injured_earthern : public CreatureScript
+{
+public:
+	npc_injured_earthern() : CreatureScript("npc_injured_earthern") { }
+
+	enum eMisc
+	{
+		/// Quest
+		QUEST_BATTLEFRONT_TRIAGE = 26591,
+
+		/// Spells
+		SPELL_PATCH_KIT		 = 80987,
+
+		/// Npcs
+		NPC_INJURED_EARTHERN = 43229,
+
+		/// Action
+		ActionHeal = 0
+	};
+
+	struct npc_injured_earthernAI : public ScriptedAI
+	{
+		npc_injured_earthernAI(Creature* creature) : ScriptedAI(creature)
+		{
+			m_PlayerGuid = 0;
+		}
+
+		EventMap m_CosmeticEvents;
+		EventMap m_Events;
+		uint64 m_PlayerGuid;
+		float randHealth = urand(5.0f, 10.0f);
+		bool tapped;
+
+		void Reset()
+		{
+			ClearDelayedOperations();
+			m_Events.Reset();
+			tapped = false;
+
+			me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
+			me->SetHealth(me->CountPctFromMaxHealth(randHealth));
+			me->setRegeneratingHealth(false);
+		}
+
+		void SpellHit(Unit* Caster, const SpellInfo* Spell) override
+		{
+			if (Spell->Id() == SPELL_PATCH_KIT)
+				if (Caster->ToPlayer() && !tapped)
+				{
+					m_PlayerGuid = Caster->ToPlayer()->GetGUID();
+					DoAction(ActionHeal);
+					tapped = true;
+				}
+			return;
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case ActionHeal:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
+					{
+						me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
+						if (l_Player->GetQuestStatus(QUEST_BATTLEFRONT_TRIAGE) == QUEST_STATUS_INCOMPLETE)
+							l_Player->KilledMonsterCredit(NPC_INJURED_EARTHERN);
+					}
+				});
+
+				AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (m_PlayerGuid)
+						if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
+							me->SetFacingToObject(l_Player);
+				});
+
+				AddTimedDelayedOperation(1.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (m_PlayerGuid)
+					{
+						Talk(0, m_PlayerGuid);
+						me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+					}
+				});
+
+				AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					float x, y, z;
+					me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 10.0f);
+					me->GetMotionMaster()->MovePoint(1, x, y, z);
+				});
+
+				AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->DespawnOrUnsummon();
+				});
+
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(uint32 const p_Diff)
+		{
+			UpdateOperations(p_Diff);
+
+			m_Events.Update(p_Diff);
+
+			switch (m_Events.ExecuteEvent())
+			{
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_injured_earthernAI(creature);
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_deepholm()
 {
@@ -871,6 +997,7 @@ void AddSC_deepholm()
 	new npc_ricket_ticker();
 	new npc_stonefathers_banner();
 	new npc_haethen_kaul();
+	new npc_injured_earthern();
 
 	// Spells
     new spell_deepholm_kill_all_constructs();

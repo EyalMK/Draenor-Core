@@ -665,7 +665,7 @@ public:
 
 
 
-
+/// Summon Naias - 30015
 enum AltarNaias
 {
 	NPC_NAIAS = 17207
@@ -688,6 +688,91 @@ class spell_summon_naias : public SpellScript
 };
 
 
+
+/// Return to Booty Bay - 81887
+class spell_return_to_booty_bay : public SpellScriptLoader
+{
+public:
+	spell_return_to_booty_bay() : SpellScriptLoader("spell_return_to_booty_bay") { }
+
+	class spell_return_to_booty_bay_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_return_to_booty_bay_SpellScript);
+
+		void HandleReturnMovement()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() != TYPEID_PLAYER)
+				{
+					caster->GetMotionMaster()->Clear();
+					caster->GetMotionMaster()->MovePoint(10, -14447.89f, 512.56f, 26.33f, false);
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_return_to_booty_bay_SpellScript::HandleReturnMovement);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_return_to_booty_bay_SpellScript();
+	}
+};
+
+
+/// Teleport to Zul'gurub - 80830
+class spell_teleport_zulgurub : public SpellScriptLoader
+{
+public:
+	spell_teleport_zulgurub() : SpellScriptLoader("spell_teleport_zulgurub") { }
+
+	class spell_teleport_zulgurub_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_teleport_zulgurub_SpellScript);
+
+		enum Id
+		{
+			QUEST_THROUGH_THE_TROLL_HOLE_H = 26552,
+			QUEST_THROUGH_THE_TROLL_HOLE_A = 26811
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() == TYPEID_PLAYER)
+				{
+					if (caster->ToPlayer()->GetQuestStatus(QUEST_THROUGH_THE_TROLL_HOLE_H) == QUEST_STATUS_INCOMPLETE ||
+						caster->ToPlayer()->GetQuestStatus(QUEST_THROUGH_THE_TROLL_HOLE_H) == QUEST_STATUS_COMPLETE ||
+						caster->ToPlayer()->GetQuestStatus(QUEST_THROUGH_THE_TROLL_HOLE_A) == QUEST_STATUS_INCOMPLETE ||
+						caster->ToPlayer()->GetQuestStatus(QUEST_THROUGH_THE_TROLL_HOLE_A) == QUEST_STATUS_COMPLETE)
+						return SPELL_CAST_OK;
+					else
+						ChatHandler(caster->ToPlayer()->GetSession()).PSendSysMessage("You need quest: Through the Troll Hole");
+				}
+			}
+			return SPELL_FAILED_DONT_REPORT;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_teleport_zulgurub_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_teleport_zulgurub_SpellScript();
+	}
+};
+
+
+
+
 /// Totem of Hireek - 204361
 class go_totem_of_hireek_204361 : public GameObjectScript
 {
@@ -708,6 +793,154 @@ public:
 };
 
 
+/// Ruins of Aboraz - 6063
+class Areatrigger_at_ruins_of_aboraz : public AreaTriggerScript
+{
+public:
+	Areatrigger_at_ruins_of_aboraz() : AreaTriggerScript("at_ruins_of_aboraz") { }
+
+	enum Id
+	{
+		// Quest
+		QUEST_BACKDOOR_DEALINGS_H = 26550,
+		QUEST_BACKDOOR_DEALINGS_A = 26809,
+		QUEST_ELIMINATE_THE_OUTCAST_H = 26551,
+		QUEST_ELIMINATE_THE_OUTCAST_A = 26810,
+
+		// NPC
+		NPC_ENTRY_ZANZIL_THE_OUTCAST = 43245,
+		NPC_ENTRY_SHADE_OF_THE_HEXXER = 43246,
+		NPC_ENTRY_TRIGGER_EVENT = 41200,
+
+		// GameObject
+		GO_ENTRY_ZANZIL_PORTAL = 204372
+	};
+
+	bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+	{
+		if (player->isAlive())
+		{
+			if (player->GetQuestStatus(QUEST_BACKDOOR_DEALINGS_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_BACKDOOR_DEALINGS_A) == QUEST_STATUS_INCOMPLETE)
+			{
+				// You should have the vehicle
+				if (!player->GetVehicle())
+					return false;
+
+				Creature* triggerAlive = player->FindNearestCreature(NPC_ENTRY_TRIGGER_EVENT, 100.0f, true);
+				Creature* triggerDead = player->FindNearestCreature(NPC_ENTRY_TRIGGER_EVENT, 100.0f, false);
+				Creature* zanzil = player->FindNearestCreature(NPC_ENTRY_ZANZIL_THE_OUTCAST, 100.0f, true);
+				Creature* hexxer = player->FindNearestCreature(NPC_ENTRY_SHADE_OF_THE_HEXXER, 100.0f, true);
+
+				// Event is in progress!
+				if (triggerDead && hexxer)
+					return false;
+
+				// Event is done but trigger is dead -> Respawn
+				if (triggerDead && !hexxer)
+					triggerDead->Respawn(true);
+
+				// Flag event in progress!
+				if (triggerAlive)
+					triggerAlive->DespawnOrUnsummon(1);
+			}
+
+			if (player->GetQuestStatus(QUEST_ELIMINATE_THE_OUTCAST_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_ELIMINATE_THE_OUTCAST_A) == QUEST_STATUS_INCOMPLETE)
+			{
+				Creature* zanzil = player->FindNearestCreature(NPC_ENTRY_ZANZIL_THE_OUTCAST, 100.0f, true);
+				if (zanzil)
+					return false;
+
+				player->SummonCreature(NPC_ENTRY_ZANZIL_THE_OUTCAST, -13679.94f, -306.29f, 8, 14, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+				if (Creature* zanzil = player->FindNearestCreature(NPC_ENTRY_ZANZIL_THE_OUTCAST, 100.0f, true))
+				{
+					zanzil->setFaction(14);
+					if (player && player->isAlive())
+						zanzil->Attack(player, true);
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+};
+
+
+/// Jeklik Zanzil - 6066
+class Areatrigger_at_jeklik_zanzil : public AreaTriggerScript
+{
+public:
+	Areatrigger_at_jeklik_zanzil() : AreaTriggerScript("at_jeklik_zanzil") { }
+
+	enum Id
+	{
+		// Quest
+		QUEST_HIGH_PRIESTESS_JEKLIK_H = 26553,
+		QUEST_HIGH_PRIESTESS_JEKLIK_A = 26812,
+
+		// NPC
+		NPC_ENTRY_ZANZIL_THE_OUTCAST = 43255,
+		NPC_ENTRY_HIGH_PRIESTESS_JEKLIK = 43257
+	};
+
+	bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+	{
+		if (player->isAlive())
+		{
+			if (player->GetQuestStatus(QUEST_HIGH_PRIESTESS_JEKLIK_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_HIGH_PRIESTESS_JEKLIK_A) == QUEST_STATUS_INCOMPLETE)
+			{
+				Creature* jeklik = player->FindNearestCreature(NPC_ENTRY_HIGH_PRIESTESS_JEKLIK, 200, true);
+				Creature* zanzil = player->FindNearestCreature(NPC_ENTRY_ZANZIL_THE_OUTCAST, 200, true);
+				if (jeklik || zanzil)
+					return false;
+
+				player->SummonCreature(NPC_ENTRY_HIGH_PRIESTESS_JEKLIK, -12219.59f, -1464.73f, 131.69f, 1.50f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				player->SummonCreature(NPC_ENTRY_ZANZIL_THE_OUTCAST, -12219.22f, -1455.75f, 130.59f, 4.58f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+			}
+			return true;
+		}
+		return false;
+	}
+};
+
+
+/// Venoxis' Event - 6114
+class Areatrigger_at_venoxis_event : public AreaTriggerScript
+{
+public:
+	Areatrigger_at_venoxis_event() : AreaTriggerScript("at_venoxis_event") { }
+
+	enum Id
+	{
+		// Quest
+		QUEST_HIGH_PRIEST_VENOXIS_H = 26555,
+		QUEST_HIGH_PRIEST_VENOXIS_A = 26814,
+
+		// NPC
+		NPC_ENTRY_ZANZIL_THE_OUTCAST = 43322,
+		NPC_ENTRY_HIGH_PRIEST_VENOXIS = 43323
+	};
+
+	bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+	{
+		if (player->isAlive())
+		{
+			if (player->GetQuestStatus(QUEST_HIGH_PRIEST_VENOXIS_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_HIGH_PRIEST_VENOXIS_A) == QUEST_STATUS_INCOMPLETE)
+			{
+				Creature* venoxis = player->FindNearestCreature(NPC_ENTRY_HIGH_PRIEST_VENOXIS, 200, true);
+				Creature* zanzil = player->FindNearestCreature(NPC_ENTRY_ZANZIL_THE_OUTCAST, 200, true);
+				if (venoxis || zanzil)
+					return false;
+
+				player->SummonCreature(NPC_ENTRY_HIGH_PRIEST_VENOXIS, -12028.50f, -1705.92f, 41.97f, 3.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000);
+				player->SummonCreature(NPC_ENTRY_ZANZIL_THE_OUTCAST, -12024.13f, -1709.33f, 39.31f, 2.04f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000);
+			}
+			return true;
+		}
+		return false;
+	}
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_stranglethorn_vale()
 {
@@ -722,9 +955,16 @@ void AddSC_stranglethorn_vale()
 
 	/// Spells
 	new spell_summon_naias();
+	new spell_return_to_booty_bay();
+	new spell_teleport_zulgurub();
 
 	/// Objects
 	new go_totem_of_hireek_204361();
+
+	/// Areatriggers
+	new Areatrigger_at_ruins_of_aboraz();
+	new Areatrigger_at_jeklik_zanzil();
+	new Areatrigger_at_venoxis_event();
 
 }
 #endif

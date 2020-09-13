@@ -1974,6 +1974,136 @@ public:
 };
 
 
+/// Plant Ironforge Banner - 78395
+class spell_ironforge_banner : public SpellScriptLoader
+{
+public:
+	spell_ironforge_banner() : SpellScriptLoader("spell_ironforge_banner") { }
+
+	enum Id
+	{
+		QUEST_RALLYING_DEFENDERS = 26085,
+		GO_LOOSE_SNOW = 203452,
+		GO_IRONFORGE_BANNER = 203451
+	};
+
+	class spell_ironforge_banner_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_ironforge_banner_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			Unit* caster = GetCaster();
+			Player* player = caster->ToPlayer();
+			GameObject* looseSnow = caster->FindNearestGameObject(GO_LOOSE_SNOW, 10.0f);
+
+			if (player && player->GetQuestStatus(QUEST_RALLYING_DEFENDERS) != QUEST_STATUS_INCOMPLETE)
+				return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+			if (looseSnow && player && player->GetQuestStatus(QUEST_RALLYING_DEFENDERS) == QUEST_STATUS_INCOMPLETE)
+				return SPELL_CAST_OK;
+
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void HandlePlantBanner(SpellEffIndex effIndex)
+		{
+			PreventHitDefaultEffect(effIndex);
+			if (Unit* caster = GetCaster())
+			{
+				if (GameObject* looseSnow = caster->FindNearestGameObject(GO_LOOSE_SNOW, 10.0f))
+					caster->SummonGameObject(GO_IRONFORGE_BANNER, looseSnow->GetPositionX(), looseSnow->GetPositionY(), looseSnow->GetPositionZ(), looseSnow->GetOrientation(), 0, 0, 0, 0, 10);
+			}
+			return;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_ironforge_banner_SpellScript::CheckCast);
+			OnEffectHit += SpellEffectFn(spell_ironforge_banner_SpellScript::HandlePlantBanner, EFFECT_0, SPELL_EFFECT_TRANS_DOOR);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_ironforge_banner_SpellScript();
+	}
+};
+
+
+/// Signal Fire - 77488
+class spell_signal_flare : public SpellScriptLoader
+{
+public:
+	spell_signal_flare() : SpellScriptLoader("spell_signal_flare") { }
+
+	enum Id
+	{
+		NPC_COVERT_OPS_FLYING_MACHINE = 41382,
+		SPELL_SIGNAL_FLARE = 77488,
+		ZONE_TRIGGER = 182090,
+		NPC_INVISIBLE_TRIGGER = 144952,
+		QUEST_CREDIT_SOUTH = 41373,
+		QUEST_CREDIT_NORTH = 41372
+	};
+
+	class spell_signal_flare_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_signal_flare_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			GameObject* zoneTrigger = GetCaster()->FindNearestGameObject(ZONE_TRIGGER, 100.0f);
+			if (zoneTrigger)
+				return SPELL_CAST_OK;
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void HandleCallCovertOps(SpellEffIndex effIndex)
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() != TYPEID_PLAYER)
+					return;
+
+				GameObject* zoneTrigger = GetCaster()->FindNearestGameObject(ZONE_TRIGGER, 100.0f);
+				if (zoneTrigger)
+				{
+					caster->SummonCreature(NPC_COVERT_OPS_FLYING_MACHINE, caster->GetPositionX(), caster->GetPositionY() + 5, caster->GetPositionZ() + 8, caster->GetOrientation());
+					caster->SummonCreature(NPC_COVERT_OPS_FLYING_MACHINE, caster->GetPositionX(), caster->GetPositionY() - 5, caster->GetPositionZ() + 8, caster->GetOrientation());
+					caster->SummonCreature(NPC_INVISIBLE_TRIGGER, zoneTrigger->GetPositionX(), zoneTrigger->GetPositionY(), zoneTrigger->GetPositionZ(), zoneTrigger->GetOrientation())->UnSummon(20000);
+					switch (zoneTrigger->GetGUIDLow())
+					{
+					case 68749:
+					case 68750:
+						caster->ToPlayer()->KilledMonsterCredit(QUEST_CREDIT_SOUTH);
+						break;
+					case 68740:
+					case 68742:
+					case 68743:
+					case 68744:
+						caster->ToPlayer()->KilledMonsterCredit(QUEST_CREDIT_NORTH);
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_signal_flare_SpellScript::CheckCast);
+			OnEffectHitTarget += SpellEffectFn(spell_signal_flare_SpellScript::HandleCallCovertOps, EFFECT_0, SPELL_EFFECT_DUMMY);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_signal_flare_SpellScript();
+	}
+};
+
 class item_paint : public ItemScript
 {
 public:
@@ -2055,6 +2185,8 @@ void AddSC_dun_morogh_coldridge_valley()
 
 	/// Spells
 	new spell_low_health();
+	new spell_ironforge_banner();
+	new spell_signal_flare();
 
 	/// Items
 	new item_paint();

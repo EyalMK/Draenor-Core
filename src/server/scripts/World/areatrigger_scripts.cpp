@@ -6,26 +6,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Areatrigger_Scripts
-SD%Complete: 100
-SDComment: Scripts for areatriggers
-SDCategory: Areatrigger
-EndScriptData */
-
-/* ContentData
-at_coilfang_waterfall           4591
-at_legion_teleporter            4560 Teleporter TO Invasion Point: Cataclysm
-at_stormwright_shelf            q12741
-at_last_rites                   q12019
-at_sholazar_waygate             q12548
-at_nats_landing                 q11209
-at_bring_your_orphan_to         q910 q910 q1800 q1479 q1687 q1558 q10951 q10952
-at_brewfest
-at_area_52_entrance
-EndContentData */
 
 #include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Player.h"
 
 /*######
 ## at_coilfang_waterfall
@@ -598,6 +583,40 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
             return true;
         }
 };
+
+class Areatrigger_at_helms_bed_lake : public AreaTriggerScript
+{
+public:
+	Areatrigger_at_helms_bed_lake() : AreaTriggerScript("at_helms_bed_lake")
+	{
+	}
+
+	enum spellId
+	{
+		SPELL_GRIMNURS_BAIT = 99435,
+		SPELL_CRAYFISH_CATCH = 99424
+	};
+
+	enum npcId
+	{
+		NPC_COLD_WATER_CRAYFISH = 53540
+	};
+
+	bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+	{
+		if (player->HasAura(SPELL_GRIMNURS_BAIT) && !player->HasAura(SPELL_CRAYFISH_CATCH))
+		{
+			player->CastSpell(player, SPELL_CRAYFISH_CATCH, true);
+			player->SummonCreature(NPC_COLD_WATER_CRAYFISH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000);
+			player->SummonCreature(NPC_COLD_WATER_CRAYFISH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000);
+			player->SummonCreature(NPC_COLD_WATER_CRAYFISH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000);
+			player->SummonCreature(NPC_COLD_WATER_CRAYFISH, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000);
+		}
+		return false;
+	}
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_areatrigger_scripts()
 {
@@ -616,5 +635,6 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_farmer_fung();
     new areatrigger_at_serpent_nests();
     new AreaTrigger_at_mason_s_folly();
+	new Areatrigger_at_helms_bed_lake();
 }
 #endif

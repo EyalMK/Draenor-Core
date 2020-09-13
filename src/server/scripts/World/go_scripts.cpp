@@ -6,39 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ContentData
-go_cat_figurine (the "trap" version of GO, two different exist)
-go_northern_crystal_pylon
-go_eastern_crystal_pylon
-go_western_crystal_pylon
-go_barov_journal
-go_ethereum_prison
-go_ethereum_stasis
-go_sacred_fire_of_life
-go_shrine_of_the_birds
-go_southfury_moonstone
-go_field_repair_bot_74A
-go_orb_of_command
-go_resonite_cask
-go_tablet_of_madness
-go_tablet_of_the_seven
-go_tele_to_dalaran_crystal
-go_tele_to_violet_stand
-go_scourge_cage
-go_jotunheim_cage
-go_table_theka
-go_soulwell
-go_bashir_crystalforge
-go_ethereal_teleport_pad
-go_soulwell
-go_dragonflayer_cage
-go_tadpole_cage
-go_amberpine_outhouse
-go_hive_pod
-go_gjalerbron_cage
-go_large_gjalerbron_cage
-go_veil_skith_cage
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -205,8 +172,8 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
+		/// Teleport spell to Blackwing Lair
         player->CastSpell(player, 23460, true);
-		//player->TeleportTo(469, -7664.76f, -1100.87f, 399.679f, 0.561981f);
         return true;
     }
 };
@@ -1390,6 +1357,108 @@ class go_dark_iron_mole_machine_wreckage : public GameObjectScript
         }
 };
 
+
+/// Goblin Escape Pod - 195188
+class go_goblinescapepod : public GameObjectScript
+{
+public:
+	go_goblinescapepod() : GameObjectScript("go_goblinescapepod") { }
+
+	enum eMisc
+	{
+		/// Quests
+		QUEST_GOBLIN_ESCAPE_PODS_A = 14474,
+		QUEST_GOBLIN_ESCAPE_PODS_H = 14001,
+
+		/// Spells
+		SUMMON_CONTROLLER			= 66136,
+		SUMMON_LIVE_GOBLIN			= 66137,
+		SUMMON_DEAD_GOBLIN			= 66138,
+		SUMMON_GALLYWIX				= 67845,
+		THERMO_FLIPPERS_VISUAL	    = 68256,
+		PRINCE_AURA_CONTROLLER_AURA = 67433,
+
+		/// Npcs
+		NPC_LIVE_GOBLIN	= 34748,
+		NPC_DEAD_GOBLIN = 34736,
+		NPC_GALLYWIX	= 35649,
+		
+		/// Kill credit
+		KILLCREDIT_ESCAPE_POD = 34748,
+	};
+
+	bool OnGossipHello(Player* player, GameObject* pGO)
+	{
+		if ((player->GetQuestStatus(QUEST_GOBLIN_ESCAPE_PODS_A) == QUEST_STATUS_INCOMPLETE) || (player->GetQuestStatus(QUEST_GOBLIN_ESCAPE_PODS_H) == QUEST_STATUS_INCOMPLETE))
+		{
+			// First time you should get spell GALLWIX cast and this NPC has some speech todo about ripping player off
+			if (!player->HasAura(PRINCE_AURA_CONTROLLER_AURA))
+			{
+				player->CastSpell(player, SUMMON_GALLYWIX, true);
+				player->AddAura(PRINCE_AURA_CONTROLLER_AURA, player);
+				if (Creature* Gallywix = player->FindNearestCreature(NPC_GALLYWIX, 10.0f, true))
+					Gallywix->AI()->Talk(0, player->GetGUID());
+			}
+
+			uint8 r = rand() % 8;
+			if (r < 2) // sometimes spawn a dead goblin and doesn't give credit..
+				player->CastSpell(player, SUMMON_DEAD_GOBLIN, true);
+			else
+			{
+				player->CastSpell(player, SUMMON_LIVE_GOBLIN, true);
+				player->KilledMonsterCredit(KILLCREDIT_ESCAPE_POD);
+
+				if (Creature* goblin = player->FindNearestCreature(NPC_LIVE_GOBLIN, 10.0f, true))
+				{
+					goblin->CastSpell(goblin, THERMO_FLIPPERS_VISUAL, true);
+					goblin->AI()->Talk(0, player->GetGUID());
+				}
+			}
+
+			pGO->Delete();
+			return false;
+		}
+		return true;
+	}
+
+};
+
+/// Hyjal Flameward
+class go_hyjal_flameward : public GameObjectScript
+{
+public:
+	go_hyjal_flameward() : GameObjectScript("go_hyjal_flameward") { }
+
+	enum Id
+	{
+		QUEST_ENTRY_PREPPING_THE_SOIL = 25502,
+		SPELL_FLAMEWARD_ACTIVATED = 75470,
+		NPC_ENTRY_FLAMEWARD_ACTIVATED = 40461,
+		NPC_LAVA_SURGERS = 46911
+	};
+
+	bool OnGossipHello(Player* player, GameObject* go)
+	{
+		if (player->GetQuestStatus(QUEST_ENTRY_PREPPING_THE_SOIL) == QUEST_STATUS_INCOMPLETE)
+		{
+			player->CastSpell(player, SPELL_FLAMEWARD_ACTIVATED, true);
+			player->MonsterWhisper("Defend the flameward!", player->GetGUID(), true);
+			player->SummonCreature(NPC_ENTRY_FLAMEWARD_ACTIVATED, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 61000);
+
+			// Call lava surgers
+			std::list<Creature*> creatures;
+			GetCreatureListWithEntryInGrid(creatures, player, NPC_LAVA_SURGERS, 60.0f);
+			if (!creatures.empty())
+			{
+				for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
+					(*iter)->ToCreature()->Attack(player, true);
+			}
+			return false;
+		}
+		return true;
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_go_scripts()
 {
@@ -1400,7 +1469,7 @@ void AddSC_go_scripts()
     new go_barov_journal;
     new go_field_repair_bot_74A;
     new go_gilded_brazier;
-///    new go_orb_of_command;
+	new go_orb_of_command;
     new go_shrine_of_the_birds;
     new go_southfury_moonstone;
     new go_tablet_of_madness;
@@ -1437,5 +1506,7 @@ void AddSC_go_scripts()
     new go_mage_portal_pandaria;
     new go_challenge_orb();
     new go_dark_iron_mole_machine_wreckage();
+	new go_goblinescapepod();
+	new go_hyjal_flameward();
 }
 #endif

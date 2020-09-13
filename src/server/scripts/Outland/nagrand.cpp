@@ -6,18 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Nagrand
-SD%Complete: 90
-SDComment: Quest support: 9868, 9874, 10044, 10172, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
-SDCategory: Nagrand
-EndScriptData */
 
-/* ContentData
-npc_greatmother_geyah
-npc_maghar_captive
-npc_creditmarker_visit_with_ancestors
-EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -689,12 +678,15 @@ class go_warmaul_prison : public GameObjectScript
 #ifndef __clang_analyzer__
 void AddSC_nagrand()
 {
+	/// Npcs
     new npc_greatmother_geyah();
     new npc_maghar_captive();
     new npc_creditmarker_visit_with_ancestors();
     new npc_corki();
-    new go_corkis_prison();
     new npc_kurenai_captive();
+
+	/// Object
+	new go_corkis_prison();
     new go_warmaul_prison();
 }
 #endif

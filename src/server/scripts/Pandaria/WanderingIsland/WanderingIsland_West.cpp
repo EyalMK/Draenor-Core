@@ -835,8 +835,10 @@ public:
                     me->DespawnOrUnsummon();
                     me->SummonCreature(57874, 873.09f, 4462.25f, 241.27f, 3.80f, TEMPSUMMON_MANUAL_DESPAWN, 0, playerGuid);
 
-                    if (Player* owner = ObjectAccessor::GetPlayer(*me, playerGuid))
-                        owner->KilledMonsterCredit(56688);
+					if (Player* owner = ObjectAccessor::GetPlayer(*me, playerGuid))
+					{
+						owner->CastSpell(owner, 106625, true);
+					}
 
                     DespawnTimer = 0;
                 }

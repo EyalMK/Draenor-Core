@@ -6,30 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Npcs_Special
-SD%Complete: 100
-SDComment: To be used for special NPCs that are located globally.
-SDCategory: NPCs
-EndScriptData
-*/
-
-/* ContentData
-npc_air_force_bots       80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
-npc_lunaclaw_spirit      80%    support for quests 6001/6002 (Body and Heart)
-npc_chicken_cluck       100%    support for quest 3861 (Cluck!)
-npc_dancing_flames      100%    midsummer event NPC
-npc_guardian            100%    guardianAI used to prevent players from accessing off-limits areas. Not in use by SD2
-npc_garments_of_quests   80%    NPC's related to all Garments of-quests 5621, 5624, 5625, 5648, 565
-npc_injured_patient     100%    patients for triage-quests (6622 and 6624)
-npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 and 6624 (Triage)
-npc_mount_vendor        100%    Regular mount vendors all over the world. Display gossip if player doesn't meet the requirements to buy
-npc_rogue_trainer        80%    Scripted trainers, so they are able to offer item 17126 for class quest 6681
-npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
-npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
-npc_locksmith            75%    list of keys needs to be confirmed
-npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -5061,7 +5037,1123 @@ class spell_ethereal_pet_onkill_steal_essence : public SpellScriptLoader
             return new spell_ethereal_pet_onkill_steal_essence_AuraScript();
         }
 };
-/////////////////////////////////////////////////////////////
+
+
+
+class npc_cold_water_crayfish : public CreatureScript
+{
+public:
+	npc_cold_water_crayfish() : CreatureScript("npc_cold_water_crayfish")
+	{
+	}
+
+	enum spellId
+	{
+		SPELL_CRAYFISH_CATCH = 99424
+	};
+
+	enum eventId
+	{
+		EVENT_CHECK_VEHICLE = 1
+	};
+
+	struct npc_cold_water_crayfishAI : public ScriptedAI
+	{
+		npc_cold_water_crayfishAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
+
+		EventMap events;
+
+		void IsSummonedBy(Unit* owner)
+		{
+			if (owner->HasAura(SPELL_CRAYFISH_CATCH))
+				me->EnterVehicle(owner, urand(0, 7));
+			events.ScheduleEvent(EVENT_CHECK_VEHICLE, 5000);
+		}
+
+		void EnterEvadeMode()
+		{
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			events.Update(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_CHECK_VEHICLE:
+				{
+					if (Unit* vehicle = me->GetVehicleBase())
+					{
+						events.RescheduleEvent(EVENT_CHECK_VEHICLE, 2000);
+						break;
+					}
+					else
+					{
+						events.CancelEvent(EVENT_CHECK_VEHICLE);
+						me->DespawnOrUnsummon(1000);
+					}
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_cold_water_crayfishAI(creature);
+	}
+};
+
+class npc_cook_ghilm : public CreatureScript
+{
+public:
+	npc_cook_ghilm() : CreatureScript("npc_cook_ghilm")
+	{
+	}
+
+	enum spellId
+	{
+		SPELL_REMOVE_AURAS = 99466,
+		SPELL_CRAYFISH_CATCH = 99424
+	};
+
+	enum eventId
+	{
+		EVENT_CHECK_CRAYFISH = 1
+	};
+
+	struct npc_cook_ghilmAI : public ScriptedAI
+	{
+		npc_cook_ghilmAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
+
+		EventMap events;
+
+		void Reset()
+		{
+			events.ScheduleEvent(EVENT_CHECK_CRAYFISH, 5000);
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			events.Update(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_CHECK_CRAYFISH:
+				{
+					std::list<Unit*> targets;
+					JadeCore::AnyUnitInObjectRangeCheck u_check(me, 6.0f);
+					JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+					me->VisitNearbyObject(6.0f, searcher);
+					for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+					{
+						if ((*itr) && (*itr)->GetTypeId() == TYPEID_PLAYER)
+						{
+							if ((*itr)->HasAura(SPELL_CRAYFISH_CATCH))
+							{
+								me->SetFacingToObject((*itr));
+								(*itr)->CastSpell((*itr), SPELL_REMOVE_AURAS, true);
+								(*itr)->ToPlayer()->KilledMonsterCredit(53551);
+								Talk(0);
+								me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+							}
+						}
+					}
+					events.RescheduleEvent(EVENT_CHECK_CRAYFISH, 3000);
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_cook_ghilmAI(creature);
+	}
+};
+
+
+/// Flameward Activated - 40461
+class npc_flameward_activated : public CreatureScript
+{
+public:
+	npc_flameward_activated() : CreatureScript("npc_flameward_activated")
+	{
+	}
+
+	struct npc_flameward_activatedAI : public ScriptedAI
+	{
+		npc_flameward_activatedAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
+
+		EventMap events;
+
+		enum spellId
+		{
+			SPELL_FLAMEWARD_SHIELD = 75454
+		};
+
+		enum eventId
+		{
+			EVENT_SUMMON_ASHBEARERS = 1,
+			EVENT_STOP_SUMMON
+		};
+
+		enum npcId
+		{
+			NPC_ASHBEARER = 46925
+		};
+
+		void Reset()
+		{
+			if (!me->HasAura(SPELL_FLAMEWARD_SHIELD))
+				DoCast(me, SPELL_FLAMEWARD_SHIELD);
+			events.ScheduleEvent(EVENT_SUMMON_ASHBEARERS, 8000);
+			events.ScheduleEvent(EVENT_STOP_SUMMON, 60000);
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			events.Update(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_SUMMON_ASHBEARERS:
+				{
+					me->SummonCreature(NPC_ASHBEARER, me->GetPositionX() + urand(8, 15), me->GetPositionY() + urand(8, 15), me->GetPositionZ() + 1, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000);
+					events.RescheduleEvent(EVENT_SUMMON_ASHBEARERS, 10000);
+					break;
+				}
+				case EVENT_STOP_SUMMON:
+				{
+					Talk(0);
+					events.CancelEvent(EVENT_SUMMON_ASHBEARERS);
+					events.CancelEvent(EVENT_STOP_SUMMON);
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_flameward_activatedAI(creature);
+	}
+};
+
+
+
+/// Badlands scripts - temporary placement here
+/// Baelog - 46856
+class npc_baelog_46856 : public CreatureScript
+{
+public:
+	npc_baelog_46856() : CreatureScript("npc_baelog_46856") { }
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_baelog_46856AI(creature);
+	}
+
+	struct npc_baelog_46856AI : public ScriptedAI
+	{
+		npc_baelog_46856AI(Creature* creature) : ScriptedAI(creature) {
+			m_playerGUID = 0;
+		}
+
+		uint64 m_playerGUID;
+
+		void Reset() override
+		{
+			if (Player* player = sObjectAccessor->GetPlayer(*me, m_playerGUID))
+			{
+				me->SetSpeed(UnitMoveType::MOVE_RUN, player->GetSpeedRate(UnitMoveType::MOVE_RUN), true); // Set speed same as player's
+				me->GetMotionMaster()->MoveFollow(player, 2.0f, 3.14f);
+			}
+			me->SetReactState(REACT_DEFENSIVE);
+		}
+
+		void IsSummonedBy(Unit* summoner) override
+		{
+			if (Player* player = summoner->ToPlayer())
+			{
+				m_playerGUID = player->GetGUID();
+				me->GetMotionMaster()->MoveFollow(player, 4.0f, 3.14f);
+			}
+		}
+	};
+};
+
+
+/// Quest: The Warden's Game ID - 27693 & 27885
+enum WardenGame
+{
+	NPC_WARDEN_PAWN = 46344,
+	NPC_WARDEN_CONTROLLER = 46339,
+	SPELL_TELEPORT_EFFECT = 86368,
+	SPELL_DESPAWN_ALL_SUMMONS = 86394,
+	SPELL_SUMMON_PAWN = 86342,
+	SPELL_SUMMON_CONTROLLER = 86343,
+	QUEST_THE_WARDEN_GAME_A = 27693,
+	QUEST_THE_WARDEN_GAME_H = 27885,
+	CREDIT_THE_WARDEN_GAME = 46339
+};
+
+const Position pawnPositions[3][3] =
+{
+	{
+		{ -6962.4f,   -3443.251f, 200.8954f,  0.7602509f  },
+		{ -6962.451f, -3445.25f,  200.8954f, -0.02514732f },
+		{ -6962.501f, -3447.25f,  200.8954f, -0.810486f   },
+	},
+	{
+		{ -6964.4f, -3443.201f, 200.8954f,  1.545646f },
+		{ -6964.4f, -3445.15f,  200.8954f,  0.0f      },
+		{ -6964.5f, -3447.199f, 200.8954f, -1.595947f },
+	},
+	{
+		{ -6966.399f, -3443.15f,  200.8954f,  2.331107f },
+		{ -6966.45f,  -3445.15f,  200.8954f,  3.116445f },
+		{ -6966.5f,   -3447.149f, 200.8954f, -2.381342f },
+	},
+};
+
+const float correctOrientations[3][3] =
+{
+	{ 0.7602509f, -0.02514732f, -0.810486f },
+	{ 1.545646f,   0.0f,        -1.595947f },
+	{ 2.331107f,   3.116445f,   -2.381342f },
+};
+
+/// Warden Controller - 46339
+class npc_warden_controller : public CreatureScript
+{
+public:
+	npc_warden_controller() : CreatureScript("npc_warden_controller") { }
+
+	struct npc_warden_controllerAI : public ScriptedAI
+	{
+		npc_warden_controllerAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
+
+		void IsSummonedBy(Unit* summoner) override
+		{
+			_playerGUID = summoner->GetGUID();
+			for (_x = 0; _x < 3; _x++)
+			{
+				for (_y = 0; _y < 3; _y++)
+				{
+					if (_x == 1 && _y == 1)
+						continue;
+					me->CastSpell(pawnPositions[_y][_x].GetPositionX(), pawnPositions[_y][_x].GetPositionY(), pawnPositions[_y][_x].GetPositionZ(), SPELL_SUMMON_PAWN, true);
+				}
+			}
+			_x = 1;
+			_y = 1;
+		}
+
+		void JustSummoned(Creature* summon) override
+		{
+			_pawnsGUID[_y][_x] = summon->GetGUID();
+			summon->SetFacingTo(pawnPositions[_y][_x].GetOrientation());
+			summon->AI()->SetData(_x, _y);
+			summon->AI()->SetGUID(_playerGUID);
+		}
+
+		void SetData(uint32 x, uint32 y) override
+		{
+			if (CheckPosition(x, y))
+			{
+				if (Creature* pawn = sObjectAccessor->GetCreature(*me, _pawnsGUID[y][x]))
+				{
+					pawn->CastSpell(pawnPositions[_y][_x].GetPositionX(), pawnPositions[_y][_x].GetPositionY(), pawnPositions[_y][_x].GetPositionZ(), SPELL_TELEPORT_EFFECT, true);
+					pawn->NearTeleportTo(pawnPositions[_y][_x].GetPositionX(), pawnPositions[_y][_x].GetPositionY(), pawnPositions[_y][_x].GetPositionZ(), pawn->GetOrientation());
+					pawn->AI()->SetData(_x, _y);
+					_pawnsGUID[_y][_x] = pawn->GetGUID();
+					_pawnsGUID[y][x] = 0;
+					_y = y;
+					_x = x;
+					if (CheckOrientations())
+					{
+						if (Player* player = sObjectAccessor->GetPlayer(*me, _playerGUID))
+							player->KilledMonsterCredit(CREDIT_THE_WARDEN_GAME);
+						DoCast(SPELL_DESPAWN_ALL_SUMMONS);
+					}
+				}
+			}
+		}
+
+		void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+		{
+			if (target->GetTypeId() == TYPEID_UNIT)
+				target->ToCreature()->DespawnOrUnsummon(1);
+		}
+
+		bool CheckPosition(uint32 x, uint32 y)
+		{
+			if (x == _x && y == _y - 1)
+				return true;
+			if (x == _x && y == _y + 1)
+				return true;
+			if (x == _x - 1 && y == _y)
+				return true;
+			if (x == _x + 1 && y == _y)
+				return true;
+			return false;
+		}
+
+		bool CheckOrientations()
+		{
+			for (uint8 x = 0; x < 3; x++)
+			{
+				for (uint8 y = 0; y < 3; y++)
+				{
+					if (x == 1 && y == 1)
+						continue;
+					if (Creature* pawn = sObjectAccessor->GetCreature(*me, _pawnsGUID[y][x]))
+					{
+						float orientation = pawn->GetOrientation() - M_PI;
+						if (!Approximate(orientation, correctOrientations[y][x]))
+							return false;
+					}
+					else
+						return false;
+				}
+			}
+			return true;
+		}
+
+		bool Approximate(float orientation, float correctOrientation)
+		{
+			if (orientation > (correctOrientation - 0.1f) && orientation < (correctOrientation + 0.1f))
+				return true;
+			return false;
+		}
+
+		void UpdateAI(uint32 /*diff*/) override { }
+
+	private:
+		uint8 _x, _y;
+		uint64 _playerGUID;
+		uint64 _pawnsGUID[3][3];
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new npc_warden_controllerAI(creature);
+	}
+};
+
+/// Warden Pawn - 46344
+class npc_warden_pawn : public CreatureScript
+{
+public:
+	npc_warden_pawn() : CreatureScript("npc_warden_pawn") { }
+
+	struct npc_warden_pawnAI : public ScriptedAI
+	{
+		npc_warden_pawnAI(Creature* creature) : ScriptedAI(creature)
+		{
+		}
+
+		void IsSummonedBy(Unit* summoner)
+		{
+			_controllerGUID = summoner->GetGUID();
+			me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+		}
+
+		void SetData(uint32 x, uint32 y) override
+		{
+			_x = x;
+			_y = y;
+		}
+
+		void SetGUID(uint64 guid, int32 id)
+		{
+			_playerGUID = guid;
+		}
+
+		void OnSpellClick(Unit* clicker) override
+		{
+			if (Player* player = clicker->ToPlayer())
+				if (player->GetGUID() == _playerGUID)
+				{
+					if (Creature* controller = sObjectAccessor->GetCreature(*me, _controllerGUID))
+					{
+						controller->AI()->SetData(_x, _y);
+						controller->CastSpell(controller, 86368, true); // Teleport Effect
+					}
+				}
+
+			return;
+		}
+
+		void UpdateAI(uint32 /*diff*/) override { }
+
+	private:
+		uint64 _controllerGUID;
+		uint64 _playerGUID;
+		uint32 _x, _y;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const override
+	{
+		return new npc_warden_pawnAI(creature);
+	}
+};
+
+
+/// Blam Turret - 46707
+class npc_blam_turret : public CreatureScript
+{
+public:
+	npc_blam_turret() : CreatureScript("npc_blam_turret") {}
+
+	struct npc_blam_turretAI : public ScriptedAI
+	{
+		npc_blam_turretAI(Creature* creature) : ScriptedAI(creature) { eventStarted = false; }
+
+		EventMap events;
+
+		enum npcSpells
+		{
+			SPELL_SUMMON_WAVE_1 = 87029,
+			SPELL_SUMMON_WAVE_2 = 87031
+		};
+
+		enum eventId
+		{
+			EVENT_CHECK_PASSENGER = 1,
+			EVENT_SUMMON_FIRST_WAVE,
+			EVENT_SUMMON_SECOND_WAVE,
+			EVENT_SUMMON_THIRD_WAVE,
+			EVENT_SUMMON_FINAL_WAVE,
+			EVENT_STOP_WAVES
+		};
+
+		enum creditId
+		{
+			CREDIT_WAVE_1 = 87073,
+			CREDIT_WAVE_2 = 87074,
+			CREDIT_WAVE_3 = 87075,
+			CREDIT_WAVE_4 = 87076
+		};
+
+		void OnCharmed(bool apply) {}
+
+		void PassengerBoarded(Unit* passenger, int8 SeatId, bool apply)
+		{
+			if (apply)
+			{
+				eventStarted = true;
+				events.ScheduleEvent(EVENT_CHECK_PASSENGER, 2000);
+				if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+					TalkWithDelay(500, 0, passenger->GetGUID());
+			}
+			else
+			{
+				eventStarted = false;
+				events.Reset();
+			}
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			events.Update(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_CHECK_PASSENGER:
+				{
+					if (!me->GetVehicleKit()->GetPassenger(0))
+					{
+						events.Reset();
+						break;
+					}
+					else
+					{
+						events.RescheduleEvent(EVENT_CHECK_PASSENGER, 2000);
+						events.ScheduleEvent(EVENT_SUMMON_FIRST_WAVE, 2000);
+					}
+					break;
+				}
+				case EVENT_SUMMON_FIRST_WAVE:
+				{
+					events.CancelEvent(EVENT_SUMMON_FIRST_WAVE);
+					events.ScheduleEvent(EVENT_SUMMON_SECOND_WAVE, 10000);
+					DoCast(me, SPELL_SUMMON_WAVE_1, true);
+					break;
+				}
+				case EVENT_SUMMON_SECOND_WAVE:
+				{
+					events.CancelEvent(EVENT_SUMMON_SECOND_WAVE);
+					events.ScheduleEvent(EVENT_SUMMON_THIRD_WAVE, 10000);
+					DoCast(me, CREDIT_WAVE_1, true);
+					DoCast(me, SPELL_SUMMON_WAVE_2, true);
+					break;
+				}
+				case EVENT_SUMMON_THIRD_WAVE:
+				{
+					events.CancelEvent(EVENT_SUMMON_THIRD_WAVE);
+					events.ScheduleEvent(EVENT_SUMMON_FINAL_WAVE, 10000);
+					DoCast(me, CREDIT_WAVE_2, true);
+					DoCast(me, SPELL_SUMMON_WAVE_1, true);
+					break;
+				}
+				case EVENT_SUMMON_FINAL_WAVE:
+				{
+					events.CancelEvent(EVENT_SUMMON_FINAL_WAVE);
+					events.ScheduleEvent(EVENT_STOP_WAVES, 20000);
+					DoCast(me, CREDIT_WAVE_3, true);
+					DoCast(me, SPELL_SUMMON_WAVE_1, true);
+					DoCast(me, SPELL_SUMMON_WAVE_2, true);
+					break;
+				}
+				case EVENT_STOP_WAVES:
+				{
+					DoCast(me, CREDIT_WAVE_4, true);
+					events.Reset();
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+
+	protected:
+		bool eventStarted;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_blam_turretAI(creature);
+	}
+};
+
+class npc_sentinel_start : public CreatureScript
+{
+public:
+	npc_sentinel_start() : CreatureScript("npc_sentinel_start") { }
+
+	enum Id
+	{
+		// Spells
+		SPELL_SENTINEL_DESPAWN = 86555,
+		SPELL_SENTINEL_BEAM = 86432,
+
+		// Npc
+		NPC_ENTRY_SENTINEL_PAWN = 46395
+	};
+
+	struct npc_sentinel_startAI : public ScriptedAI
+	{
+		npc_sentinel_startAI(Creature* creature) : ScriptedAI(creature) {}
+
+		void IsSummonedBy(Unit* /*summoner*/)
+		{
+			startTimer = 2000;
+		}
+
+		void SpellHit(Unit* caster, SpellInfo const* spell)
+		{
+			switch (spell->Id)
+			{
+			case SPELL_SENTINEL_DESPAWN:
+			{
+				me->DespawnOrUnsummon(1);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			if (startTimer <= diff)
+			{
+				if (Creature* sentinel = me->FindNearestCreature(NPC_ENTRY_SENTINEL_PAWN, 60.0f, true))
+					me->CastWithDelay(1500, sentinel, SPELL_SENTINEL_BEAM, true);
+				startTimer = 1210000;
+			}
+			else
+				startTimer -= diff;
+		}
+
+	protected:
+		uint32 startTimer;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_sentinel_startAI(creature);
+	}
+};
+
+class npc_amakkar : public CreatureScript
+{
+public:
+	npc_amakkar() : CreatureScript("npc_amakkar") { }
+
+	enum Id
+	{
+		// Spells
+		SPELL_RIDE_VEHICLE = 87782,
+		SPELL_KIDNEY_SHOT = 87608,
+
+		// Quest
+		QUEST_ENTRY_AMAKKAR = 27891
+	};
+
+	struct npc_amakkarAI : public ScriptedAI
+	{
+		npc_amakkarAI(Creature* creature) : ScriptedAI(creature) {}
+
+		void Reset()
+		{
+			me->SetReactState(REACT_DEFENSIVE);
+		}
+
+		void IsSummonedBy(Unit* summoner)
+		{
+			if (summoner->GetTypeId() == TYPEID_PLAYER)
+			{
+				if (summoner->ToPlayer()->GetQuestStatus(QUEST_ENTRY_AMAKKAR) == QUEST_STATUS_INCOMPLETE)
+				{
+					summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
+					me->SetReactState(REACT_DEFENSIVE);
+					me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_amakkarAI(creature);
+	}
+};
+
+class npc_gargal : public CreatureScript
+{
+public:
+	npc_gargal() : CreatureScript("npc_gargal") { }
+
+	enum Id
+	{
+		// Spells
+		SPELL_RIDE_VEHICLE = 87782,
+		SPELL_SHIELD_WALL = 87607,
+		SPELL_TAUNT = 87606,
+
+		// Quest
+		QUEST_ENTRY_GARGAL = 27893
+	};
+
+	struct npc_gargalAI : public ScriptedAI
+	{
+		npc_gargalAI(Creature* creature) : ScriptedAI(creature) {}
+
+		void Reset()
+		{
+			me->SetReactState(REACT_DEFENSIVE);
+			timerShieldWall = 2000;
+			timerTaunt = 3000;
+		}
+
+		void IsSummonedBy(Unit* summoner)
+		{
+			if (summoner->GetTypeId() == TYPEID_PLAYER)
+			{
+				if (summoner->ToPlayer()->GetQuestStatus(QUEST_ENTRY_GARGAL) == QUEST_STATUS_INCOMPLETE)
+				{
+					summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
+					me->SetReactState(REACT_DEFENSIVE);
+					me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+					timerShieldWall = 2000;
+					timerTaunt = 3000;
+				}
+			}
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
+
+			if (timerShieldWall <= diff)
+			{
+				me->CastSpell(me, SPELL_SHIELD_WALL, true);
+				timerShieldWall = 6000;
+			}
+			else
+				timerShieldWall -= diff;
+
+			if (timerTaunt <= diff)
+			{
+				me->CastSpell(me, SPELL_TAUNT, true);
+				timerTaunt = 10000;
+			}
+			else
+				timerTaunt -= diff;
+		}
+
+	protected:
+		uint16 timerShieldWall;
+		uint16 timerTaunt;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_gargalAI(creature);
+	}
+};
+
+class npc_jurrix : public CreatureScript
+{
+public:
+	npc_jurrix() : CreatureScript("npc_jurrix") { }
+
+	enum Id
+	{
+		// Spells
+		SPELL_RIDE_VEHICLE = 87782,
+		SPELL_TIME_WARP = 87596,
+		SPELL_FIREBALL = 87593,
+
+		// Quest
+		QUEST_ENTRY_JURRIX = 27892
+	};
+
+	struct npc_jurrixAI : public ScriptedAI
+	{
+		npc_jurrixAI(Creature* creature) : ScriptedAI(creature) {}
+
+		void Reset()
+		{
+			me->SetReactState(REACT_DEFENSIVE);
+			timerFireball = 3000;
+			timerTimeWarp = 4000;
+		}
+
+		void IsSummonedBy(Unit* summoner)
+		{
+			if (summoner->GetTypeId() == TYPEID_PLAYER)
+			{
+				if (summoner->ToPlayer()->GetQuestStatus(QUEST_ENTRY_JURRIX) == QUEST_STATUS_INCOMPLETE)
+				{
+					summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
+					me->SetReactState(REACT_DEFENSIVE);
+					me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+				}
+			}
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
+
+			if (timerFireball <= diff)
+			{
+				me->CastSpell(me->getVictim(), SPELL_FIREBALL, true);
+				timerFireball = 6000;
+			}
+			else
+				timerFireball -= diff;
+
+			if (timerTimeWarp <= diff)
+			{
+				me->CastSpell(me, SPELL_TIME_WARP, true);
+				timerTimeWarp = 10000;
+			}
+			else
+				timerTimeWarp -= diff;
+		}
+
+	protected:
+		uint16 timerFireball;
+		uint16 timerTimeWarp;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_jurrixAI(creature);
+	}
+};
+
+// ALLIANCE
+
+class npc_eric : public CreatureScript
+{
+public:
+	npc_eric() : CreatureScript("npc_eric") { }
+
+	enum Id
+	{
+		// Spells
+		SPELL_RIDE_VEHICLE = 87782,
+		SPELL_KIDNEY_SHOT = 87608,
+
+		// Quest
+		QUEST_ENTRY_ERIC = 27828
+	};
+
+	struct npc_ericAI : public ScriptedAI
+	{
+		npc_ericAI(Creature* creature) : ScriptedAI(creature) {}
+
+		void Reset()
+		{
+			me->SetReactState(REACT_DEFENSIVE);
+		}
+
+		void IsSummonedBy(Unit* summoner)
+		{
+			if (summoner->GetTypeId() == TYPEID_PLAYER)
+			{
+				if (summoner->ToPlayer()->GetQuestStatus(QUEST_ENTRY_ERIC) == QUEST_STATUS_INCOMPLETE)
+				{
+					summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
+					me->SetReactState(REACT_DEFENSIVE);
+					me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_ericAI(creature);
+	}
+};
+
+class npc_baelog : public CreatureScript
+{
+public:
+	npc_baelog() : CreatureScript("npc_baelog") { }
+
+	enum Id
+	{
+		// Spells
+		SPELL_RIDE_VEHICLE = 87782,
+		SPELL_BAELOG_WARCRY = 87277,
+
+		// Quest
+		QUEST_ENTRY_BAELOG = 27834
+	};
+
+	struct npc_baelogAI : public ScriptedAI
+	{
+		npc_baelogAI(Creature* creature) : ScriptedAI(creature) {}
+
+		void Reset()
+		{
+			me->SetReactState(REACT_DEFENSIVE);
+			timerBaelogWarcry = 2000;
+		}
+
+		void IsSummonedBy(Unit* summoner)
+		{
+			if (summoner->GetTypeId() == TYPEID_PLAYER)
+			{
+				if (summoner->ToPlayer()->GetQuestStatus(QUEST_ENTRY_BAELOG) == QUEST_STATUS_INCOMPLETE)
+				{
+					summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
+					me->SetReactState(REACT_DEFENSIVE);
+					me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+					timerBaelogWarcry = 2000;
+				}
+			}
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
+
+			if (timerBaelogWarcry <= diff)
+			{
+				me->CastSpell(me, SPELL_BAELOG_WARCRY, true);
+				timerBaelogWarcry = 6000;
+			}
+			else
+				timerBaelogWarcry -= diff;
+		}
+
+	protected:
+		uint16 timerBaelogWarcry;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_baelogAI(creature);
+	}
+};
+
+class npc_olaf : public CreatureScript
+{
+public:
+	npc_olaf() : CreatureScript("npc_olaf") { }
+
+	enum Id
+	{
+		// Spells
+		SPELL_RIDE_VEHICLE = 87782,
+		SPELL_SHIELD_WALL = 87607,
+		SPELL_TAUNT = 87606,
+
+		// Quest
+		QUEST_ENTRY_OLAF = 27835
+	};
+
+	struct npc_olafAI : public ScriptedAI
+	{
+		npc_olafAI(Creature* creature) : ScriptedAI(creature) {}
+
+		void Reset()
+		{
+			me->SetReactState(REACT_DEFENSIVE);
+			timerShieldWall = 2000;
+			timerTaunt = 3000;
+		}
+
+		void IsSummonedBy(Unit* summoner)
+		{
+			if (summoner->GetTypeId() == TYPEID_PLAYER)
+			{
+				if (summoner->ToPlayer()->GetQuestStatus(QUEST_ENTRY_OLAF) == QUEST_STATUS_INCOMPLETE)
+				{
+					summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
+					me->SetReactState(REACT_DEFENSIVE);
+					me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+					timerShieldWall = 2000;
+					timerTaunt = 3000;
+				}
+			}
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
+
+			if (timerShieldWall <= diff)
+			{
+				me->CastSpell(me, SPELL_SHIELD_WALL, true);
+				timerShieldWall = 6000;
+			}
+			else
+				timerShieldWall -= diff;
+
+			if (timerTaunt <= diff)
+			{
+				me->CastSpell(me, SPELL_TAUNT, true);
+				timerTaunt = 10000;
+			}
+			else
+				timerTaunt -= diff;
+		}
+
+	protected:
+		uint16 timerShieldWall;
+		uint16 timerTaunt;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_olafAI(creature);
+	}
+};
+
+enum Id
+{
+	QUEST_SHADRA_THE_VENOM_QUEEN_A = 26532,
+	QUEST_SHADRA_THE_VENOM_QUEEN_H = 26419,
+
+	NPC_ENTRY_SHADRA = 43007,
+	NPC_ENTRY_BODYCHOPPER = 43016,
+	NPC_ENTRY_TALONAXE = 43215,
+	NPC_ENTRY_SPIRITHUNTER = 43213
+};
+
+class npc_wildhammer_lookout : public CreatureScript
+{
+public:
+	npc_wildhammer_lookout() : CreatureScript("npc_wildhammer_lookout") { }
+
+	bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+	{
+		if (quest->GetQuestId() == QUEST_SHADRA_THE_VENOM_QUEEN_H)
+		{
+			if (Creature* shadra = creature->FindNearestCreature(NPC_ENTRY_SHADRA, 500.0f, true))
+				creature->MonsterWhisper("Shadra is already here, attack her!", player->GetGUID(), true);
+			else
+			{
+				creature->SummonCreature(NPC_ENTRY_SHADRA, -348.93f, -2890.28f, 65.45f, 5.90f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -274.55f, -2905.66f, 85.74f, 2.91f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -273.95f, -2911.24f, 85.28f, 2.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -273.95f, -2908.24f, 85.28f, 2.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -273.95f, -2905.24f, 85.28f, 2.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -273.95f, -2913.24f, 85.28f, 2.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+			}
+		}
+
+		return true;
+	}
+};
+
+class npc_deathstalker_lookout : public CreatureScript
+{
+public:
+	npc_deathstalker_lookout() : CreatureScript("npc_deathstalker_lookout") { }
+
+	bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+	{
+		if (quest->GetQuestId() == QUEST_SHADRA_THE_VENOM_QUEEN_H)
+		{
+			if (Creature* shadra = creature->FindNearestCreature(NPC_ENTRY_SHADRA, 500.0f, true))
+				creature->MonsterWhisper("Shadra is already here, attack her!", player->GetGUID(), true);
+			else
+			{
+				creature->SummonCreature(NPC_ENTRY_SHADRA, -348.93f, -2890.28f, 65.45f, 5.90f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -274.55f, -2905.66f, 85.74f, 2.91f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -273.95f, -2911.24f, 85.28f, 2.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -273.95f, -2908.24f, 85.28f, 2.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -273.95f, -2905.24f, 85.28f, 2.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+				creature->SummonCreature(NPC_ENTRY_BODYCHOPPER, -273.95f, -2913.24f, 85.28f, 2.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+			}
+		}
+
+		return true;
+	}
+};
+
+
 
 #ifndef __clang_analyzer__
 void AddSC_npcs_special()
@@ -5122,6 +6214,24 @@ void AddSC_npcs_special()
     new npc_frozen_trail_packer();
 	new npc_void_demon_t18();
 	new npc_shadowfiend_mindbender();
+	new npc_cold_water_crayfish();
+	new npc_cook_ghilm();
+	new npc_flameward_activated();
+
+	/// Badlands scripts - temporary
+	new npc_baelog_46856(); // Badlands script - temporary
+	new npc_warden_controller(); // Badlands script - temporary
+	new npc_warden_pawn(); // Badlands script - temporary
+	new npc_blam_turret(); // Badlands script - temporary
+	new npc_sentinel_start();
+	new npc_amakkar();
+	new npc_gargal();
+	new npc_jurrix();
+	new npc_eric();
+	new npc_baelog();
+	new npc_olaf();
+	new npc_wildhammer_lookout();
+	new npc_deathstalker_lookout();
 
     /////////////////////////////////////////////////////////////
     /// Ethereal Soul-Trader

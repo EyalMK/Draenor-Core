@@ -1794,37 +1794,91 @@ class spell_q31112_ping_bunny: public SpellScriptLoader
         }
 };
 
-// Soothe Earth Spirit - 69453
-
-#define AGITATED_EARTH_SPIRIT                  36845
-#define AGITATED_EARTH_SPIRIT_KILL_CREDIT      36872
-
+/// Soothe Earth Spirit - 69453                 
 class spell_q14491_soothe_earth_spirit: public SpellScriptLoader
 {
     public:
         spell_q14491_soothe_earth_spirit() : SpellScriptLoader("spell_q14491_soothe_earth_spirit") { }
 
+		enum eMisc
+		{
+			QUEST_THE_RESTLESS_EARTH = 14419,
+			NPC_AGITATED_EARTH_SPIRIT = 36845,
+			NPC_AGITATED_EARTH_SPIRIT_KILL_CREDIT = 36872
+		};
+
         class spell_q14491_soothe_earth_spirit_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_q14491_soothe_earth_spirit_SpellScript);
 
+			SpellCastResult CheckCast()
+			{
+				Unit* caster = GetCaster();
+				Unit* target = GetHitUnit();
+
+				if (!caster || !target)
+					return SPELL_FAILED_BAD_TARGETS;
+
+				// If caster is player and doesn't have the quest or it's complete then return spell failed can't do that right now.
+				if (Player* player = caster->ToPlayer())
+					if (player->GetQuestStatus(QUEST_THE_RESTLESS_EARTH) != QUEST_STATUS_INCOMPLETE)
+						return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+				// If caster is player, has the quest and it's not complete and the target is the agitated earth spirit then return spell cast ok.
+				if (Player* player = caster->ToPlayer())
+					if (player->GetQuestStatus(QUEST_THE_RESTLESS_EARTH) == QUEST_STATUS_INCOMPLETE)
+						if (Creature* agitatedspirit = target->ToCreature())
+							if (agitatedspirit->GetEntry() == NPC_AGITATED_EARTH_SPIRIT)
+								return SPELL_CAST_OK;
+
+				// If target isn't agitated earth spirit return spell failed bad target.
+				return SPELL_FAILED_BAD_TARGETS;
+
+			}
+
+
             void HandleAfterCast()
             {
-                if (GetCaster())
-                {
-                    if (Player* caster = GetCaster()->ToPlayer())
-                    {
-                        if (Creature* target = GetClosestCreatureWithEntry(caster, AGITATED_EARTH_SPIRIT, 3.0f))
-                        {
-                            target->setFaction(35);
-                            caster->KilledMonsterCredit(AGITATED_EARTH_SPIRIT_KILL_CREDIT, 0);
-                        }
-                    }
-                }
+
+				uint8 randSelect = urand(0, 1);
+				Unit* caster = GetCaster();
+				Unit* target = GetHitUnit();
+
+				if (!caster || !target)
+					return;
+				
+				if (Player* player = caster->ToPlayer())
+				{
+					if (Creature* agitatedspirit = target->ToCreature())
+					{
+						if (agitatedspirit->GetEntry() == NPC_AGITATED_EARTH_SPIRIT)
+						{
+							agitatedspirit->GetMotionMaster()->MoveChase(player);
+
+							switch (randSelect)
+							{
+								case 0:
+									agitatedspirit->setFaction(35);
+									agitatedspirit->CombatStop();
+									agitatedspirit->DespawnOrUnsummon(2000);
+									player->KilledMonsterCredit(NPC_AGITATED_EARTH_SPIRIT_KILL_CREDIT);
+									break;
+								case 1:
+									agitatedspirit->setFaction(16);
+									agitatedspirit->MonsterTextEmote("The spirit is displeased and attacks!", player->GetGUID(), true);
+									agitatedspirit->Attack(player, true);
+									break;
+								default:
+									break;
+							}
+						}
+					}
+				}
             }
 
             void Register()
             {
+				OnCheckCast += SpellCheckCastFn(spell_q14491_soothe_earth_spirit_SpellScript::CheckCast);
                 AfterCast += SpellCastFn(spell_q14491_soothe_earth_spirit_SpellScript::HandleAfterCast);
             }
         };
@@ -1835,8 +1889,7 @@ class spell_q14491_soothe_earth_spirit: public SpellScriptLoader
         }
 };
 
-// Funeral Offering - 71898
-
+/// Funeral Offering - 71898
 #define MULGORE_OFFERING_KILL_CREDIT     38438
 #define GREATMOTHER_HAWKWIND     2991
 
@@ -2523,69 +2576,132 @@ public:
 	}
 };
 
+enum PlaceTerritorialFetish
+{
+	NPC_SPITESCALE_FLAG_BUNNY = 38560,
+	SPELL_TERRITORIAL_FETISH = 72072,
+};
 
-/// Deploy Butcherbot - Item ID - 52715, Spell ID - 74175
-//class spell_q25112_butcher_bot : public SpellScriptLoader
-//{
-//public:
-//	spell_q25112_butcher_bot() : SpellScriptLoader("spell_q25112_butcher_bot") {	}
-//
-//	enum eMisc
-//	{
-//		QUEST_BUTCHERBOT		= 25112,
-//		NPC_GLASSHIDE_BASILISK	= 5419,
-//		
-//		SPELL_SUMMON_BUTCHERBOT = 74176,
-//		SPELL_KILL_CREDIT		= 39702,
-//	};
-//
-//	class spell_q25112_butcher_bot_SpellScript : public SpellScript
-//	{
-//		PrepareSpellScript(spell_q25112_butcher_bot_SpellScript);
-//
-//		void HandleAfterCast()
-//		{
-//			if (Unit* caster = GetCaster())
-//			{
-//				if (Player* player = caster->ToPlayer())
-//				{
-//					if (player->GetQuestStatus(QUEST_BUTCHERBOT) == QUEST_STATUS_INCOMPLETE)
-//					{
-//						if (Unit* target = GetExplTargetUnit())
-//						{
-//							if (Creature* creature = target->ToCreature())
-//							{
-//								if (creature->isDead())
-//								{
-//									switch (creature->GetEntry())
-//									{
-//										case NPC_GLASSHIDE_BASILISK:
-//											player->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
-//											player->CastSpell(creature, SPELL_SUMMON_BUTCHERBOT, true);
-//											player->KilledMonsterCredit(SPELL_KILL_CREDIT);
-//											break;
-//										default:
-//											break;
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//
-//		void Register()
-//		{
-//			AfterCast += SpellCastFn(spell_q25112_butcher_bot_SpellScript::HandleAfterCast);
-//		}
-//	};
-//
-//	SpellScript* GetSpellScript() const
-//	{
-//		return new spell_q25112_butcher_bot_SpellScript();
-//	}
-//};
+// 72070 Place Territorial Fetish
+class spell_q24813_place_territorial_fetish : public SpellScriptLoader
+{
+public:
+	spell_q24813_place_territorial_fetish() : SpellScriptLoader("spell_q24813_place_territorial_fetish") { }
+
+	class spell_q24813_place_territorial_fetish_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_q24813_place_territorial_fetish_SpellScript);
+
+		void HandleDummy(SpellEffIndex /*effIndex*/)
+		{
+
+			Unit* caster = GetCaster();
+			if (Creature* target = GetHitCreature()->ToCreature())
+			{
+				if (Creature* unitTarget = target->FindNearestCreature(NPC_SPITESCALE_FLAG_BUNNY, 5.0f, true))
+				{
+					if (unitTarget->HasAura(SPELL_TERRITORIAL_FETISH))
+						return;
+
+					unitTarget->CastSpell(caster, SPELL_TERRITORIAL_FETISH, true);
+
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_q24813_place_territorial_fetish_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_q24813_place_territorial_fetish_SpellScript();
+	};
+};
+
+
+/// Shovel - 89089
+class spell_q28189_shovel_89089 : public SpellScriptLoader
+{
+public:
+	spell_q28189_shovel_89089() : SpellScriptLoader("spell_q28189_shovel_89089") { }
+
+	class spell_q28189_shovel_89089_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_q28189_shovel_89089_SpellScript);
+
+		enum Id
+		{
+			NPC_HUMAN_SEEDLING	= 47872,
+			QUEST_DO_RIGHT_THING = 28189,
+			SPELL_HEAD_ASPLODE	= 89142,
+			SPELL_BLOODYHIT		= 91061,
+			SPELL_BLOODYHIT_LARGE = 86438,
+		};
+
+		SpellCastResult CheckCast()
+		{
+
+			Unit* caster = GetCaster();
+			Unit* target = GetHitUnit();
+
+			if (!caster || !target)
+				return SPELL_FAILED_BAD_TARGETS;
+
+			if (GetCaster()->HasAura(SPELL_HEAD_ASPLODE))
+				return SPELL_FAILED_NOT_READY;
+
+			if (target->isAlive() && target->GetEntry() == NPC_HUMAN_SEEDLING)
+					return SPELL_CAST_OK;
+
+			return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+		}
+
+		void HandleKill()
+		{
+			Unit* caster = GetCaster();
+			Unit* target = GetHitUnit();
+
+			if (!caster || !target)
+				return;
+
+			if (Player* player = caster->ToPlayer())
+			{
+				if (player->GetQuestStatus(QUEST_DO_RIGHT_THING) == QUEST_STATUS_INCOMPLETE)
+				{
+					if (Creature* seedling = target->ToCreature())
+					{
+						if (target->isAlive() && target->GetEntry() == NPC_HUMAN_SEEDLING)
+						{
+							seedling->Kill(seedling, false);
+							seedling->CastSpell(seedling, SPELL_BLOODYHIT, true);
+							seedling->CastSpell(seedling, SPELL_BLOODYHIT_LARGE, true);
+							seedling->DespawnOrUnsummon(5000);
+
+							player->KilledMonsterCredit(NPC_HUMAN_SEEDLING);
+							player->AddAura(SPELL_HEAD_ASPLODE, player);
+						}
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_q28189_shovel_89089_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_q28189_shovel_89089_SpellScript::HandleKill);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_q28189_shovel_89089_SpellScript();
+	}
+};
+
+
 
 
 
@@ -2653,6 +2769,6 @@ void AddSC_quest_spell_scripts()
     new spell_q30151_throw_ball();
     new spell_q30136_silken_rope();
 	new spell_q14309_calming_the_kodo();
-	//new spell_q25112_butcher_bot();
+	new spell_q28189_shovel_89089();
 }
 #endif

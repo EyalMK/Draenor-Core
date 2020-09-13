@@ -64,6 +64,150 @@ class spell_gen_absorb0_hitlimit1: public SpellScriptLoader
         }
 };
 
+
+/// LOGINEFFECT - 836
+class spell_log_in_effect : public SpellScriptLoader
+{
+public:
+	spell_log_in_effect() : SpellScriptLoader("spell_log_in_effect") { }
+
+	class spell_log_in_effect_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_log_in_effect_SpellScript);
+
+		void HandleLogIn(SpellEffIndex /*effIndex*/)
+		{
+			// Reset Checks
+			if (Unit* caster = GetCaster())
+			{
+				caster->m_cloudStacks = 0;
+			}
+
+			if (Player* player = GetCaster()->ToPlayer())
+			{
+				// Vengeance of Elune
+				if (player->HasAura(65602))
+					player->CastSpell(player, 66166, false);
+
+				// Lilith Controller
+				if (player->HasAura(91391))
+					player->RemoveAurasDueToSpell(91391);
+
+				// Zul'Gurub Mind Vision
+				if (player->HasAura(79821))
+				{
+					if (player->GetTeam() == TEAM_ALLIANCE)
+						player->CastWithDelay(2000, player, 82399);
+					else
+						player->CastWithDelay(2000, player, 82401);
+
+					player->RemoveAurasDueToSpell(79821);
+				}
+
+				// Getting In With the Bloodsail: Set Bloodsail Faction Friendly
+				if (player->HasAura(81310))
+				{
+					player->RemoveAurasDueToSpell(81310);
+					player->CastSpell(player, 81310, true);
+				}
+
+				// Quest Giver - Welcome to the Machine
+				if (player->HasAura(88476))
+					player->RemoveAurasDueToSpell(88476);
+
+				// Ride Skeletal Steed - Welcome to the Machine
+				if (player->HasAura(88543))
+					player->RemoveAurasDueToSpell(88543);
+
+				// Quest Chain: Protocol (Hillsbrad Foothills)
+				if (player->IsActiveQuest(28230) || player->IsActiveQuest(28235) || player->IsActiveQuest(28237) || player->IsActiveQuest(28251))
+				{
+					player->CastSpell(player, 89296, true);
+					player->CastSpell(player, 89295, true);
+				}
+
+				// Studies in Lethality
+				if (player->HasAura(88375))
+				{
+					player->RemoveAurasDueToSpell(88375);
+					if (player->GetQuestStatus(28324) == QUEST_STATUS_INCOMPLETE)
+						player->CastSpell(player, 88375, true);
+				}
+
+				// Quest Chain: The Road to Purgation
+				if (player->HasAura(90132) || player->GetQuestStatus(28375) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(28397) == QUEST_STATUS_COMPLETE ||
+					(player->GetQuestStatus(28375) == QUEST_STATUS_REWARDED && player->GetQuestStatus(28397) == QUEST_STATUS_NONE))
+				{
+					player->RemoveAurasDueToSpell(90132);
+					player->CastSpell(player, 90132, true);
+				}
+				if (player->HasAura(90205) || player->GetQuestStatus(28400) == QUEST_STATUS_INCOMPLETE || (player->GetQuestStatus(28400) == QUEST_STATUS_NONE && player->GetQuestStatus(28397) == QUEST_STATUS_REWARDED))
+				{
+					player->RemoveAurasDueToSpell(90132);
+					player->RemoveAurasDueToSpell(90205);
+					player->CastSpell(player, 90414, true);
+					player->CastSpell(player, 90205, true);
+				}
+
+				// Summon Messner
+				player->RemoveAurasDueToSpell(80893);
+				// Summon Jorgensen
+				player->RemoveAurasDueToSpell(80940);
+				// Summon Krakauer
+				player->RemoveAurasDueToSpell(80941);
+				// Summon Danforth
+				player->RemoveAurasDueToSpell(80943);
+				// Summon Jorgensen 2
+				player->RemoveAurasDueToSpell(81447);
+				// Summon Lunk
+				player->RemoveAurasDueToSpell(88166);
+				// Summon Lunk (2)
+				player->RemoveAurasDueToSpell(88291);
+				// Summon Personal Guardian (Keeshan 03)
+				player->RemoveAurasDueToSpell(89869);
+				// Summon Personal Guardian (Ariok 03)
+				player->RemoveAurasDueToSpell(90483);
+				// AODR: Summon Camera/Phase
+				player->RemoveAurasDueToSpell(89947);
+				// The Pride Of Kezan: Flight Speed Aura
+				player->RemoveAurasDueToSpell(73446);
+				// TDDC 1: Summon Theldurin
+				player->RemoveAurasDueToSpell(86557);
+				// TDDC 2: Summon Lucien
+				player->RemoveAurasDueToSpell(87737);
+				// TDDC 3: Summon Martek's Hog
+				player->RemoveAurasDueToSpell(86675);
+				// Ex-KEF: Summon Amakkar
+				player->RemoveAurasDueToSpell(87589);
+				// Ex-KEF: Summon Gargal
+				player->RemoveAurasDueToSpell(87590);
+				// Ex-KEF: Summon Jurrix
+				player->RemoveAurasDueToSpell(87591);
+				// The Lost Vikings: Summon Eric
+				player->RemoveAurasDueToSpell(87262);
+				// The Lost Vikings: Summon Baelog
+				player->RemoveAurasDueToSpell(87263);
+				// The Lost Vikings: Summon Olaf
+				player->RemoveAurasDueToSpell(87264);
+				// RG: Master Force Phase/Invis
+				player->RemoveAurasDueToSpell(87436);
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_log_in_effect_SpellScript::HandleLogIn, EFFECT_0, SPELL_EFFECT_SPAWN);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_log_in_effect_SpellScript();
+	}
+};
+
+
+
 // 41337 Aura of Anger
 class spell_gen_aura_of_anger: public SpellScriptLoader
 {
@@ -5709,6 +5853,270 @@ class spell_nullification_barrier : public SpellScriptLoader
         }
 };
 
+/// Cataclysm Custom Spell
+class spell_summon_generic_controller : public SpellScriptLoader
+{
+public:
+	spell_summon_generic_controller() : SpellScriptLoader("spell_summon_generic_controller") { }
+
+	class spell_summon_generic_controller_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_summon_generic_controller_SpellScript);
+
+		enum Id
+		{
+			// Npc
+			NPC_ENTRY_MESSNER = 43300, NPC_ENTRY_JORGENSEN = 43305, NPC_ENTRY_KRAKAUER = 43303,
+			NPC_ENTRY_DANFORTH = 43302, NPC_ENTRY_JORGENSEN_2 = 43546, NPC_ENTRY_KEESHAN = 48346,
+			NPC_ENTRY_ARIOK = 48567, NPC_ENTRY_AMAKKAR = 47021, NPC_ENTRY_GARGAL = 47022,
+			NPC_ENTRY_JURRIX = 47024, NPC_ENTRY_ERIC = 46855, NPC_ENTRY_BAELOG = 46856,
+			NPC_ENTRY_OLAF = 46857, NPC_ENTRY_MINUTEMAN_1 = 45231, NPC_ENTRY_MINUTEMAN_2 = 45232,
+			NPC_ENTRY_MINUTEMAN_3 = 45233, NPC_ENTRY_MINUTEMAN_4 = 45234, NPC_ENTRY_GIDWIN_1 = 46173,
+			NPC_ENTRY_TARENAR_1 = 45957, NPC_ENTRY_TARENAR_2 = 45794, NPC_ENTRY_VEXTUL = 45741,
+			NPC_ENTRY_IZZY = 34959, NPC_ENTRY_GOBBER = 34958, NPC_ENTRY_ACE = 34957,
+			NPC_ENTRY_GREELY = 39199, NPC_ENTRY_GOBBER_COLA = 39201, NPC_ENTRY_ACE_COLA = 39198,
+			NPC_ENTRY_IZZY_COLA = 39200, NPC_ENTRY_ANDUIN = 44293,
+
+			// Spell
+			SPELL_SUMMON_MESSNER = 80893, SPELL_SUMMON_JORGENSEN = 80940, SPELL_SUMMON_KRAKAUER = 80941,
+			SPELL_SUMMON_DANFORTH = 80943, SPELL_SUMMON_JORGENSEN_2 = 81447, SPELL_SUMMON_KEESHAN_03 = 89869,
+			SPELL_SUMMON_ARIOK_03 = 90483, SPELL_SUMMON_AMAKKAR = 87589, SPELL_SUMMON_GARGAL = 87590,
+			SPELL_SUMMON_JURRIX = 87591, SPELL_SUMMON_ERIC = 87262, SPELL_SUMMON_BAELOG = 87263,
+			SPELL_SUMMON_OLAF = 87264, SPELL_SUMMON_MINUTEMAN_1 = 84452, SPELL_SUMMON_MINUTEMAN_2 = 84456,
+			SPELL_SUMMON_MINUTEMAN_3 = 84457, SPELL_SUMMON_MINUTEMAN_4 = 84458, SPELL_SUMMON_MINUTEMAN_5 = 84482,
+			SPELL_SUMMON_GIDWIN_1 = 85218, SPELL_SUMMON_TARENAR_1 = 85217, SPELL_SUMMON_TARENAR_2 = 85405,
+			SPELL_SUMMON_VEXTUL = 85334, SPELL_SUMMON_IZZY = 66646, SPELL_SUMMON_GOBBER = 66645,
+			SPELL_SUMMON_ACE = 66644, SPELL_SUMMON_GREELY = 73603, SPELL_SUMMON_GOBBER_COLA = 73611,
+			SPELL_SUMMON_ACE_COLA = 73601, SPELL_SUMMON_IZZY_COLA = 73609, SPELL_SUMMON_ANDUIN = 82823
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				std::list<Unit*> targets;
+				JadeCore::AnyUnitInObjectRangeCheck u_check(caster, 300.0f);
+				JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
+				caster->VisitNearbyObject(300.0f, searcher);
+				for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+				{
+					if ((*itr) && ((*itr)->ToTempSummon() || (*itr)->isSummon()) && (*itr)->ToTempSummon()->GetCharmerOrOwner() == caster)
+					{
+						switch ((*itr)->ToTempSummon()->GetEntry())
+						{
+						case NPC_ENTRY_MESSNER: {if (GetSpellInfo()->Id == SPELL_SUMMON_MESSNER)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_JORGENSEN: {if (GetSpellInfo()->Id == SPELL_SUMMON_JORGENSEN)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_KRAKAUER: {if (GetSpellInfo()->Id == SPELL_SUMMON_KRAKAUER)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_DANFORTH: {if (GetSpellInfo()->Id == SPELL_SUMMON_DANFORTH)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_JORGENSEN_2: {if (GetSpellInfo()->Id == SPELL_SUMMON_JORGENSEN)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_KEESHAN: {if (GetSpellInfo()->Id == SPELL_SUMMON_KEESHAN_03)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_ARIOK: {if (GetSpellInfo()->Id == SPELL_SUMMON_ARIOK_03)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_AMAKKAR: {if (GetSpellInfo()->Id == SPELL_SUMMON_AMAKKAR)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_GARGAL: {if (GetSpellInfo()->Id == SPELL_SUMMON_GARGAL)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_JURRIX: {if (GetSpellInfo()->Id == SPELL_SUMMON_JURRIX)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_ERIC: {if (GetSpellInfo()->Id == SPELL_SUMMON_ERIC)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_BAELOG: {if (GetSpellInfo()->Id == SPELL_SUMMON_BAELOG)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_OLAF: {if (GetSpellInfo()->Id == SPELL_SUMMON_OLAF)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_MINUTEMAN_1: {if (GetSpellInfo()->Id == SPELL_SUMMON_MINUTEMAN_1 || GetSpellInfo()->Id == SPELL_SUMMON_MINUTEMAN_5)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_MINUTEMAN_2: {if (GetSpellInfo()->Id == SPELL_SUMMON_MINUTEMAN_2)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_MINUTEMAN_3: {if (GetSpellInfo()->Id == SPELL_SUMMON_MINUTEMAN_3)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_MINUTEMAN_4: {if (GetSpellInfo()->Id == SPELL_SUMMON_MINUTEMAN_4)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_GIDWIN_1: {if (GetSpellInfo()->Id == SPELL_SUMMON_GIDWIN_1)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_TARENAR_1: {if (GetSpellInfo()->Id == SPELL_SUMMON_TARENAR_1)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_TARENAR_2: {if (GetSpellInfo()->Id == SPELL_SUMMON_TARENAR_2)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_VEXTUL: {if (GetSpellInfo()->Id == SPELL_SUMMON_VEXTUL)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_IZZY: {if (GetSpellInfo()->Id == SPELL_SUMMON_IZZY)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_GOBBER: {if (GetSpellInfo()->Id == SPELL_SUMMON_GOBBER)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_ACE: {if (GetSpellInfo()->Id == SPELL_SUMMON_ACE)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_GREELY: {if (GetSpellInfo()->Id == SPELL_SUMMON_GREELY)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_GOBBER_COLA: {if (GetSpellInfo()->Id == SPELL_SUMMON_GOBBER_COLA)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_ACE_COLA: {if (GetSpellInfo()->Id == SPELL_SUMMON_ACE_COLA)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_IZZY_COLA: {if (GetSpellInfo()->Id == SPELL_SUMMON_IZZY_COLA)return SPELL_FAILED_DONT_REPORT; break; }
+						case NPC_ENTRY_ANDUIN: {if (GetSpellInfo()->Id == SPELL_SUMMON_ANDUIN)return SPELL_FAILED_DONT_REPORT; break; }
+						}
+					}
+				}
+			}
+			return SPELL_CAST_OK;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_summon_generic_controller_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_summon_generic_controller_SpellScript();
+	}
+};
+
+
+class spell_gen_blackout_effect : public SpellScriptLoader
+{
+public:
+	spell_gen_blackout_effect() : SpellScriptLoader("spell_gen_blackout_effect") { }
+
+	class spell_gen_blackout_effect_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_gen_blackout_effect_SpellScript);
+
+		enum Id
+		{
+			// Quest
+			QUEST_FALL_BACK = 27405,
+			QUEST_WELCOME_TO_THE_BROTHERHOOD = 28064,
+			QUEST_THE_HIDDEN_CLUTCH_H = 27897,
+			QUEST_THE_HIDDEN_CLUTCH_A = 27832
+		};
+
+		void HandleTeleportBlackout()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() == TYPEID_PLAYER)
+				{
+					if (caster->ToPlayer()->GetQuestStatus(QUEST_FALL_BACK) == QUEST_STATUS_COMPLETE)
+						caster->NearTeleportTo(-1171.13f, 1146.61f, 24.28f, 6.13f);
+					if (caster->ToPlayer()->GetQuestStatus(QUEST_WELCOME_TO_THE_BROTHERHOOD) == QUEST_STATUS_COMPLETE)
+						caster->NearTeleportTo(-6505.92f, -1177.28f, 326.21f, 0.70f);
+					if (caster->ToPlayer()->GetQuestStatus(QUEST_THE_HIDDEN_CLUTCH_H) == QUEST_STATUS_COMPLETE)
+						caster->NearTeleportTo(-6525.17f, -2397.23f, 294.15f, 1.06f);
+					if (caster->ToPlayer()->GetQuestStatus(QUEST_THE_HIDDEN_CLUTCH_A) == QUEST_STATUS_COMPLETE)
+						caster->NearTeleportTo(-6525.17f, -2397.23f, 294.15f, 1.06f);
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_gen_blackout_effect_SpellScript::HandleTeleportBlackout);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_gen_blackout_effect_SpellScript();
+	}
+
+	class spell_gen_blackout_effect_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_gen_blackout_effect_AuraScript);
+
+		enum Id
+		{
+			// Quest
+			QUEST_TRANSDIMENSIONAL_WARFARE_CHAPTER_III = 27518
+		};
+
+		void DoTeleportBack(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+		{
+			if (Unit* target = GetTarget())
+			{
+				if (target->GetTypeId() == TYPEID_PLAYER)
+				{
+					if (target->ToPlayer()->GetQuestStatus(QUEST_TRANSDIMENSIONAL_WARFARE_CHAPTER_III) == QUEST_STATUS_COMPLETE)
+					{
+						// Only in Ambermill
+						if (target->GetAreaId() == 233)
+							target->NearTeleportTo(-157.14f, 1270.39f, 51.09f, 6.26f);
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterEffectRemove += AuraEffectRemoveFn(spell_gen_blackout_effect_AuraScript::DoTeleportBack, EFFECT_0, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_gen_blackout_effect_AuraScript();
+	}
+};
+
+
+/// Despawn Summons - 116237  (may not be the correct ID)
+class spell_gen_despawn_all_summons : public SpellScriptLoader
+{
+public:
+	spell_gen_despawn_all_summons() : SpellScriptLoader("spell_gen_despawn_all_summons") { }
+
+	class spell_gen_despawn_all_summons_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_gen_despawn_all_summons_SpellScript);
+
+		enum Id
+		{
+			NPC_ENTRY_ARTHURA = 45474,
+			NPC_ENTRY_BELMONT = 45473,
+			NPC_ENTRY_GODFREY = 45878,
+			NPC_ENTRY_ASHBURY = 45880,
+			NPC_ENTRY_WALDEN = 45879,
+			NPC_ENTRY_AMAKKAR = 47021,
+			NPC_ENTRY_GARGAL = 47022,
+			NPC_ENTRY_JURRIX = 47024,
+			NPC_ENTRY_ERIC = 46855,
+			NPC_ENTRY_BAELOG = 46856,
+			NPC_ENTRY_OLAF = 46857,
+			SPELL_AURA_BATTLEFRONT = 85516
+		};
+
+		void HandleRemoveSummoned()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() == TYPEID_PLAYER)
+				{
+					std::list<Unit*> targets;
+					JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(caster, caster, 500.0f);
+					JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
+					caster->VisitNearbyObject(500.0f, searcher);
+					for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+					{
+						if ((*itr) && (*itr)->isSummon() && ((*itr)->ToTempSummon()->GetCharmerOrOwner() == caster))
+						{
+							switch ((*itr)->ToTempSummon()->GetEntry())
+							{
+							case NPC_ENTRY_ARTHURA:
+							case NPC_ENTRY_BELMONT:
+							case NPC_ENTRY_GODFREY:
+							case NPC_ENTRY_ASHBURY:
+							case NPC_ENTRY_WALDEN:
+							case NPC_ENTRY_AMAKKAR:
+							case NPC_ENTRY_GARGAL:
+							case NPC_ENTRY_JURRIX:
+							case NPC_ENTRY_ERIC:
+							case NPC_ENTRY_BAELOG:
+							case NPC_ENTRY_OLAF:
+								((*itr)->ToTempSummon()->UnSummon());
+								break;
+							default:
+								break;
+							}
+						}
+					}
+					if (caster->HasAura(SPELL_AURA_BATTLEFRONT))
+						caster->RemoveAurasDueToSpell(SPELL_AURA_BATTLEFRONT);
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_gen_despawn_all_summons_SpellScript::HandleRemoveSummoned);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_gen_despawn_all_summons_SpellScript();
+	}
+};
+
 
 /// Last Update 6.2.3
 /// Transmorphose - 162313
@@ -6190,6 +6598,563 @@ class spell_gen_draenor_feast : public SpellScriptLoader
         }
 };
 
+/// Splithoof Brand - 77327
+/// Triggered by items - 55986, 55987
+class spell_splithoof_brand : public SpellScriptLoader
+{
+public:
+	spell_splithoof_brand() : SpellScriptLoader("spell_splithoof_brand") { }
+
+	enum Id
+	{
+		// NPC
+		NPC_ENTRY_THE_ANCIENT_BRAZIER_FIRE_BUNNY = 41242,
+		NPC_ENTRY_AQUARIAN = 41236,
+
+		// Spells
+		SPELL_BUNNY_FLAMES = 70415
+	};
+
+	class spell_splithoof_brand_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_splithoof_brand_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* brazierFireBunny = GetCaster()->FindNearestCreature(NPC_ENTRY_THE_ANCIENT_BRAZIER_FIRE_BUNNY, 8.0f, true))
+			{
+				brazierFireBunny->CastSpell(brazierFireBunny, SPELL_BUNNY_FLAMES, true);
+				if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
+					GetCaster()->ToPlayer()->KilledMonsterCredit(NPC_ENTRY_THE_ANCIENT_BRAZIER_FIRE_BUNNY);
+				return SPELL_CAST_OK;
+			}
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void StartEvent()
+		{
+			if (Player* caster = GetCaster()->ToPlayer())
+			{
+				Creature* Aquarian = caster->FindNearestCreature(NPC_ENTRY_AQUARIAN, 200.0f, true);
+				if (!Aquarian)
+					caster->SummonCreature(NPC_ENTRY_AQUARIAN, -4934.35f, -2288.15f, -72.26f, 0.12f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_splithoof_brand_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_splithoof_brand_SpellScript::StartEvent);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_splithoof_brand_SpellScript();
+	}
+};
+
+/// Shuhalo Artifacts - 84925
+/// Triggered by item - 61043
+class spell_shuhalo_artifacts : public SpellScriptLoader
+{
+public:
+	spell_shuhalo_artifacts() : SpellScriptLoader("spell_shuhalo_artifacts") { }
+
+	enum Id
+	{
+		// NPC
+		NPC_ENTRY_THE_RATTLE_OF_BONE = 45463,
+		NPC_ENTRY_THE_WRIT_OF_HISTORY = 45466,
+		NPC_ENTRY_THE_DRUMS_OF_WAR = 45468,
+		NPC_ENTRY_ARIKARA = 45446,
+
+		// Spells
+		SPELL_ENTRY_RATTLE = 84949,
+		SPELL_ENTRY_WRIT = 84953,
+		SPELL_ENTRY_DRUMS = 84954,
+
+		// AreaID
+		AREA_ID_ARIKARA_NEEDLE = 5675
+	};
+
+	class spell_shuhalo_artifacts_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_shuhalo_artifacts_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (GetCaster()->GetAreaId() == AREA_ID_ARIKARA_NEEDLE)
+			{
+				Creature* rattle = GetCaster()->FindNearestCreature(NPC_ENTRY_THE_RATTLE_OF_BONE, 100.0f, true);
+				Creature* writ = GetCaster()->FindNearestCreature(NPC_ENTRY_THE_WRIT_OF_HISTORY, 100.0f, true);
+				Creature* drums = GetCaster()->FindNearestCreature(NPC_ENTRY_THE_DRUMS_OF_WAR, 100.0f, true);
+				Creature* arikara = GetCaster()->FindNearestCreature(NPC_ENTRY_ARIKARA, 100.0f, true);
+				if (!rattle && !writ && !drums && !arikara)
+					return SPELL_CAST_OK;
+				else
+					return SPELL_FAILED_NOT_HERE;
+			}
+			return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+		}
+
+		void StartEvent()
+		{
+			if (Player* caster = GetCaster()->ToPlayer())
+			{
+				caster->SummonCreature(NPC_ENTRY_THE_DRUMS_OF_WAR, -5004.77f, -2101.19f, 85.05f, 4.75f, TEMPSUMMON_TIMED_DESPAWN, 11000);
+				caster->SummonCreature(NPC_ENTRY_THE_WRIT_OF_HISTORY, -5000.36f, -2112.87f, 84.72f, 2.29f, TEMPSUMMON_TIMED_DESPAWN, 11000);
+				caster->SummonCreature(NPC_ENTRY_THE_RATTLE_OF_BONE, -5010.13f, -2109.63f, 84.92f, 0.20f, TEMPSUMMON_TIMED_DESPAWN, 11000);
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_shuhalo_artifacts_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_shuhalo_artifacts_SpellScript::StartEvent);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_shuhalo_artifacts_SpellScript();
+	}
+};
+
+/// Bottle of Grog - 75541
+class spell_bottle_of_grog : public SpellScriptLoader
+{
+public:
+	spell_bottle_of_grog() : SpellScriptLoader("spell_bottle_of_grog") { }
+
+	enum Id
+	{
+		/// Npcs
+		NPC_ENTRY_GNOME_BAR_PATRON_1 = 40529,
+		NPC_ENTRY_GNOME_BAR_PATRON_2 = 40483,
+		NPC_ENTRY_GOBLIN_BAR_PATRON_1 = 40530,
+		NPC_ENTRY_GOBLIN_BAR_PATRON_2 = 40494
+	};
+
+	class spell_bottle_of_grog_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_bottle_of_grog_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* target = GetExplTargetUnit())
+			{
+				if (target->ToCreature())
+				{
+					switch (target->ToCreature()->GetEntry())
+					{
+					case NPC_ENTRY_GNOME_BAR_PATRON_1:
+					case NPC_ENTRY_GNOME_BAR_PATRON_2:
+					case NPC_ENTRY_GOBLIN_BAR_PATRON_1:
+					case NPC_ENTRY_GOBLIN_BAR_PATRON_2:
+						return SPELL_CAST_OK;
+					default:
+						return SPELL_FAILED_BAD_TARGETS;
+					}
+				}
+			}
+			return SPELL_FAILED_BAD_TARGETS;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_bottle_of_grog_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_bottle_of_grog_SpellScript();
+	}
+};
+
+/// Pirate's Crowbar - 75689
+class spell_pirates_crowbar : public SpellScriptLoader
+{
+public:
+	spell_pirates_crowbar() : SpellScriptLoader("spell_pirates_crowbar") { }
+
+	enum Id
+	{
+		/// GameObject
+		GO_ENTRY_SUBMERGED_OUTHOUSE = 202975
+	};
+
+	class spell_pirates_crowbar_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_pirates_crowbar_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (GameObject* submergedOuthouse = GetCaster()->FindNearestGameObject(GO_ENTRY_SUBMERGED_OUTHOUSE, 5.0f))
+				return SPELL_CAST_OK;
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_pirates_crowbar_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_pirates_crowbar_SpellScript();
+	}
+};
+
+/// Setup an Oil Drilling Rig - 77390
+class spell_setup_an_oil_drilling_rig : public SpellScriptLoader
+{
+public:
+	spell_setup_an_oil_drilling_rig() : SpellScriptLoader("spell_setup_an_oil_drilling_rig") { }
+
+	enum Id
+	{
+		// NPC
+		NPC_ENTRY_OIL_POOL = 25781,
+		NPC_ENTRY_OIL_DRILLING_RIG = 41299
+	};
+
+	class spell_setup_an_oil_drilling_rig_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_setup_an_oil_drilling_rig_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* oilPool = GetCaster()->FindNearestCreature(NPC_ENTRY_OIL_POOL, 15.0f, true))
+			{
+				Creature* oilRig = GetCaster()->FindNearestCreature(NPC_ENTRY_OIL_DRILLING_RIG, 40.0f, true);
+				if (!oilRig)
+					return SPELL_CAST_OK;
+			}
+			return SPELL_FAILED_NOT_HERE;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_setup_an_oil_drilling_rig_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_setup_an_oil_drilling_rig_SpellScript();
+	}
+};
+
+
+/// Razgar's Fillet Knife Spell - 80948
+/// Triggered by item - 58955
+class spell_razgar_fillet_knife : public SpellScriptLoader
+{
+public:
+	spell_razgar_fillet_knife() : SpellScriptLoader("spell_razgar_fillet_knife")
+	{
+	}
+
+	enum npcId
+	{
+		NPC_DROWNED_THUNDER_LIZARD = 39464
+	};
+
+	class spell_razgar_fillet_knife_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_razgar_fillet_knife_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* target = GetExplTargetUnit())
+			{
+				if (target->GetTypeId() == TYPEID_UNIT && target->GetEntry() == NPC_DROWNED_THUNDER_LIZARD)
+					return SPELL_CAST_OK;
+			}
+			return SPELL_FAILED_BAD_TARGETS;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_razgar_fillet_knife_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_razgar_fillet_knife_SpellScript();
+	}
+};
+
+/// Stardust - 73619
+/// Triggered by item - 52490
+class spell_jc_stardust : public SpellScriptLoader
+{
+public:
+	spell_jc_stardust() : SpellScriptLoader("spell_jc_stardust")
+	{
+	}
+
+	enum creditId
+	{
+		QUEST_CREDIT_JC_STARDUST = 39171
+	};
+
+	enum spellId
+	{
+		SPELL_STARDUST_APPLY = 73619
+	};
+
+	class spell_jc_stardust_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_jc_stardust_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (Unit* target = GetExplTargetUnit())
+				{
+					if (target != caster && (target->GetTypeId() == TYPEID_PLAYER || (target->ToCreature() && target->ToCreature()->GetCreatureType() == CREATURE_TYPE_HUMANOID)))
+					{
+						caster->CastSpell(target, SPELL_STARDUST_APPLY);
+						return SPELL_FAILED_DONT_REPORT;
+					}
+				}
+			}
+
+			return SPELL_FAILED_BAD_TARGETS;
+		}
+
+		void HandleQuestCredit()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() == TYPEID_PLAYER)
+					caster->ToPlayer()->KilledMonsterCredit(QUEST_CREDIT_JC_STARDUST);
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_jc_stardust_SpellScript::CheckCast);
+			AfterHit += SpellHitFn(spell_jc_stardust_SpellScript::HandleQuestCredit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_jc_stardust_SpellScript();
+	}
+};
+
+/// Stardust No. 2 - 73667
+/// Triggered by item - 52507
+class spell_jc_stardust_no_2_triggered : public SpellScriptLoader
+{
+public:
+	spell_jc_stardust_no_2_triggered() : SpellScriptLoader("spell_jc_stardust_no_2_triggered")
+	{
+	}
+
+	enum creditId
+	{
+		QUEST_CREDIT_JC_STARDUST = 39237
+	};
+
+	class spell_jc_stardust_no_2_triggered_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_jc_stardust_no_2_triggered_SpellScript);
+
+		void HandleQuestCredit()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->GetTypeId() == TYPEID_PLAYER)
+					caster->ToPlayer()->KilledMonsterCredit(QUEST_CREDIT_JC_STARDUST);
+			}
+		}
+
+		void Register()
+		{
+			AfterHit += SpellHitFn(spell_jc_stardust_no_2_triggered_SpellScript::HandleQuestCredit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_jc_stardust_no_2_triggered_SpellScript();
+	}
+};
+
+/// Deepvein's Patch Kit - 80987
+/// Triggered by item - 58965
+class spell_dh_deepvein_patch_kit : public SpellScriptLoader
+{
+public:
+	spell_dh_deepvein_patch_kit() : SpellScriptLoader("spell_dh_deepvein_patch_kit")
+	{
+	}
+
+	enum npcId
+	{
+		NPC_INJURED_EARTHEN = 43229
+	};
+
+	class spell_dh_deepvein_patch_kit_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_dh_deepvein_patch_kit_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (Unit* target = GetExplTargetUnit())
+					if (target->GetTypeId() == TYPEID_UNIT)
+						if (target->ToCreature() && target->GetEntry() == NPC_INJURED_EARTHEN)
+							return SPELL_CAST_OK;
+			}
+
+			return SPELL_FAILED_BAD_TARGETS;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_dh_deepvein_patch_kit_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_dh_deepvein_patch_kit_SpellScript();
+	}
+};
+
+/// Simulate Alliance Presence - 99511
+class spell_simulate_alliance_presence : public SpellScriptLoader
+{
+public:
+	spell_simulate_alliance_presence() : SpellScriptLoader("spell_simulate_alliance_presence")
+	{
+	}
+
+	enum goId
+	{
+		GO_TRIGGER = 208828
+	};
+
+	class spell_simulate_alliance_presence_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_simulate_alliance_presence_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (GameObject* trigger = GetCaster()->FindNearestGameObject(GO_TRIGGER, 15.0f))
+				return SPELL_CAST_OK;
+
+			return SPELL_FAILED_BAD_TARGETS;
+		}
+
+		void HandleTalk()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				talkNumber = urand(0, 7);
+				switch (talkNumber)
+				{
+				case 0:
+					caster->MonsterSay("Tremble in fear you mighty members of the Horde, the Alliance is here!", 0, 0);
+					break;
+				case 1:
+					caster->MonsterSay("Our loss in Tol Barad will be avenged! I will try to bring death to this grand city. Cower as I try to remember a battle cry!", 0, 0);
+					break;
+				case 2:
+					caster->MonsterSay("I'm so angry that we lost Wintergrasp, again! I will try to kill your leader, the all powerful, Sylvanas, instead.", 0, 0);
+					break;
+				case 3:
+					caster->MonsterSay("Hey, look, there are people here. Nothing at all like that tree city that I, a night elf, live in.", 0, 0);
+					break;
+				case 4:
+					caster->MonsterSay("Where am I? I crashed with the Exodar and now stumbled into this imposing city...", 0, 0);
+					break;
+				case 5:
+					caster->MonsterSay("This city is so big, to me, a tiny, pathetic gnome.", 0, 0);
+					break;
+				case 6:
+					caster->MonsterSay("I am drunk, like many of my fellow dwarves. I've dug a tunnel and wound up here. Who wants to drink?", 0, 0);
+					break;
+				case 7:
+					caster->MonsterSay("Yoo hoo! I am here to slay Sylvanas!", 0, 0);
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_simulate_alliance_presence_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_simulate_alliance_presence_SpellScript::HandleTalk);
+		}
+
+	protected:
+		uint8 talkNumber;
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_simulate_alliance_presence_SpellScript();
+	}
+};
+
+/// Throw Frog -99508
+class spell_throw_frog : public SpellScriptLoader
+{
+public:
+	spell_throw_frog() : SpellScriptLoader("spell_throw_frog")
+	{
+	}
+
+	enum npcId
+	{
+		NPC_MOAT_MONSTER = 53590
+	};
+
+	class spell_throw_frog_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_throw_frog_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (Creature* moatMonster = GetCaster()->FindNearestCreature(NPC_MOAT_MONSTER, 30.0f))
+				{
+					if (caster->GetTypeId() == TYPEID_PLAYER)
+						caster->ToPlayer()->KilledMonsterCredit(53592);
+					return SPELL_CAST_OK;
+				}
+			}
+
+			return SPELL_FAILED_BAD_TARGETS;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_throw_frog_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_throw_frog_SpellScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_generic_spell_scripts()
 {
@@ -6221,6 +7186,10 @@ void AddSC_generic_spell_scripts()
     new spell_dru_touch_of_the_grave();
     new spell_gen_drums_of_fury();
     new spell_gen_absorb0_hitlimit1();
+	new spell_log_in_effect();
+	new spell_summon_generic_controller(); 
+	new spell_gen_blackout_effect(); // Not applied
+	new	spell_gen_despawn_all_summons(); // May not be the correct spell ID
     new spell_gen_aura_of_anger();
     new spell_gen_av_drekthar_presence();
     new spell_gen_burn_brutallus();
@@ -6304,6 +7273,15 @@ void AddSC_generic_spell_scripts()
     new spell_gen_service_uniform();
     new spell_legendary_cloaks();
     new spell_nullification_barrier();
+	new spell_splithoof_brand();
+	new spell_shuhalo_artifacts();
+	new spell_bottle_of_grog();
+	new spell_pirates_crowbar();
+	new spell_setup_an_oil_drilling_rig();
+	new spell_razgar_fillet_knife();
+	new spell_jc_stardust();
+	new spell_jc_stardust_no_2_triggered();
+	new spell_dh_deepvein_patch_kit();
 
     /// PlayerScript
     new PlayerScript_second_talent_spec();

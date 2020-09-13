@@ -6,30 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Shadowmoon_Valley
-SD%Complete: 100
-SDComment: Quest support: 10519, 10583, 10601, 10804, 10854, 10458, 10481, 10480, 11082, 10781, 10451. Vendor Drake Dealer Hurlunk.
-SDCategory: Shadowmoon Valley
-EndScriptData */
-
-/* ContentData
-mob_mature_netherwing_drake
-mob_enslaved_netherwing_drake
-npc_drake_dealer_hurlunk
-npcs_flanis_swiftwing_and_kagrosh
-npc_murkblood_overseer
-npc_karynaku
-npc_oronok_tornheart
-npc_overlord_morghor
-npc_earthmender_wilda
-mob_torloth_the_magnificent
-mob_illidari_spawn
-npc_lord_illidan_stormrage
-go_crystal_prison
-npc_enraged_spirit
-mob_collidus_the_warp_watcher
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -2069,6 +2045,7 @@ class mob_collidus_the_warp_watcher : public CreatureScript
 #ifndef __clang_analyzer__
 void AddSC_shadowmoon_valley()
 {
+	/// Npcs
     new mob_mature_netherwing_drake();
     new mob_enslaved_netherwing_drake();
     new mob_dragonmaw_peon();
@@ -2080,12 +2057,16 @@ void AddSC_shadowmoon_valley()
     new npc_overlord_morghor();
     new npc_earthmender_wilda();
     new npc_lord_illidan_stormrage();
-    new go_crystal_prison();
     new mob_illidari_spawn();
     new mob_torloth_the_magnificent();
     new npc_enraged_spirit();
-    new spell_unlocking_zuluheds_chains();
     new npc_shadowmoon_tuber_node();
     new mob_collidus_the_warp_watcher();
+
+	/// Spell
+	new spell_unlocking_zuluheds_chains();
+
+	/// Object
+	new go_crystal_prison();
 }
 #endif

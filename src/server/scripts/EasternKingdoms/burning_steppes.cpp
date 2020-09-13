@@ -6,12 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Burning_Steppes
-SD%Complete: 0
-SDComment:
-SDCategory: Burning Steppes
-EndScriptData */
 
 
 #include "ScriptMgr.h"
@@ -317,7 +311,439 @@ public:
 	}
 };
 
+
+
+/// Blackrock War Kodo - 48111
+class npc_blackrock_war_kodo : public CreatureScript
+{
+public:
+	npc_blackrock_war_kodo() : CreatureScript("npc_blackrock_war_kodo") { }
+
+	enum eData
+	{
+		/// Quest
+		QUEST_KODOCALLER_HORN = 28252,
+
+		/// Npcs
+		NPC_BLACKROCK_KODO = 48111,
+		NPC_KILL_CREDIT	   = 48112,
+
+		/// Spells
+		SPELL_KODO_STOMP	  = 6266,
+		SPELL_HORN_OF_CALLERS = 89477, // triggered by item ID: 63356
+
+		// Events
+		EVENT_STOMP				= 0,
+		EVENT_CHECK_STOMP_DIST  = 1,
+	};
+
+	struct npc_blackrock_war_kodoAI : public ScriptedAI
+	{
+		npc_blackrock_war_kodoAI(Creature* p_Creature) : ScriptedAI(p_Creature) {
+			m_PlayerGUID = 0;
+		}
+
+		float randHealth;
+		uint64 m_PlayerGUID;
+
+		void Reset() override
+		{
+			randHealth = urand(50.0f, 55.0f);
+			events.Reset();
+		}
+
+		void EnterCombat(Unit* /*who*/) override
+		{
+			events.ScheduleEvent(EVENT_STOMP, urand(2000, 3000));
+		}
+
+		void SpellHit(Unit* Caster, SpellInfo const* spell) override
+		{
+			if (spell->Id == SPELL_HORN_OF_CALLERS)
+				if (Player* player = Caster->ToPlayer())
+					if (player->GetQuestStatus(QUEST_KODOCALLER_HORN) == QUEST_STATUS_INCOMPLETE)
+					{
+						m_PlayerGUID = player->GetGUID();
+
+						int32 FightOrNoFight = urand(1, 2);
+						switch (FightOrNoFight)
+						{
+							case 1:
+							{
+								if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGUID))
+									player->KilledMonsterCredit(NPC_BLACKROCK_KODO);
+
+								/// Move forward 10 yards
+								float x, y, z;
+								me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 10.0f);
+								me->GetMotionMaster()->MovePoint(1, x, y, z);
+								me->DespawnOrUnsummon(5000);
+								break;
+							}
+							case 2:
+							{
+								/// Find player, hostile + attack
+								if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGUID))
+								{
+									me->setFaction(14); // Hostile faction
+									me->CombatStart(player);
+								}
+								break;
+							}
+						}
+					}
+		}
+
+		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const*  /*p_SpellInfo*/) override
+		{
+			if (me->getFaction() == 14)
+			{
+				if (doneBy->ToPlayer())
+					if (me->GetHealth() <= damage || me->GetHealthPct() <= randHealth)
+					{
+						/// Make friendly + give kill credit
+						damage = 0;
+						me->setFaction(35); // Friendly faction
+						me->AttackStop();
+
+						if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGUID))
+						{
+							player->CombatStop();
+							player->KilledMonsterCredit(NPC_BLACKROCK_KODO);
+						}
+
+						/// Move forward 10 yards
+						float x, y, z;
+						me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 10.0f);
+						me->GetMotionMaster()->MovePoint(1, x, y, z);
+						me->DespawnOrUnsummon(5000);
+					}
+			}
+		}
+
+
+		void UpdateAI(const uint32 diff)
+		{
+
+			if (!UpdateVictim())
+				return;
+
+			events.Update(diff);
+
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
+
+			if (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+
+				case EVENT_CHECK_STOMP_DIST: // Check Range, if it's less than 8 yrds then schedule a stomp event.
+					if (me->IsWithinDistInMap(me->getVictim(), 8.0f))
+					{
+						events.ScheduleEvent(EVENT_STOMP, 0);
+						break;
+					}
+					events.ScheduleEvent(EVENT_CHECK_STOMP_DIST, urand(4000, 6000));
+					break;
+
+				case EVENT_STOMP:
+					DoCastVictim(SPELL_KODO_STOMP);
+					events.ScheduleEvent(EVENT_STOMP, urand(15000, 25000));
+					break;
+				}
+			};
+
+			DoMeleeAttackIfReady();
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_blackrock_war_kodoAI(p_Creature);
+	}
+};
+
+
+
+
+enum DisguiseSpells
+{
+	SPELL_DISGUISE_FIREGUT_OGRE_M = 89255,
+	SPELL_DISGUISE_FIREGUT_OGRE_F = 89256,
+	SPELL_DISGUISE_GOBLIN_MERC_M = 89257,
+	SPELL_DISGUISE_GOBLIN_MERC_F = 89258,
+	SPELL_DISGUISE_SMOLDERTHORN_M = 89259,
+	SPELL_DISGUISE_SMOLDERTHORN_F = 89260,
+	SPELL_DISGUISE_BLACKROCK_ORC_M = 89253,
+	SPELL_DISGUISE_BLACKROCK_ORC_F = 89254
+};
+
+
+
+/// Blackrock Disguise - 89261
+class spell_blackrock_disguise : public SpellScriptLoader
+{
+public:
+	spell_blackrock_disguise() : SpellScriptLoader("spell_blackrock_disguise") { }
+
+	class spell_blackrock_disguise_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_blackrock_disguise_SpellScript);
+
+		void HandleCastDisguise()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				uint8 gender = caster->getGender();
+				if (gender == GENDER_MALE)
+				{
+					switch (caster->getRace())
+					{
+					case RACE_HUMAN:
+					case RACE_DWARF:
+					case RACE_UNDEAD_PLAYER:
+					{
+						caster->CastSpell(caster, SPELL_DISGUISE_FIREGUT_OGRE_M, true);
+						break;
+					}
+					case RACE_GNOME:
+					case RACE_GOBLIN:
+					{
+						caster->CastSpell(caster, SPELL_DISGUISE_GOBLIN_MERC_M, true);
+						break;
+					}
+					case RACE_NIGHTELF:
+					case RACE_BLOODELF:
+					case RACE_TROLL:
+					{
+						caster->CastSpell(caster, SPELL_DISGUISE_SMOLDERTHORN_M, true);
+						break;
+					}
+					case RACE_DRAENEI:
+					case RACE_WORGEN:
+					case RACE_ORC:
+					case RACE_TAUREN:
+					{
+						caster->CastSpell(caster, SPELL_DISGUISE_BLACKROCK_ORC_M, true);
+						break;
+					}
+					default:
+						break;
+					}
+				}
+				else
+				{
+					switch (caster->getRace())
+					{
+					case RACE_HUMAN:
+					case RACE_DWARF:
+					case RACE_UNDEAD_PLAYER:
+					{
+						caster->CastSpell(caster, SPELL_DISGUISE_FIREGUT_OGRE_F, true);
+						break;
+					}
+					case RACE_GNOME:
+					case RACE_GOBLIN:
+					{
+						caster->CastSpell(caster, SPELL_DISGUISE_GOBLIN_MERC_F, true);
+						break;
+					}
+					case RACE_NIGHTELF:
+					case RACE_BLOODELF:
+					case RACE_TROLL:
+					{
+						caster->CastSpell(caster, SPELL_DISGUISE_SMOLDERTHORN_F, true);
+						break;
+					}
+					case RACE_DRAENEI:
+					case RACE_WORGEN:
+					case RACE_ORC:
+					case RACE_TAUREN:
+					{
+						caster->CastSpell(caster, SPELL_DISGUISE_BLACKROCK_ORC_F, true);
+						break;
+					}
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_blackrock_disguise_SpellScript::HandleCastDisguise);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_blackrock_disguise_SpellScript();
+	}
+};
+
+/// Razor Sharp Scorpid Barb - 89447
+class spell_razor_sharp_scorpid_barb : public SpellScriptLoader
+{
+public:
+	spell_razor_sharp_scorpid_barb() : SpellScriptLoader("spell_razor_sharp_scorpid_barb") { }
+
+	enum Id
+	{
+		// Npc
+		NPC_VOODOOIST_TIMAN = 48100,
+		NPC_GORLOP = 9176,
+		NPC_WORGMISTRESS_OTHANA = 48099
+	};
+
+	class spell_razor_sharp_scorpid_barb_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_razor_sharp_scorpid_barb_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
+			{
+				if (Creature* voodooistTiman = GetCaster()->FindNearestCreature(NPC_VOODOOIST_TIMAN, 7.0f))
+				{
+					voodooistTiman->Kill(voodooistTiman, false);
+					GetCaster()->ToPlayer()->KilledMonsterCredit(NPC_VOODOOIST_TIMAN);
+					return SPELL_CAST_OK;
+				}
+				if (Creature* npcGorlop = GetCaster()->FindNearestCreature(NPC_GORLOP, 7.0f))
+				{
+					npcGorlop->Kill(npcGorlop, false);
+					GetCaster()->ToPlayer()->KilledMonsterCredit(NPC_GORLOP);
+					return SPELL_CAST_OK;
+				}
+				if (Creature* worgmistressOthana = GetCaster()->FindNearestCreature(NPC_WORGMISTRESS_OTHANA, 7.0f))
+				{
+					worgmistressOthana->Kill(worgmistressOthana, false);
+					GetCaster()->ToPlayer()->KilledMonsterCredit(NPC_WORGMISTRESS_OTHANA);
+					return SPELL_CAST_OK;
+				}
+			}
+
+			return SPELL_FAILED_BAD_TARGETS;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_razor_sharp_scorpid_barb_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_razor_sharp_scorpid_barb_SpellScript();
+	}
+};
+
+/// Worgsaw - 89776
+class spell_worgsaw : public SpellScriptLoader
+{
+public:
+	spell_worgsaw() : SpellScriptLoader("spell_worgsaw") { }
+
+	enum Id
+	{
+		// Npc
+		NPC_GIANT_EMBER_WORG = 9697
+	};
+
+	class spell_worgsaw_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_worgsaw_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* giantEmberWorg = GetCaster()->FindNearestCreature(NPC_GIANT_EMBER_WORG, 5.0f, false))
+			{
+				giantEmberWorg->DespawnOrUnsummon(3000);
+				return SPELL_CAST_OK;
+			}
+			return SPELL_FAILED_TARGET_AURASTATE;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_worgsaw_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_worgsaw_SpellScript();
+	}
+};
+
+
+/// Remove Blackrock Disguise - 90365
+class spell_remove_blackrock_disguise : public SpellScriptLoader
+{
+public:
+	spell_remove_blackrock_disguise() : SpellScriptLoader("spell_remove_blackrock_disguise") { }
+
+	enum Id
+	{
+		NPC_ENTRY_KEESHAN_03 = 48346
+	};
+
+	class spell_remove_blackrock_disguise_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_remove_blackrock_disguise_SpellScript);
+
+		void HandleCleanupAll()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				std::list<Unit*> targets;
+				JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(caster, caster, 300.0f);
+				JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
+				caster->VisitNearbyObject(300.0f, searcher);
+				for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+				{
+					if ((*itr) && (*itr)->isSummon() && (*itr)->ToTempSummon()->GetCharmerOrOwner() == caster)
+					{
+						switch ((*itr)->ToTempSummon()->GetEntry())
+						{
+						case NPC_ENTRY_KEESHAN_03:
+						{
+							(*itr)->ToTempSummon()->DespawnOrUnsummon(1);
+							break;
+						}
+						default:
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_remove_blackrock_disguise_SpellScript::HandleCleanupAll);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_remove_blackrock_disguise_SpellScript();
+	}
+};
+
+
 void AddSC_burning_steppes()
 {
+	/// Npcs
 	new npc_chiseled_golem();
+	new npc_blackrock_war_kodo();
+
+
+	/// Spells
+	new spell_blackrock_disguise();
+	new spell_razor_sharp_scorpid_barb();
+	new spell_worgsaw();
+	new spell_remove_blackrock_disguise();
 }

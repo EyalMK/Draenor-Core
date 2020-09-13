@@ -6,18 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Dustwallow_Marsh
-SD%Complete: 95
-SDComment: Quest support: 1270, 1222, 27245
-SDCategory: Dustwallow Marsh
-EndScriptData */
-
-/* ContentData
-npc_stinky
-go_blackhoof_cage
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
@@ -149,6 +137,158 @@ public:
         }
     };
 };
+
+
+/// Theramore Prisoner - 23720
+class npc_theramore_prisoner : public CreatureScript
+{
+public:
+	npc_theramore_prisoner() : CreatureScript("npc_theramore_prisoner") { }
+
+	enum eData
+	{
+		/// Text
+		SAY_FREE = 0,
+
+		/// Action
+		SET_FREE = 1,
+	};
+
+	struct npc_theramore_prisonerAI : public ScriptedAI
+	{
+		npc_theramore_prisonerAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+		}
+
+
+		void UpdateAI(const uint32 diff)
+		{
+			UpdateOperations(diff);
+		}
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case SET_FREE:
+			{
+				me->AI()->Talk(SAY_FREE);
+
+				AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					float x, y, z;
+					me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 10.0f);
+					me->GetMotionMaster()->MovePoint(1, x, y, z);
+					me->DespawnOrUnsummon(7000);
+				});
+				break;
+			}
+
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new npc_theramore_prisonerAI(p_Creature);
+	}
+
+};
+
+/// QUEST 27188: What's Haunting Witch Hill?
+enum HauntingWitchHill
+{
+	/// Quest ID
+	QUEST_WHATS_HAUNTING_WITCH_HILL = 27188,
+
+	/// Spells
+	SPELL_SUMMON_RESTLESS_APPARITION = 42511,
+	SPELL_WITCH_HILL_INFORMATION_CREDIT = 42512,
+
+	/// Risen Husk mechanics and ID
+	SPELL_CONSUME_FLESH = 37933,
+	NPC_RISEN_HUSK = 23555,
+
+	/// Risen Spirit mechanics and ID
+	SPELL_INTANGIBLE_PRESENCE = 43127,
+	NPC_RISEN_SPIRIT = 23554,
+
+	/// Events
+	EVENT_CONSUME_FLESH = 0,
+	EVENT_INTANGIBLE_PRESENCE = 1,
+};
+
+class mobs_risen_husk_spirit : public CreatureScript
+{
+public:
+	mobs_risen_husk_spirit() : CreatureScript("mobs_risen_husk_spirit") { }
+
+	struct mobs_risen_husk_spiritAI : public ScriptedAI
+	{
+		mobs_risen_husk_spiritAI(Creature* creature) : ScriptedAI(creature) { }
+
+		void Reset()
+		{
+			events.Reset();
+			if (me->GetEntry() == NPC_RISEN_HUSK)
+				events.ScheduleEvent(EVENT_CONSUME_FLESH, 5000);
+			else if (me->GetEntry() == NPC_RISEN_SPIRIT)
+				events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 5000);
+		}
+
+		void JustDied(Unit* killer)
+		{
+			if (killer->GetTypeId() == TYPEID_PLAYER)
+			{
+				if (killer->ToPlayer()->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
+				{
+					DoCast(me, SPELL_SUMMON_RESTLESS_APPARITION, true);
+					DoCast(killer, SPELL_WITCH_HILL_INFORMATION_CREDIT, true);
+				}
+			}
+		}
+
+		void UpdateAI(uint32 const diff)
+		{
+			if (!UpdateVictim())
+				return;
+			events.Update(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_CONSUME_FLESH:
+					DoCastVictim(SPELL_CONSUME_FLESH);
+					events.ScheduleEvent(EVENT_CONSUME_FLESH, 15000);
+					break;
+
+				case EVENT_INTANGIBLE_PRESENCE:
+					DoCastVictim(SPELL_INTANGIBLE_PRESENCE);
+					events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 15000);
+					break;
+
+				default:
+					break;
+				}
+			}
+
+			DoMeleeAttackIfReady();
+		}
+
+	private:
+		EventMap events;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new mobs_risen_husk_spiritAI(creature);
+	}
+};
+
 
 enum SpellScripts
 {
@@ -289,14 +429,20 @@ class spell_energize_aoe: public SpellScriptLoader
         }
 };
 
-/*######
-## go_blackhoof_cage
-######*/
-
-enum PrisonersOfTheGrimTotems
+/// Blackhoof Cage - 186287
+enum eBackhoofCage
 {
-    NPC_THERAMORE_PRISONER                          = 23720,
-    SAY_FREE                                        = 0
+	/// Quest
+	POTG_QUEST = 27245,
+
+	/// Npc
+	NPC_THERAMORE_PRISONER = 23720,
+
+	/// Text
+	SAY_FREE = 0,
+
+	/// Action
+	SET_FREE = 1,
 };
 
 class go_blackhoof_cage : public GameObjectScript
@@ -306,120 +452,33 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (Creature* prisoner = go->FindNearestCreature(NPC_THERAMORE_PRISONER, 1.0f))
-        {
-            go->UseDoorOrButton();
-            if (player)
-                player->KilledMonsterCredit(NPC_THERAMORE_PRISONER, 0);
+		if (player->GetQuestStatus(POTG_QUEST) == QUEST_STATUS_INCOMPLETE)
+			if (Creature* prisoner = go->FindNearestCreature(NPC_THERAMORE_PRISONER, 5.0f, true))
+			{
+				go->UseDoorOrButton();
+				player->KilledMonsterCredit(NPC_THERAMORE_PRISONER, 0);
 
-            prisoner->AI()->Talk(SAY_FREE); // We also emote cry here (handled in creature_text.emote)
-            prisoner->DespawnOrUnsummon(6000);
-        }
+				prisoner->AI()->DoAction(SET_FREE);
+			}
         return true;
     }
 };
 
 
-/// QUEST 27188: What's Haunting Witch Hill?
-
-enum HauntingWitchHill
-{
-	/// Quest ID
-	QUEST_WHATS_HAUNTING_WITCH_HILL = 27188,
-
-	/// Spells
-	SPELL_SUMMON_RESTLESS_APPARITION = 42511,
-	SPELL_WITCH_HILL_INFORMATION_CREDIT = 42512,
-
-	/// Risen Husk mechanics and ID
-	SPELL_CONSUME_FLESH = 37933,
-	NPC_RISEN_HUSK = 23555,
-
-	/// Risen Spirit mechanics and ID
-	SPELL_INTANGIBLE_PRESENCE = 43127,
-	NPC_RISEN_SPIRIT = 23554,
-
-	/// Events
-	EVENT_CONSUME_FLESH = 0,
-	EVENT_INTANGIBLE_PRESENCE = 1,
-};
-
-class mobs_risen_husk_spirit : public CreatureScript
-{
-public:
-	mobs_risen_husk_spirit() : CreatureScript("mobs_risen_husk_spirit") { }
-
-	struct mobs_risen_husk_spiritAI : public ScriptedAI
-	{
-		mobs_risen_husk_spiritAI(Creature* creature) : ScriptedAI(creature) { }
-
-		void Reset()
-		{
-			events.Reset();
-			if (me->GetEntry() == NPC_RISEN_HUSK)
-				events.ScheduleEvent(EVENT_CONSUME_FLESH, 5000);
-			else if (me->GetEntry() == NPC_RISEN_SPIRIT)
-				events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 5000);
-		}
-
-		void JustDied(Unit* killer)
-		{
-			if (killer->GetTypeId() == TYPEID_PLAYER)
-			{
-				if (killer->ToPlayer()->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
-				{
-					DoCast(me, SPELL_SUMMON_RESTLESS_APPARITION, true);
-					DoCast(killer, SPELL_WITCH_HILL_INFORMATION_CREDIT, true);
-				}
-			}
-		}
-
-		void UpdateAI(uint32 const diff)
-		{
-			if (!UpdateVictim())
-				return;
-			events.Update(diff);
-
-			while (uint32 eventId = events.ExecuteEvent())
-			{
-				switch (eventId)
-				{
-				case EVENT_CONSUME_FLESH:
-					DoCastVictim(SPELL_CONSUME_FLESH);
-					events.ScheduleEvent(EVENT_CONSUME_FLESH, 15000);
-					break;
-
-				case EVENT_INTANGIBLE_PRESENCE:
-					DoCastVictim(SPELL_INTANGIBLE_PRESENCE);
-					events.ScheduleEvent(EVENT_INTANGIBLE_PRESENCE, 15000);
-					break;
-
-				default:
-					break;
-				}
-			}
-
-			DoMeleeAttackIfReady();
-		}
-
-	private:
-		EventMap events;
-	};
-
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new mobs_risen_husk_spiritAI(creature);
-	}
-};
-
 #ifndef __clang_analyzer__
 void AddSC_dustwallow_marsh()
 {
+	/// Npcs
     new npc_stinky();
+	new npc_theramore_prisoner();
+	new mobs_risen_husk_spirit();
+
+	/// Spells
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();
+
+	/// Object
     new go_blackhoof_cage();
-	new mobs_risen_husk_spirit();
 }
 #endif

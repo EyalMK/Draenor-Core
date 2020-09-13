@@ -300,10 +300,85 @@ public:
 
 };
 
+
+/// Nature's Fury - 65455
+class spell_natures_fury : public SpellScriptLoader
+{
+public:
+	spell_natures_fury() : SpellScriptLoader("spell_natures_fury") { }
+
+	enum Id
+	{
+		QUEST_NATURE_REPRISAL = 13946,
+		QUEST_CREDIT_GRELLKIN = 34440,
+		SPELL_NATURE_FURY = 65455,
+		SPELL_SUICIDE	 = 8329, // Not blizzlike
+		NPC_GRELKIN1 = 2002,
+		NPC_GRELKIN2 = 2003
+	};
+
+	class spell_natures_fury_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_natures_fury_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			Unit* caster = GetCaster();
+			Unit* target = GetHitUnit();
+
+			if (!caster || !target)
+				return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+			if (Creature* creature = target->ToCreature())
+				if (creature->GetEntry() == (NPC_GRELKIN1 || NPC_GRELKIN2))
+					if (creature->isAlive())
+						return SPELL_CAST_OK;
+
+			return SPELL_FAILED_BAD_TARGETS;
+
+		}
+
+		void HandleKillByNatureFury()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (Unit* target = GetHitUnit())
+				{
+					if (Player* player = caster->ToPlayer())
+					{
+						if (player->GetQuestStatus(QUEST_NATURE_REPRISAL) == QUEST_STATUS_INCOMPLETE)
+						{
+							player->KilledMonsterCredit(QUEST_CREDIT_GRELLKIN);
+							target->CastWithDelay(3000, target, SPELL_SUICIDE, true);
+							target->RemoveAurasDueToSpell(SPELL_NATURE_FURY);
+						}
+					}
+				}
+			}
+			return;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_natures_fury_SpellScript::CheckCast);
+			OnCast += SpellCastFn(spell_natures_fury_SpellScript::HandleKillByNatureFury);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_natures_fury_SpellScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_teldrassil()
 {
+	/// Npcs
     new npc_mist();
 	new npc_moonwell_bunny();
+
+	/// Spells
+	new spell_natures_fury();
 }
 #endif

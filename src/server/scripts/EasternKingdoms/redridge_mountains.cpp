@@ -479,6 +479,42 @@ public:
 	}
 };
 
+
+/// Keeshan's Riverboat - 43443
+class npc_rm_keeshan_riverboat : public CreatureScript
+{
+public:
+	npc_rm_keeshan_riverboat() : CreatureScript("npc_rm_keeshan_riverboat")
+	{
+	}
+
+	enum questId
+	{
+		QUEST_ITS_NEVER_OVER = 26616
+	};
+
+	enum spellId
+	{
+		SPELL_SUMMON_KEESHAN_RIVERBOAT = 81243, // Summons boat ID 43450
+		SPELL_QUEST_DETECTION_5 = 81004
+	};
+
+	bool OnGossipHello(Player* player, Creature* creature)
+	{
+		if (player->GetQuestStatus(QUEST_ITS_NEVER_OVER) == QUEST_STATUS_INCOMPLETE)
+		{
+			if (player->GetVehicleBase())
+				return true;
+
+			if (player->HasAura(SPELL_QUEST_DETECTION_5))
+				player->RemoveAurasDueToSpell(SPELL_QUEST_DETECTION_5);
+			player->CastSpell(player, SPELL_SUMMON_KEESHAN_RIVERBOAT, true);
+		}
+		return false;
+	}
+};
+
+
 void AddSC_redridge_mountains()
 {
 	new npc_big_earl();
@@ -488,4 +524,5 @@ void AddSC_redridge_mountains()
 	new npc_keeshan_riverboat();
 	new npc_blackrock_tower();
 	new npc_munitions_dump();
+	new npc_rm_keeshan_riverboat();
 }

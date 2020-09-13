@@ -10,36 +10,38 @@
 /*
 [+] Gadgetzan
 1) Gadgetzan Pathing.
-2) Megs Dreadshredder and Kelsey Steelspark conversation with Noggenfogger at Gadgetzan.
-3) Thunderdrome arena quest testing and fixing of the duplicate objectives (slain + defeated). -- Supposed to be defeated only.
-4) Rocket Rescue quest and the butcher bot quests.
-5) All NPCs with wrong behavior such as wandering, wrong gossip menus, etc...
+2) Thunderdrome arena quest testing and fixing of the duplicate objectives (slain + defeated). -- Supposed to be defeated only.
+3) Fix Megs and Kelsey phasing depending on storyline
+-- fix Stop Poking Me spell to jump to the point in arena, fix sawblade and spark chase effect to chase kelsey/megs, fix megs and kelsey constant fleeing.
 
+4) Fix Gadgetzan Bruiser emotes
+5) Rumsen Fizzlebrack gossip menu and daily quest
+
+
+/// Low Priority ---
 [+] Sandsorrow Watch
-1) Add final touches to the Gus Rustflutter and Chelsea Rustflutter event.
-2) Find Shadow/Void visual for Mazoga during Secrets in the Oasis.
-3) Fix Mazoga's Whirlwind ability.
+1) Find Shadow/Void visual for Mazoga during Secrets in the Oasis.
+2) Fix Mazoga's Whirlwind ability.
 
 [+] Dunemaul Compound
 1) Find the drink spell for the ogres in Maul 'Em With Kindness.
-
+/// ---------------
 
 [+] Lost Rigger Cove
 1) Implement cannons firing at the docks, Covert Ops Hardsuits and Bilgewater Battlebruiser rushing to the docks and dying to cannons.
 2) Test Southsea Taskmaster's timed actionlist (giving orders).
 3) Fix Captain Dreadbeard quest and To The Ground quest.
-4) Fix Gossip Menus for Megs Dreadshredder and Kelsey Steelspark.
 
 [+] Bootlegger Outpost
-1) Fix A Great Idea quest, Just Trying To Kill Some Bugs quest and A Few Good Goblins quest.
+1) Fix A Few Good Goblins quest.
 2) All NPCs with wrong behavior.
 
-[+] Valley of the Watchers
-1) Test NPCs for their behavior, specifically the dwarves.
 */
 
 
-
+#include "Player.h"
+#include "Vehicle.h"
+#include "WorldSession.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -86,7 +88,7 @@ public:
 		uint32 l_PhaseMask = p_Player->GetPhaseMask();
 		uint32 p_NewAreaId = p_Player->GetAreaId();
 
-		if (p_NewAreaId == 979) // Sandsorrow Watch
+		if (p_NewAreaId == 8) // Sandsorrow Watch
 		{
 
 			if (p_Player->GetQuestStatus(25032) == QUEST_STATUS_INCOMPLETE) // Secrets in the Oasis - Mazoga betrays player.
@@ -97,6 +99,23 @@ public:
 			if (p_Player->GetQuestStatus(25032) == QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED) // Secrets in the Oasis - Mazoga betrays player.
 			{
 				p_Player->RemoveAurasDueToSpell(49416, p_Player->GetGUID()); // Remove Invisibility Detection (7) - to not see Mazoga (has spell 49414) after he betrays player.
+			}
+
+			p_Player->SetPhaseMask(l_PhaseMask, true);
+		}
+
+		if (p_NewAreaId == 5420) // Escape to Uldum - Video Part II
+		{
+			uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+			if (p_Player->GetQuestStatus(27003) == (QUEST_STATUS_INCOMPLETE || QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED)) // If player has quest: Easy Money
+			{
+				l_PhaseMask == 2;
+			}
+
+			if (p_Player->GetQuestStatus(27922) == QUEST_STATUS_REWARDED) // Traitors!
+			{
+				l_PhaseMask == 2;
 			}
 
 			p_Player->SetPhaseMask(l_PhaseMask, true);
@@ -121,11 +140,30 @@ public:
 
 			p_Player->SetPhaseMask(l_PhaseMask, true);
 		}
+
+		if (p_NewAreaId == 5420) // Escape to Uldum - Video Part II
+		{
+			uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+			if (p_Player->GetQuestStatus(27003) ==  (QUEST_STATUS_INCOMPLETE || QUEST_STATUS_COMPLETE || QUEST_STATUS_REWARDED)) // If player has quest: Easy Money
+			{
+				l_PhaseMask == 2;
+			}
+
+			if (p_Player->GetQuestStatus(27922) == QUEST_STATUS_REWARDED) // Traitors!
+			{
+				l_PhaseMask == 2;
+			}
+
+			p_Player->SetPhaseMask(l_PhaseMask, true);
+		}
 	}
 
 	void OnLogin(Player* p_Player) override
 	{
 		if (p_Player->GetZoneId() == 440) // Tanaris
+			UpdatePhaseMask(p_Player);
+		if (p_Player->GetAreaId() == 5420) // Escape to Uldum - Video Part II
 			UpdatePhaseMask(p_Player);
 	}
 
@@ -133,11 +171,15 @@ public:
 	{
 		if (p_Player->GetZoneId() == 440) // Tanaris
 			UpdatePhaseMask(p_Player);
+		if (p_Player->GetAreaId() == 5420) // Escape to Uldum - Video Part II
+			UpdatePhaseMask(p_Player);
 	}
 
 	void OnQuestComplete(Player* p_Player, const Quest* p_Quest) override
 	{
 		if (p_Player->GetZoneId() == 440) // Tanaris
+			UpdatePhaseMask(p_Player);
+		if (p_Player->GetAreaId() == 5420) // Escape to Uldum - Video Part II
 			UpdatePhaseMask(p_Player);
 	}
 
@@ -497,7 +539,7 @@ public:
 	{
 		npc_dunemaul_ogres_uncharteredAI(Creature* creature) : ScriptedAI(creature) {}
 
-		uint8 counter;
+		bool talked;
 		bool fed;
 
 
@@ -505,11 +547,11 @@ public:
 		{
 			events.Reset();
 			ClearDelayedOperations();
-			counter = 0;
+			talked = false;
 			fed = false;
 		}
 
-		void EnterCombat(Unit* who)
+		void EnterCombat(Unit* who) override
 		{
 			switch (me->GetEntry()) // Abilities depending on entry.
 				{
@@ -544,18 +586,22 @@ public:
 
 		void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
 		{
-			if (me->GetHealthPct() <= 35.0f)
+			if (HealthBelowPct(35.0f))
 			{
 				if (doneBy->ToPlayer())
+				{
 					if (doneBy->ToPlayer()->GetQuestStatus(QUEST_MAUL_EM_WITH_KINDNESS) == QUEST_STATUS_INCOMPLETE)
-						if (counter == 0)
+					{
+						if (!talked)
+						{
 							Talk(3); // ready to be fed.
-							counter++;
-						
-			
+							talked = true;
+						}
+					}
+				}
 			}
 
-			if (me->GetHealthPct() <= 30.0f && me->GetEntry() == NPC_DUNEMAUL_OGRE_MAGE)
+			if (HealthBelowPct(30.0f) && me->GetEntry() == NPC_DUNEMAUL_OGRE_MAGE)
 					events.ScheduleEvent(EVENT_BLOODLUST, 0);
 		}
 
@@ -564,17 +610,18 @@ public:
 			Player* player = Caster->ToPlayer();
 
 			if (player && Spell->Id == SPELL_THROW_MORSEL)
+			{
 				if (player->GetQuestStatus(QUEST_MAUL_EM_WITH_KINDNESS) == QUEST_STATUS_INCOMPLETE)
-					if (me->GetHealthPct() <= 35.0f && !fed)
+				{
+					if (HealthBelowPct(35.0f) && !fed)
 					{
 						fed = true;
 						me->GetAI()->DoAction(HasBeenFed);
-						player->SetTarget(0); // Clear target
+						player->CombatStop(); // Clear target
 						player->KilledMonsterCredit(KILL_CREDIT_KINDNESS);
 					}
-
-						
-
+				}
+			}
 		}
 
 
@@ -832,19 +879,18 @@ public:
 		Escape		= 2,
 
 		// Event
-		EVENT_WHIRLWIND		= 99999,
+		EVENT_WHIRLWIND		= 1,
 	};
 
 	struct npc_mazoga_38968AI : public ScriptedAI
 	{
-		npc_mazoga_38968AI(Creature* creature) : ScriptedAI(creature) {
-			m_PlayerGUID = 0;
-		}
+		npc_mazoga_38968AI(Creature* creature) : ScriptedAI(creature) {	}
 
 		uint64 m_PlayerGUID;
 
 		void Reset() override
 		{
+			m_PlayerGUID = 0;
 			events.Reset();
 			ClearDelayedOperations();
 		}
@@ -858,7 +904,7 @@ public:
 			}
 		}
 
-		void EnterCombat(Unit* /*p_Attacker*/) override
+		void EnterCombat(Unit* p_Attacker) override
 		{
 			events.ScheduleEvent(EVENT_WHIRLWIND, urand(0, 3000));
 		}
@@ -971,30 +1017,29 @@ public:
 				}
 		}
 
-		void UpdateAI(const uint32 diff) override
+		void UpdateAI(uint32 const p_Diff) override
 		{
-			UpdateOperations(diff);
+			UpdateOperations(p_Diff);
 
 			if (!UpdateVictim())
 				return;
 
-			events.Update(diff);
+			events.Update(p_Diff);
 
 			if (me->HasUnitState(UNIT_STATE_CASTING))
 				return;
 
-			while (uint32 eventId = events.ExecuteEvent())
+			switch (events.ExecuteEvent())
 			{
-				switch (eventId)
-				{
 				case EVENT_WHIRLWIND:
-					DoCastVictim(SPELL_WHIRLWIND);
+				{
+					DoCastVictim(SPELL_WHIRLWIND, false);
 					events.ScheduleEvent(EVENT_WHIRLWIND, urand(6000, 8000));
 					break;
 				}
+				default:
+					break;
 			}
-
-			DoMeleeAttackIfReady();
 		}
 
 	};
@@ -1290,25 +1335,14 @@ public:
 		{
 			m_Health = urand(87.0f, 91.0f);
 
-			if (me->GetEntry() == NPC_COVERT_OPS_HARDSUIT)
-				if (me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 4.0f, true))
-				{
-					me->HandleEmoteCommand(EMOTE_STATE_READY1H);
-					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
-				}
-
-			if (me->GetEntry() == NPC_BILGEWATER_BATTLEBRUISER)
-				if (me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 4.0f, true))
-				{
-					me->HandleEmoteCommand(EMOTE_STATE_READY1H);
-					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
-				}
+			if (me->GetGUID() == (275868 || 275867 || 274428 || 274427)) // Covert Ops Hardsuit and Bilgewater Battlebruiser next to Megs and Kelsey
+			{
+				me->HandleEmoteCommand(EMOTE_STATE_READY1H);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+			}
 		}
 
 
@@ -1368,7 +1402,94 @@ public:
 	}
 };
 
+/// Marin Noggenfogger - 38532
+class npc_marin_noggenfogger : public CreatureScript
+{
+public:
+	npc_marin_noggenfogger() : CreatureScript("npc_marin_noggenfogger") { }
 
+	enum eMisc
+	{
+		/// Npcs
+		NPC_MEGS_DREADSHREDDER_GADGETZAN = 38534,
+		NPC_KELSEY_STEELSPARK_GADGETZAN	= 38535,
+
+		/// Actions
+		ConversationStart = 0,
+	};
+
+	struct npc_marin_noggenfoggerAI : public ScriptedAI
+	{
+		npc_marin_noggenfoggerAI(Creature* creature) : ScriptedAI(creature) {}
+
+		void Reset() override
+		{
+			ClearDelayedOperations();
+			me->GetAI()->DoAction(ConversationStart);
+		}
+
+
+		void UpdateAI(uint32 diff) override
+		{
+			UpdateOperations(diff);
+		}
+
+
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+			case ConversationStart:
+			{
+				AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Creature* megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER_GADGETZAN, 10.0f, true))
+						megs->MonsterSay("The paperwork's ready for you to sign, Marin. My people are just waiting on your decision.", 0, 0);
+				});
+				AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Creature* kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK_GADGETZAN, 10.0f, true))
+						kelsey->MonsterSay("Gosh, Mr. Noggenfogger, I know you wouldn't want to damage your reputation as a neutral trade entity by forming closer ties to the Horde!", 0, 0);
+				});
+				AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Creature* megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER_GADGETZAN, 10.0f, true))
+						megs->MonsterSay("This is laughable. You know what it's like trying to do business with gnomes.", 0, 0);
+				});
+				AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Creature* kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK_GADGETZAN, 10.0f, true))
+						kelsey->MonsterSay("Oh, oh, I know this one! It's better than doing business with failed goblins that had to beg others for help!", 0, 0);
+				});
+				AddTimedDelayedOperation(12 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					if (Creature* megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER_GADGETZAN, 10.0f, true))
+						megs->MonsterSay("Why you little irradiated...", 0, 0);
+				});
+				AddTimedDelayedOperation(13.5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->MonsterYell("AGH! Enough! You two are driving me INSANE! Start getting some freakin' work done around here or get the heck out of my town!", 0, 0);
+				});
+
+				AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+				{
+					me->GetAI()->DoAction(ConversationStart);
+				});
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_marin_noggenfoggerAI(creature);
+	}
+
+};
 
 
 
@@ -1391,6 +1512,10 @@ enum ThunderDromeData
 	NPC_SARINEXX			= 39149,
 	NPC_MEGS_DREADSHREDDER	= 40542,
 	NPC_KELSEY_STEELSPARK	= 40876,
+	NPC_POUNDER_STEELSPARK	= 41083,
+	NPC_THE_DREADSHREDDER	= 41077,
+	NPC_STEELSPARK_EFFECT	= 41116,
+	NPC_DREADBLADE_EFFECT	= 41088,
 
 	/// Spells
 
@@ -1621,7 +1746,9 @@ public:
 				if (target->ToPlayer()->GetQuestStatus(QUEST_THUNDERDROME_THE_GINORMOUS) == QUEST_STATUS_INCOMPLETE)
 					m_PlayerGUID = target->GetGUID();
 
-			// Might have to add pet function to retrieve owner
+			// Need to test
+			if (target->isPet())
+				m_PlayerGUID = target->GetOwnerGUID();
 		}
 
 		void KilledUnit(Unit* victim) override
@@ -1731,7 +1858,9 @@ public:
 				if (target->ToPlayer()->GetQuestStatus(QUEST_THUNDERDROME_SARINEXX) == QUEST_STATUS_INCOMPLETE)
 					m_PlayerGUID = target->GetGUID();
 
-			// Might have to add pet function to retrieve owner
+			// Need to test
+			if (target->isPet())
+				m_PlayerGUID = target->GetOwnerGUID();
 		}
 
 		void KilledUnit(Unit* victim) override
@@ -1841,7 +1970,9 @@ public:
 			if (target->ToPlayer())
 				m_PlayerGUID = target->GetGUID();
 
-			// Might have to add pet function to retrieve owner
+			// Need to test
+			if (target->isPet())
+				m_PlayerGUID = target->GetOwnerGUID();
 		}
 
 
@@ -1962,16 +2093,21 @@ public:
 		void EnterCombat(Unit* target) override
 		{
 			events.ScheduleEvent(EVENT_CHAINED_SPARKS, urand(2000, 3000));
-
-			if (target->ToPlayer())
-				m_PlayerGUID = target->GetGUID();
-
-			// Might have to add pet function to retrieve owner
 		}
 
 		void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
 		{
 
+			if (m_PlayerGUID = 0) // If hasn't been attacked by player
+			{
+				if (attacker->ToPlayer())
+					m_PlayerGUID = attacker->GetGUID();
+
+				// Need to test
+				if (attacker->isPet())
+					m_PlayerGUID = attacker->GetOwnerGUID();
+			}
+				
 			if (attacker->ToCreature())
 				if (attacker->ToCreature()->GetEntry() == NPC_MEGS_DREADSHREDDER)
 					damage = 0;
@@ -1987,11 +2123,28 @@ public:
 					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 					me->SetSheath(SHEATH_STATE_MELEE);
 					me->HandleEmoteCommand(EMOTE_STATE_READY1H);
-					me->AttackStop();
+
+					if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
+						me->Attack(Kelsey, true);
+
 					attacker->CombatStop();
 					me->AI()->DoAction(0);
 
 				}
+		}
+
+
+		void SpellHit(Unit* Caster, SpellInfo const* spell) override
+		{
+			if (spell->Id == SPELL_SAWBLADE)
+			{
+				if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
+				{
+					me->AI()->Talk(7); // Whaaaa!!!!!
+					me->GetMotionMaster()->MoveFleeing(Megs);
+					Megs->Attack(me, true);
+				}
+			}
 		}
 
 
@@ -2004,29 +2157,36 @@ public:
 					{
 						me->AI()->Talk(2); // Grrr... I was going to fight you fair and square, but you decided to bring friends. Fine! Behold the Alloy-Pounder Zero!
 					});
-					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->GetAI()->DoAction(1);
+					});
+					break;
+				case 1:
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->AI()->Talk(3); // Let's see how all of that dynamite in your pocket likes the KS-L10 Steelspark, Megs!
 					});
-					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
 						{
-							me->CastSpell(Megs, SPELL_STOP_POKING_ME, true);
+							me->CastSpell(Megs, SPELL_STOP_POKING_ME, true); // Make Megs jump to the point and Kelsey chase her.
 							Megs->AI()->Talk(7); // Yikes! That stings!
-							Megs->GetMotionMaster()->MoveFleeing(me);
+							Megs->GetMotionMaster()->MoveJumpTo(urand(0, 3), 4.0f, 4.0f);
+							me->Attack(Megs, true);
 						}
 
 					});
-					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
-							me->CombatStart(Megs);
-
+							if (Creature* pounder = me->FindNearestCreature(NPC_POUNDER_STEELSPARK, 20.0f, true))
+								pounder->CastSpell(Megs, SPELL_SPARK_EFFECT, true);
 					});
 					break;
 
-				case 1:
+				case 2:
 					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->AI()->Talk(4); // You can be sure to tell Gallywix not to underestimate Gnomeregan anymore.
@@ -2037,22 +2197,19 @@ public:
 						me->GetMotionMaster()->MovePoint(4, doorPos);
 
 						if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
-							Megs->GetAI()->DoAction(3); // Kill Credit
+							Megs->GetAI()->DoAction(4); // Kill Credit
 
 						if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 40.0f, true))
 							Dealwell->AI()->Talk(7);
-
-						
 					});
 					break;
-				case 2:
+				case 3:
 					if (Player* player = sObjectAccessor->GetPlayer(*me, m_PlayerGUID))
 						if (player->GetQuestStatus(QUEST_THUNDERDROME_GRUDGE_MATCH_HORDE) == QUEST_STATUS_INCOMPLETE)
 							player->KilledMonsterCredit(NPC_KELSEY_STEELSPARK);
 					break;
-
-			default:
-				break;
+				default:
+					break;
 			}
 
 		}
@@ -2063,9 +2220,9 @@ public:
 			if (type == POINT_MOTION_TYPE && id == 4) // Door position
 			{
 				if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f))
-					Megs->DespawnOrUnsummon();
+					Megs->DespawnOrUnsummon(2000);
 
-				me->DespawnOrUnsummon();
+				me->DespawnOrUnsummon(2000);
 			}
 		}
 
@@ -2092,8 +2249,6 @@ public:
 						events.ScheduleEvent(EVENT_CHAINED_SPARKS, urand(4000, 6000));
 						break;
 				}
-
-
 			}
 
 			DoMeleeAttackIfReady();
@@ -2154,16 +2309,35 @@ public:
 		void EnterCombat(Unit* target) override
 		{
 			events.ScheduleEvent(EVENT_FLAME_WAVE, urand(2000, 3000));
-
-			if (target->ToPlayer())
-				m_PlayerGUID = target->GetGUID();
-
-			// Might have to add pet function to retrieve owner
 		}
 
+		void SpellHit(Unit* Caster, SpellInfo const* spell) override
+		{
+			if (spell->Id == SPELL_SPARK_EFFECT)
+			{
+				if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
+				{
+					me->AI()->Talk(8); // Yeouuwch!!!
+					me->GetMotionMaster()->MoveFleeing(Kelsey);
+					Kelsey->Attack(me, true);
+				}
+			}
+		}
 
 		void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
 		{
+
+			if (m_PlayerGUID = 0) // If hasn't been attacked by a player
+			{
+				if (attacker->ToPlayer())
+					m_PlayerGUID = attacker->GetGUID();
+
+				// Need to test
+				if (attacker->isPet())
+					m_PlayerGUID = attacker->GetOwnerGUID();
+			}
+
+
 			if (attacker->ToCreature())
 				if (attacker->ToCreature()->GetEntry() == NPC_KELSEY_STEELSPARK)
 					damage = 0;
@@ -2180,9 +2354,12 @@ public:
 					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 					me->SetSheath(SHEATH_STATE_MELEE);
 					me->HandleEmoteCommand(EMOTE_STATE_READY1H);
-					me->AttackStop();
+
+					if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
+						me->Attack(Megs, true);
+
 					attacker->CombatStop();
-					me->AI()->DoAction(0);
+					me->AI()->DoAction(1);
 				}
 		}
 
@@ -2227,7 +2404,8 @@ public:
 							Kelsey->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 							Kelsey->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
-							me->CombatStart(Kelsey);
+							me->Attack(Kelsey, true);
+
 						}
 					});
 					break;
@@ -2238,32 +2416,35 @@ public:
 					{
 						me->AI()->Talk(3); // You think you're clever, don't you, ganging up on me like this... well, prepare to face: THE DREADSHREDDER!
 					});
-					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					{
+						me->GetAI()->DoAction(2);
+					});
+					break;
+				case 2:
+					AddTimedDelayedOperation(0 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->AI()->Talk(4); // You think you're all brave facing me, eh, Steelsparks?! Those pig tails won't protect you from THE DOOMSAW!
 					});
-					AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
 						{
-							me->CastSpell(Kelsey, SPELL_STOP_POKING_ME, true);
+							me->CastSpell(Kelsey, SPELL_STOP_POKING_ME, true); // Jump to the point and make Megs chase Kelsey
 							Kelsey->AI()->Talk(6); // Ack! Not the face!
+							Kelsey->GetMotionMaster()->MoveJumpTo(urand(0, 3), 4.0f, 4.0f);
+							me->Attack(Kelsey, true);
 						}
-
 					});
-					AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+					AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
-						{
-							Kelsey->AI()->Talk(7); // Whaaaa!!!!!
-							me->CastSpell(Kelsey, SPELL_SAWBLADE, true);
-							Kelsey->GetMotionMaster()->MoveFleeing(me);
-							me->CombatStart(Kelsey);
-						}
+							if (Creature* dreadshredder = me->FindNearestCreature(NPC_THE_DREADSHREDDER, 20.0f, true))
+								dreadshredder->CastSpell(Kelsey, SPELL_SAWBLADE, true);
 					});
 					break;
 
-				case 2:
+				case 3:
 					AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
 					{
 						me->AI()->Talk(5); // You gave it a good shot, kid. But this is goblin turf now. I suggest you get used to it.
@@ -2274,19 +2455,18 @@ public:
 						me->GetMotionMaster()->MovePoint(5, doorPos);
 
 						if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
-							Kelsey->GetAI()->DoAction(2); // Kill credit
+							Kelsey->GetAI()->DoAction(3); // Kill credit
 
 						if (Creature* Dealwell = me->FindNearestCreature(NPC_DR_DEALWELL, 40.0f, true))
 							Dealwell->AI()->Talk(7);
 
 					});
-
 					break;
-				case 3:
+				case 4:
 					if (Player* player = sObjectAccessor->GetPlayer(*me, m_PlayerGUID))
 						if (player->GetQuestStatus(QUEST_THUNDERDROME_GRUDGE_MATCH_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
 							player->KilledMonsterCredit(NPC_MEGS_DREADSHREDDER);
-
+					break;
 				default:
 					break;
 			}
@@ -2299,9 +2479,9 @@ public:
 			if (type == POINT_MOTION_TYPE && id == 5) // Door position
 			{
 				if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f))
-					Kelsey->DespawnOrUnsummon();
+					Kelsey->DespawnOrUnsummon(2000);
 
-				me->DespawnOrUnsummon();
+				me->DespawnOrUnsummon(2000);
 			}
 		}
 
@@ -2368,7 +2548,10 @@ public:
 		{
 			if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
 			{
-				Kelsey->AttackStop();
+				summons.DespawnAll(); // Despawn Steelspark Effect
+
+				Kelsey->getThreatManager().resetAllAggro();
+				
 
 				Kelsey->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				Kelsey->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -2379,8 +2562,8 @@ public:
 
 				if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
 				{
-					Megs->AttackStop();
-					Megs->AI()->DoAction(2);
+					Megs->getThreatManager().resetAllAggro();
+					Megs->AI()->DoAction(3);
 				}
 
 			}
@@ -2412,11 +2595,7 @@ public:
 				{
 					case EVENT_FORKED_LIGHTNING:
 						DoCastVictim(SPELL_FORKED_LIGHTNING);
-						events.ScheduleEvent(EVENT_SPARK_EFFECT_CHASE, urand(4000, 6000));
-						break;
-					case EVENT_SPARK_EFFECT_CHASE:
-						DoCastVictim(SPELL_SPARK_EFFECT);
-						events.ScheduleEvent(EVENT_FORKED_LIGHTNING, 5000);
+						events.ScheduleEvent(EVENT_FORKED_LIGHTNING, urand(4000, 6000));
 						break;
 				}
 
@@ -2453,10 +2632,11 @@ public:
 
 		void JustDied(Unit* killer) override
 		{
+			summons.DespawnAll(); // Despawn Dreadblade
 			if (Creature* Megs = me->FindNearestCreature(NPC_MEGS_DREADSHREDDER, 20.0f, true))
 			{
 
-				Megs->AttackStop();
+				Megs->getThreatManager().resetAllAggro();
 
 				Megs->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				Megs->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -2467,8 +2647,8 @@ public:
 
 				if (Creature* Kelsey = me->FindNearestCreature(NPC_KELSEY_STEELSPARK, 20.0f, true))
 				{
-					Kelsey->AttackStop();
-					Kelsey->AI()->DoAction(1);
+					Kelsey->getThreatManager().resetAllAggro();
+					Kelsey->AI()->DoAction(2);
 				}
 
 			}
@@ -2500,11 +2680,7 @@ public:
 				{
 					case EVENT_FLAMETHROWER:
 						DoCastVictim(SPELL_FLAMETHROWER);
-						events.ScheduleEvent(EVENT_SAWBLADE, urand(4000, 6000));
-						break;
-					case EVENT_SAWBLADE:
-						DoCastVictim(SPELL_SAWBLADE);
-						events.ScheduleEvent(EVENT_FLAMETHROWER, 5000);
+						events.ScheduleEvent(EVENT_FLAMETHROWER, urand(4000, 6000));
 						break;
 				}
 
@@ -2522,7 +2698,696 @@ public:
 };
 
 
+/// ********** Butcherbot Quests ********** ///
 
+enum eMisc
+{
+	/// Quests
+	QUEST_SCAVENGERS_SCAVENGED = 25111,
+	QUEST_BUTCHERBOT = 25112,
+	QUEST_BLISTERPAW_BUTCHERY = 25115,
+
+	/// Npcs
+	NPC_BUTCHERBOT = 39696,
+	NPC_GLASSHIDE_BASILISK = 5419,
+	NPC_BLISTERPAW_HYENA = 5426,
+	NPC_FIRE_ROC = 5429,
+
+	/// Kill credits
+	NPC_BUTCHERBOT_KILL_CREDIT = 39702,
+	NPC_BLISTERPAW_KILL_CREDIT = 40509,
+	NPC_FIREROC_KILL_CREDIT = 40507,
+
+	/// Spells
+	SPELL_DEPLOY_BUTCHERBOT = 74175,
+	SPELL_SUMMON_BUTCHERBOT = 74176,
+	SPELL_BUTCHERING		= 74168,
+};
+
+
+/// Butcherbot - 39696
+class npc_butcherbot : public CreatureScript
+{
+public:
+	npc_butcherbot() : CreatureScript("npc_butcherbot") {}
+
+	struct npc_butcherbotAI : public ScriptedAI
+	{
+		npc_butcherbotAI(Creature* creature) : ScriptedAI(creature) {
+			unitOwner = NULL;
+		}
+
+		enum pointId
+		{
+			POINT_TO_BUTCHERING = 1
+		};
+
+		class restoreFlags : public BasicEvent
+		{
+		public:
+			explicit restoreFlags(Creature* creature) : creature(creature) {}
+
+			bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
+			{
+				creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+				return true;
+			}
+
+		private:
+			Creature* creature;
+		};
+
+		void IsSummonedBy(Unit* owner)
+		{
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			me->SetReactState(REACT_PASSIVE);
+			me->SetWalk(true);
+			if (Creature* basilisk = owner->FindNearestCreature(NPC_GLASSHIDE_BASILISK, 20.0f, false))
+			{
+				me->GetMotionMaster()->MovePoint(POINT_TO_BUTCHERING, basilisk->GetPositionX() + 2, basilisk->GetPositionY() - 2, basilisk->GetPositionZ(), true);
+				basilisk->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+				// Safety event in case of early despawn of the butcherbot...
+				basilisk->m_Events.AddEvent(new restoreFlags(basilisk), (basilisk)->m_Events.CalculateTime(20000));
+			}
+			else if (Creature* fireRoc = owner->FindNearestCreature(NPC_FIRE_ROC, 20.0f, false))
+			{
+				me->GetMotionMaster()->MovePoint(POINT_TO_BUTCHERING, fireRoc->GetPositionX() + 2, fireRoc->GetPositionY() - 2, fireRoc->GetPositionZ(), true);
+				fireRoc->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+				// Safety event in case of early despawn of the butcherbot...
+				fireRoc->m_Events.AddEvent(new restoreFlags(fireRoc), (fireRoc)->m_Events.CalculateTime(20000));
+			}
+			else if (Creature* hyena = owner->FindNearestCreature(NPC_BLISTERPAW_HYENA, 20.0f, false))
+			{
+				me->GetMotionMaster()->MovePoint(POINT_TO_BUTCHERING, hyena->GetPositionX() + 2, hyena->GetPositionY() - 2, hyena->GetPositionZ(), true);
+				hyena->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+				// Safety event in case of early despawn of the butcherbot...
+				hyena->m_Events.AddEvent(new restoreFlags(hyena), (hyena)->m_Events.CalculateTime(20000));
+			}
+
+			unitOwner = owner;
+		}
+
+		void MovementInform(uint32 type, uint32 pointId)
+		{
+			switch (pointId)
+			{
+			case POINT_TO_BUTCHERING:
+			{
+				TalkWithDelay(1000, 0);
+				me->SetControlled(true, UNIT_STATE_ROOT);
+				if (unitOwner && unitOwner != NULL)
+				{
+					if (Creature* basilisk = me->FindNearestCreature(NPC_GLASSHIDE_BASILISK, 20.0f, false))
+					{
+						if (unitOwner->GetTypeId() == TYPEID_PLAYER)
+							unitOwner->ToPlayer()->KilledMonsterCredit(NPC_BUTCHERBOT_KILL_CREDIT);
+						me->CastWithDelay(500, basilisk, SPELL_BUTCHERING, true);
+						me->CastWithDelay(1500, basilisk, SPELL_BUTCHERING, true);
+						me->CastWithDelay(2500, basilisk, SPELL_BUTCHERING, true);
+						me->CastWithDelay(3500, basilisk, SPELL_BUTCHERING, true);
+						basilisk->m_Events.AddEvent(new restoreFlags(basilisk), (basilisk)->m_Events.CalculateTime(4250));
+						basilisk->DespawnOrUnsummon(4500);
+						me->DespawnOrUnsummon(4500);
+					}
+					else if (Creature* fireRoc = me->FindNearestCreature(NPC_FIRE_ROC, 20.0f, false))
+					{
+						if (unitOwner->GetTypeId() == TYPEID_PLAYER)
+							unitOwner->ToPlayer()->KilledMonsterCredit(NPC_FIREROC_KILL_CREDIT);
+						me->CastWithDelay(500, fireRoc, SPELL_BUTCHERING, true);
+						me->CastWithDelay(1500, fireRoc, SPELL_BUTCHERING, true);
+						me->CastWithDelay(2500, fireRoc, SPELL_BUTCHERING, true);
+						me->CastWithDelay(3500, fireRoc, SPELL_BUTCHERING, true);
+						fireRoc->m_Events.AddEvent(new restoreFlags(fireRoc), (fireRoc)->m_Events.CalculateTime(4250));
+						fireRoc->DespawnOrUnsummon(4500);
+						me->DespawnOrUnsummon(4500);
+					}
+					else if (Creature* hyena = me->FindNearestCreature(NPC_BLISTERPAW_HYENA, 20.0f, false))
+					{
+						if (unitOwner->GetTypeId() == TYPEID_PLAYER)
+							unitOwner->ToPlayer()->KilledMonsterCredit(NPC_BLISTERPAW_KILL_CREDIT);
+						me->CastWithDelay(500, hyena, SPELL_BUTCHERING, true);
+						me->CastWithDelay(1500, hyena, SPELL_BUTCHERING, true);
+						me->CastWithDelay(2500, hyena, SPELL_BUTCHERING, true);
+						me->CastWithDelay(3500, hyena, SPELL_BUTCHERING, true);
+						hyena->m_Events.AddEvent(new restoreFlags(hyena), (hyena)->m_Events.CalculateTime(4250));
+						hyena->DespawnOrUnsummon(4500);
+						me->DespawnOrUnsummon(4500);
+					}
+				}
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+	protected:
+		Unit* unitOwner;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_butcherbotAI(creature);
+	}
+};
+
+
+/// Deploy Butcherbot - 74175
+class spell_deploy_butcherbot : public SpellScriptLoader
+{
+public:
+	spell_deploy_butcherbot() : SpellScriptLoader("spell_deploy_butcherbot") { }
+
+	class spell_deploy_butcherbot_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_deploy_butcherbot_SpellScript);
+
+		enum Id
+		{
+			NPC_GLASSHIDE_BASILISK = 5419,
+			NPC_FIRE_ROC = 5429,
+			NPC_BLISTERPAW_HYENA = 5426
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (caster->ToPlayer())
+				{
+					if (caster->getVictim()->ToCreature()->GetEntry() == NPC_GLASSHIDE_BASILISK)
+					{
+						Creature* basilisk = caster->getVictim()->ToCreature();
+						if (basilisk->isAlive() || basilisk->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+							return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+						else
+							return SPELL_CAST_OK;
+					}
+					else if (caster->getVictim()->ToCreature()->GetEntry() == NPC_FIRE_ROC)
+					{
+						Creature* fireRoc = caster->getVictim()->ToCreature();
+						if (fireRoc->isAlive() || fireRoc->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+							return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+						else
+							return SPELL_CAST_OK;
+					}
+					else if (caster->getVictim()->ToCreature()->GetEntry() == NPC_BLISTERPAW_HYENA)
+					{
+						Creature* hyena = caster->getVictim()->ToCreature();
+						if (hyena->isAlive() || hyena->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+							return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+						else
+							return SPELL_CAST_OK;
+					}
+				}
+				return SPELL_FAILED_BAD_TARGETS;
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_deploy_butcherbot_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_deploy_butcherbot_SpellScript();
+	}
+};
+
+
+
+
+/// Steamwheedle Rescue Balloon - 40604
+class npc_steamwheedle_balloon : public CreatureScript
+{
+public:
+	npc_steamwheedle_balloon() : CreatureScript("npc_steamwheedle_balloon") { }
+
+	enum questId
+	{
+		QUEST_ENTRY_ROCKET_RESCUE_A = 25050,
+		QUEST_ENTRY_ROCKET_RESCUE_H = 24910,
+		NPC_STEAMWHEEDLE_BALLOON = 40505,
+		SPELL_TEMP_INVISIBILITY = 3680
+	};
+
+	bool OnGossipHello(Player* player, Creature* creature)
+	{
+		if (player->GetQuestStatus(QUEST_ENTRY_ROCKET_RESCUE_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_ENTRY_ROCKET_RESCUE_A))
+		{
+			if (!player->GetVehicleBase() && !creature->HasAura(SPELL_TEMP_INVISIBILITY))
+			{
+				player->SummonCreature(NPC_STEAMWHEEDLE_BALLOON, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000);
+				creature->AddAura(SPELL_TEMP_INVISIBILITY, creature);
+				return true;
+			}
+		}
+		return true;
+	}
+};
+
+/// Steamwheedle Balloon Escort - 40505
+class npc_steamwheedle_balloon_escort : public CreatureScript
+{
+public:
+	npc_steamwheedle_balloon_escort() : CreatureScript("npc_steamwheedle_balloon_escort") { }
+
+	struct npc_steamwheedle_balloon_escortAI : public npc_escortAI
+	{
+		npc_steamwheedle_balloon_escortAI(Creature* creature) : npc_escortAI(creature) { playerQuester = NULL; }
+
+		EventMap events;
+
+		enum actionId
+		{
+			ACTION_START_WP = 1
+		};
+
+		enum questId
+		{
+			QUEST_ENTRY_ROCKET_RESCUE = 25050
+		};
+
+		enum eventId
+		{
+			EVENT_START_WAYPOINT = 1
+		};
+
+		void OnCharmed(bool apply) {}
+
+		void WaypointReached(uint32 point)
+		{
+			switch (point)
+			{
+			case 3: // Enable Abilities
+			{
+				if (playerQuester && playerQuester != NULL)
+				{
+					if (Creature* vehicle = playerQuester->GetVehicleCreatureBase())
+						vehicle->AI()->DoAction(2);
+				}
+				break;
+			}
+			case 16: // Loop WP
+			{
+				SetNextWaypoint(3, false);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void IsSummonedBy(Unit* owner)
+		{
+			if (owner->ToPlayer())
+				playerQuester = owner;
+			me->SetReactState(REACT_PASSIVE);
+			events.ScheduleEvent(EVENT_START_WAYPOINT, 100);
+		}
+
+		void DoAction(int32 action)
+		{
+			switch (action)
+			{
+			case ACTION_START_WP:
+			{
+				Start(false, true, NULL, NULL, false, true, true);
+				SetDespawnAtEnd(false);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			events.Update(diff);
+			npc_escortAI::UpdateAI(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_START_WAYPOINT:
+				{
+					events.CancelEvent(EVENT_START_WAYPOINT);
+					DoAction(ACTION_START_WP);
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+
+	protected:
+		Unit* playerQuester;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_steamwheedle_balloon_escortAI(creature);
+	}
+};
+
+
+/// Balloon Throwing Station - 40511
+class npc_balloon_throwing_station : public CreatureScript
+{
+public:
+	npc_balloon_throwing_station() : CreatureScript("npc_balloon_throwing_station") {}
+
+	struct npc_balloon_throwing_stationAI : public ScriptedAI
+	{
+		npc_balloon_throwing_stationAI(Creature* creature) : ScriptedAI(creature) {}
+
+		EventMap events;
+
+		enum eventId
+		{
+			EVENT_RIDE_INVOKER = 1
+		};
+
+		enum actionId
+		{
+			ACTION_RIDE_INVOKER = 1,
+			ACTION_ENABLE_ABILITIES
+		};
+
+		enum spellId
+		{
+			SPELL_ENABLE_ABILITIES = 75990
+		};
+
+		void OnCharmed(bool apply) {}
+
+		void IsSummonedBy(Unit* owner)
+		{
+			events.ScheduleEvent(EVENT_RIDE_INVOKER, 1500);
+			me->SetReactState(REACT_PASSIVE);
+		}
+
+		void DoAction(int32 action)
+		{
+			switch (action)
+			{
+			case ACTION_RIDE_INVOKER:
+			{
+				if (Unit* myOwner = me->ToTempSummon()->GetSummoner())
+				{
+					if (Unit* ownerOwner = myOwner->ToTempSummon()->GetSummoner())
+						ownerOwner->EnterVehicle(me, 0);
+				}
+				break;
+			}
+			case ACTION_ENABLE_ABILITIES:
+			{
+				me->AddAura(SPELL_ENABLE_ABILITIES, me);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			events.Update(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_RIDE_INVOKER:
+				{
+					events.CancelEvent(EVENT_RIDE_INVOKER);
+					DoAction(ACTION_RIDE_INVOKER);
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_balloon_throwing_stationAI(creature);
+	}
+};
+
+
+/// Emergency Rocket Pack - 75991
+class spell_emergency_rocket_pack : public SpellScriptLoader
+{
+public:
+	spell_emergency_rocket_pack() : SpellScriptLoader("spell_emergency_rocket_pack") { }
+
+	class spell_emergency_rocket_pack_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_emergency_rocket_pack_SpellScript);
+
+		enum Id
+		{
+			SPELL_EMERGENCY_ROCKET_PACK = 75730
+		};
+
+		void HandleReturnToGadgetzan()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(0))
+				{
+					if (Vehicle* vehicle = caster->GetVehicleKit())
+						vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(2000);
+					passenger->ExitVehicle();
+					passenger->CastSpell(caster, SPELL_EMERGENCY_ROCKET_PACK, true);
+					passenger->GetMotionMaster()->MoveJump(-7114.65f, -3888.82f, 75.0f, 45.0f, 25.0f, 10);
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterCast += SpellCastFn(spell_emergency_rocket_pack_SpellScript::HandleReturnToGadgetzan);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_emergency_rocket_pack_SpellScript();
+	}
+};
+
+
+/// Wrangled Silithid - 38739
+class npc_wrangled_silithid : public CreatureScript
+{
+public:
+	npc_wrangled_silithid() : CreatureScript("npc_wrangled_silithid") {}
+
+	struct npc_wrangled_silithidAI : public ScriptedAI
+	{
+		npc_wrangled_silithidAI(Creature* creature) : ScriptedAI(creature) { playerOwner = NULL; }
+
+		EventMap events;
+
+		enum eventId
+		{
+			EVENT_CHECK_QUESTGIVER = 1
+		};
+
+		enum spellId
+		{
+			SPELL_ROPE_BEAM = 73113,
+			SPELL_WRANGLING_A_SILITHID = 72681
+		};
+
+		enum creditId
+		{
+			CREDIT_A_GREAT_IDEA = 38742
+		};
+
+		enum npcId
+		{
+			NPC_ZEKE_BOOTSCUFF = 38706
+		};
+
+		void IsSummonedBy(Unit* owner)
+		{
+			me->CastSpell(owner, SPELL_ROPE_BEAM, true);
+			me->SetReactState(REACT_PASSIVE);
+			me->GetMotionMaster()->MoveFollow(owner, 5.0f, 0);
+			me->CastSpell(me, SPELL_WRANGLING_A_SILITHID, true);
+			events.ScheduleEvent(EVENT_CHECK_QUESTGIVER, 5000);
+			me->ClearUnitState(UNIT_STATE_CASTING);
+			playerOwner = owner;
+		}
+
+		void UpdateAI(uint32 diff)
+		{
+			events.Update(diff);
+
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+				case EVENT_CHECK_QUESTGIVER:
+				{
+					if (playerOwner && playerOwner != NULL && playerOwner->IsInWorld())
+					{
+						if (Creature* questGiver = me->FindNearestCreature(NPC_ZEKE_BOOTSCUFF, 30.0f))
+						{
+							questGiver->AI()->Talk(0);
+							questGiver->AI()->TalkWithDelay(5000, 1);
+							me->RemoveAurasDueToSpell(SPELL_ROPE_BEAM);
+							if (playerOwner->GetTypeId() == TYPEID_PLAYER)
+							{
+								playerOwner->ToPlayer()->KilledMonsterCredit(CREDIT_A_GREAT_IDEA);
+								playerOwner->RemoveAurasDueToSpell(SPELL_WRANGLING_A_SILITHID);
+							}
+							me->RemoveAurasDueToSpell(SPELL_WRANGLING_A_SILITHID);
+							me->GetMotionMaster()->MovementExpired(false);
+							me->GetMotionMaster()->MovePoint(0, -8689.42f, -4073.94f, 40.25f, true);
+							me->DespawnOrUnsummon(30000);
+							events.CancelEvent(EVENT_CHECK_QUESTGIVER);
+						}
+						else
+							events.RescheduleEvent(EVENT_CHECK_QUESTGIVER, 2000);
+					}
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+
+	protected:
+		Unit* playerOwner;
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_wrangled_silithidAI(creature);
+	}
+};
+
+
+/// Throw Hyena Chunk - 72659
+class spell_throw_hyena_chunk : public SpellScriptLoader
+{
+public:
+	spell_throw_hyena_chunk() : SpellScriptLoader("spell_throw_hyena_chunk") { }
+
+	class spell_throw_hyena_chunk_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_throw_hyena_chunk_SpellScript);
+
+		enum Id
+		{
+			NPC_HAZZALI_SWARMER = 5451,
+			SPELL_SUMMON_WRANGLED = 72677
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (Creature* swarmer = caster->FindNearestCreature(NPC_HAZZALI_SWARMER, 10.0f, true))
+				{
+					caster->CastWithDelay(1000, swarmer, SPELL_SUMMON_WRANGLED, true);
+					swarmer->DespawnOrUnsummon(1000);
+					return SPELL_CAST_OK;
+				}
+			}
+			return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_throw_hyena_chunk_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_throw_hyena_chunk_SpellScript();
+	}
+};
+
+
+/// Detonate Silithid - 73211
+class spell_detonate_silithid : public SpellScriptLoader
+{
+public:
+	spell_detonate_silithid() : SpellScriptLoader("spell_detonate_silithid") { }
+
+	class spell_detonate_silithid_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_detonate_silithid_SpellScript);
+
+		enum Id
+		{
+			NPC_EXPLOSION_BUNNY = 37522,
+			SPELL_EXPLODE_AND_BURN = 72942,
+			CREDIT_HIVE_EXPLODED = 38996
+		};
+
+		SpellCastResult CheckCast()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				if (Creature* bunny = caster->FindNearestCreature(NPC_EXPLOSION_BUNNY, 10.0f, true))
+					return SPELL_CAST_OK;
+			}
+			return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+		}
+
+		void HandleStartExplosion()
+		{
+			if (Unit* caster = GetCaster())
+			{
+				std::list<Unit*> targets;
+				JadeCore::AnyUnitInObjectRangeCheck u_check(caster, 80.0f);
+				JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
+				caster->VisitNearbyObject(80.0f, searcher);
+				for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+				{
+					if ((*itr) && (*itr)->ToCreature() && (*itr)->ToCreature()->GetEntry() == NPC_EXPLOSION_BUNNY)
+						(*itr)->CastSpell((*itr), SPELL_EXPLODE_AND_BURN, true);
+				}
+				caster->CastSpell(caster, SPELL_EXPLODE_AND_BURN, true);
+				if (Unit* owner = caster->GetCharmerOrOwner())
+				{
+					if (owner->GetTypeId() == TYPEID_PLAYER)
+						owner->ToPlayer()->KilledMonsterCredit(CREDIT_HIVE_EXPLODED);
+				}
+				if (caster->GetTypeId() == TYPEID_UNIT)
+					caster->ToCreature()->DespawnOrUnsummon(5000);
+			}
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_detonate_silithid_SpellScript::CheckCast);
+			AfterCast += SpellCastFn(spell_detonate_silithid_SpellScript::HandleStartExplosion);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_detonate_silithid_SpellScript();
+	}
+};
 
 
 
@@ -3352,7 +4217,7 @@ void AddSC_tanaris()
 	/// PlayerScript Handler
 	new playerScript_tanaris_handler();
 
-	/// Tanaris
+	/// Tanaris - Sandsorrow Watch, Dunemaul Compound and Lostrigger Cove
     new npc_custodian_of_time();
     new npc_steward_of_time();
     new npc_OOX17();
@@ -3361,6 +4226,7 @@ void AddSC_tanaris()
 	new npc_mazoga_38968();
 	new npc_gus_rustflutter();
 	new npc_lostrigger_cove_sparring();
+	new npc_marin_noggenfogger();
 
 	/// -- Thunderdrome Quests
 	new npc_dr_dealwell();
@@ -3372,6 +4238,21 @@ void AddSC_tanaris()
 	new npc_steelsparks_lx_506();
 	new npc_the_dreadshredder();
 
+
+	/// Butcherbot Quests
+	new npc_butcherbot();
+	new spell_deploy_butcherbot();
+
+	/// Rocket Rescue Quest
+	new npc_steamwheedle_balloon();
+	new npc_steamwheedle_balloon_escort();
+	new npc_balloon_throwing_station();
+	new spell_emergency_rocket_pack();
+
+	/// The Gaping Chasm Quests
+	new npc_wrangled_silithid();
+	new spell_throw_hyena_chunk();
+	new spell_detonate_silithid();
 
 	/// Tanaris-Uldum Campaign Expedition
 	new npc_adarrah_44833();

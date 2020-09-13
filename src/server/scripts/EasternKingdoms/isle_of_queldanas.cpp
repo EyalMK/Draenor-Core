@@ -6,17 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Isle_of_Queldanas
-SD%Complete: 100
-SDComment: Quest support: 11524, 11525, 11532, 11533, 11542, 11543, 11541
-SDCategory: Isle Of Quel'Danas
-EndScriptData */
-
-/* ContentData
-npc_converted_sentry
-npc_greengill_slave
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"

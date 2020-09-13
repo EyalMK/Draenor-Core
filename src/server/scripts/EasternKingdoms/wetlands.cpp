@@ -6,21 +6,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Wetlands
-SD%Complete: 80
-SDComment: Quest support: 1249
-SDCategory: Wetlands
-EndScriptData */
-
-/* ContentData
-npc_mikhail
-npc_tapoke_slim_jahn
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "Vehicle.h"
 
 /*######
 ## npc_tapoke_slim_jahn
@@ -151,7 +141,6 @@ public:
 };
 
 
-
 enum MarshFire
 {
 	NPC_MARSH_FIRE = 41628,
@@ -196,11 +185,111 @@ public:
 	}
 };
 
+
+/// Blessed Floodlily - 77571
+class spell_blessed_floodlily : public SpellScriptLoader
+{
+public:
+	spell_blessed_floodlily() : SpellScriptLoader("spell_blessed_floodlily") { }
+
+	enum Id
+	{
+		QUEST_CREDIT_FIRE_BUNNY = 41628
+	};
+
+	class spell_blessed_floodlily_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_blessed_floodlily_SpellScript);
+
+		SpellCastResult CheckCast()
+		{
+			if (Creature* fireBunny = GetCaster()->FindNearestCreature(QUEST_CREDIT_FIRE_BUNNY, 5.0f, true))
+			{
+				if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
+				{
+					fireBunny->DespawnOrUnsummon(1);
+					GetCaster()->ToPlayer()->KilledMonsterCredit(QUEST_CREDIT_FIRE_BUNNY);
+					return SPELL_CAST_OK;
+				}
+			}
+			return SPELL_CAST_OK;
+		}
+
+		void Register()
+		{
+			OnCheckCast += SpellCheckCastFn(spell_blessed_floodlily_SpellScript::CheckCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_blessed_floodlily_SpellScript();
+	}
+};
+
+
+
+/// Thandol Span - 5990
+class Areatrigger_at_thandol_span : public AreaTriggerScript
+{
+public:
+	Areatrigger_at_thandol_span() : AreaTriggerScript("at_thandol_span") { }
+
+	enum Id
+	{
+		// Quest
+		QUEST_THE_BATTLE_OF_THANDOL_SPAN = 26128,
+
+		// Npc
+		NPC_CALAMOTH_ASHBEARD = 41522,
+		NPC_YORLA_DARKSNARE = 41524,
+		NPC_DRUNGELD_GLOWERGLARE = 41553,
+		NPC_BALGARAS_THE_FOUL = 41556,
+		NPC_THARGAS_ANVILMAR = 41560
+	};
+
+	bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+	{
+		if (player->isAlive())
+		{
+			if (player->GetQuestStatus(QUEST_THE_BATTLE_OF_THANDOL_SPAN) != QUEST_STATUS_INCOMPLETE)
+				return false;
+
+			Creature* calamothAlive = player->FindNearestCreature(NPC_CALAMOTH_ASHBEARD, 200.0f, true);
+			Creature* calamothDead = player->FindNearestCreature(NPC_CALAMOTH_ASHBEARD, 200.0f, false);
+			if (calamothAlive || calamothDead)
+				return false;
+
+			// Summon Enemies!
+			player->SummonCreature(NPC_CALAMOTH_ASHBEARD, -2406.58f, -2503.34f, 85.19f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+			player->SummonCreature(NPC_YORLA_DARKSNARE, -2402.32f, -2507.35f, 86.00f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+			player->SummonCreature(NPC_DRUNGELD_GLOWERGLARE, -2402.33f, -2497.83f, 86.00f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+			player->SummonCreature(NPC_BALGARAS_THE_FOUL, -2398.67f, -2502.04f, 86.70f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+
+			// Summon Friends!
+			player->SummonCreature(NPC_THARGAS_ANVILMAR, -2468.30f, -2503.15f, 78.50f, 6.26f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+			return true;
+		}
+		return false;
+	}
+};
+
+
+
+
 #ifndef __clang_analyzer__
 void AddSC_wetlands()
 {
+	/// Npcs
     new npc_tapoke_slim_jahn();
     new npc_mikhail();
+	
+	 
+	/// Spell
 	new spell_water_blast();
+	new spell_blessed_floodlily();
+
+	/// Areatriggers
+	new Areatrigger_at_thandol_span();
 }
 #endif

@@ -6,19 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/* ScriptData
-SDName: Western_Plaguelands
-SD%Complete: 90
-SDComment: Quest support: 5097, 5098, 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235. To obtain Vitreous Focuser (could use more spesifics about gossip items)
-SDCategory: Western Plaguelands
-EndScriptData */
-
-/* ContentData
-npcs_dithers_and_arbington
-npc_myranda_the_hag
-npc_the_scourge_cauldron
-npc_andorhal_tower
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -387,13 +374,472 @@ public:
     };
 };
 
+
+/* QUESTS
+http://www.wowhead.com/quest=26953
+http://www.wowhead.com/quest=26954
+*/
+enum KikiSpellsAndEntries
+{
+	/// Spells
+	SPELL_AQUATIC_FORM = 83085,
+	SPELL_BEAR_FORM = 83093,
+	SPELL_CAT_FORM = 83452,
+	SPELL_MOONKIN_FORM = 82815,
+	SPELL_MARK_OF_THE_WILD = 83872,
+	SPELL_POUNCE = 83453,
+	SPELL_REJUV = 12160,
+	SPELL_WRATH_FAKE = 83874,
+	SPELL_WRATH = 83457,  // Does no damage although it's the correct one.
+	SPELL_MOONFIRE = 83091,
+	SPELL_BEAR_SWIPE = 89591,  // Needs fixing, does too much damage.
+	
+	/// Npc
+	NPC_ZIKI_BEAR = 44555,
+
+	/// Texts
+	SPEECH_ITBURNS = -1799989,
+	SPEECH_MEOW = -1799987,
+	SPEECH_RAWR = -1799990,
+	SPEECH_OW = -1799988,  // Not used, random yell?
+	SPEECH_YOUCH = -1799999,   // Not used, random yell?
+	SPEECH_CUTITOUT = -1799998,   // Not used, random yell?
+	SPEECH_SHAPESHIFT_BEAR = -1799996,
+	SPEECH_INCONTROL = -1799997,
+	SPEECH_SHAPESHIFT_CAT = -1799995,
+	SPEECH_SHAPESHIFT_FISH = -1799994,
+	SPEECH_NUNDGE = -1799993,
+	SPEECH_LEAP = -1799992,
+	SPEECH_POUNCE = -1799991,
+
+	/// Kill credit
+	KIKI_KILL_CREDIT = 44777
+
+	/*
+	full list of possible quotes
+	need info on where / when and timing on all these.......
+	Zen'Kiki says: A little help here...
+	Zen'Kiki says: Alright, here I go!
+	Zen'Kiki says: Am I hitting him?
+	Zen'Kiki says: Attack!
+	Zen'Kiki says: Can Zen'Kiki get a little nudge?
+	Zen'Kiki says: Cut it out!
+	Zen'Kiki says: De tauren says that she'll teach me to heal if we do a good job! Let's go, mon!
+	Zen'Kiki says: Get back over here, mon!
+	Zen'Kiki says: Get over here, you coward!
+	Zen'Kiki says: Haha!
+	Zen'Kiki says: Here comes Zen'Kiki!
+	Zen'Kiki says: Hey, that tickles, mon!
+	Zen'Kiki says: I got dis one!
+	Zen'Kiki says: I seem to be... stuck...
+	Zen'Kiki says: I'll get him!
+	Zen'Kiki says: It burns like the moon!
+	Zen'Kiki says: It burns!
+	Zen'Kiki says: Leap!
+	Zen'Kiki says: Maul! Swipe! MANGLE!
+	Zen'Kiki says: Meow!
+	Zen'Kiki says: No, hit me! Over here, mon!
+	Zen'Kiki says: Oof!
+	Zen'Kiki says: Ouch!
+	Zen'Kiki says: Ow, mon!
+	Zen'Kiki says: Pounce!
+	Zen'Kiki says: Quit yer pokin', mon!
+	Zen'Kiki says: Rawr!
+	Zen'Kiki says: Rawr!!
+	Zen'Kiki says: Ready to go, mon!
+	Zen'Kiki says: Shapeshift! Get ready for de moonfire!
+	Zen'Kiki says: Shapeshift! Get ready to taste my claws!
+	Zen'Kiki says: Shapeshift! Here come de moonfire!
+	Zen'Kiki says: Shapeshift! Here it comes, mon!
+	Zen'Kiki says: Shapeshift! Oh no! Not again...
+	Zen'Kiki says: Shapeshift! Over here, mon!
+	Zen'Kiki says: Shapeshift! Time for bear form!
+	Zen'Kiki says: Shapeshift! Time for cat form!
+	Zen'Kiki says: Shapeshift! Try to swim away now, mon!
+	Zen'Kiki says: Shapeshift! Uh oh... wait a minute here...
+	Zen'Kiki says: Shapeshift! Zen'Kiki will absorb de damage!
+	Zen'Kiki says: Shapeshift! Zen'Kiki's ready to pounce!
+	Zen'Kiki says: Stop dat!
+	Zen'Kiki says: This isn't right.
+	Zen'Kiki says: Why you guys upside down?
+	Zen'Kiki says: You just let Zen'Kiki know when you're ready! I'll bring one of these birds down for ya!
+	Zen'Kiki says: Yowch!
+	Zen'Kiki says: Zen'Kiki is in control!
+	Zen'Kiki says: Zen'kiki's real sorry about this.
+	*/
+};
+
+/// Zen'kiki - 44904
+class npc_zenkiki : public CreatureScript
+{
+public:
+	npc_zenkiki() : CreatureScript("npc_zenkiki") { }
+
+	struct npc_zenkikiAI : public ScriptedAI
+	{
+		npc_zenkikiAI(Creature* creature) : ScriptedAI(creature) {}
+
+		uint32 uiAttackTimer;
+		uint32 uiFormTmer;
+		uint32 uiInvistimer;
+		uint32 FormReset;
+		bool hasform;
+		bool donecat;
+		bool donebear;
+		bool donefish;
+		bool donemookin;
+		bool saynudge;
+		bool hasshapeshifted;
+		bool Talked = false;
+
+		void Reset()
+		{
+			uiAttackTimer = 1500;
+			uiFormTmer = 3500;
+			uiInvistimer = 10000;
+			FormReset = 12000;
+			hasform = false;
+			donecat = false;
+			donebear = false;
+			donefish = false;
+			donemookin = false;
+			saynudge = false;
+			hasshapeshifted = false;
+			//DoCast(me,SPELL_MARK_OF_THE_WILD);
+			me->GetMotionMaster()->MoveFollow(me->GetOwner()->ToPlayer(), 1.0f, 0);
+			me->CombatStop();
+			me->SetDisplayId(33878); // Back to Zen'Kiki Model
+			me->RemoveAllAuras();
+			if (me->GetOwner()->ToPlayer()->GetQuestStatus(26953) == QUEST_STATUS_COMPLETE && me->GetOwner()->ToPlayer()->GetQuestStatus(26954) == QUEST_STATUS_COMPLETE)
+			{
+				me->DisappearAndDie();
+			}
+			if (!Talked) // Doesn't reset through Reset() - Called once, when Zen'kiki is spawned.
+			{
+				me->MonsterSay("Ready to go, mon!", LANG_UNIVERSAL, 0);
+				Talked = true;
+			}
+		}
+
+		void EnterCombat(Unit* /*who*/)
+		{
+		}
+
+		void SpellHit(Unit *caster, const SpellEntry *spell)
+		{
+			// QUEST SUPPORT http://www.wowhead.com/quest=26954
+			// To Do: The Bunny 
+			if (spell->Id == 84290) // Spell is cast from Bunny to Zen'kiki
+			{
+				// Summon the Diseased Hawks
+				me->SummonCreature(44481, me->getVictim()->GetPositionX() + (urand(10, 45)), me->getVictim()->GetPositionY() + (urand(10, 45)), me->getVictim()->GetPositionZ() + (urand(10, 25)), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+				me->SummonCreature(44481, me->getVictim()->GetPositionX() + (urand(10, 45)), me->getVictim()->GetPositionY() + (urand(10, 45)), me->getVictim()->GetPositionZ() + (urand(10, 25)), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+				me->SummonCreature(44481, me->getVictim()->GetPositionX() + (urand(10, 45)), me->getVictim()->GetPositionY() + (urand(10, 45)), me->getVictim()->GetPositionZ() + (urand(10, 25)), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+				me->SummonCreature(44481, me->getVictim()->GetPositionX() + (urand(10, 45)), me->getVictim()->GetPositionY() + (urand(10, 45)), me->getVictim()->GetPositionZ() + (urand(10, 25)), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+				me->SummonCreature(44481, me->getVictim()->GetPositionX() + (urand(10, 45)), me->getVictim()->GetPositionY() + (urand(10, 45)), me->getVictim()->GetPositionZ() + (urand(10, 25)), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+				me->SummonCreature(44481, me->getVictim()->GetPositionX() + (urand(10, 45)), me->getVictim()->GetPositionY() + (urand(10, 45)), me->getVictim()->GetPositionZ() + (urand(10, 25)), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+				me->SummonCreature(44481, me->getVictim()->GetPositionX() + (urand(10, 45)), me->getVictim()->GetPositionY() + (urand(10, 45)), me->getVictim()->GetPositionZ() + (urand(10, 25)), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+			}
+
+			if (spell->Id == 82816) // Moonfire Spam
+			{
+				int32 textchance = urand(1, 4);
+				switch (textchance)
+				{
+				case 1:
+					me->Say(SPEECH_ITBURNS, LANG_UNIVERSAL, NULL);
+					break;
+				case 2:
+					me->Say(SPEECH_OW, LANG_UNIVERSAL, NULL);
+					break;
+				case 3:
+					me->Say(SPEECH_CUTITOUT, LANG_UNIVERSAL, NULL);
+					break;
+				case 4:
+					me->Say(SPEECH_YOUCH, LANG_UNIVERSAL, NULL);
+					break;
+				}
+			}
+		}
+
+		void EnterEvadeMode()
+		{
+			Reset();
+		}
+
+		void KilledUnit(Unit* victim)
+		{
+		}
+
+		void UpdateAI(const uint32 uiDiff)
+		{
+			if (!UpdateVictim())
+				return;
+
+			// When Zen'kiki's target is 30% HP or less Zen will kill it giving credit to player
+			if (me->getVictim()->GetHealthPct() <= 30.0f)
+			{
+				if (me->getVictim()->GetTypeId() == TYPEID_UNIT)
+					switch (me->getVictim()->GetEntry())
+					{
+						case 44482:
+						case 1187:
+						case 1822:
+						case 1824:
+							me->GetOwner()->ToPlayer()->KilledMonsterCredit(KIKI_KILL_CREDIT, 0);
+							break;
+					}
+			}
+
+			if (!hasshapeshifted)
+			{
+				if (uiFormTmer <= uiDiff && !hasform)
+				{
+
+					hasform = true;
+					uiFormTmer = 9000;
+					int32 rand_eff = urand(1, 4);
+					switch (rand_eff)
+					{
+					case 1:
+						if (!donefish)
+						{
+							DoCast(me, SPELL_AQUATIC_FORM, true);
+							me->Say(SPEECH_SHAPESHIFT_FISH, LANG_UNIVERSAL, NULL);
+							hasshapeshifted = true;
+						}
+						break;
+					case 2:
+						if (!donebear)
+						{
+							DoCast(me, SPELL_BEAR_FORM, true);
+							me->SetDisplayId(707); // Bear model id
+							me->Say(SPEECH_SHAPESHIFT_BEAR, LANG_UNIVERSAL, NULL);
+							hasshapeshifted = true;
+						}
+						break;
+					case 3:
+						if (!donecat)
+						{
+							DoCast(me, SPELL_CAT_FORM, true);
+							me->Say(SPEECH_SHAPESHIFT_CAT, LANG_UNIVERSAL, NULL);
+							hasshapeshifted = true;
+						}
+						break;
+					case 4:
+						if (!donemookin)
+						{
+							DoCast(me, SPELL_MOONKIN_FORM, true);
+							hasshapeshifted = true;
+						}
+						break;
+					}
+				}
+				else uiFormTmer -= uiDiff;
+			}
+
+
+			if (uiAttackTimer <= uiDiff)
+			{
+				uiAttackTimer = 3500;
+				if (me->HasAura(SPELL_AQUATIC_FORM))
+				{
+					//To do: make appear upside down and flop around
+					me->SetOrientation(urand(1, 6));
+					if (!saynudge)
+					{
+						saynudge = true;
+						me->Say(SPEECH_NUNDGE, LANG_UNIVERSAL, NULL);
+					}
+				}
+
+				if (me->HasAura(SPELL_BEAR_FORM))
+				{
+					// Face different directions and attack nothing and say Rawr
+					me->Say(SPEECH_RAWR, LANG_UNIVERSAL, NULL);
+					if (Creature *pZikiBear = me->FindNearestCreature(NPC_ZIKI_BEAR, 15.0f, true))
+					{
+						pZikiBear->SetOrientation(urand(1, 6));
+						DoCast(me, SPELL_BEAR_SWIPE, true);
+					}
+				}
+
+				if (me->HasAura(SPELL_CAT_FORM))
+				{
+					DoCast(me, SPELL_POUNCE, true);
+					int32 textchance = urand(1, 4);
+					switch (textchance)
+					{
+					case 1:
+						me->Say(SPEECH_MEOW, LANG_UNIVERSAL, NULL);
+						break;
+					case 2:
+						me->Say(SPEECH_LEAP, LANG_UNIVERSAL, NULL);
+						break;
+					case 3:
+						me->Say(SPEECH_RAWR, LANG_UNIVERSAL, NULL);
+						break;
+					case 4:
+						me->Say(SPEECH_POUNCE, LANG_UNIVERSAL, NULL);
+						break;
+					}
+					uiAttackTimer = 2000;
+					DoStartNoMovement(me->getVictim());
+				}
+
+				if (me->HasAura(SPELL_MOONKIN_FORM))
+				{
+					me->CastSpell(me, SPELL_MOONFIRE, true);	
+					uiAttackTimer = 5000;
+				}
+			}
+			else uiAttackTimer -= uiDiff;
+
+			if (FormReset <= uiDiff && hasform)
+			{
+				hasform = false;
+				me->RemoveAurasDueToSpell(SPELL_AQUATIC_FORM);
+				me->RemoveAurasDueToSpell(SPELL_BEAR_FORM);
+				me->RemoveAurasDueToSpell(SPELL_CAT_FORM);
+				me->RemoveAurasDueToSpell(SPELL_MOONKIN_FORM);
+				DoStartMovement(me->getVictim());
+				AttackStart(me->getVictim());
+
+				Creature *pZikiBear = me->FindNearestCreature(NPC_ZIKI_BEAR, 15.0f, true);
+				if (pZikiBear)
+				{
+					pZikiBear->DisappearAndDie();
+					me->SetDisplayId(33878); // Back to Zen'Kiki Model
+					me->RemoveAllAuras();
+				}
+				me->Say(SPEECH_INCONTROL, LANG_UNIVERSAL, NULL);
+				FormReset = 30000;
+			}
+			else FormReset -= uiDiff;
+
+			if (!hasform || me->HasAura(SPELL_MOONKIN_FORM))
+				DoSpellAttackIfReady(SPELL_WRATH);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_zenkikiAI(creature);
+	}
+};
+
+
+
+/// Quest: 26955 - Zen'kiki and the Cultists
+enum eCultistCage
+{
+	/// Quest
+	QUEST_ZEN_CULTISTS = 26955,
+
+	/// Npcs
+	NPC_CAGED_BEAR = 44902,
+	NPC_ZENKIKI = 44904,
+
+	/// Spells
+	SPELL_PLAGUEBEAR_FREED = 83813,
+};
+
+/// Captive Plaguebear - 44902
+class npc_captive_plaguebear : public CreatureScript
+{
+public:
+	npc_captive_plaguebear() : CreatureScript("npc_captive_plaguebear") { }
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_captive_plaguebearAI(creature);
+	}
+
+	struct npc_captive_plaguebearAI : public ScriptedAI
+	{
+		npc_captive_plaguebearAI(Creature* creature) : ScriptedAI(creature) {}
+
+		uint64 m_PlayerGUID;
+
+		void Reset()
+		{
+			m_PlayerGUID = 0;
+		}
+
+		void MovementInform(uint32 type, uint32 id) override
+		{
+
+			if (type == POINT_MOTION_TYPE && id == 1)
+			{
+				if (Creature* zenkiki = me->FindNearestCreature(NPC_ZENKIKI, 50.0f, true))
+				{
+					zenkiki->CastSpell(me, SPELL_PLAGUEBEAR_FREED, true);
+
+					// Kill credit
+					m_PlayerGUID = zenkiki->GetOwnerGUID();
+					if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGUID))
+						if (player->GetQuestStatus(QUEST_ZEN_CULTISTS) == QUEST_STATUS_INCOMPLETE)
+							player->KilledMonsterCredit(NPC_CAGED_BEAR);
+				}		
+			}
+		}
+
+		void SpellHit(Unit* Caster, SpellInfo const* spell) override
+		{
+			if (spell->Id == SPELL_PLAGUEBEAR_FREED)
+			{
+				/// Move 15 yards
+				float x, y, z;
+				me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 15.0f);
+				me->GetMotionMaster()->MovePoint(1, x, y, z);
+				me->DespawnOrUnsummon(7000);
+			}
+		}
+
+	};
+};
+
+
+/// Cultist Cage - 207428 & 205160
+class go_cultist_cage : public GameObjectScript
+{
+public:
+	go_cultist_cage() :
+		GameObjectScript("go_cultist_cage")
+	{
+	}
+
+	bool OnGossipHello(Player* pPlayer, GameObject *pGO)
+	{
+		if (Creature* pCagedBear = pGO->FindNearestCreature(NPC_CAGED_BEAR, 8.0f, true))
+		{
+			pGO->SetGoState(GO_STATE_ACTIVE);
+
+			/// Move 5 yards
+			float x, y, z;
+			pCagedBear->GetClosePoint(x, y, z, pCagedBear->GetObjectSize() / 3, 5.0f);
+			pCagedBear->GetMotionMaster()->MovePoint(1, x, y, z);	
+		}
+
+		return true;
+	}
+};
+
+
+
 #ifndef __clang_analyzer__
 void AddSC_western_plaguelands()
 {
+	/// Npcs
     new npcs_dithers_and_arbington();
     new npc_myranda_the_hag();
     new npc_the_scourge_cauldron();
     new npc_andorhal_tower();
     new npc_anchorite_truuen();
+	new npc_zenkiki();
+	new npc_captive_plaguebear();
+
+	/// Object
+	new go_cultist_cage();
 }
 #endif
