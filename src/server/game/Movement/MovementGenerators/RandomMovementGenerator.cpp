@@ -115,6 +115,9 @@ void RandomMovementGenerator<Creature>::DoInitialize(Creature* creature)
     if (!wander_distance)
         wander_distance = creature->GetRespawnRadius();
 
+	if (wander_distance <= 0)
+		return;
+
     creature->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
     _setRandomLocation(creature);
 }
