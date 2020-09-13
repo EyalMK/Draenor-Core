@@ -2076,7 +2076,7 @@ void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos,
         if (p_Caster)
             l_Angle = NormalizeOrientation(GetAngle(p_Caster) - M_PI);
         else
-            l_Angle = (float)rand_norm()*static_cast<float>(2 * M_PI);
+            l_Angle = GetOrientation() + float(M_PI);
 
         vcos = std::cos(l_Angle);
         vsin = std::sin(l_Angle);
