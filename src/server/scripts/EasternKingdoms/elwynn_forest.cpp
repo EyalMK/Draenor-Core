@@ -121,7 +121,7 @@ public:
 						{
 							me->getThreatManager().addThreat(wolf, 1000000.0f);
 							wolf->getThreatManager().addThreat(me, 1000000.0f);
-							me->Attack(wolf, true);
+							me->AI()->AttackStart(wolf);
 						}
 					}
 					else
@@ -137,7 +137,7 @@ public:
 			{
 				Position wolfPos;
 				me->GetPosition(&wolfPos);
-				GetPositionWithDistInFront(me, 2.5f, wolfPos);
+				GetPositionWithDistInFront(me, 15.0f, wolfPos);
 
 				float z = me->GetMap()->GetHeight(me->GetPhaseMask(), wolfPos.GetPositionX(), wolfPos.GetPositionY(), wolfPos.GetPositionZ());
 				wolfPos.m_positionZ = z;
@@ -146,8 +146,8 @@ public:
 				{
 					me->getThreatManager().addThreat(wolf, 1000000.0f);
 					wolf->getThreatManager().addThreat(me, 1000000.0f);
-					AttackStart(wolf);
-					wolf->SetFacingToObject(me);
+					me->AI()->AttackStart(wolf);
+					wolf->AI()->AttackStart(me);
 					wolfTarget = wolf->GetGUID();
 				}
 			}
@@ -168,11 +168,18 @@ public:
 		npc_blackrock_battle_worgAI(Creature *c) : ScriptedAI(c) { }
 
 		uint32 m_minHealth;
-		uint32 guardTarget;
+		uint64 guardTarget;
 
 		void Reset() 
 		{
 			m_minHealth = 91.0f;
+			guardTarget = 0;
+		}
+
+		void IsSummonedBy(Unit* summoner) override
+		{
+			if (summoner->ToCreature()->GetEntry() == NPC_STORMWIND_INFANTRY)
+				guardTarget = summoner->ToCreature()->GetGUID();
 		}
 		
 		void UpdateAI(uint32 diff)
@@ -189,7 +196,7 @@ public:
 						{
 							me->getThreatManager().addThreat(guard, 1000000.0f);
 							guard->getThreatManager().addThreat(me, 1000000.0f);
-							me->Attack(guard, true);
+							me->AI()->AttackStart(guard);
 						}
 					}
 					else
@@ -202,13 +209,9 @@ public:
 			}
 			else
 			{
-				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 5.0f, true))
+				if (me->isSummon())
 				{
-					me->getThreatManager().addThreat(guard, 1000000.0f);
-					guard->getThreatManager().addThreat(me, 1000000.0f);
-					AttackStart(guard);
-					guard->SetFacingToObject(me);
-					guardTarget = guard->GetGUID();
+					me->DespawnOrUnsummon();
 				}
 			}
 		}
@@ -229,7 +232,7 @@ public:
 
 			if (pWho->GetTypeId() == TYPEID_PLAYER || pWho->isPet())
 			{
-				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 5.0f, true))
+				if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 16.0f, true))
 				{
 					guard->getThreatManager().resetAllAggro();
 					guard->CombatStop(true);
@@ -603,7 +606,7 @@ public:
             return;
         }
 
-        void SpellHit(Unit* Caster, const SpellInfo* Spell)
+        void SpellHit(Unit* Caster, const SpellInfo* Spell) override
         {
             switch (Spell->Id)
             {
@@ -1395,8 +1398,8 @@ public:
 };
 
 /// Spell - Quest Extinguishing Hope - 26391
-#define SPELL_VISUAL_EXTINGUISHER   96028
-
+#define SPELL_VISUAL_EXTINGUISHER   80208
+#define NPC_VINEYARD_BUNNY 42940
 class spell_quest_extincteur: public SpellScriptLoader
 {
     public:
@@ -1404,7 +1407,7 @@ class spell_quest_extincteur: public SpellScriptLoader
 
         class spell_quest_extincteur_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_quest_extincteur_AuraScript)
+			PrepareAuraScript(spell_quest_extincteur_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1417,10 +1420,10 @@ class spell_quest_extincteur: public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                if (Creature* fire = GetCaster()->FindNearestCreature(42940, 5.0f, true))
+                if (Creature* fire = GetCaster()->FindNearestCreature(NPC_VINEYARD_BUNNY, 5.0f, true))
                 {
                     if (Player* player = GetCaster()->ToPlayer())
-                        player->KilledMonsterCredit(42940, 0);
+                        player->KilledMonsterCredit(NPC_VINEYARD_BUNNY);
 
                     fire->ForcedDespawn();
                 }
@@ -1445,77 +1448,6 @@ class spell_quest_extincteur: public SpellScriptLoader
             return new spell_quest_extincteur_AuraScript();
         }
 };
-
-
-
-/// Henze Faulk - 6172
-enum eHenzeFaulkData
-{
-	SAY_HEAL = -1000187,
-};
-
-class npc_henze_faulk : public CreatureScript
-{
-public:
-	npc_henze_faulk() : CreatureScript("npc_henze_faulk") { }
-
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new npc_henze_faulkAI(creature);
-	}
-
-	struct npc_henze_faulkAI : public ScriptedAI
-	{
-		uint32 lifeTimer;
-		bool spellHit;
-
-		npc_henze_faulkAI(Creature* creature) : ScriptedAI(creature) {}
-
-		void Reset()
-		{
-			lifeTimer = 120000;
-			me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_DYNFLAG_DEAD);
-			me->SetStandState(UNIT_STAND_STATE_DEAD);   // lay down
-			spellHit = false;
-		}
-
-		void EnterCombat(Unit* /*who*/)
-		{
-		}
-
-		void MoveInLineOfSight(Unit* /*who*/)
-		{
-		}
-
-		void UpdateAI(const uint32 diff)
-		{
-			if (me->IsStandState())
-			{
-				if (lifeTimer <= diff)
-				{
-					EnterEvadeMode();
-					return;
-				}
-				else
-					lifeTimer -= diff;
-			}
-		}
-
-		void SpellHit(Unit* /*Hitter*/, const SpellEntry* Spellkind)
-		{
-			if (Spellkind->Id == 8593 && !spellHit)
-			{
-				DoCast(me, 32343);
-				me->SetStandState(UNIT_STAND_STATE_STAND);
-				me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
-				//me->RemoveAllAuras();
-				DoScriptText(SAY_HEAL, me);
-				spellHit = true;
-			}
-		}
-	};
-};
-
 
 
 /// Supervisor Raelen - 44564
@@ -1619,10 +1551,6 @@ void AddSC_elwyn_forest()
 	new npc_wounded_trainee();
 	new spell_quest_extincteur();
 
-	/// Replaced by SmartAI
-	//new npc_brother_paxton();
-	//new npc_blackrock_spy();
-
 	/// Goldshire
 	new	npc_marshal_dughan();
 	new npc_stormwind_charger();
@@ -1630,7 +1558,6 @@ void AddSC_elwyn_forest()
 
 	/// Elwynn Forest
 	new npc_hogger();
-	new npc_henze_faulk();
 	new npc_supervisor_raelen();
 }
 #endif
